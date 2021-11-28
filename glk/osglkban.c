@@ -33,6 +33,8 @@
 typedef struct os_banner_s *osbanid_t;
 typedef struct banner_contents_s *contentid_t;
 
+#define UNSET_COLOUR 0xFF001234
+
 /* for tracking banner windows */
 typedef struct os_banner_s
 {
@@ -52,8 +54,8 @@ typedef struct os_banner_s
     glui32 cheight;                 /* glk char height */
     glui32 cwidth;                  /* glk char width */
 
-    glui32 fgcolor;                 /* foreground color */
-    glui32 bgcolor;                 /* background color */
+    //glui32 fgcolor;                 /* foreground color */
+    //glui32 bgcolor;                 /* background color */
     glui32 fgcustom;                /* custom colors */
     glui32 bgcustom;
     glui32 bgtrans;
@@ -87,12 +89,6 @@ static glui32 os_banner_count = 999;
 
 extern winid_t mainwin;
 extern winid_t statuswin;
-
-extern glui32 mainfg;
-extern glui32 mainbg;
-
-extern glui32 statusfg;
-extern glui32 statusbg;
 
 void banner_contents_display(contentid_t contents);
 
@@ -231,7 +227,6 @@ void os_banner_styles_apply (osbanid_t banner)
         return;
 
     glui32 propval = banner->status ? 0 : (banner->type == wintype_TextGrid ? 0 : 1);
-    glui32 bgcustom = banner->bgtrans ? banner->bgcolor : banner->bgcustom;
 
     /* font style: monospace for text grid and tab aligned buffers, else proportional */
     glk_stylehint_set(banner->type, style_Alert, stylehint_Proportional, propval);
@@ -242,20 +237,15 @@ void os_banner_styles_apply (osbanid_t banner)
     glk_stylehint_set(banner->type, style_User2, stylehint_Proportional, propval);
 
     /* foreground color: user1 reverse, user2 custom */
-    glk_stylehint_set(banner->type, style_Alert, stylehint_TextColor, banner->fgcolor);
-    glk_stylehint_set(banner->type, style_Subheader, stylehint_TextColor, banner->fgcolor);
-    glk_stylehint_set(banner->type, style_Emphasized, stylehint_TextColor, banner->fgcolor);
-    glk_stylehint_set(banner->type, style_Normal, stylehint_TextColor, banner->fgcolor);
-    glk_stylehint_set(banner->type, style_User1, stylehint_TextColor, banner->bgcolor);
-    glk_stylehint_set(banner->type, style_User2, stylehint_TextColor, banner->fgcustom);
+    glk_stylehint_set(banner->type, style_User1, stylehint_ReverseColor, 1);
+    if (banner->fgcustom != UNSET_COLOUR) {
+        glk_stylehint_set(banner->type, style_User2, stylehint_TextColor, banner->fgcustom);
+    }
 
-    /* background color: user1 reverse, user2 custom */
-    glk_stylehint_set(banner->type, style_Alert, stylehint_BackColor, banner->bgcolor);
-    glk_stylehint_set(banner->type, style_Subheader, stylehint_BackColor, banner->bgcolor);
-    glk_stylehint_set(banner->type, style_Emphasized, stylehint_BackColor, banner->bgcolor);
-    glk_stylehint_set(banner->type, style_Normal, stylehint_BackColor, banner->bgcolor);
-    glk_stylehint_set(banner->type, style_User1, stylehint_BackColor, banner->fgcolor);
-    glk_stylehint_set(banner->type, style_User2, stylehint_BackColor, bgcustom);
+    /* background color: user2 custom */
+    if (!banner->bgtrans && banner->bgcustom != UNSET_COLOUR) {
+        glk_stylehint_set(banner->type, style_User2, stylehint_BackColor, banner->bgcustom);
+    }
 
 }
 
@@ -268,25 +258,9 @@ void os_banner_styles_reset (void)
     glk_stylehint_clear(wintype_AllTypes, style_User1, stylehint_Proportional);
     glk_stylehint_clear(wintype_AllTypes, style_User2, stylehint_Proportional);
 
-    glk_stylehint_clear(wintype_AllTypes, style_Alert, stylehint_TextColor);
-    glk_stylehint_clear(wintype_AllTypes, style_Subheader, stylehint_TextColor);
-    glk_stylehint_clear(wintype_AllTypes, style_Emphasized, stylehint_TextColor);
-    glk_stylehint_clear(wintype_AllTypes, style_Normal, stylehint_TextColor);
-    glk_stylehint_clear(wintype_AllTypes, style_User1, stylehint_TextColor);
+    glk_stylehint_clear(wintype_AllTypes, style_User1, stylehint_ReverseColor);
     glk_stylehint_clear(wintype_AllTypes, style_User2, stylehint_TextColor);
-
-    glk_stylehint_clear(wintype_AllTypes, style_Alert, stylehint_BackColor);
-    glk_stylehint_clear(wintype_AllTypes, style_Subheader, stylehint_BackColor);
-    glk_stylehint_clear(wintype_AllTypes, style_Emphasized, stylehint_BackColor);
-    glk_stylehint_clear(wintype_AllTypes, style_Normal, stylehint_BackColor);
-    glk_stylehint_clear(wintype_AllTypes, style_User1, stylehint_BackColor);
     glk_stylehint_clear(wintype_AllTypes, style_User2, stylehint_BackColor);
-
-#ifdef GARGLK
-    /* reset our default colors with a superfluous hint */
-    glk_stylehint_set(wintype_AllTypes, style_Normal, stylehint_TextColor, mainfg);
-    glk_stylehint_set(wintype_AllTypes, style_Normal, stylehint_BackColor, mainbg);
-#endif /* GARGLK */
 }
 
 void os_banners_close(osbanid_t banner)
@@ -486,10 +460,10 @@ void *os_banner_create(void *parent, int where, void *other, int wintype,
 
     if (gbanner)
     {
-        gbanner->fgcolor = gstatus ? statusbg : mainfg;
-        gbanner->bgcolor = gstatus ? statusfg : mainbg;
-        gbanner->fgcustom = gbanner->fgcolor;
-        gbanner->bgcustom = gbanner->bgcolor;
+        //gbanner->fgcolor = gstatus ? statusbg : mainfg;
+        //gbanner->bgcolor = gstatus ? statusfg : mainbg;
+        gbanner->fgcustom = UNSET_COLOUR;
+        gbanner->bgcustom = UNSET_COLOUR;
         gbanner->bgtrans = 1;
     }
 
@@ -777,8 +751,8 @@ void os_banner_set_color(void *banner_handle, os_color_t fg, os_color_t bg)
         glui32 oldtr = banner->bgtrans;
 
         /* reset custom color parameters */
-        banner->fgcustom = banner->fgcolor;
-        banner->bgcustom = banner->bgcolor;
+        banner->fgcustom = UNSET_COLOUR;
+        banner->bgcustom = UNSET_COLOUR;
         banner->bgtrans = 1;
 
         if (!normal)
@@ -804,7 +778,8 @@ void os_banner_set_screen_color(void *banner_handle, os_color_t color)
         return;
 
     if (!(os_color_is_param(color)))
-        banner->bgcolor = color;
+    // TODO: fix
+        //banner->bgcolor = color;
 
     os_banners_redraw();
 }

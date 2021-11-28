@@ -43,13 +43,6 @@ static int curattr = 0;
 winid_t mainwin;
 winid_t statuswin;
 
-glui32 mainfg;
-glui32 mainbg;
-
-glui32 statusfg;
-glui32 statusbg;
-
-
 /* ------------------------------------------------------------------------ */
 /*
  *   Get system information.  'code' is a SYSINFO_xxx code, which
@@ -145,29 +138,6 @@ int os_init(int *argc, char *argv[], const char *prompt,
         fprintf(stderr, "fatal: could not open window!\n");
         glk_exit();
     }
-
-    /* get default colors for main window */
-    if (!glk_style_measure(mainwin, style_Normal, stylehint_TextColor, &mainfg))
-        mainfg = 0;
-
-    if (!glk_style_measure(mainwin, style_Normal, stylehint_BackColor, &mainbg))
-        mainbg = 0;
-
-    /* get default colors for status window */
-    statuswin = glk_window_open(mainwin,
-            winmethod_Above | winmethod_Fixed, 1,
-            wintype_TextGrid, 0);
-
-    if (!glk_style_measure(statuswin, style_Normal, stylehint_TextColor, &statusfg))
-        statusfg = 0;
-
-    if (!glk_style_measure(statuswin, style_Normal, stylehint_BackColor, &statusbg))
-        statusbg = 0;
-
-    /* close statuswin; reopened on request */
-    glk_window_close(statuswin, 0);
-
-    statuswin = NULL;
 
     glk_set_window(mainwin);
 
