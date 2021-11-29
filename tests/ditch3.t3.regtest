@@ -1,0 +1,44 @@
+** game: ditch3.t3
+** remformat: yes
+
+* prologue
+
+Return to Ditch Day
+
+>
+This is the cramped control room of Government Power Plant #6.
+
+> x xojo
+> x guanmgon
+> x scu
+> say yes
+“Xojo!  Go fetch Mr. Mittling some Koffee.  Hurry!”  Xojo rushes off through the door.
+
+> x ct-22
+> take hv chip
+Taken.
+
+> x tester
+> read stickers
+> open tester
+(Your score has just increased by two points.)
+
+* save/restore
+
+>{include} prologue
+
+> save
+>{fileref_prompt} tadstest
+Saved.
+
+> restart
+> yes
+> i
+You are carrying a contract, and you're wearing your usual office attire
+
+> restore
+>{fileref_prompt} tadstest
+Restored.
+
+> i
+You are carrying a contract, an XT772-HV chip, and a can of Koffee,
