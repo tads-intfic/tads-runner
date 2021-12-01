@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmdict.cpp - dictionary metaclass
 Function
-  
+
 Notes
-  
+
 Modified
   01/24/00 MJRoberts  - Creation
 */
@@ -48,7 +48,7 @@ Modified
 /*
  *   Dictionary undo record.  Each time we change the dictionary, we track
  *   the change with one of these records - we attach this record to the
- *   standard undo record via the 'ptrval' field. 
+ *   standard undo record via the 'ptrval' field.
  */
 struct dict_undo_rec
 {
@@ -70,7 +70,7 @@ struct dict_undo_rec
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Generic comparator-based hash 
+ *   Generic comparator-based hash
  */
 class CVmHashFuncComparator: public CVmHashFunc
 {
@@ -126,7 +126,7 @@ private:
 };
 
 /*
- *   StringComparator-based hash 
+ *   StringComparator-based hash
  */
 class CVmHashFuncStrComp: public CVmHashFunc
 {
@@ -148,7 +148,7 @@ private:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   dictionary object statics 
+ *   dictionary object statics
  */
 
 /* metaclass registration object */
@@ -172,11 +172,11 @@ int (CVmObjDict::
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Dictionary object implementation 
+ *   Dictionary object implementation
  */
 
-/* 
- *   create dynamically using stack arguments 
+/*
+ *   create dynamically using stack arguments
  */
 vm_obj_id_t CVmObjDict::create_from_stack(VMG_ const uchar **pc_ptr,
                                           uint argc)
@@ -184,7 +184,7 @@ vm_obj_id_t CVmObjDict::create_from_stack(VMG_ const uchar **pc_ptr,
     vm_obj_id_t id;
     vm_obj_id_t comp;
     CVmObjDict *obj;
-    
+
     /* check arguments */
     if (argc != 0 && argc != 1)
         err_throw(VMERR_WRONG_NUM_OF_ARGS);
@@ -197,9 +197,9 @@ vm_obj_id_t CVmObjDict::create_from_stack(VMG_ const uchar **pc_ptr,
     else
         err_throw(VMERR_BAD_TYPE_BIF);
 
-    /* 
+    /*
      *   allocate the object ID - this type of construction never creates
-     *   a root object 
+     *   a root object
      */
     id = vm_new_id(vmg_ FALSE, TRUE, TRUE);
 
@@ -212,22 +212,22 @@ vm_obj_id_t CVmObjDict::create_from_stack(VMG_ const uchar **pc_ptr,
     /* build an empty initial hash table */
     obj->create_hash_table(vmg0_);
 
-    /* 
+    /*
      *   mark the object as modified since image load, since it doesn't
-     *   come from the image file at all 
+     *   come from the image file at all
      */
     obj->get_ext()->modified_ = TRUE;
 
     /* discard our gc protection */
     G_stk->discard();
-    
+
     /* return the new ID */
     return id;
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   constructor 
+ *   constructor
  */
 CVmObjDict::CVmObjDict(VMG0_)
 {
@@ -254,8 +254,8 @@ CVmObjDict::CVmObjDict(VMG0_)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   notify of deletion 
+/*
+ *   notify of deletion
  */
 void CVmObjDict::notify_delete(VMG_ int /*in_root_set*/)
 {
@@ -277,7 +277,7 @@ void CVmObjDict::notify_delete(VMG_ int /*in_root_set*/)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Set the comparator object 
+ *   Set the comparator object
  */
 void CVmObjDict::set_comparator(VMG_ vm_obj_id_t obj)
 {
@@ -327,25 +327,25 @@ void CVmObjDict::set_comparator_type(VMG_ vm_obj_id_t obj)
 /*
  *   Rebuild the hash table.  If there's an existing hash table, we'll move
  *   the entries from the old table to the new table, and delete the old
- *   table.  
+ *   table.
  */
 void CVmObjDict::create_hash_table(VMG0_)
 {
     CVmHashTable *new_tab;
     CVmHashFunc *hash_func;
-    
+
     /*
      *   Create our hash function.  If we have a comparator object, base the
      *   hash function on the comparator; use a special hash function if we
      *   specifically have a StringComparator, since we can call these
      *   directly for better efficiency.  If we have no comparator, create a
-     *   generic exact string match hash function.  
+     *   generic exact string match hash function.
      */
     if (get_ext()->comparator_ != VM_INVALID_OBJ)
     {
-        /* 
+        /*
          *   use our special StringComparator hash function if possible;
-         *   otherwise, use a generic comparator hash function 
+         *   otherwise, use a generic comparator hash function
          */
         if (CVmObjStrComp::is_strcmp_obj(vmg_ get_ext()->comparator_))
         {
@@ -374,7 +374,7 @@ void CVmObjDict::create_hash_table(VMG0_)
     {
         /* copy the old hash table to the new one */
         get_ext()->hashtab_->move_entries_to(new_tab);
-        
+
         /* delete the old hash table */
         delete get_ext()->hashtab_;
     }
@@ -395,7 +395,7 @@ void CVmObjDict::create_hash_table(VMG0_)
  *   Check for a match between two strings, using the current comparator.
  *   Returns true if the strings match, false if not; fills in *result_val
  *   with the actual result value from the comparator's matchValues()
- *   function.  
+ *   function.
  */
 int CVmObjDict::match_strings(VMG_ const vm_val_t *valstrval,
                               const char *valstr, size_t vallen,
@@ -427,7 +427,7 @@ int CVmObjDict::match_strings(VMG_ const vm_val_t *valstrval,
         result_val->set_int(
             ((CVmObjStrComp *)get_ext()->comparator_obj_)->match_strings(
                 valstr, vallen, refstr, reflen));
-        
+
         /* we matched if the result was non-zero */
         return result_val->val.intval;
 
@@ -435,7 +435,7 @@ int CVmObjDict::match_strings(VMG_ const vm_val_t *valstrval,
         /* 2nd param: push the reference string, as a string object */
         G_stk->push()->set_obj(
             CVmObjString::create(vmg_ FALSE, refstr, reflen));
-        
+
         /* 1st param: push the value string */
         if (valstrval != 0)
         {
@@ -476,7 +476,7 @@ int CVmObjDict::match_strings(VMG_ const vm_val_t *valstrval,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Calculate a hash value with the current comparator 
+ *   Calculate a hash value with the current comparator
  */
 unsigned int CVmObjDict::calc_str_hash(VMG_ const vm_val_t *valstrval,
                                        const char *valstr, size_t vallen)
@@ -528,7 +528,7 @@ unsigned int CVmObjDict::calc_str_hash(VMG_ const vm_val_t *valstrval,
         /* make sure it's an integer */
         if (result.typ != VM_INT)
             err_throw(VMERR_BAD_TYPE_BIF);
-            
+
         /* return the result */
         return (unsigned int)result.val.intval;
     }
@@ -540,7 +540,7 @@ unsigned int CVmObjDict::calc_str_hash(VMG_ const vm_val_t *valstrval,
 /* ------------------------------------------------------------------------ */
 /*
  *   Set a property.  We have no settable properties, so simply signal an
- *   error indicating that the set-prop call is invalid.  
+ *   error indicating that the set-prop call is invalid.
  */
 void CVmObjDict::set_prop(VMG_ CVmUndo *, vm_obj_id_t,
                           vm_prop_id_t, const vm_val_t *)
@@ -550,15 +550,15 @@ void CVmObjDict::set_prop(VMG_ CVmUndo *, vm_obj_id_t,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   get a property 
+/*
+ *   get a property
  */
 int CVmObjDict::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                          vm_obj_id_t self, vm_obj_id_t *source_obj,
                          uint *argc)
 {
     uint func_idx;
-    
+
     /* translate the property into a function vector index */
     func_idx = G_meta_table
                ->prop_to_vector_idx(metaclass_reg_->get_reg_idx(), prop);
@@ -576,14 +576,14 @@ int CVmObjDict::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   evaluate property: set the comparator 
+ *   evaluate property: set the comparator
  */
 int CVmObjDict::getp_set_comparator(VMG_ vm_obj_id_t self, vm_val_t *val,
                                     uint *argc)
 {
     static CVmNativeCodeDesc desc(1);
     vm_obj_id_t comp;
-    
+
     /* check arguments */
     if (get_prop_check_argc(val, argc, &desc))
         return TRUE;
@@ -633,8 +633,8 @@ int CVmObjDict::getp_set_comparator(VMG_ vm_obj_id_t self, vm_val_t *val,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   result entry for find_ctx 
+/*
+ *   result entry for find_ctx
  */
 struct find_entry
 {
@@ -686,10 +686,10 @@ struct find_ctx
         results_tail = 0;
         result_cnt = 0;
 
-        /* 
+        /*
          *   set the free pointer to the end of the non-existent current
          *   page, so we know we have to allocate a new page before adding
-         *   the first entry 
+         *   the first entry
          */
         result_free = FIND_ENTRIES_PER_PAGE;
     }
@@ -713,17 +713,17 @@ struct find_ctx
     /* add a result, expanding the result array if necessary */
     void add_result(vm_obj_id_t obj, const vm_val_t *match_result)
     {
-        /* 
+        /*
          *   if we have no pages, or we're out of room on the current page,
-         *   allocate a new page 
+         *   allocate a new page
          */
         if (result_free == FIND_ENTRIES_PER_PAGE)
         {
             find_entry_page *pg;
-            
+
             /* allocate a new page */
             pg = (find_entry_page *)t3malloc(sizeof(find_entry_page));
-            
+
             /* link it in at the end of the list */
             pg->nxt = 0;
             if (results_tail != 0)
@@ -750,11 +750,11 @@ struct find_ctx
         CVmObjList *lst;
         find_entry_page *pg;
         int idx;
-        
-        /* 
+
+        /*
          *   Allocate a list of the appropriate size.  We need two list
          *   entries per result, since we need to store the object and the
-         *   match result code for each result.  
+         *   match result code for each result.
          */
         lst_id = CVmObjList::create(vmg_ FALSE, result_cnt * 2);
         lst = (CVmObjList *)vm_objp(vmg_ lst_id);
@@ -764,14 +764,14 @@ struct find_ctx
         {
             find_entry *ep;
             int pg_idx;
-            
+
             /* add each entry on this page */
             for (ep = pg->entry, pg_idx = 0 ;
                  idx < result_cnt && pg_idx < FIND_ENTRIES_PER_PAGE ;
                  ++idx, ++pg_idx, ++ep)
             {
                 vm_val_t ele;
-                    
+
                 /* add this entry to the list */
                 ele.set_obj(ep->obj);
                 lst->cons_set_element(idx*2, &ele);
@@ -824,11 +824,11 @@ void CVmObjDict::find_cb(void *ctx0, CVmHashEntry *entry0)
                                  &match_val))
     {
         vm_dict_entry *cur;
-        
+
         /* process the items under this entry */
         for (cur = entry->get_head() ; cur != 0 ; cur = cur->nxt_)
         {
-            /* 
+            /*
              *   If it matches the target property, it's a hit.  If we're
              *   searching for any property at all (indicated by the
              *   context property being set to VM_INVALID_PROP), count
@@ -863,9 +863,9 @@ int CVmObjDict::getp_find(VMG_ vm_obj_id_t, vm_val_t *val, uint *argc)
     if (get_prop_check_argc(val, argc, &desc))
         return TRUE;
 
-    /* 
+    /*
      *   make sure the first argument is a string, but leave it on the stack
-     *   for gc protection 
+     *   for gc protection
      */
     arg0 = G_stk->get(0);
     if ((strp = arg0->get_as_string(vmg0_)) == 0)
@@ -875,9 +875,9 @@ int CVmObjDict::getp_find(VMG_ vm_obj_id_t, vm_val_t *val, uint *argc)
     strl = vmb_get_len(strp);
     strp += VMB_LEN;
 
-    /* 
+    /*
      *   get the property ID, which can be omitted or specified as nil to
-     *   indicate any property 
+     *   indicate any property
      */
     if (orig_argc < 2)
         voc_prop = VM_INVALID_PROP;
@@ -971,7 +971,7 @@ int CVmObjDict::getp_add(VMG_ vm_obj_id_t self, vm_val_t *val, uint *argc)
 }
 
 /*
- *   Service routine for getp_add() - add a single string 
+ *   Service routine for getp_add() - add a single string
  */
 void CVmObjDict::add_word(VMG_ vm_obj_id_t self,
                           const char *str, size_t len,
@@ -980,9 +980,9 @@ void CVmObjDict::add_word(VMG_ vm_obj_id_t self,
     /* add the entry */
     int added = add_hash_entry(vmg_ str, len, TRUE, obj, voc_prop, FALSE);
 
-    /* 
+    /*
      *   if there's a global undo object, and we actually added a new
-     *   entry, add undo for the change 
+     *   entry, add undo for the change
      */
     if (added && G_undo != 0)
     {
@@ -1003,7 +1003,7 @@ void CVmObjDict::add_word(VMG_ vm_obj_id_t self,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   property evaluation - delete a word 
+ *   property evaluation - delete a word
  */
 int CVmObjDict::getp_del(VMG_ vm_obj_id_t self, vm_val_t *val, uint *argc)
 {
@@ -1061,7 +1061,7 @@ int CVmObjDict::getp_del(VMG_ vm_obj_id_t self, vm_val_t *val, uint *argc)
 }
 
 /*
- *   Service routine for getp_del - delete a string value 
+ *   Service routine for getp_del - delete a string value
  */
 void CVmObjDict::del_word(VMG_ vm_obj_id_t self,
                           const char *str, size_t len,
@@ -1070,9 +1070,9 @@ void CVmObjDict::del_word(VMG_ vm_obj_id_t self,
     /* delete this entry */
     int deleted = del_hash_entry(vmg_ str, len, obj, voc_prop);
 
-    /* 
+    /*
      *   if there's a global undo object, and we actually deleted an
-     *   entry, add undo for the change 
+     *   entry, add undo for the change
      */
     if (deleted && G_undo != 0)
     {
@@ -1093,7 +1093,7 @@ void CVmObjDict::del_word(VMG_ vm_obj_id_t self,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   callback context for is_defined enumeration 
+ *   callback context for is_defined enumeration
  */
 struct isdef_ctx
 {
@@ -1104,7 +1104,7 @@ struct isdef_ctx
         /* remember the VM globals and dictionary object */
         globals = VMGLOB_ADDR;
         dict = dict_obj;
-        
+
         /* we haven't yet found a match */
         found = FALSE;
 
@@ -1116,7 +1116,7 @@ struct isdef_ctx
         /* remember the filter function */
         filter_func = filter;
     }
-    
+
     /* flag: we've found a match */
     int found;
 
@@ -1139,7 +1139,7 @@ struct isdef_ctx
 };
 
 /*
- *   Callback for getp_is_defined hash match enumeration 
+ *   Callback for getp_is_defined hash match enumeration
  */
 void CVmObjDict::isdef_cb(void *ctx0, CVmHashEntry *entry0)
 {
@@ -1148,18 +1148,18 @@ void CVmObjDict::isdef_cb(void *ctx0, CVmHashEntry *entry0)
     vm_val_t match_val;
     VMGLOB_PTR(ctx->globals);
 
-    /* 
+    /*
      *   if we've already found a match, don't bother checking anything else
      *   - it could be non-trivial to do the string match, so we can save
      *   some work by skipping that if we've already found a match
-     *   previously 
+     *   previously
      */
     if (ctx->found)
         return;
 
-    /* 
+    /*
      *   if this entry matches the search string, and it has at least one
-     *   defined object/property associated with it, count it as a match 
+     *   defined object/property associated with it, count it as a match
      */
     if (entry->get_head() != 0
         && ctx->dict->match_strings(vmg_ &ctx->strval, ctx->strp, ctx->strl,
@@ -1170,7 +1170,7 @@ void CVmObjDict::isdef_cb(void *ctx0, CVmHashEntry *entry0)
         if (ctx->filter_func->typ != VM_NIL)
         {
             vm_val_t *valp;
-            
+
             /* push the match value parameter */
             G_stk->push(&match_val);
 
@@ -1202,7 +1202,7 @@ void CVmObjDict::isdef_cb(void *ctx0, CVmHashEntry *entry0)
 }
 
 /*
- *   property evaluation - check to see if a word is defined 
+ *   property evaluation - check to see if a word is defined
  */
 int CVmObjDict::getp_is_defined(VMG_ vm_obj_id_t self, vm_val_t *val,
                                 uint *argc)
@@ -1214,14 +1214,14 @@ int CVmObjDict::getp_is_defined(VMG_ vm_obj_id_t self, vm_val_t *val,
     size_t strl;
     vm_val_t filter;
     unsigned int hash;
-    
+
     /* check arguments */
     if (get_prop_check_argc(val, argc, &desc))
         return TRUE;
 
-    /* 
+    /*
      *   make sure the argument is a string, but leave it on the stack for
-     *   gc protection 
+     *   gc protection
      */
     arg0 = G_stk->get(0);
     if ((strp = arg0->get_as_string(vmg0_)) == 0)
@@ -1263,7 +1263,7 @@ int CVmObjDict::getp_is_defined(VMG_ vm_obj_id_t self, vm_val_t *val,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   callback context for forEachWord enumerator 
+ *   callback context for forEachWord enumerator
  */
 struct for_each_word_enum_cb_ctx
 {
@@ -1278,7 +1278,7 @@ struct for_each_word_enum_cb_ctx
 };
 
 /*
- *   callback for forEachWord enumerator 
+ *   callback for forEachWord enumerator
  */
 static void for_each_word_enum_cb(void *ctx0, CVmHashEntry *entry0)
 {
@@ -1305,27 +1305,27 @@ static void for_each_word_enum_cb(void *ctx0, CVmHashEntry *entry0)
          *   scan the list on each iteration for the current index because
          *   we don't want to keep track of any pointers between iterations;
          *   this insulates us from any changes to the underlying list made
-         *   in the callback.  
+         *   in the callback.
          */
         for (i = 0, p = entry->get_head() ; i < list_idx && p != 0 ;
              p = p->nxt_, ++i) ;
 
-        /* 
+        /*
          *   if we didn't find a list entry at this index, we're done with
-         *   this hashtable entry 
+         *   this hashtable entry
          */
         if (p == 0)
             break;
 
-        /* 
+        /*
          *   Invoke the callback on this list entry.  The arguments to the
          *   callback are the object, the string, and the vocabulary
          *   property of the association:
-         *   
+         *
          *   func(obj, str, prop)
-         *   
+         *
          *   Note that the order of the arguments is the same as for
-         *   addWord() and removeWord().  
+         *   addWord() and removeWord().
          */
 
         /* push the vocabulary property of the association */
@@ -1343,7 +1343,7 @@ static void for_each_word_enum_cb(void *ctx0, CVmHashEntry *entry0)
 }
 
 /*
- *   property evaluation - enumerate each word association 
+ *   property evaluation - enumerate each word association
  */
 int CVmObjDict::getp_for_each_word(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                    uint *argc)
@@ -1363,10 +1363,10 @@ int CVmObjDict::getp_for_each_word(VMG_ vm_obj_id_t self, vm_val_t *retval,
     /* push a self-reference for gc protection while we're working */
     G_stk->push()->set_obj(self);
 
-    /* 
+    /*
      *   enumerate the entries in our underlying hashtable - use the "safe"
      *   enumerator to ensure that we're insulated from any changes to the
-     *   hashtable that the callback wants to make 
+     *   hashtable that the callback wants to make
      */
     ctx.vmg = VMGLOB_ADDR;
     ctx.cb_val = cb_val;
@@ -1389,7 +1389,7 @@ int CVmObjDict::getp_for_each_word(VMG_ vm_obj_id_t self, vm_val_t *retval,
  *   correction generator, we'll add one of these entries to our list of
  *   matched words.  This lets us check for words that we've already found
  *   (since it's often possible to find a match via more than one editing
- *   route). 
+ *   route).
  */
 struct corr_word
 {
@@ -1427,15 +1427,15 @@ enum corr_type { NoChange, Insertion, Deletion, Replacement, Transposition };
 
 /*
  *   Correction stack element.  This represents a state in the correction
- *   process. 
+ *   process.
  */
 struct corr_state
 {
-    /* 
+    /*
      *   Allocate space.  During the state processing, we need to add one
      *   character to the last state to form certain subsequent states, so
      *   always overallocate our string by one character.  This allows us to
-     *   build the next-state strings in place in our buffer.  
+     *   build the next-state strings in place in our buffer.
      */
     void *operator new(size_t siz, size_t strl)
     {
@@ -1527,7 +1527,7 @@ struct corr_stack
 
 /*
  *   property evaluation - get a list of possible corrections for a
- *   misspelled word 
+ *   misspelled word
  */
 int CVmObjDict::getp_correct(VMG_ vm_obj_id_t self,
                              vm_val_t *retval, uint *argc)
@@ -1582,7 +1582,7 @@ int CVmObjDict::getp_correct(VMG_ vm_obj_id_t self,
         /* pop the next state */
         corr_state *s = stk.pop();
 
-        /* 
+        /*
          *   Check for an 'accept' state.  This is a state where we've
          *   exhausted the input word, and we're at a Trie node that has at
          *   least one word defined.
@@ -1621,7 +1621,7 @@ int CVmObjDict::getp_correct(VMG_ vm_obj_id_t self,
          *   If we have any edit distance left, try an insertion (i.e., the
          *   input word has an extra letter relative to the dictionary word).
          *   Don't do insertions directly after deletions, though, since
-         *   they'd just cancel out.  
+         *   they'd just cancel out.
          */
         if (s->dist < max_dist && s->ipos < wcnt && s->typ != Deletion)
             stk.push(s->str, s->strl, s->dist + 1, s->repl, s->ipos + 1,
@@ -1631,18 +1631,18 @@ int CVmObjDict::getp_correct(VMG_ vm_obj_id_t self,
         for (vmdict_TrieNode *chi = s->node->chi ; chi != 0 ;
              chi = chi->nxt)
         {
-            /* 
+            /*
              *   Build the next-state string.  Note that we can just add the
              *   character directly to the current state's string buffer,
              *   since we always allocate state structures with one extra
-             *   character of padding for just this purpose. 
+             *   character of padding for just this purpose.
              */
             s->str[s->strl] = chi->ch;
 
-            /* 
+            /*
              *   Check for a match to the current character.  If we have a
              *   StringComparator, ask the comparator to check the match.
-             *   Otherwise just check for an exact character match. 
+             *   Otherwise just check for an exact character match.
              */
             size_t matchlen = 0;
             if (s->ipos < wcnt)
@@ -1659,7 +1659,7 @@ int CVmObjDict::getp_correct(VMG_ vm_obj_id_t self,
                     if (wstr[s->ipos] == chi->ch)
                         matchlen = 1;
                 }
-                
+
                 /* if we have a match, push a state for it */
                 if (matchlen != 0)
                     stk.push(s->str, s->strl + 1, s->dist, s->repl,
@@ -1667,11 +1667,11 @@ int CVmObjDict::getp_correct(VMG_ vm_obj_id_t self,
             }
             else
             {
-                /* 
+                /*
                  *   we've reached the end of the input; but if the current
                  *   edit string is at least the truncation length in the
                  *   string comparator, consider this a character match as
-                 *   well 
+                 *   well
                  */
                 if (trunc_len != 0
                     && s->strl >= trunc_len
@@ -1694,9 +1694,9 @@ int CVmObjDict::getp_correct(VMG_ vm_obj_id_t self,
                              s->ipos, chi, Deletion);
             }
 
-            /* 
+            /*
              *   if we just did a replacement edit, check to see if it's
-             *   actually a transposition 
+             *   actually a transposition
              */
             if (s->typ == Replacement
                 && s->ipos > 0 && s->ipos < wcnt
@@ -1713,11 +1713,11 @@ int CVmObjDict::getp_correct(VMG_ vm_obj_id_t self,
     /* done with the wchar_t version of the word */
     delete [] wstr;
 
-    /* 
+    /*
      *   Count up the number of result entries.  Only count words with a
      *   non-zero edit distance - words with a zero edit distance are already
      *   matches for the input word, so we can't consider them to be
-     *   corrections for it. 
+     *   corrections for it.
      */
     corr_word *r;
     int i;
@@ -1741,14 +1741,14 @@ int CVmObjDict::getp_correct(VMG_ vm_obj_id_t self,
     {
         vm_val_t val;
 
-        /* 
+        /*
          *   If this word has a zero edit distance, skip it.  A word with a
          *   zero edit distance is already a match for the original, so it
-         *   can't be considered a correction.  
+         *   can't be considered a correction.
          */
         if (r->dist == 0)
             continue;
-        
+
         /* create the sublist */
         vm_obj_id_t sub_id = CVmObjList::create(vmg_ FALSE, 3);
         CVmObjList *sub = (CVmObjList *)vm_objp(vmg_ sub_id);
@@ -1808,17 +1808,17 @@ int CVmObjDict::getp_correct(VMG_ vm_obj_id_t self,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Create an undo record 
+ *   Create an undo record
  */
 dict_undo_rec *CVmObjDict::alloc_undo_rec(dict_undo_action action,
                                           const char *txt, size_t len)
 {
     size_t alloc_size;
     dict_undo_rec *rec;
-    
-    /* 
+
+    /*
      *   compute the allocation size - start with the structure size, and
-     *   add in the length we need to store the string if one is present 
+     *   add in the length we need to store the string if one is present
      */
     alloc_size = sizeof(dict_undo_rec) - 1;
     if (txt != 0)
@@ -1846,7 +1846,7 @@ dict_undo_rec *CVmObjDict::alloc_undo_rec(dict_undo_action action,
 }
 
 /*
- *   add an undo record 
+ *   add an undo record
  */
 void CVmObjDict::add_undo_rec(VMG_ vm_obj_id_t self, dict_undo_rec *rec)
 {
@@ -1856,17 +1856,17 @@ void CVmObjDict::add_undo_rec(VMG_ vm_obj_id_t self, dict_undo_rec *rec)
     val.set_empty();
     if (!G_undo->add_new_record_ptr_key(vmg_ self, rec, &val))
     {
-        /* 
+        /*
          *   we didn't add an undo record, so our extra undo information
          *   isn't actually going to be stored in the undo system - hence
-         *   we must delete our extra information 
+         *   we must delete our extra information
          */
         t3free(rec);
     }
 }
 
-/* 
- *   apply undo 
+/*
+ *   apply undo
  */
 void CVmObjDict::apply_undo(VMG_ CVmUndoRecord *undo_rec)
 {
@@ -1906,7 +1906,7 @@ void CVmObjDict::apply_undo(VMG_ CVmUndoRecord *undo_rec)
 }
 
 /*
- *   discard extra undo information 
+ *   discard extra undo information
  */
 void CVmObjDict::discard_undo(VMG_ CVmUndoRecord *rec)
 {
@@ -1922,7 +1922,7 @@ void CVmObjDict::discard_undo(VMG_ CVmUndoRecord *rec)
 }
 
 /*
- *   mark references in an undo record 
+ *   mark references in an undo record
  */
 void CVmObjDict::mark_undo_ref(VMG_ CVmUndoRecord *undo_rec)
 {
@@ -1944,16 +1944,16 @@ void CVmObjDict::mark_undo_ref(VMG_ CVmUndoRecord *undo_rec)
 
         case DICT_UNDO_ADD:
         case DICT_UNDO_DEL:
-            /* 
+            /*
              *   these actions use only weak references, so there's nothing
-             *   to do here 
+             *   to do here
              */
             break;
         }
     }
 }
 
-/* 
+/*
  *   remove stale weak references from an undo record
  */
 void CVmObjDict::remove_stale_undo_weak_ref(VMG_ CVmUndoRecord *undo_rec)
@@ -1975,11 +1975,11 @@ void CVmObjDict::remove_stale_undo_weak_ref(VMG_ CVmUndoRecord *undo_rec)
             if (rec->obj != VM_INVALID_OBJ
                 && G_obj_table->is_obj_deletable(rec->obj))
             {
-                /* 
+                /*
                  *   the object is being deleted - since we only weakly
                  *   reference our objects, we must forget about this
                  *   object now, which means we can forget this entire
-                 *   record 
+                 *   record
                  */
                 t3free(rec);
                 undo_rec->id.ptrval = 0;
@@ -1995,7 +1995,7 @@ void CVmObjDict::remove_stale_undo_weak_ref(VMG_ CVmUndoRecord *undo_rec)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   callback context for weak reference function 
+ *   callback context for weak reference function
  */
 struct enum_hashtab_ctx
 {
@@ -2007,7 +2007,7 @@ struct enum_hashtab_ctx
 };
 
 /*
- *   Mark references 
+ *   Mark references
  */
 void CVmObjDict::mark_refs(VMG_ uint state)
 {
@@ -2016,15 +2016,15 @@ void CVmObjDict::mark_refs(VMG_ uint state)
         G_obj_table->mark_all_refs(get_ext()->comparator_, state);
 }
 
-/* 
+/*
  *   Remove weak references that have become stale.  For each object for
  *   which we have a weak reference, check to see if the object is marked
- *   for deletion; if so, remove our reference to the object.  
+ *   for deletion; if so, remove our reference to the object.
  */
 void CVmObjDict::remove_stale_weak_refs(VMG0_)
 {
     enum_hashtab_ctx ctx;
-    
+
     /* iterate over our hash table */
     ctx.vmg = VMGLOB_ADDR;
     ctx.dict = this;
@@ -2032,7 +2032,7 @@ void CVmObjDict::remove_stale_weak_refs(VMG0_)
 }
 
 /*
- *   enumeration callback to eliminate stale weak references 
+ *   enumeration callback to eliminate stale weak references
  */
 void CVmObjDict::remove_weak_ref_cb(void *ctx0, CVmHashEntry *entry0)
 {
@@ -2049,7 +2049,7 @@ void CVmObjDict::remove_weak_ref_cb(void *ctx0, CVmHashEntry *entry0)
     {
         /* remember the next entry in case we delete this one */
         nxt = cur->nxt_;
-        
+
         /* check to see if this object is free - if so, remove this record */
         if (G_obj_table->is_obj_deletable(cur->obj_))
         {
@@ -2067,8 +2067,8 @@ void CVmObjDict::remove_weak_ref_cb(void *ctx0, CVmHashEntry *entry0)
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   load from an image file 
+/*
+ *   load from an image file
  */
 void CVmObjDict::load_from_image(VMG_ vm_obj_id_t self,
                                  const char *ptr, size_t siz)
@@ -2080,28 +2080,28 @@ void CVmObjDict::load_from_image(VMG_ vm_obj_id_t self,
     /* build the hash table from the image data */
     build_hash_from_image(vmg0_);
 
-    /* 
+    /*
      *   register for post-load initialization, as we might need to rebuild
-     *   our hash table once we have access to the comparator object 
+     *   our hash table once we have access to the comparator object
      */
     G_obj_table->request_post_load_init(self);
 }
 
 /*
- *   Post-load initialization 
+ *   Post-load initialization
  */
 void CVmObjDict::post_load_init(VMG_ vm_obj_id_t self)
 {
     vm_obj_id_t comp;
-    
-    /* 
+
+    /*
      *   Rebuild the hash table with the comparator, if we have one.  When
      *   we load, reset, or restore, we build a tentative hash table with no
      *   comparator (i.e., the default exact literal comparator), because we
      *   can't assume we have access to the comparator object (as it might
      *   be loaded after us).  So, we register for post-load initialization,
      *   and then we go back and re-install the comparator for real,
-     *   rebuilding the hash table with the actual comparator.  
+     *   rebuilding the hash table with the actual comparator.
      */
     if ((comp = get_ext()->comparator_) != VM_INVALID_OBJ)
     {
@@ -2111,16 +2111,16 @@ void CVmObjDict::post_load_init(VMG_ vm_obj_id_t self)
         /* set the comparator object type, now that it's loaded */
         set_comparator_type(vmg_ comp);
 
-        /* 
+        /*
          *   force a rebuild the hash table, so that we build it with the
-         *   comparator properly installed 
+         *   comparator properly installed
          */
         create_hash_table(vmg0_);
     }
 }
 
 /*
- *   Build the hash table from the image data 
+ *   Build the hash table from the image data
  */
 void CVmObjDict::build_hash_from_image(VMG0_)
 {
@@ -2146,11 +2146,11 @@ void CVmObjDict::build_hash_from_image(VMG0_)
      *   We have to do something with the data, though, so build the hash
      *   table tentatively with no comparator; we'll rebuild it again at
      *   post-load-init time with the real comparator.
-     *   
+     *
      *   (This isn't as inefficient as it sounds, as we retain all of the
      *   original hash table entries when we rebuild the table.  All we end
      *   up doing is scanning the entries again to recompute their new hash
-     *   values, and reallocating the hash table object itself.)  
+     *   values, and reallocating the hash table object itself.)
      */
     get_ext()->comparator_ = VM_INVALID_OBJ;
     set_comparator_type(vmg_ VM_INVALID_OBJ);
@@ -2217,9 +2217,9 @@ void CVmObjDict::build_hash_from_image(VMG0_)
             obj = (vm_obj_id_t)t3rp4u(p);
             prop = (vm_prop_id_t)osrp2(p + 4);
 
-            /* 
+            /*
              *   add the entry - this entry is from the image file, so
-             *   mark it as such 
+             *   mark it as such
              */
             entry->add_entry(obj, prop, TRUE);
 
@@ -2228,17 +2228,17 @@ void CVmObjDict::build_hash_from_image(VMG0_)
         }
     }
 
-    /* 
+    /*
      *   Now that we're done building the table, remember the comparator.  We
      *   can't set the type yet, because the object might not be loaded yet -
-     *   defer this until post-load initialization time.  
+     *   defer this until post-load initialization time.
      */
     get_ext()->comparator_ = comp;
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Callback context for trie-building enumeration 
+ *   Callback context for trie-building enumeration
  */
 struct trie_cb_ctx
 {
@@ -2257,7 +2257,7 @@ static void trie_cb(void *ctx0, CVmHashEntry *entry0)
 }
 
 /*
- *   Build the Trie from the hash table 
+ *   Build the Trie from the hash table
  */
 void CVmObjDict::build_trie(VMG0_)
 {
@@ -2276,7 +2276,7 @@ void CVmObjDict::build_trie(VMG0_)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Trie operations 
+ *   Trie operations
  */
 
 /* add a word to the Trie */
@@ -2349,14 +2349,14 @@ void vmdict_TrieNode::del_word(const char *str, size_t len)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Add an entry 
+ *   Add an entry
  */
 int CVmObjDict::add_hash_entry(VMG_ const char *p, size_t len, int copy,
                                vm_obj_id_t obj, vm_prop_id_t prop,
                                int from_image)
 {
     CVmHashEntryDict *entry;
-    
+
     /* find an existing entry for this key */
     entry = (CVmHashEntryDict *)get_ext()->hashtab_->find(p, len);
 
@@ -2380,7 +2380,7 @@ int CVmObjDict::add_hash_entry(VMG_ const char *p, size_t len, int copy,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   delete an entry 
+ *   delete an entry
  */
 int CVmObjDict::del_hash_entry(VMG_ const char *str, size_t len,
                                vm_obj_id_t obj, vm_prop_id_t voc_prop)
@@ -2396,7 +2396,7 @@ int CVmObjDict::del_hash_entry(VMG_ const char *str, size_t len,
         /* if we have a trie, delete the trie entry */
         if (get_ext()->trie_ != 0)
             get_ext()->trie_->del_word(str, len);
-        
+
         /* delete the hash table entry */
         return entry->del_entry(get_ext()->hashtab_, obj, voc_prop);
     }
@@ -2406,8 +2406,8 @@ int CVmObjDict::del_hash_entry(VMG_ const char *str, size_t len,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   restore to image file state 
+/*
+ *   restore to image file state
  */
 void CVmObjDict::reset_to_image(VMG_ vm_obj_id_t self)
 {
@@ -2431,29 +2431,29 @@ void CVmObjDict::reset_to_image(VMG_ vm_obj_id_t self)
     /* rebuild the hash table from the image file data */
     build_hash_from_image(vmg0_);
 
-    /* 
+    /*
      *   register for post-load initialization, as we might need to rebuild
-     *   our hash table once we have access to the comparator object 
+     *   our hash table once we have access to the comparator object
      */
     G_obj_table->request_post_load_init(self);
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   determine if the object has been changed since it was loaded 
+/*
+ *   determine if the object has been changed since it was loaded
  */
 int CVmObjDict::is_changed_since_load() const
 {
-    /* 
+    /*
      *   return true if our 'modified' flag is true - if it is, we must have
-     *   been changed since we were loaded 
+     *   been changed since we were loaded
      */
     return (get_ext()->modified_ != 0);
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   save-file enumeration context 
+ *   save-file enumeration context
  */
 struct save_file_ctx
 {
@@ -2467,8 +2467,8 @@ struct save_file_ctx
     vm_globals *vmg;
 };
 
-/* 
- *   save to a file 
+/*
+ *   save to a file
  */
 void CVmObjDict::save_to_file(VMG_ CVmFile *fp)
 {
@@ -2478,7 +2478,7 @@ void CVmObjDict::save_to_file(VMG_ CVmFile *fp)
 
     /* write the current comparator object */
     fp->write_uint4(get_ext()->comparator_);
-    
+
     /* remember the starting seek position and write a placeholder count */
     cnt_pos = fp->get_pos();
     fp->write_uint4(0);
@@ -2501,7 +2501,7 @@ void CVmObjDict::save_to_file(VMG_ CVmFile *fp)
 }
 
 /*
- *   save file enumeration callback 
+ *   save file enumeration callback
  */
 void CVmObjDict::save_file_cb(void *ctx0, CVmHashEntry *entry0)
 {
@@ -2520,19 +2520,19 @@ void CVmObjDict::save_file_cb(void *ctx0, CVmHashEntry *entry0)
     /* count the items in this entry's list */
     for (cnt = 0, cur = entry->get_head() ; cur != 0 ; cur = cur->nxt_)
     {
-        /* 
+        /*
          *   if the referenced object is persistent, count this item;
          *   don't count items that refer to non-persistent items, because
          *   these objects will not be saved to the file and hence will
-         *   not be present when the saved state is restored 
+         *   not be present when the saved state is restored
          */
         if (G_obj_table->is_obj_persistent(cur->obj_))
             ++cnt;
     }
 
-    /* 
+    /*
      *   if there are no saveable items for this entry, do not write out
-     *   the entry at all 
+     *   the entry at all
      */
     if (cnt == 0)
         return;
@@ -2557,8 +2557,8 @@ void CVmObjDict::save_file_cb(void *ctx0, CVmHashEntry *entry0)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   restore from a file 
+/*
+ *   restore from a file
  */
 void CVmObjDict::restore_from_file(VMG_ vm_obj_id_t self,
                                    CVmFile *fp, CVmObjFixup *fixups)
@@ -2580,9 +2580,9 @@ void CVmObjDict::restore_from_file(VMG_ vm_obj_id_t self,
         get_ext()->trie_ = 0;
     }
 
-    /* 
+    /*
      *   Read the comparator and fix it up to the new object numbering
-     *   scheme, but do not install it (as it might not be loaded yet).  
+     *   scheme, but do not install it (as it might not be loaded yet).
      */
     comp = fixups->get_new_id(vmg_ (vm_obj_id_t)fp->read_uint4());
 
@@ -2599,7 +2599,7 @@ void CVmObjDict::restore_from_file(VMG_ vm_obj_id_t self,
         uint read_len;
         char buf[256];
         uint item_cnt;
-        
+
         /* read the symbol length */
         len = fp->read_uint2();
 
@@ -2623,7 +2623,7 @@ void CVmObjDict::restore_from_file(VMG_ vm_obj_id_t self,
         {
             vm_obj_id_t obj;
             vm_prop_id_t prop;
-            
+
             /* read the object and property ID's */
             obj = (vm_obj_id_t)fp->read_uint4();
             prop = (vm_prop_id_t)fp->read_uint2();
@@ -2637,9 +2637,9 @@ void CVmObjDict::restore_from_file(VMG_ vm_obj_id_t self,
         }
     }
 
-    /* 
+    /*
      *   install the comparator (we can't set its type yet, though, because
-     *   the object might not be loaded yet) 
+     *   the object might not be loaded yet)
      */
     get_ext()->comparator_ = comp;
     set_comparator_type(vmg_ VM_INVALID_OBJ);
@@ -2648,20 +2648,20 @@ void CVmObjDict::restore_from_file(VMG_ vm_obj_id_t self,
      *   If we had to restore it, we'll have to save it if the current state
      *   is later saved, even if we don't modify it again.  The fact that
      *   this version was saved before means this version has to be saved
-     *   from now on.  
+     *   from now on.
      */
     get_ext()->modified_ = TRUE;
 
-    /* 
+    /*
      *   register for post-load initialization, so that we can rebuild the
-     *   hash table with the actual comparator if necessary 
+     *   hash table with the actual comparator if necessary
      */
     G_obj_table->request_post_load_init(self);
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   impedence-matcher callback context 
+ *   impedence-matcher callback context
  */
 struct enum_word_props_ctx
 {
@@ -2685,7 +2685,7 @@ struct enum_word_props_ctx
 };
 
 /*
- *   enum_word_props hash table enumeration callback 
+ *   enum_word_props hash table enumeration callback
  */
 void CVmObjDict::enum_word_props_cb(void *ctx0, CVmHashEntry *entry0)
 {
@@ -2700,7 +2700,7 @@ void CVmObjDict::enum_word_props_cb(void *ctx0, CVmHashEntry *entry0)
                                  &match_val))
     {
         vm_dict_entry *cur;
-        
+
         /* process the items under this entry */
         for (cur = entry->get_head() ; cur != 0 ; cur = cur->nxt_)
         {
@@ -2711,7 +2711,7 @@ void CVmObjDict::enum_word_props_cb(void *ctx0, CVmHashEntry *entry0)
 }
 
 /*
- *   Enumerate the properties for which a word is defined 
+ *   Enumerate the properties for which a word is defined
  */
 void CVmObjDict::enum_word_props(VMG_
                                  void (*cb_func)(VMG_ void *, vm_prop_id_t,

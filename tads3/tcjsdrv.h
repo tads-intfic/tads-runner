@@ -3,9 +3,9 @@
 Name
   tcjsdrv.h - tads 3 compiler - javascript code generator - parse node classes
 Function
-  
+
 Notes
-  
+
 Modified
   02/17/09 MJRoberts  - Creation
 */
@@ -18,7 +18,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   "self" 
+ *   "self"
  */
 class CTPNSelf: public CTPNSelfBase
 {
@@ -37,7 +37,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   "replaced" 
+ *   "replaced"
  */
 class CTPNReplaced: public CTPNReplacedBase
 {
@@ -51,7 +51,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   "targetprop" 
+ *   "targetprop"
  */
 class CTPNTargetprop: public CTPNTargetpropBase
 {
@@ -63,7 +63,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   "targetobj" 
+ *   "targetobj"
  */
 class CTPNTargetobj: public CTPNTargetobjBase
 {
@@ -74,7 +74,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   "definingobj" 
+ *   "definingobj"
  */
 class CTPNDefiningobj: public CTPNDefiningobjBase
 {
@@ -86,7 +86,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   "inherited" 
+ *   "inherited"
  */
 class CTPNInh: public CTPNInhBase
 {
@@ -101,7 +101,7 @@ public:
 };
 
 /*
- *   "inherited" with explicit superclass 
+ *   "inherited" with explicit superclass
  */
 class CTPNInhClass: public CTPNInhClassBase
 {
@@ -119,7 +119,7 @@ public:
 };
 
 /*
- *   "delegated" 
+ *   "delegated"
  */
 class CTPNDelegated: public CTPNDelegatedBase
 {
@@ -139,7 +139,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   "argcount" node 
+ *   "argcount" node
  */
 class CTPNArgc: public CTPNArgcBase
 {
@@ -149,8 +149,8 @@ public:
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   constant node 
+/*
+ *   constant node
  */
 class CTPNConst: public CTPNConstBase
 {
@@ -186,7 +186,7 @@ public:
 };
 
 /*
- *   Debugger constant node 
+ *   Debugger constant node
  */
 class CTPNDebugConst: public CTPNConst
 {
@@ -199,7 +199,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Unary Operators 
+ *   Unary Operators
  */
 
 /* bitwise NOT */
@@ -231,10 +231,10 @@ CTPNUnary_def(CTPNBoolize);
 
 /* ------------------------------------------------------------------------ */
 /*
- *   NEW operator 
+ *   NEW operator
  */
 class CTPNNew: public CTPNUnary
-{ 
+{
 public:
     CTPNNew(class CTcPrsNode *sub, int is_transient)
         : CTPNUnary(sub)
@@ -257,7 +257,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   NOT operator 
+ *   NOT operator
  */
 class CTPNNot: public CTPNNotBase
 {
@@ -270,8 +270,8 @@ public:
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   Binary Operators 
+/*
+ *   Binary Operators
  */
 
 class CTPNComma: public CTPNCommaBase
@@ -322,7 +322,7 @@ CTPNBin_def(CTPNMod);
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Addition 
+ *   Addition
  */
 
 class CTPNAdd: public CTPNAddBase
@@ -384,7 +384,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'is in' 
+ *   'is in'
  */
 
 class CTPNIsIn: public CTPNIsInBase
@@ -400,7 +400,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'not in' 
+ *   'not in'
  */
 
 class CTPNNotIn: public CTPNNotInBase
@@ -448,7 +448,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Assignment Operators 
+ *   Assignment Operators
  */
 
 /* simple assignment */
@@ -494,7 +494,7 @@ CTPNBin_side_def(CTPNShrAsi);
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Array/list Subscript 
+ *   Array/list Subscript
  */
 class CTPNSubscript: public CTPNSubscriptBase
 {
@@ -513,7 +513,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Address-of Operator 
+ *   Address-of Operator
  */
 
 class CTPNAddr: public CTPNAddrBase
@@ -525,10 +525,10 @@ public:
     /* generate code */
     void gen_code(int discard, int for_condition)
     {
-        /* 
+        /*
          *   if we're not discarding the value, tell the subnode to
          *   generate its address; if the value is being discarded, do
-         *   nothing, since taking an address has no side effects 
+         *   nothing, since taking an address has no side effects
          */
         if (!discard)
             sub_->gen_code_addr();
@@ -539,9 +539,9 @@ public:
                          class CTcPrsNode *prop_expr, int prop_is_expr,
                          int argc, int varargs)
     {
-        /* 
+        /*
          *   let the subnode do the work, since "&obj" is the same as
-         *   "obj" in any context 
+         *   "obj" in any context
          */
         sub_->gen_code_member(discard, prop_expr, prop_is_expr,
                               argc, varargs);
@@ -550,9 +550,9 @@ public:
     /* evaluate a property ID */
     vm_prop_id_t gen_code_propid(int check_only, int is_expr)
     {
-        /* 
+        /*
          *   let the subexpression handle it, so that we treat "x.&prop"
-         *   the same as "x.prop" 
+         *   the same as "x.prop"
          */
         return sub_->gen_code_propid(check_only, is_expr);
     }
@@ -560,9 +560,9 @@ public:
     /* get the object value for a '.' expression */
     vm_obj_id_t gen_code_obj_predot(int *is_self)
     {
-        /* 
+        /*
          *   let the subexpression handle it, since "x.&prop" is the same
-         *   as "x.prop" 
+         *   as "x.prop"
          */
         return sub_->gen_code_obj_predot(is_self);
     }
@@ -570,7 +570,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Conditional Operator 
+ *   Conditional Operator
  */
 class CTPNIf: public CTPNIfBase
 {
@@ -585,7 +585,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Symbol node 
+ *   Symbol node
  */
 class CTPNSym: public CTPNSymBase
 {
@@ -624,7 +624,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Resolved symbol 
+ *   Resolved symbol
  */
 class CTPNSymResolved: public CTPNSymResolvedBase
 {
@@ -663,7 +663,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Resolved debugger local variable symbol 
+ *   Resolved debugger local variable symbol
  */
 class CTPNSymDebugLocal: public CTPNSymDebugLocalBase
 {
@@ -683,7 +683,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   double-quoted string expression 
+ *   double-quoted string expression
  */
 class CTPNDstr: public CTPNDstrBase
 {
@@ -695,7 +695,7 @@ public:
 };
 
 /*
- *   debug version of string 
+ *   debug version of string
  */
 class CTPNDebugDstr: public CTPNDstr
 {
@@ -707,7 +707,7 @@ public:
 };
 
 /*
- *   double-quoted string embedding 
+ *   double-quoted string embedding
  */
 class CTPNDstrEmbed: public CTPNDstrEmbedBase
 {
@@ -719,7 +719,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Argument List 
+ *   Argument List
  */
 class CTPNArglist: public CTPNArglistBase
 {
@@ -729,9 +729,9 @@ public:
 
     void gen_code(int, int)
     {
-        /* 
+        /*
          *   this isn't used - we always generate explicitly via
-         *   gen_code_arglist() 
+         *   gen_code_arglist()
          */
         assert(FALSE);
     }
@@ -741,7 +741,7 @@ public:
 };
 
 /*
- *   Argument List Entry 
+ *   Argument List Entry
  */
 class CTPNArg: public CTPNArgBase
 {
@@ -754,7 +754,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Function/method call 
+ *   Function/method call
  */
 class CTPNCall: public CTPNCallBase
 {
@@ -772,7 +772,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Member expression with no arguments 
+ *   Member expression with no arguments
  */
 class CTPNMember: public CTPNMemberBase
 {
@@ -789,7 +789,7 @@ public:
 };
 
 /*
- *   Member evaluation with argument list 
+ *   Member evaluation with argument list
  */
 class CTPNMemArg: public CTPNMemArgBase
 {
@@ -804,7 +804,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   List 
+ *   List
  */
 class CTPNList: public CTPNListBase
 {
@@ -813,7 +813,7 @@ public:
 };
 
 /*
- *   List Element 
+ *   List Element
  */
 class CTPNListEle: public CTPNListEleBase
 {
@@ -826,11 +826,11 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Derived T3-specific symbol classes 
+ *   Derived T3-specific symbol classes
  */
 
 /*
- *   undefined symbol 
+ *   undefined symbol
  */
 class CTcSymUndef: public CTcSymUndefBase
 {
@@ -838,39 +838,39 @@ public:
     CTcSymUndef(const char *str, size_t len, int copy)
         : CTcSymUndefBase(str, len, copy) { }
 
-    /* 
+    /*
      *   generate code to evaluate the symbol; since it's undefined, this
-     *   doesn't generate any code at all 
+     *   doesn't generate any code at all
      */
     virtual void gen_code(int) { }
 
-    /* 
+    /*
      *   Generate code to assign to the symbol.  The symbol is undefined,
      *   so we can't generate any code; but we'll indicate to the caller
      *   that the assignment is fully processed anyway, since there's no
-     *   need for the caller to try generating any code either. 
+     *   need for the caller to try generating any code either.
      */
     virtual int gen_code_asi(int, tc_asitype_t, class CTcPrsNode *, int)
     {
         return TRUE;
     }
 
-    /* 
+    /*
      *   Generate code for taking the address of the symbol.  The symbol
-     *   has no address, so this generates no code. 
+     *   has no address, so this generates no code.
      */
     virtual void gen_code_addr() { }
 
-    /* 
+    /*
      *   generate code to call the symbol - we can't generate any code for
      *   this, but don't bother issuing an error since we will have shown
-     *   an error for the undefined symbol in the first place 
+     *   an error for the undefined symbol in the first place
      */
     virtual void gen_code_call(int, int, int) { }
 
-    /* 
+    /*
      *   generate code for operator 'new' applied to this expression - we
-     *   can't generate any code, but suppress errors as usual 
+     *   can't generate any code, but suppress errors as usual
      */
     void gen_code_new(int, int, int, int) { }
 
@@ -887,7 +887,7 @@ public:
 
 
 /*
- *   function 
+ *   function
  */
 class CTcSymFunc: public CTcSymFuncBase
 {
@@ -898,9 +898,9 @@ public:
         : CTcSymFuncBase(str, len, copy, argc, varargs, has_retval,
                          is_multimethod, is_mm_base, is_extern)
     {
-        /* 
+        /*
          *   we don't have a valid absolute address - by default, we use
-         *   the anchor 
+         *   the anchor
          */
         abs_addr_valid_ = FALSE;
         abs_addr_ = 0;
@@ -915,7 +915,7 @@ public:
     /* generate a call */
     virtual void gen_code_call(int discard, int argc, int varargs);
 
-    /* 
+    /*
      *   Get my code pool address.  This is valid only after the linking
      *   phase has been completed and all fixups have been applied.  (The
      *   normal use for this is to generate image file elements not
@@ -935,7 +935,7 @@ public:
      *   the symbol is loaded from a fully-linked image file; in most
      *   cases, this routine is not needed, because the function's address
      *   will be kept with its associated anchor to allow for relocation
-     *   of the function during the linking process.  
+     *   of the function during the linking process.
      */
     void set_abs_addr(ulong addr)
     {
@@ -948,7 +948,7 @@ public:
 
     /* add a runtime symbol table entry */
     void add_runtime_symbol(class CVmRuntimeSymbols *symtab);
-    
+
 protected:
     /*
      *   Absolute code pool address, and a flag indicating whether the
@@ -957,14 +957,14 @@ protected:
      *   from the debug records of an image file), the address of the
      *   function is fully resolved and doesn't require fixups via the
      *   anchor mechanism.  In these cases, we'll simply remember the
-     *   resolved address here.  
+     *   resolved address here.
      */
     ulong abs_addr_;
     uint abs_addr_valid_ : 1;
 };
 
 /*
- *   metaclass 
+ *   metaclass
  */
 class CTcSymMetaclass: public CTcSymMetaclassBase
 {
@@ -1000,10 +1000,10 @@ public:
     /* write the symbol to an image file's global symbol table */
     int write_to_image_file_global(class CVmImageWriter *image_writer);
 
-    /* 
+    /*
      *   fix up the inheritance chain in the modifier objects - each
      *   object file has its own independent inheritance list, so we can
-     *   only build the complete and connected list after loading them all 
+     *   only build the complete and connected list after loading them all
      */
     void fix_mod_obj_sc_list();
 
@@ -1012,7 +1012,7 @@ public:
 };
 
 /*
- *   object 
+ *   object
  */
 class CTcSymObj: public CTcSymObjBase
 {
@@ -1071,7 +1071,7 @@ public:
 };
 
 /*
- *   property 
+ *   property
  */
 class CTcSymProp: public CTcSymPropBase
 {
@@ -1119,7 +1119,7 @@ public:
 };
 
 /*
- *   Enumerator 
+ *   Enumerator
  */
 class CTcSymEnum: public CTcSymEnumBase
 {
@@ -1140,7 +1140,7 @@ public:
 };
 
 /*
- *   local variable/parameter 
+ *   local variable/parameter
  */
 class CTcSymLocal: public CTcSymLocalBase
 {
@@ -1168,9 +1168,9 @@ public:
     virtual int gen_code_asi(int discard, tc_asitype_t typ,
                              class CTcPrsNode *rhs, int ignore_errors);
 
-    /* 
+    /*
      *   generate a call - invoking a local as a function assumes that the
-     *   local contains a method or function pointer 
+     *   local contains a method or function pointer
      */
     virtual void gen_code_call(int discard, int argc, int varargs);
 
@@ -1198,7 +1198,7 @@ public:
 };
 
 /*
- *   built-in function 
+ *   built-in function
  */
 class CTcSymBif: public CTcSymBifBase
 {
@@ -1220,7 +1220,7 @@ public:
 };
 
 /*
- *   external function 
+ *   external function
  */
 class CTcSymExtfn: public CTcSymExtfnBase
 {
@@ -1240,7 +1240,7 @@ public:
 };
 
 /*
- *   code label 
+ *   code label
  */
 class CTcSymLabel: public CTcSymLabelBase
 {
@@ -1254,7 +1254,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Anonymous function 
+ *   Anonymous function
  */
 class CTPNAnonFunc: public CTPNAnonFuncBase
 {
@@ -1270,7 +1270,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Code Body 
+ *   Code Body
  */
 class CTPNCodeBody: public CTPNCodeBodyBase
 {
@@ -1298,13 +1298,13 @@ public:
         first_nested_symtab_ = 0;
     }
 
-    /* 
+    /*
      *   Mark the code body as belonging to a constructor.  A constructor
-     *   must return its 'self' object as the return value.  
+     *   must return its 'self' object as the return value.
      */
     void set_constructor(int f) { is_constructor_ = f; }
 
-    /* 
+    /*
      *   mark the code body as static - this indicates that it is a static
      *   initializer
      */
@@ -1322,7 +1322,7 @@ public:
      *   'finally' block(s).  Returns the variable ID.  Only one such
      *   local is needed per code body, so if we've already allocated one
      *   for another 'return' statement, we'll just return the same one we
-     *   allocated previously.  
+     *   allocated previously.
      */
     uint alloc_fin_ret_lcl()
     {
@@ -1344,15 +1344,15 @@ public:
     void js_anon_func();
 
 protected:
-    /* 
+    /*
      *   callback for enumerating local frame symbol table entries - write
-     *   each entry to the code stream as a debug record 
+     *   each entry to the code stream as a debug record
      */
     static void write_local_to_debug_frame(void *ctx, class CTcSymbol *sym);
 
-    /* 
+    /*
      *   enumerator for checking for parameter symbols that belong in the
-     *   local context 
+     *   local context
      */
     static void enum_for_param_ctx(void *ctx, class CTcSymbol *sym);
 
@@ -1367,19 +1367,19 @@ protected:
     /* head of list of nested symbol tables */
     class CTcPrsSymtab *first_nested_symtab_;
 
-    /* 
+    /*
      *   ID of local variable for temporarily storing the expression value
      *   of a 'return' statement while calling the enclosing 'finally'
-     *   block(s); valid only when allocated_fin_ret_lcl_ is true 
+     *   block(s); valid only when allocated_fin_ret_lcl_ is true
      */
     uint fin_ret_lcl_;
 
     /* flag: I'm a constructor */
     uint is_constructor_ : 1;
 
-    /* 
+    /*
      *   flag: I've allocated a local for saving the expression value of a
-     *   'return' statement while calling the enclosing 'finally' block(s) 
+     *   'return' statement while calling the enclosing 'finally' block(s)
      */
     uint allocated_fin_ret_lcl_ : 1;
 
@@ -1400,7 +1400,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Null statement 
+ *   Null statement
  */
 class CTPNStmNull: public CTPNStmNullBase
 {
@@ -1410,7 +1410,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Expression statement 
+ *   Expression statement
  */
 class CTPNStmExpr: public CTPNStmExprBase
 {
@@ -1436,7 +1436,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'if' statement 
+ *   'if' statement
  */
 class CTPNStmIf: public CTPNStmIfBase
 {
@@ -1444,14 +1444,14 @@ public:
     CTPNStmIf(class CTcPrsNode *cond_expr,
               class CTPNStm *then_part, class CTPNStm *else_part)
         : CTPNStmIfBase(cond_expr, then_part, else_part) { }
-    
+
     /* generate code */
     virtual void gen_code(int discard, int for_condition);
 };
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'for' statement 
+ *   'for' statement
  */
 class CTPNStmFor: public CTPNStmForBase
 {
@@ -1491,7 +1491,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'for' statement 
+ *   'for' statement
  */
 class CTPNStmForeach: public CTPNStmForeachBase
 {
@@ -1531,7 +1531,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'break' statement 
+ *   'break' statement
  */
 class CTPNStmBreak: public CTPNStmBreakBase
 {
@@ -1544,7 +1544,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'continue' statement 
+ *   'continue' statement
  */
 class CTPNStmContinue: public CTPNStmContinueBase
 {
@@ -1557,7 +1557,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'while' statement 
+ *   'while' statement
  */
 class CTPNStmWhile: public CTPNStmWhileBase
 {
@@ -1591,7 +1591,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'do-while' statement 
+ *   'do-while' statement
  */
 class CTPNStmDoWhile: public CTPNStmDoWhileBase
 {
@@ -1624,7 +1624,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'return' statement 
+ *   'return' statement
  */
 class CTPNStmReturn: public CTPNStmReturnBase
 {
@@ -1638,7 +1638,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'switch' statement 
+ *   'switch' statement
  */
 class CTPNStmSwitch: public CTPNStmSwitchBase
 {
@@ -1654,11 +1654,11 @@ public:
     /* generate code */
     virtual void gen_code(int discard, int for_condition);
 
-    /* 
+    /*
      *   Get the next case slot offset, and consume the slot.  Each call
      *   consumes one slot.  This is valid only during code generation in
      *   the switch body; 'case' labels use this to figure out where to
-     *   write their data.  
+     *   write their data.
      */
     ulong alloc_case_slot()
     {
@@ -1680,11 +1680,11 @@ public:
     /* generate code for 'break' */
     virtual int gen_code_break(const textchar_t *lbl, size_t lbl_len)
     {
-        /* 
+        /*
          *   if there's no label, and we don't have a 'break' label
          *   ourselves, it must mean that we're processing an unreachable
          *   'break' - we can simply do nothing in this case and pretend we
-         *   succeeded 
+         *   succeeded
          */
         if (lbl == 0 && break_lbl_ == 0)
             return TRUE;
@@ -1694,11 +1694,11 @@ public:
     }
 
 protected:
-    /* 
+    /*
      *   code offset of the next 'case' slot to be allocated from the
      *   switch's case table - this is only valid during generation of the
      *   body, because we set this up during generation of the switch
-     *   itself 
+     *   itself
      */
     ulong case_slot_ofs_;
 
@@ -1712,7 +1712,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   code label statement 
+ *   code label statement
  */
 class CTPNStmLabel: public CTPNStmLabelBase
 {
@@ -1728,17 +1728,17 @@ public:
     /* generate code for 'continue' */
     virtual int gen_code_continue(const textchar_t *lbl, size_t lbl_len);
 
-    /* 
+    /*
      *   Generate code for a labeled 'continue'.  We'll simply generate
      *   code for a labeled continue in our enclosed statement.
-     *   
+     *
      *   (This is normally a routine that *we* call on our contained
      *   statement in response to a 'continue' being targeted at this
      *   label.  This can be invoked on us, however, when a statement has
      *   multiple labels, and the outer label is mentioned in the 'break'
      *   -- the outer label will call this routine on the inner label,
      *   which is us, so we simply need to pass it along to the enclosed
-     *   statement.)  
+     *   statement.)
      */
     virtual int gen_code_labeled_continue()
         { return (stm_ != 0 ? stm_->gen_code_labeled_continue() : FALSE); }
@@ -1756,7 +1756,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'case' label statement 
+ *   'case' label statement
  */
 class CTPNStmCase: public CTPNStmCaseBase
 {
@@ -1769,7 +1769,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'default' label statement 
+ *   'default' label statement
  */
 class CTPNStmDefault: public CTPNStmDefaultBase
 {
@@ -1782,7 +1782,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'try' block 
+ *   'try' block
  */
 class CTPNStmTry: public CTPNStmTryBase
 {
@@ -1801,10 +1801,10 @@ public:
     /* generate code for 'continue' */
     virtual int gen_code_continue(const textchar_t *lbl, size_t lbl_len);
 
-    /* 
+    /*
      *   Generate the code necessary to unwind for returning.  We must
      *   generate a call to our 'finally' code, then unwind any enclosing
-     *   statements. 
+     *   statements.
      */
     virtual void gen_code_unwind_for_return()
     {
@@ -1833,19 +1833,19 @@ public:
         gen_jsr_finally();
     }
 
-    /* 
+    /*
      *   generate a local subroutine call to our 'finally' block, if we
      *   have a 'finally' block - this should be invoked whenever code
      *   within the protected block or a 'catch' block executes a break,
      *   continue, return, or goto out of the protected region, or when
      *   merely falling off the end of the protected block or a 'catch'
-     *   block.  
+     *   block.
      */
     void gen_jsr_finally();
 
     /* get my 'finally' label */
     struct CTcCodeLabel *get_finally_lbl() const { return finally_lbl_; }
-    
+
 protected:
     /* our 'finally' label */
     struct CTcCodeLabel *finally_lbl_;
@@ -1870,7 +1870,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'finally' 
+ *   'finally'
  */
 class CTPNStmFinally: public CTPNStmFinallyBase
 {
@@ -1897,7 +1897,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'throw' statement 
+ *   'throw' statement
  */
 class CTPNStmThrow: public CTPNStmThrowBase
 {
@@ -1906,7 +1906,7 @@ public:
         : CTPNStmThrowBase(expr)
     {
     }
-    
+
     /* generate code */
     virtual void gen_code(int discard, int for_condition);
 };
@@ -1914,7 +1914,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'goto' statement 
+ *   'goto' statement
  */
 class CTPNStmGoto: public CTPNStmGotoBase
 {
@@ -1930,7 +1930,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'dictionary' statement 
+ *   'dictionary' statement
  */
 class CTPNStmDict: public CTPNStmDictBase
 {
@@ -1946,7 +1946,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Object Definition 
+ *   Object Definition
  */
 class CTPNStmObject: public CTPNStmObjectBase
 {
@@ -1962,11 +1962,11 @@ public:
     /* check locals */
     virtual void check_locals();
 
-    /* 
+    /*
      *   given the stream offset for the start of the object data in the
      *   stream, get information on the object from the stream data:
-     *   
-     *.  - get the number of properties in the stream data 
+     *
+     *.  - get the number of properties in the stream data
      *.  - set the number of properties in the stream data, updating the
      *   stored data size in the metaclass header in the stream; returns
      *   the new data size
@@ -1977,7 +1977,7 @@ public:
      *.  - get the ID of the object's property at the given index
      *.  - set the ID of the object's property at the given index
      *.  - get the object flags from the tads-object header
-     *.  - set the object flags in the tads-object heade 
+     *.  - set the object flags in the tads-object heade
      */
     static uint get_stream_prop_cnt(class CTcDataStream *stream,
                                     ulong obj_ofs);
@@ -2010,7 +2010,7 @@ public:
 };
 
 /*
- *   Property Value list entry 
+ *   Property Value list entry
  */
 class CTPNObjProp: public CTPNObjPropBase
 {
@@ -2021,7 +2021,7 @@ public:
         : CTPNObjPropBase(obj_stm, prop_sym, expr, code_body, is_static)
     {
     }
-    
+
     /* generate code */
     virtual void gen_code(int discard, int for_condition);
 
@@ -2030,7 +2030,7 @@ public:
 };
 
 /*
- *   Implicit constructor 
+ *   Implicit constructor
  */
 class CTPNStmImplicitCtor: public CTPNStmImplicitCtorBase
 {

@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/TOK.C,v 1.3 1999/07/11 00:46:30 MJRoberts Exp $";
 #endif
 
-/*  
+/*
  *   Copyright (c) 1987, 1988 by Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -67,9 +67,9 @@ static tokdfdef *tok_find_define(tokcxdef *ctx, char *sym, int len)
                 {
                     size_t len;
 
-                    /* 
+                    /*
                      *   put in the opening single quote, since we want
-                     *   the expanded result to be a string 
+                     *   the expanded result to be a string
                      */
                     df->expan[0] = '\'';
 
@@ -80,12 +80,12 @@ static tokdfdef *tok_find_define(tokcxdef *ctx, char *sym, int len)
                     len = strlen(df->expan);
                     df->expan[len] = '\'';
 
-                    /* 
+                    /*
                      *   set the length of the expansion, including the
                      *   quotes (the first quote was measured in the
                      *   length originally, but the second quote hasn't
                      *   been counted yet, so add one to our original
-                     *   length) 
+                     *   length)
                      */
                     df->explen = (int)len + 1;
 
@@ -111,7 +111,7 @@ static tokdfdef *tok_find_define(tokcxdef *ctx, char *sym, int len)
                         errsig(ctx->tokcxerr, ERR_LONG_LINE_MACRO);
                 }
             }
-            
+
             /* return it */
             return df;
         }
@@ -122,7 +122,7 @@ static tokdfdef *tok_find_define(tokcxdef *ctx, char *sym, int len)
 }
 
 /*
- *   Write preprocessor state to a file 
+ *   Write preprocessor state to a file
  */
 void tok_write_defines(tokcxdef *ctx, osfildef *fp, errcxdef *ec)
 {
@@ -153,7 +153,7 @@ void tok_write_defines(tokcxdef *ctx, osfildef *fp, errcxdef *ec)
 }
 
 /*
- *   Read preprocessor state from a file 
+ *   Read preprocessor state from a file
  */
 void tok_read_defines(tokcxdef *ctx, osfildef *fp, errcxdef *ec)
 {
@@ -190,7 +190,7 @@ void tok_read_defines(tokcxdef *ctx, osfildef *fp, errcxdef *ec)
              *   If a symbol with this name already exists in the table,
              *   discard the new one -- the symbols defined by -D and the
              *   current set of built-in symbols takes precedence over the
-             *   set loaded from the file.  
+             *   set loaded from the file.
              */
             if (tok_find_define(ctx, df->nm, df->len))
             {
@@ -244,7 +244,7 @@ static char *tok_casefold_defsym(tokcxdef *ctx, char *outbuf,
 }
 
 /*
- *   convert a token to lower-case if we're folding case 
+ *   convert a token to lower-case if we're folding case
  */
 void tok_case_fold(tokcxdef *ctx, tokdef *tok)
 {
@@ -269,7 +269,7 @@ void tok_add_define_cvtcase(tokcxdef *ctx, char *sym, int len,
                             char *expan, int explen)
 {
     char mysym[TOKNAMMAX];
-    
+
     /* convert to lower-case if necessary */
     sym = tok_casefold_defsym(ctx, mysym, sym, len);
 
@@ -312,7 +312,7 @@ void tok_add_define(tokcxdef *ctx, char *sym, int len,
 void tok_add_define_num_cvtcase(tokcxdef *ctx, char *sym, int len, int num)
 {
     char buf[20];
-    
+
     /* convert the value to a string */
     sprintf(buf, "%d", num);
 
@@ -326,7 +326,7 @@ void tok_del_define(tokcxdef *ctx, char *sym, int len)
     int       hsh;
     tokdfdef *df;
     tokdfdef *prv;
-    
+
     /* find the appropriate chain the hash table */
     hsh = tokdfhsh(sym, len);
 
@@ -373,7 +373,7 @@ static void tokdefine(tokcxdef *ctx, char *p, int len)
     int   symlen;
     char *expan;
     char  mysym[TOKNAMMAX];
-    
+
     /* get the symbol */
     sym = p;
     if (!(symlen = tok_scan_defsym(ctx, p, len)))
@@ -398,12 +398,12 @@ static void tokdefine(tokcxdef *ctx, char *p, int len)
     tok_add_define(ctx, sym, symlen, expan, len);
 }
 
-/* 
+/*
  *   Update the #if status for the current nesting.  Any enclosing
  *   negative #if will override everything inside, so we need to look
  *   through the nesting from the outside in until we either determine
  *   that everything is affirmative or we find a negative anywhere in the
- *   nesting.  
+ *   nesting.
  */
 static void tok_update_if_stat(tokcxdef *ctx)
 {
@@ -420,9 +420,9 @@ static void tok_update_if_stat(tokcxdef *ctx)
         {
         case TOKIF_IF_NO:
         case TOKIF_ELSE_NO:
-            /* 
+            /*
              *   this level is off, hence everything inside is off -- stop
-             *   here with the current (negative) determination 
+             *   here with the current (negative) determination
              */
             return;
 
@@ -510,7 +510,7 @@ static void tokelif(tokcxdef *ctx, char *p, int len)
 static void tokelse(tokcxdef *ctx, char *p, int len)
 {
     int cnt;
-    
+
     /* if we're not expecting #else, it's an error */
     cnt = ctx->tokcxifcnt;
     if (cnt == 0 || ctx->tokcxif[cnt-1] == TOKIF_ELSE_YES
@@ -553,7 +553,7 @@ static void tokundef(tokcxdef *ctx, char *p, int len)
     char *sym;
     int   symlen;
     char  mysym[TOKNAMMAX];
-    
+
     /* get the symbol */
     sym = p;
     if (!(symlen = tok_scan_defsym(ctx, p, len)))
@@ -629,7 +629,7 @@ static void tokinclude(tokcxdef *ctx, char *p, int len)
         errlog(ctx->tokcxerr, ERR_INCNOFN);
         return;
     }
-    
+
     switch(*p)
     {
     case '<':
@@ -644,24 +644,24 @@ static void tokinclude(tokcxdef *ctx, char *p, int len)
         for (++p, --len ; len && *p != match ; --len, ++p) ;
         if (len == 0 || *p != match) errlog(ctx->tokcxerr, ERR_INCMTCH);
         break;
-        
+
     default:
         errlog(ctx->tokcxerr, ERR_INCSYN);
         return;
     }
-    
+
     flen = p - fname;                         /* compute length of filename */
     for (q = p, flen2 = 0 ;
          q > fname && *(q-1) != OSPATHCHAR && !strchr(OSPATHALT, *(q-1)) ;
          --q, ++flen2) ;
-    
+
     /* check to see if this file has already been included */
     for (lin = ctx->tokcxhdr ; lin ; lin = (linfdef *)lin->linflin.linnxt)
     {
         char *p = lin->linfnam;
-        
+
         p += strlen(p);
-        
+
         while (p > lin->linfnam && *(p-1) != OSPATHCHAR
                && !strchr(OSPATHALT, *(p-1)))
             --p;
@@ -673,15 +673,15 @@ static void tokinclude(tokcxdef *ctx, char *p, int len)
             return;
         }
     }
-    
+
     /* initialize the line source */
     child = linfini(ctx->tokcxmem, ctx->tokcxerr, fname, flen, path, TRUE,
                     (ctx->tokcxflg & TOKCXFLIN2) != 0);
-    
+
     /* if not found, signal an error */
     if (!child) errsig1(ctx->tokcxerr, ERR_INCSEAR,
                         ERRTSTR, errstr(ctx->tokcxerr, fname, flen));
-    
+
     /* link into tokenizer list of line records */
     child->linflin.linnxt = (lindef *)ctx->tokcxhdr;
     ctx->tokcxhdr = child;
@@ -698,7 +698,7 @@ static void tokinclude(tokcxdef *ctx, char *p, int len)
         ctx->tokcxlin->linflg |= LINFCMODE;
     else
         ctx->tokcxlin->linflg &= ~LINFCMODE;
-    
+
     child->linflin.linpar = ctx->tokcxlin;   /* remember parent line source */
     ctx->tokcxlin = &child->linflin;   /* make the child the current source */
 }
@@ -714,7 +714,7 @@ static int tokgetlin(tokcxdef *ctx, int dopound)
             if (ctx->tokcxlin->linpar)
             {
                 lindef *parent;
-                
+
                 parent = ctx->tokcxlin->linpar;          /* remember parent */
                 lincls(ctx->tokcxlin);               /* close included file */
                 if (!ctx->tokcxdbg)               /* if no debug context... */
@@ -736,14 +736,14 @@ static int tokgetlin(tokcxdef *ctx, int dopound)
                 return TRUE;
             }
         }
-        
+
         /* if this is a multi-segment line, copy it into our own buffer */
         if (ctx->tokcxlin->linflg & LINFMORE)
         {
             char *p;
             uint  rem;
             int   done;
-            
+
             if (!ctx->tokcxbuf)
             {
                 /* allocate 1k as a default buffer */
@@ -752,7 +752,7 @@ static int tokgetlin(tokcxdef *ctx, int dopound)
                 ctx->tokcxbsz = 1024;
             }
             ctx->tokcxlen = 0;
-            
+
             for (done = FALSE, p = ctx->tokcxbuf, rem = ctx->tokcxbsz ;
                  !done ; )
             {
@@ -760,7 +760,7 @@ static int tokgetlin(tokcxdef *ctx, int dopound)
 
                 /* add the current segment's length into line length */
                 ctx->tokcxlen += len;
-                
+
                 /* we're done after this piece if the last fetch was all */
                 done = !(ctx->tokcxlin->linflg & LINFMORE);
                 if (len + 1 > rem)
@@ -772,29 +772,29 @@ static int tokgetlin(tokcxdef *ctx, int dopound)
                         errsig(ctx->tokcxerr, ERR_LONGLIN);
                     rem += 4096;
                     ctx->tokcxbsz += 4096;
-                    
+
                     /* allocate a new buffer and copy line into it */
                     newp = (char *)mchalo(ctx->tokcxerr, ctx->tokcxbsz, "tok");
                     memcpy(newp, ctx->tokcxbuf, (size_t)(p - ctx->tokcxbuf));
-                    
+
                     /* free the original buffer, and use the new one */
                     p = (p - ctx->tokcxbuf) + newp;
                     mchfre(ctx->tokcxbuf);
                     ctx->tokcxbuf = newp;
                 }
-                
+
                 /* add the line to the buffer */
                 memcpy(p, ctx->tokcxlin->linbuf, len);
                 p += len;
                 rem -= len;
-                
+
                 /* get the next piece of the line if there is one */
                 if (!done)
                 {
                     if (linget(ctx->tokcxlin)) break;
                 }
             }
-            
+
             /* null-terminate the buffer, and use it for input */
             *p = '\0';
             ctx->tokcxptr = ctx->tokcxbuf;
@@ -804,7 +804,7 @@ static int tokgetlin(tokcxdef *ctx, int dopound)
             ctx->tokcxptr = ctx->tokcxlin->linbuf;
             ctx->tokcxlen = ctx->tokcxlin->linlen;
         }
-        
+
         /* check for preprocessor directives */
         if (dopound && ctx->tokcxlen != 0 && ctx->tokcxptr[0] == '#'
             && !(ctx->tokcxlin->linflg & LINFNOINC))
@@ -847,11 +847,11 @@ static int tokgetlin(tokcxdef *ctx, int dopound)
                 {
                     int cnt;
                     int stat;
-                    
+
                     /*
                      *   if we're not in a #if's false part, or if the
                      *   directive is processed even in #if false parts,
-                     *   process the line, otherwise skip it 
+                     *   process the line, otherwise skip it
                      */
                     cnt = ctx->tokcxifcnt;
                     if (dirp->ok_in_if || cnt == 0
@@ -884,7 +884,7 @@ static int tokgetlin(tokcxdef *ctx, int dopound)
             /*
              *   Check the #if level.  If we're in an #if, and we're to
              *   ignore lines (because of a false condition or an #else
-             *   part for a true condition), skip this line. 
+             *   part for a true condition), skip this line.
              */
             if (ctx->tokcxifcnt != 0)
             {
@@ -900,7 +900,7 @@ static int tokgetlin(tokcxdef *ctx, int dopound)
                     break;
                 }
             }
-            
+
             ctx->tokcxlin->linflg &= ~LINFDBG;       /* no debug record yet */
             return(FALSE);                      /* return the line we found */
         }
@@ -914,18 +914,18 @@ int toknext(tokcxdef *ctx)
     tokdef *tok = &ctx->tokcxcur;
     int     len;
 
-    /* 
+    /*
      *   Check for the special case that we pushed an open paren prior to
      *   a string containing an embedded expression.  If this is the case,
-     *   immediately return the string we previously parsed. 
+     *   immediately return the string we previously parsed.
      */
     if ((ctx->tokcxflg & TOKCXF_EMBED_PAREN_PRE) != 0)
     {
-        /* 
+        /*
          *   convert the token to a string - note that the offset
          *   information for the string is already in the current token
          *   structure, since we set everything up for it on the previous
-         *   call where we actually parsed the beginning of the string 
+         *   call where we actually parsed the beginning of the string
          */
         tok->toktyp = TOKTDSTRING;
 
@@ -966,7 +966,7 @@ int toknext(tokcxdef *ctx)
             }
         }
         while (len && t_isspace(*p)) ++p, --len;     /* scan off whitespace */
-        
+
         /* check for comments, and remove if present */
         if (len >= 2 && *p == '/' && *(p+1) == '/')
             len = 0;
@@ -1003,7 +1003,7 @@ int toknext(tokcxdef *ctx)
             goto skipblanks;
         }
     } while (len == 0);
-    
+
 nexttoken:
     if (isalpha((uchar)*p) || *p == '_' || *p == '$')
     {
@@ -1014,7 +1014,7 @@ nexttoken:
         int       found = FALSE;
         uchar     thischar;
         tokdfdef *df;
-        
+
         for (hash = 0, l = 0, q = tok->toknam ;
              len != 0 && TOKISSYM(*p) && l < TOKNAMMAX ;
              (thischar = ((isupper((uchar)*p)
@@ -1033,7 +1033,7 @@ nexttoken:
         tok->tokhash = hash;
 
         /*
-         *   check for the special defined() preprocessor operator 
+         *   check for the special defined() preprocessor operator
          */
         if (l == 9 && !memcmp(tok->toknam,
                               ((ctx->tokcxflg & TOKCXCASEFOLD)
@@ -1044,7 +1044,7 @@ nexttoken:
         {
             int symlen;
             char mysym[TOKNAMMAX];
-            
+
             /* find the matching ')', allowing only symbolic characters */
             ++p, --len;
             for (symlen = 0, q = p ; len && *p != ')' && TOKISSYM(*p) ;
@@ -1079,7 +1079,7 @@ nexttoken:
             len = df->explen;
             goto nexttoken;
         }
-        
+
         /* look up in symbol table(s), if any */
         for (tab = ctx->tokcxstab ; tab ; tab = tab->toktnxt)
         {
@@ -1087,7 +1087,7 @@ nexttoken:
                                           &tok->toksym)) != 0)
                 break;
         }
-        
+
         if (found && tok->toksym.tokstyp == TOKSTKW)
             tok->toktyp = tok->toksym.toksval;
         else
@@ -1100,7 +1100,7 @@ nexttoken:
     else if (isdigit((uchar)*p))
     {
         long acc = 0;
-        
+
         /* check for octal/hex */
         if (*p == '0')
         {
@@ -1143,7 +1143,7 @@ nexttoken:
         char  delim;                 /* closing delimiter we're looking for */
         char *strstart;                       /* pointer to start of string */
         int   warned;
-        
+
         delim = *p;
         --len;
         strstart = ++p;
@@ -1157,9 +1157,9 @@ nexttoken:
             ctx->tokcxmsvl[ctx->tokcxmlvl] = len - 2;
             ctx->tokcxmlvl++;
 
-            /* 
+            /*
              *   read from the special "<<" expansion string - use the
-             *   version for a "<<" at the very beginning of the string 
+             *   version for a "<<" at the very beginning of the string
              */
             p = tokmac1s;
             len = strlen(p);
@@ -1167,7 +1167,7 @@ nexttoken:
             goto nexttoken;
         }
         tok->toktyp = (delim == '"' ? TOKTDSTRING : TOKTSSTRING);
-        
+
         tok->tokofs = (*ctx->tokcxsst)(ctx->tokcxscx);  /* start the string */
         for (warned = FALSE ;; )
         {
@@ -1198,7 +1198,7 @@ nexttoken:
                     }
                     else
                         (*ctx->tokcxsad)(ctx->tokcxscx, " ", (ushort)1);
-                    
+
                     while (len == 0)
                     {
                         if (tokgetlin(ctx, FALSE))
@@ -1230,9 +1230,9 @@ nexttoken:
         /* check to see how it ended */
         if (len != 0 && *p == delim)
         {
-            /* 
+            /*
              *   We ended with the matching delimiter.  Move past the
-             *   closing delimiter. 
+             *   closing delimiter.
              */
             ++p;
             --len;
@@ -1240,7 +1240,7 @@ nexttoken:
             /*
              *   If we have a pending close paren we need to put in
              *   because of an embedded expression that occurred earlier
-             *   in the string, parse the macro to provide the paren.  
+             *   in the string, parse the macro to provide the paren.
              */
             if ((ctx->tokcxflg & TOKCXF_EMBED_PAREN_AFT) != 0
                 && !(ctx->tokcxflg & TOKCXFINMAC))
@@ -1274,7 +1274,7 @@ nexttoken:
             len = strlen(p);
             ctx->tokcxflg |= TOKCXFINMAC;
 
-            /* 
+            /*
              *   Set the special push-a-paren flag: we'll return an open
              *   paren now, so that we have an open paren before the
              *   string, and then on the next call to toknext() we'll
@@ -1282,10 +1282,10 @@ nexttoken:
              *   This will ensure that everything in the string is
              *   properly grouped together as a single indivisible
              *   expression.
-             *   
+             *
              *   Note that we only need to do this for the first embedded
              *   expression in a string.  Once we have a close paren
-             *   pending, we don't need more open parens.  
+             *   pending, we don't need more open parens.
              */
             if (!(ctx->tokcxflg & TOKCXF_EMBED_PAREN_AFT))
             {
@@ -1316,19 +1316,19 @@ nexttoken:
             --(ctx->tokcxmsvl[ctx->tokcxmlvl - 1]);
             p = tokmac3;
 
-            /* 
+            /*
              *   we won't need an extra closing paren now, since tokmac3
-             *   provides it 
+             *   provides it
              */
             ctx->tokcxflg &= ~TOKCXF_EMBED_PAREN_AFT;
         }
         else
         {
-            /* 
+            /*
              *   The string is continuing.  Set a flag to note that we
              *   need to provide a close paren after the end of the
              *   string, and parse the glue (tokmac2) that goes between
-             *   the expression and the resumption of the string. 
+             *   the expression and the resumption of the string.
              */
             ctx->tokcxflg |= TOKCXF_EMBED_PAREN_AFT;
             p = tokmac2;
@@ -1340,7 +1340,7 @@ nexttoken:
     else
     {
         tokscdef *sc;
-        
+
         for (sc = ctx->tokcxsc[ctx->tokcxinx[(uchar)*p]] ; sc ;
              sc = sc->tokscnxt)
         {
@@ -1354,7 +1354,7 @@ nexttoken:
         }
         errsig(ctx->tokcxerr, ERR_INVTOK);
     }
-    
+
 done:
     ctx->tokcxptr = p;
     ctx->tokcxlen = len;
@@ -1365,14 +1365,14 @@ done:
 void toktlini(errcxdef *errctx, toktldef *toktab, uchar *mem, uint siz)
 {
     CLRSTRUCT(*toktab);
-    
+
     /* initialize superclass data */
     toktab->toktlsc.toktfadd = toktladd;           /* set add-symbol method */
     toktab->toktlsc.toktfsea = toktlsea;         /* set search-table method */
     toktab->toktlsc.toktfeach = toktleach;             /* set 'each' method */
     toktab->toktlsc.toktfset = toktlset;             /* set 'update' method */
     toktab->toktlsc.tokterr = errctx;         /* set error handling context */
-    
+
     /* initialize class data */
     toktab->toktlptr = mem;
     toktab->toktlnxt = mem;
@@ -1386,12 +1386,12 @@ void toktladd(toktdef *toktab1, char *name, int namel,
     uint      siz = sizeof(toks1def) + namel;
     toksdef  *sym;
     toktldef *toktab = (toktldef *)toktab1;
-    
+
     VARUSED(hash);
-    
+
     if (toktab->toktlsiz < siz)
         errsig(toktab->toktlsc.tokterr, ERR_NOLCLSY);
-    
+
     sym = (toksdef *)toktab->toktlnxt;
     siz = osrndsz(siz);
     toktab->toktlnxt += siz;
@@ -1404,7 +1404,7 @@ void toktladd(toktdef *toktab1, char *name, int namel,
     sym->tokstyp = typ;
     sym->toksfr  = 0;
     memcpy(sym->toksnam, name, (size_t)(namel + 1));
-    
+
     /* indicate there's one more symbol in the table */
     ++(toktab->toktlcnt);
 }
@@ -1424,7 +1424,7 @@ void toktleach(toktdef *tab1,
     toksdef  *p;
     uint      cnt;
     toktldef *tab = (toktldef *)tab1;
-    
+
     for (p = (toksdef *)tab->toktlptr, cnt = tab->toktlcnt ; cnt ; --cnt )
     {
         (*cb)(ctx, p);
@@ -1439,9 +1439,9 @@ int toktlsea(toktdef *tab1, char *name, int namel, int hash, toksdef *ret)
     toksdef  *p;
     uint      cnt;
     toktldef *tab = (toktldef *)tab1;
-    
+
     VARUSED(hash);
-    
+
     for (p = (toksdef *)tab->toktlptr, cnt = tab->toktlcnt ; cnt ; --cnt )
     {
         if (p->tokslen == namel && !memcmp(p->toksnam, name, (size_t)namel))
@@ -1449,7 +1449,7 @@ int toktlsea(toktdef *tab1, char *name, int namel, int hash, toksdef *ret)
             memcpy(ret, p, (size_t)(sizeof(toks1def) + namel));
             return(TRUE);
         }
-        
+
         p = (toksdef *)(((uchar *)p)
                         + osrndsz(p->tokslen + sizeof(toks1def)));
     }
@@ -1464,7 +1464,7 @@ void toktlset(toktdef *tab1, toksdef *newsym)
     toksdef  *p;
     uint      cnt;
     toktldef *tab = (toktldef *)tab1;
-    
+
     for (p = (toksdef *)tab->toktlptr, cnt = tab->toktlcnt ; cnt ; --cnt )
     {
         if (p->tokslen == newsym->tokslen
@@ -1474,7 +1474,7 @@ void toktlset(toktdef *tab1, toksdef *newsym)
             p->tokstyp = newsym->tokstyp;
             return;
         }
-        
+
         p = (toksdef *)(((uchar *)p)
                         + osrndsz(p->tokslen + sizeof(toks1def)));
     }
@@ -1490,18 +1490,18 @@ tokcxdef *tokcxini(errcxdef *errctx, mcmcxdef *mcmctx, tokldef *sctab)
     tokcxdef *ret;
     tokscdef *sc;
     ushort    siz;
-    
+
     /* set up index table: finds tokcxsc entry from character value */
     memset(index, 0, (size_t)sizeof(index));
     for (i = cnt = 0, p = sctab ; (c = p->toklstr[0]) != 0 ; ++cnt, ++p)
         if (!index[c]) index[c] = ++i;
-    
+
     /* allocate memory for table plus the tokscdef's */
     siz = sizeof(tokcxdef) + (i * sizeof(tokscdef *))
           + ((cnt + 1) * sizeof(tokscdef));
     ret = (tokcxdef *)mchalo(errctx, siz, "tokcxini");
     memset(ret, 0, (size_t)siz);
-    
+
     /* copy the index, set up fixed part */
     memcpy(ret->tokcxinx, index, sizeof(ret->tokcxinx));
     ret->tokcxerr = errctx;
@@ -1509,25 +1509,25 @@ tokcxdef *tokcxini(errcxdef *errctx, mcmcxdef *mcmctx, tokldef *sctab)
 
     /* start out without an #if */
     ret->tokcxifcur = TOKIF_IF_YES;
-    
+
     /* force the first toknext() to read a line */
     ret->tokcxptr = "\000";
-    
+
     /* figure where the tokscdef's go (right after sc pointer array) */
     sc = (tokscdef *)&ret->tokcxsc[i+1];
-    
+
     /* set up the individual tokscdef entries, and link into lists */
     for (p = sctab ; (c = p->toklstr[0]) != 0 ; ++p, ++sc)
     {
         size_t len;
-        
+
         sc->toksctyp = p->tokltyp;
         len = sc->toksclen = strlen(p->toklstr);
         memcpy(sc->tokscstr, p->toklstr, len);
         sc->tokscnxt = ret->tokcxsc[index[c]];
         ret->tokcxsc[index[c]] = sc;
     }
-    
+
     return(ret);
 }
 
@@ -1536,11 +1536,11 @@ void tokaddinc(tokcxdef *ctx, char *path, int pathlen)
 {
     tokpdef *newpath;
     tokpdef *last;
-    
+
     /* find the tail of the include path list, if any */
     for (last = ctx->tokcxinc ; last && last->tokpnxt ;
          last = last->tokpnxt) ;
-    
+
     /* allocate storage for and set up a new path structure */
     newpath = (tokpdef *)mchalo(ctx->tokcxerr,
                                 (sizeof(tokpdef) + pathlen - 1),
@@ -1548,7 +1548,7 @@ void tokaddinc(tokcxdef *ctx, char *path, int pathlen)
     newpath->tokplen = pathlen;
     newpath->tokpnxt = (tokpdef *)0;
     memcpy(newpath->tokpdir, path, (size_t)pathlen);
-    
+
     /* link in at end of list (if no list yet, newpath becomes first entry) */
     if (last)
         last->tokpnxt = newpath;

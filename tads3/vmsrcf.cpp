@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmsrcf.cpp - T3 VM source file list
 Function
-  
+
 Notes
-  
+
 Modified
   12/01/99 MJRoberts  - Creation
 */
@@ -25,11 +25,11 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Source file table implementation 
+ *   Source file table implementation
  */
 
 /*
- *   Initialize 
+ *   Initialize
  */
 CVmSrcfTable::CVmSrcfTable()
 {
@@ -40,7 +40,7 @@ CVmSrcfTable::CVmSrcfTable()
 }
 
 /*
- *   Delete 
+ *   Delete
  */
 CVmSrcfTable::~CVmSrcfTable()
 {
@@ -61,37 +61,37 @@ CVmSrcfTable::~CVmSrcfTable()
 void CVmSrcfTable::clear()
 {
     size_t i;
-    
+
     /* delete each entry */
     for (i = 0 ; i < list_used_ ; ++i)
         delete(list_[i]);
 
-    /* 
+    /*
      *   we no longer have any entries, but leave the list allocated in
-     *   case we add entries again 
+     *   case we add entries again
      */
     list_used_ = 0;
 }
 
 /*
- *   Add a new entry to the table 
+ *   Add a new entry to the table
  */
 CVmSrcfEntry *CVmSrcfTable::add_entry(int orig_index, size_t name_len)
 {
     CVmSrcfEntry *entry;
-    
+
     /* allocate the new entry */
     entry = new CVmSrcfEntry(orig_index, (uint)orig_index == list_used_,
                              name_len);
 
-    /* 
+    /*
      *   make sure we have room in our list for a new entry; if not,
-     *   expand the list 
+     *   expand the list
      */
     if (list_used_ >= list_alloc_)
     {
         size_t siz;
-        
+
         /* calculate the expanded list size */
         list_alloc_ += 10;
         siz = list_alloc_ * sizeof(list_[0]);
@@ -115,7 +115,7 @@ CVmSrcfEntry *CVmSrcfTable::add_entry(int orig_index, size_t name_len)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Source file record implementation 
+ *   Source file record implementation
  */
 
 /*
@@ -124,10 +124,10 @@ CVmSrcfEntry *CVmSrcfTable::add_entry(int orig_index, size_t name_len)
 void CVmSrcfEntry::alloc_line_records(ulong cnt)
 {
     ulong siz;
-    
-    /* 
+
+    /*
      *   if the current array size is already big enough for the given
-     *   count, there's nothing to do 
+     *   count, there's nothing to do
      */
     if (cnt <= lines_alo_)
         return;
@@ -135,10 +135,10 @@ void CVmSrcfEntry::alloc_line_records(ulong cnt)
     /* calculate the allocation size */
     siz = cnt * sizeof(lines_[0]);
 
-    /* 
+    /*
      *   if the new size exceeds the maximum local system's architectural
      *   limit for a single allocation, restrict the size to the maximum
-     *   allocation 
+     *   allocation
      */
     if (siz > OSMALMAX)
     {
@@ -186,7 +186,7 @@ void CVmSrcfEntry::add_line_record(ulong linenum, ulong code_addr)
 }
 
 /*
- *   Find a source line 
+ *   Find a source line
  */
 ulong CVmSrcfEntry::find_src_addr(ulong *linenum, int exact)
 {
@@ -202,14 +202,14 @@ ulong CVmSrcfEntry::find_src_addr(ulong *linenum, int exact)
     while (lo <= hi)
     {
         int match;
-        
+
         /* split the difference */
         cur = lo + (hi - lo)/2;
 
-        /* 
+        /*
          *   Check for a match.  If they require an exact match, we must
          *   find the line number exactly.  Otherwise, check to see if
-         *   this is the next executable line after the given line. 
+         *   this is the next executable line after the given line.
          */
         if (exact)
         {
@@ -218,33 +218,33 @@ ulong CVmSrcfEntry::find_src_addr(ulong *linenum, int exact)
         }
         else
         {
-            /* 
+            /*
              *   exact match not required - match if this is the next
              *   executable line after the requested line, or this is the
-             *   last executable line and the requested line is higher 
+             *   last executable line and the requested line is higher
              */
             if (cur == 0)
             {
-                /* 
+                /*
                  *   this is the first executable line - if the requested
-                 *   line is before this one, this is our match 
+                 *   line is before this one, this is our match
                  */
                 match = (*linenum <= lines_[cur].linenum);
             }
             else if (cur == (long)lines_cnt_ - 1)
             {
-                /* 
+                /*
                  *   this is the last executable line - if the requested
-                 *   line is after this one, this is our match 
+                 *   line is after this one, this is our match
                  */
                 match = (*linenum >= lines_[cur].linenum);
             }
             else
             {
-                /* 
+                /*
                  *   we're somewhere in the middle of the file - if the
                  *   requested line is before this one, but after the
-                 *   previous executable line, this is our match 
+                 *   previous executable line, this is our match
                  */
                 match = (*linenum <= lines_[cur].linenum
                          && *linenum > lines_[cur - 1].linenum);
@@ -254,12 +254,12 @@ ulong CVmSrcfEntry::find_src_addr(ulong *linenum, int exact)
         /* if we have a match, return it; otherwise, keep searching */
         if (match)
         {
-            /* 
+            /*
              *   if this is a non-exact match, update the caller's line
-             *   number with the actual line number we found 
+             *   number with the actual line number we found
              */
             *linenum = lines_[cur].linenum;
-            
+
             /* return our code address */
             return lines_[cur].code_addr;
         }

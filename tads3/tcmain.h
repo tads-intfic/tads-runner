@@ -1,18 +1,18 @@
 /* $Header: d:/cvsroot/tads/tads3/TCMAIN.H,v 1.3 1999/07/11 00:46:53 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   tcmain.h - TADS 3 Compiler - main compiler driver
 Function
-  
+
 Notes
-  
+
 Modified
   04/22/99 MJRoberts  - Creation
 */
@@ -25,7 +25,7 @@ Modified
 #include "t3std.h"
 #include "tcerr.h"
 
-/* 
+/*
  *   error display option flags
  */
 #define TCMAIN_ERR_VERBOSE  0x00000001              /* use verbose messages */
@@ -36,8 +36,8 @@ Modified
 #define TCMAIN_ERR_FNAME_QU 0x00000020                   /* quote filenames */
 
 
-/* 
- *   main compiler driver class 
+/*
+ *   main compiler driver class
  */
 class CTcMain
 {
@@ -54,7 +54,7 @@ public:
     static void tc_err_init(size_t param_stack_size,
                             class CResLoader *res_loader);
     static void tc_err_term();
-    
+
     /* log an error - varargs arguments - static routine */
     static void S_log_error(class CTcTokFileDesc *linedesc, long linenum,
                             int *err_counter, int *warn_counter,
@@ -116,12 +116,12 @@ public:
             err_options_ &= ~TCMAIN_ERR_PEDANTIC;
     }
 
-    /* 
+    /*
      *   Get/set regression test reporting mode.  In test mode, we'll only
      *   show the root name of each file in our status reports and error
      *   messages.  This is useful when running regression tests, because it
      *   allows us to diff the compiler output against a reference log
-     *   without worrying about the local directory structure.  
+     *   without worrying about the local directory structure.
      */
     int get_test_report_mode() const
         { return (err_options_ & TCMAIN_ERR_TESTMODE) != 0; }
@@ -133,12 +133,12 @@ public:
             err_options_ &= ~TCMAIN_ERR_TESTMODE;
     }
 
-    /* 
+    /*
      *   Set the quoted filenames option.  If this option is set, we'll quote
      *   the filenames we report in our error messages; this makes it easier
      *   for automated tools to parse the error messages, because it ensures
      *   that the contents of a filename won't be mistaken for part of the
-     *   error message format.  
+     *   error message format.
      */
     void set_quote_filenames(int flag)
     {
@@ -153,7 +153,7 @@ public:
      *   warnings and pedantic warnings whose error numbers appear in this
      *   array; errors of greater severity will be shown even when they
      *   appear here.
-     *   
+     *
      *   The memory of this list is managed by the caller.  We merely keep a
      *   reference to the caller's array.  The caller is responsible for
      *   ensuring that the memory remains valid for as long as we're around.
@@ -214,18 +214,18 @@ public:
         first_warning_ = 0;
     }
 
-    /* 
+    /*
      *   get the first compilation error/warning code - we keep track of
      *   these for times when we have limited error reporting capabilities
      *   and can only report a single error, such as when we're compiling
-     *   an expression in the debugger 
+     *   an expression in the debugger
      */
     int get_first_error() const { return first_error_; }
     int get_first_warning() const { return first_warning_; }
 
-    /* 
+    /*
      *   check the error count against the error limit, and throw a fatal
-     *   error if we've exceeded it 
+     *   error if we've exceeded it
      */
     void check_error_limit();
 
@@ -250,7 +250,7 @@ private:
      *   in a single compilation unit, we'll abort the compilation with a
      *   fatal error.  This at least limits the amount of garbage we'll
      *   display if we run into a really bad cascading parsing error
-     *   situation where we just can't resynchronize.  
+     *   situation where we just can't resynchronize.
      */
     int max_error_count_;
 
@@ -262,7 +262,7 @@ private:
      *   suppress warnings and pedantic warnings; errors of greater severity
      *   will be displayed even if they appear in this list.  The memory used
      *   for this list is managed by our client; we just keep a reference to
-     *   the client's list.  
+     *   the client's list.
      */
     const int *suppress_list_;
     size_t suppress_cnt_;
@@ -273,21 +273,21 @@ private:
     /* default character set name */
     char *default_charset_;
 
-    /* 
+    /*
      *   flag: we have tried loading an external compiler error message
      *   file and failed; if we fail once during a session, we won't try
      *   again, to avoid repeated searches for a message file during
-     *   compilations of multiple files 
+     *   compilations of multiple files
      */
     static int err_no_extern_messages_;
 
     /* count of references to the error subsystem */
     static int err_refs_;
 
-    /* 
+    /*
      *   The console character mapper.  We use this to map error messages
      *   to the console character set.  This is a static so that we can
-     *   access it from the static error message printer routines.  
+     *   access it from the static error message printer routines.
      */
     static class CCharmapToLocal *console_mapper_;
 };

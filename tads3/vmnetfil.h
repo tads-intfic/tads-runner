@@ -20,7 +20,7 @@ Function
   and perform the local file operations on the temp copy.  If the file is
   opened for writing, we upload our temporary copy to the storage server on
   close, again via HTTP.
-  
+
   The interface is implemented in two versions.  The Network version senses
   at run-time whether or not we're in web server mode; if so, it does the
   HTTP GET/PUT operations to download and upload the temp files, and if not
@@ -34,7 +34,7 @@ Function
   not, the local-only version is selected, in which case the CVmNetFile
   object is basically a no-op that just passes through the local filename.
 Notes
-  
+
 Modified
   09/08/10 MJRoberts  - Creation
 */
@@ -49,7 +49,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   File modes for CVmNetFile::open() 
+ *   File modes for CVmNetFile::open()
  */
 #define NETF_READ      0x0001                      /* open with read access */
 #define NETF_WRITE     0x0002                     /* open with write access */
@@ -65,30 +65,30 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   Network file object.
- *   
+ *
  *   The protocol for operating on a user file is relatively simple to use:
- *   
+ *
  *   1. Prepare the network file by calling CVmNetFile::open().  This returns
  *   a CVmNetFile object that you hang onto for the duration of the file
  *   manipulation - call this 'nfile'.
- *   
+ *
  *   2. Use any local file system API (e.g., any of the osfopxxx() functions)
  *   to open 'nfile->lclfname'.
- *   
+ *
  *   3. Use the local file system APIs (osfread(), osfwrite(), etc) to
  *   read/write the local file.
- *   
+ *
  *   4. Close the local file (with osfcls(), say).
- *   
+ *
  *   5. Close the network file by calling 'nfile->close()'.  This has the
  *   side effect of destroying 'nfile', so you don't have to manually
  *   'delete' it or otherwise dispose it.
- *   
+ *
  *   To retrofit this into existing osifc file management code, all that's
  *   required is to bracket the existing code with the CVmNetFile::open() and
  *   close() calls.  Note that open() and close() can throw errors, so
  *   protect these calls with err_try if you have to do any resource cleanup
- *   if an error is thrown.  
+ *   if an error is thrown.
  */
 class CVmNetFile
 {
@@ -114,11 +114,11 @@ public:
      *   local temporary file, otherwise it simply generates a name for a new
      *   local temporary file; in any case, it returns the temp file name in
      *   the lclfname field.
-     *   
+     *
      *   If 'sfid' is non-zero, it's a CVmObjFile::SFID_xxx value specifying
      *   the special file ID.  Use zero for an ordinary file.
-     *   
-     *   This throws an error on any download failure.  
+     *
+     *   This throws an error on any download failure.
      */
     static CVmNetFile *open(VMG_ const char *fname, int sfid, int mode,
                             os_filetype_t typ, const char *mime_type)
@@ -126,10 +126,10 @@ public:
         ;
 #else
     {
-        /* 
+        /*
          *   Local implementation - access the local file directly.  We don't
          *   care about MIME types for the local implementation, since our
-         *   local file system interfaces don't use them.  
+         *   local file system interfaces don't use them.
          */
         return new CVmNetFile(fname, sfid, 0, mode, typ, 0);
     }
@@ -149,7 +149,7 @@ public:
      *   a caller to explicitly manipulate a local file through code that's
      *   written to support network files, without adding a special case to
      *   that code.  This routine creates a local file descriptor regardless
-     *   of the interpreter mode.  
+     *   of the interpreter mode.
      */
     static CVmNetFile *open_local(VMG_ const char *fname, int sfid,
                                   int mode, os_filetype_t typ)
@@ -185,9 +185,9 @@ public:
         { rmdir_local(vmg_ remove_contents); }
 #endif
 
-    /* 
+    /*
      *   Is this a network file?  This returns true if the file is stored on
-     *   the network, false if it's in the local file system. 
+     *   the network, false if it's in the local file system.
      */
     int is_net_file() const
     {
@@ -200,7 +200,7 @@ public:
      *   possible mode is "file", since we don't support directories or other
      *   non-file types.  On success, fills in *mode with a bitwise
      *   combination of OSFMODE_xxx flags and returns true; returns false on
-     *   failure.  
+     *   failure.
      */
     int get_file_mode(VMG_ unsigned long *mode, unsigned long *attrs,
                       int follow_links)
@@ -238,14 +238,14 @@ public:
         return os_resolve_symlink(lclfname, target, target_size);
     }
 #endif
-    
+
 
     /*
      *   Get a listing of files in the directory.  Creates a list object, and
      *   fills in the list of FileName (CVmObjFileName) objects giving the
      *   names of the files in the directory.  Returns true on success, false
      *   on failure.
-     *   
+     *
      *   'nominal_path' is an optional string to use as the displayed
      *   directory path name for the constructed FileName objects.  If this
      *   is null, we'll use our actual internal local file path.  The nominal
@@ -263,7 +263,7 @@ public:
 #endif
 
     /*
-     *   Enumerate files in the directory through a callback function. 
+     *   Enumerate files in the directory through a callback function.
      */
     int readdir_cb(VMG_ const char *nominal_path,
                    const struct vm_rcdesc *rc, const vm_val_t *cb,
@@ -290,9 +290,9 @@ public:
         ;
 #else
     {
-        /* 
+        /*
          *   local-only mode: check the local file system; it exists if
-         *   osfacc() returns success (zero) 
+         *   osfacc() returns success (zero)
          */
         return !osfacc(fname);
     }
@@ -303,7 +303,7 @@ public:
      *   the file for writing (retaining any existing data in the file, or
      *   creating a new file if it doesn't exist).  If we succeed, we close
      *   the file (and delete it if it didn't exist), and return TRUE.  If we
-     *   fail, return FALSE.  
+     *   fail, return FALSE.
      */
     static int can_write(VMG_ const char *fname, int sfid)
 #ifdef TADSNET
@@ -320,20 +320,20 @@ public:
      *   temp copy back to the storage server, then delete the local temp
      *   copy.  For any network file, deletes the local temp file. For all
      *   files, deletes the CVmNetFile object.
-     *   
+     *
      *   Throws an error on upload failure.  The CVmNetFile object is always
-     *   reliably deleted, whether or not an error is thrown.  
+     *   reliably deleted, whether or not an error is thrown.
      */
     void close(VMG0_)
 #ifdef TADSNET
         ;
 #else
     {
-        /* 
+        /*
          *   Local file:
-         *   
+         *
          *   - if we opened it in "delete" mode, delete it
-         *.  - if we opened it in "create" mode, set the file's OS type code 
+         *.  - if we opened it in "create" mode, set the file's OS type code
          */
         int err = 0;
         if ((mode & NETF_DELETE) != 0)
@@ -372,25 +372,25 @@ public:
         delete this;
     }
 
-    /* 
+    /*
      *   Mark references for garbage collection.  This marks our reference to
-     *   the filespec object, if we have one. 
+     *   the filespec object, if we have one.
      */
     void mark_refs(VMG_ uint state);
 
-    /* 
+    /*
      *   The local filename.  After obtaining this object from vmnet_fopen(),
      *   the caller can use any osfopxxx() function to open the file.  If
      *   we're using the network storage server, this will name a temp file
      *   in the system temp directory; if the file isn't on the storage
-     *   server, this is simply the local file name.  
+     *   server, this is simply the local file name.
      */
     char *lclfname;
 
     /* special file ID */
     int sfid;
 
-    /* 
+    /*
      *   The server filename.  When we're operating on a storage server file,
      *   this is the name of the file on the server; otherwise it's null.
      */
@@ -399,7 +399,7 @@ public:
     /*
      *   The file spec object.  This can be a TemporaryFile object, or a
      *   TadsObject object with a file spec interface.  If the file was
-     *   opened based on a string filename, this is nil.  
+     *   opened based on a string filename, this is nil.
      */
     vm_obj_id_t filespec;
 
@@ -447,17 +447,17 @@ protected:
         /* note whether or not the file exists already */
         int existed = !osfacc(fname);
 
-        /* 
+        /*
          *   try opening for read/write, keeping the existing contents or
-         *   creating a new file if it doesn't exist 
+         *   creating a new file if it doesn't exist
          */
         osfildef *fp = osfoprwb(fname, OSFTBIN);
         if (fp != 0)
         {
-            /* 
+            /*
              *   Successfully opened the file, so we evidently can write it.
              *   We don't actually need to do anything with the file other
-             *   than check that we could open it, so close it.  
+             *   than check that we could open it, so close it.
              */
             osfcls(fp);
 

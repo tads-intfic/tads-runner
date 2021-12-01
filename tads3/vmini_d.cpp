@@ -3,22 +3,22 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
-  vmini_d.cpp - T3 VM - debugger-related initialization 
+  vmini_d.cpp - T3 VM - debugger-related initialization
 Function
   Isolates initialization required only for debugger-enabled versions.
   This module can be replaced with a stub module when linking a
   stand-alone, non-debug version of the VM interpreter, to avoid
   dragging in lots of debugger-related modules.
 Notes
-  
+
 Modified
   12/03/99 MJRoberts  - Creation
 */
@@ -29,7 +29,7 @@ Modified
 #include "vmdbg.h"
 
 /*
- *   Initialize the debugger 
+ *   Initialize the debugger
  */
 void vm_init_debugger(VMG0_)
 {
@@ -38,7 +38,7 @@ void vm_init_debugger(VMG0_)
 }
 
 /*
- *   Initialization, phase 2: just before loading image file 
+ *   Initialization, phase 2: just before loading image file
  */
 void vm_init_before_load(VMG_ const char *image_filename)
 {
@@ -47,7 +47,7 @@ void vm_init_before_load(VMG_ const char *image_filename)
 }
 
 /*
- *   Initialization, phase 3: just after loading the image file 
+ *   Initialization, phase 3: just after loading the image file
  */
 void vm_init_after_load(VMG0_)
 {
@@ -66,7 +66,7 @@ void vm_terminate_debug_shutdown(VMG0_)
 }
 
 /*
- *   Termination - delete debugger objects 
+ *   Termination - delete debugger objects
  */
 void vm_terminate_debug_delete(VMG0_)
 {
@@ -75,7 +75,7 @@ void vm_terminate_debug_delete(VMG0_)
 }
 
 /*
- *   Use a stack-overflow reserve in the debug version 
+ *   Use a stack-overflow reserve in the debug version
  */
 size_t vm_init_stack_reserve()
 {

@@ -2,11 +2,11 @@
 $Header: d:/cvsroot/tads/TADS2/MCL.H,v 1.2 1999/05/17 02:52:12 MJRoberts Exp $
 */
 
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -18,7 +18,7 @@ Notes
   cache manager to load objects from a file.  The cache manager
   obtains a loader context during initialization, then refers to
   objects through loader handles.
-  
+
   All loading is actually accomplished through client callbacks.
   There is no general loader implementation.  The "load handle" is
   defined here suitably for an fseek() location; it is assumed that

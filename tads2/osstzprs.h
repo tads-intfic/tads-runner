@@ -34,7 +34,7 @@ Function
     }
 
 Notes
-  
+
 Modified
   02/13/12 MJRoberts  - Creation
 */
@@ -52,7 +52,7 @@ extern "C" {
  *   Parse a string using the syntax of the POSIX "TZ" environment variable.
  *   If successful, fills in *info and returns true; if the string isn't in
  *   one of the recognized formats, returns false.
- *   
+ *
  *   'west_is_positive' says whether UTC offsets are positive or negative to
  *   the west.  The POSIX TZ convention is that west is positive, as in
  *   EST5EDT (New York time, 5 hours west of UTC), so this should be set to

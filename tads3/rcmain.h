@@ -1,18 +1,18 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   rcmain.h - T3 resource compiler main
 Function
-  
+
 Notes
-  
+
 Modified
   01/03/00 MJRoberts  - Creation
 */
@@ -29,10 +29,10 @@ Modified
 class CResCompMain
 {
 public:
-    /* 
+    /*
      *   Add the given resources to an image file.  Returns zero on
      *   success, nonzero on failure.  If anything goes wrong, we'll use
-     *   the given host interface to display error messages.  
+     *   the given host interface to display error messages.
      */
     static int add_resources(const char *image_fname,
                              const class CRcResList *reslist,
@@ -46,7 +46,7 @@ private:
 };
 
 /*
- *   Resource list element 
+ *   Resource list element
  */
 class CRcResEntry
 {
@@ -67,7 +67,7 @@ public:
         lib_free_str(fname_);
         lib_free_str(url_);
     }
-    
+
     /* get/set the next entry in the list */
     CRcResEntry *get_next() const { return next_; }
     void set_next(CRcResEntry *nxt) { next_ = nxt; }
@@ -90,7 +90,7 @@ private:
 };
 
 /*
- *   Resource operation modes 
+ *   Resource operation modes
  */
 enum rcmain_res_op_mode_t
 {
@@ -105,7 +105,7 @@ enum rcmain_res_op_mode_t
 };
 
 /*
- *   Resource list object 
+ *   Resource list object
  */
 class CRcResList
 {
@@ -141,12 +141,12 @@ public:
     /* get the number of elements in the list */
     unsigned int get_count() const { return count_; }
 
-    /* 
+    /*
      *   Add a file or directory.  If 'alias' is non-null, we'll store the
      *   alias string as-is (with no URL conversions or any other changes)
      *   as the name of the resource.  If 'alias' is null, we'll convert
      *   the filename to a URL using the normal rules and store the URL.
-     *   
+     *
      *   If 'fname' refers to a directory rather than a file, we'll add
      *   all of the files within the directory.  'alias' is ignored in
      *   this case, since we construct a URL from the directory path.  If
@@ -183,7 +183,7 @@ private:
 
 /*
  *   Resource compiler host interface.  This provides access to
- *   application operations during resource compilation. 
+ *   application operations during resource compilation.
  */
 class CRcHostIfc
 {

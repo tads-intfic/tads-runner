@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/VMBIFTAD.CPP,v 1.3 1999/07/11 00:46:58 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmbift3.cpp - T3 VM system interface function set
 Function
-  
+
 Notes
-  
+
 Modified
   04/05/99 MJRoberts  - Creation
 */
@@ -61,7 +61,7 @@ void CVmBifT3::run_gc(VMG_ uint argc)
 }
 
 /*
- *   set the SAY instruction's handler function 
+ *   set the SAY instruction's handler function
  */
 #define SETSAY_NO_FUNC    1
 #define SETSAY_NO_METHOD  2
@@ -69,7 +69,7 @@ void CVmBifT3::set_say(VMG_ uint argc)
 {
     vm_val_t *arg = G_stk->get(0);
     vm_val_t val;
-    
+
     /* one argument is required */
     check_argc(vmg_ argc, 1);
 
@@ -78,10 +78,10 @@ void CVmBifT3::set_say(VMG_ uint argc)
         || (arg->typ == VM_INT && arg->val.intval == SETSAY_NO_METHOD))
     {
         vm_prop_id_t prop;
-        
-        /* 
+
+        /*
          *   the return value is the old property pointer (or
-         *   SETSAY_NO_METHOD if there was no valid property set previously) 
+         *   SETSAY_NO_METHOD if there was no valid property set previously)
          */
         prop = G_interpreter->get_say_method();
         if (prop != VM_INVALID_PROP)
@@ -104,9 +104,9 @@ void CVmBifT3::set_say(VMG_ uint argc)
              || arg->typ == VM_BIFPTR
              || (arg->typ == VM_INT && arg->val.intval == SETSAY_NO_FUNC))
     {
-        /* 
+        /*
          *   the return value is the old function (or SETSAY_NO_FUNC if the
-         *   old function was nil) 
+         *   old function was nil)
          */
         G_interpreter->get_say_func(&val);
         if (val.typ != VM_NIL)
@@ -168,8 +168,8 @@ void CVmBifT3::get_vm_banner(VMG_ uint argc)
     retval_str(vmg_ T3VM_BANNER_STRING);
 }
 
-/* 
- *   get the 'preinit' status - true if preinit, nil if normal 
+/*
+ *   get the 'preinit' status - true if preinit, nil if normal
  */
 void CVmBifT3::get_vm_preinit_mode(VMG_ uint argc)
 {
@@ -181,7 +181,7 @@ void CVmBifT3::get_vm_preinit_mode(VMG_ uint argc)
 }
 
 /*
- *   get the runtime symbol table 
+ *   get the runtime symbol table
  */
 void CVmBifT3::get_global_symtab(VMG_ uint argc)
 {
@@ -213,8 +213,8 @@ void CVmBifT3::get_global_symtab(VMG_ uint argc)
     }
 }
 
-/* 
- *   allocate a new property ID 
+/*
+ *   allocate a new property ID
  */
 void CVmBifT3::alloc_new_prop(VMG_ uint argc)
 {
@@ -226,7 +226,7 @@ void CVmBifT3::alloc_new_prop(VMG_ uint argc)
 }
 
 /*
- *   get a stack trace 
+ *   get a stack trace
  */
 #define T3_GST_LOCALS   0x0001
 #define T3_GST_FREFS    0x0002
@@ -253,17 +253,17 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
     stack_info_cls.set_obj(G_predef->stack_info_cls);
     if (stack_info_cls.val.obj == VM_INVALID_OBJ)
     {
-        /* 
+        /*
          *   there's no stack information class - we can't return any
-         *   meaningful information, so just return nil 
+         *   meaningful information, so just return nil
          */
         retval_nil(vmg0_);
         return;
     }
 
-    /* 
+    /*
      *   look up T3StackInfo.construct() to determine how many arguments it
-     *   wants 
+     *   wants
      */
     {
         int min_args, opt_args, varargs;
@@ -281,9 +281,9 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
     /* check to see if we're fetching a single level or the full trace */
     if (argc >= 1)
     {
-        /* 
+        /*
          *   Get the single level, and adjust to a 0 base.  If the level is
-         *   nil, we're still getting all levels. 
+         *   nil, we're still getting all levels.
          */
         if (G_stk->get(0)->typ == VM_NIL)
         {
@@ -298,7 +298,7 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
             /* make sure it's in range */
             if (single_level <= 0)
                 err_throw(VMERR_BAD_VAL_BIF);
-            
+
             /* we won't need a return list */
             lst_val.set_obj_or_nil(VM_INVALID_OBJ);
             lst = 0;
@@ -312,10 +312,10 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
     /* if we're not doing a single level, we need a list for the result */
     if (!single_level)
     {
-        /* 
+        /*
          *   We're returning a full list, so we need to allocate the list for
          *   the return value.  First, count stack levels to see how big a
-         *   list we'll need.  
+         *   list we'll need.
          */
         fp = G_interpreter->get_frame_ptr();
         entry_addr = G_interpreter->get_entry_ptr();
@@ -337,12 +337,12 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
         lst_val.set_obj(CVmObjList::create(vmg_ FALSE, level));
         lst = (CVmObjList *)vm_objp(vmg_ lst_val.val.obj);
 
-        /* 
+        /*
          *   we create other objects while building this list, so the gc
-         *   could run - clear the list to ensure it contains valid data 
+         *   could run - clear the list to ensure it contains valid data
          */
         lst->cons_clear();
-        
+
         /* protect the list from garbage collection while we work */
         G_stk->push(&lst_val);
 
@@ -384,10 +384,10 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
         /* if we're looking for a single level, and this isn't it, skip it */
         if (single_level >= 0 && level != single_level)
             goto done_with_level;
-       
-        /* 
+
+        /*
          *   start with the information values to nil - we'll set the
-         *   appropriate ones when we find out what we have 
+         *   appropriate ones when we find out what we have
          */
         info_func.set_nil();
         info_obj.set_nil();
@@ -424,10 +424,10 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
         /* determine whether it's an object.prop or a function call */
         if (method_ofs == 0)
         {
-            /* 
+            /*
              *   A zero method offset indicates a recursive VM invocation
              *   from a native function.  Presume we have no information on
-             *   the caller.  
+             *   the caller.
              */
             info_self.set_nil();
             fr_argc = 0;
@@ -505,9 +505,9 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
             info_self.set_obj(G_interpreter->get_self_from_frame(vmg_ fp));
         }
 
-        /* 
+        /*
          *   build the argument list and source location, except for system
-         *   routines 
+         *   routines
          */
         if (method_ofs != 0 || rc != 0)
         {
@@ -515,11 +515,11 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
             int ac = (rc != 0 ? rc->argc : fr_argc);
             info_args.set_obj(CVmObjList::create(vmg_ FALSE, ac));
             arglst = (CVmObjList *)vm_objp(vmg_ info_args.val.obj);
-            
+
             /* push the argument list for gc protection */
             G_stk->push(&info_args);
             ++gc_cnt;
-            
+
             /* build the argument list */
             for (i = 0 ; i < ac ; ++i)
             {
@@ -534,9 +534,9 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
             /* get the source location */
             get_source_info(vmg_ entry_addr, method_ofs, &info_srcloc);
 
-            /* 
+            /*
              *   if they want locals, and this isn't a recursive native
-             *   caller, retrieve them 
+             *   caller, retrieve them
              */
             if (rc == 0
                 && (((flags & T3_GST_LOCALS) != 0 && want_locals)
@@ -549,10 +549,10 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
                                  (flags & T3_GST_FREFS) != 0 && want_frefs
                                  ? &info_frameref : 0);
 
-                /* 
+                /*
                  *   that leaves the LookupTable and StackFrameDesc on the
                  *   stack, so note that we need to discard the stack level
-                 *   when we're done with it 
+                 *   when we're done with it
                  */
                 if (info_locals.typ == VM_OBJ)
                     ++gc_cnt;
@@ -562,10 +562,10 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
         }
         else
         {
-            /* 
+            /*
              *   it's a system routine - no argument information is
              *   available, so return nil rather than an empty list to to
-             *   indicate the absence 
+             *   indicate the absence
              */
             info_args.set_nil();
 
@@ -573,16 +573,16 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
             info_srcloc.set_nil();
         }
 
-        /* 
+        /*
          *   We have all of the information on this level now, so create the
          *   information object for the level.  This is an object of the
-         *   exported stack-info class, which is a TadsObject type.  
+         *   exported stack-info class, which is a TadsObject type.
          */
 
         /* start with the original complement of arguments */
         info_argc = 7;
 
-        /* 
+        /*
          *   if we have a modern T3StackInfo object, push the locals,
          *   named argument elements, and frame reference object
          */
@@ -593,7 +593,7 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
         }
         if (want_named_args)
         {
-            /* 
+            /*
              *   the constructor has a slot for named arguments - push either
              *   a table or nil, depending...
              */
@@ -604,23 +604,23 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
             if ((flags & T3_GST_LOCALS) != 0)
                 t = CVmRun::get_named_args_from_frame(vmg_ fp, &argp);
 
-            /* 
+            /*
              *   if we do in fact have named arguments, build a lookup table
-             *   copy and push it; otherwise just push nil 
+             *   copy and push it; otherwise just push nil
              */
             if (t != 0)
             {
                 /* get the number of table entries */
                 int n = osrp2(t);
                 t += 2;
-                
+
                 /* create a lookup table for the arguments */
                 G_stk->push()->set_obj(CVmObjLookupTable::create(
                     vmg_ FALSE, n <= 8 ? 8 : n <= 32 ? 32 : 64, n));
                 CVmObjLookupTable *lt = (CVmObjLookupTable *)vm_objp(
                     vmg_ G_stk->get(0)->val.obj);
-                
-                /* 
+
+                /*
                  *   Populate the lookup table with the named arguments.  The
                  *   compiler builds the table in the order pushed, which is
                  *   right to left.  Lookup tables preserve the order in
@@ -629,7 +629,7 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
                  *   lookup table matters.  For readability of the generated
                  *   list, in case it's presented to the user, build the
                  *   table in left-to-right order, which is the reverse of
-                 *   the table order in the bytecode table.  
+                 *   the table order in the bytecode table.
                  */
                 argp += n - 1;
                 for (int i = (n-1)*2 ; i >= 0 ; i -= 2, --argp)
@@ -638,11 +638,11 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
                     uint ofs = osrp2(t + i), nxtofs = osrp2(t + i + 2);
                     const char *name = (const char *)t + ofs;
                     size_t len = nxtofs - ofs;
-                    
+
                     /* create a string from the name */
                     vm_val_t str;
                     str.set_obj(CVmObjString::create(vmg_ FALSE, name, len));
-                    
+
                     /* add it to the table */
                     lt->add_entry(vmg_ &str, argp);
                 }
@@ -675,7 +675,7 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
         /* discard the gc protection items */
         G_stk->discard(gc_cnt);
 
-        /* 
+        /*
          *   if we're fetching a single level, this is it - return the new
          *   stack info object and we're done
          */
@@ -696,23 +696,23 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
          *   If this is a system call level, and we're not in debug mode,
          *   this recursive frame contains the entry address for the caller,
          *   but not the calling byte-code address.  Stay on the current
-         *   level in this case.  
+         *   level in this case.
          */
         if (method_ofs == 0 && entry_addr != 0)
         {
-            /* 
+            /*
              *   This is a recursive caller, and we have a valid entry
              *   address for the prior frame.  Stay in the current frame, and
-             *   retrieve the actual return address from the calling frame.  
+             *   retrieve the actual return address from the calling frame.
              */
             if (rc != 0)
             {
                 /* get the actual return address from the recursive context */
                 method_ofs = rc->get_return_addr() - entry_addr;
 
-                /* 
+                /*
                  *   we're now in the bytecode part of the frame, so forget
-                 *   the recursive context 
+                 *   the recursive context
                  */
                 rc = 0;
             }
@@ -745,7 +745,7 @@ void CVmBifT3::get_stack_trace(VMG_ uint argc)
  *   'retval' with a LooupTable object containing the local values keyed by
  *   symbol name, or nil if we can't find the locals.  We'll also push the
  *   object onto the stack for gc protection, so the caller must pop it when
- *   done with it.  
+ *   done with it.
  */
 void CVmBifT3::get_stack_locals(VMG_ vm_val_t *fp,
                                 const uchar *entry_addr, ulong method_ofs,
@@ -771,16 +771,16 @@ void CVmBifT3::get_stack_locals(VMG_ vm_val_t *fp,
             /* get this frame */
             CVmDbgFramePtr fp;
             dp.set_frame_ptr(vmg_ &fp, i);
-            
+
             /* check to see if this contains method_ofs */
             uint start_ofs = fp.get_start_ofs(vmg0_);
             uint end_ofs = fp.get_end_ofs(vmg0_);
             if (method_ofs >= start_ofs && method_ofs <= end_ofs)
             {
-                /* 
+                /*
                  *   This is a relevant frame.  If we don't have any frames
                  *   yet, or this one is nested within the best we've found
-                 *   so far, this is the best frame so far.  
+                 *   so far, this is the best frame so far.
                  */
                 if (best == 0 || fp.is_nested_in(vmg_ &dp, best))
                     best = i;
@@ -841,21 +841,21 @@ void CVmBifT3::get_stack_locals(VMG_ vm_val_t *fp,
         for (int i = 0 ; i < sym_cnt ; ++i, symp.inc(vmg0_))
         {
             vm_val_t name, val;
-            
+
             /* get the symbol name */
             symp.get_str_val(vmg_ &name);
 
-            /* 
+            /*
              *   if this symbol is already in the table, skip it - we work
              *   from inner to outer frames, and inner frames hide symbols in
-             *   outer frames 
+             *   outer frames
              */
             if (t->index_check(vmg_ &val, &name))
                 continue;
 
             /* get the value from the frame */
             G_interpreter->get_local_from_frame(vmg_ &val, fp, &symp);
-            
+
             /* add this to the lookup table */
             t->add_entry(vmg_ &name, &val);
         }
@@ -876,7 +876,7 @@ void CVmBifT3::get_stack_locals(VMG_ vm_val_t *fp,
  *   a list containing the source file information: the first element is a
  *   string giving the name of the file, and the second element is an
  *   integer giving the line number in the file.  Returns nil if no source
- *   information is available for the given byte code location.  
+ *   information is available for the given byte code location.
  */
 void CVmBifT3::get_source_info(VMG_ const uchar *entry_addr, ulong method_ofs,
                                vm_val_t *retval)
@@ -911,10 +911,10 @@ void CVmBifT3::get_source_info(VMG_ const uchar *entry_addr, ulong method_ofs,
     if (srcf == 0)
         return;
 
-    /* 
+    /*
      *   Create a list for the return value.  The return list has two
      *   elements: the name of the source file containing this code, and the
-     *   line number in the file. 
+     *   line number in the file.
      */
     retval->set_obj(CVmObjList::create(vmg_ FALSE, 2));
     lst = (CVmObjList *)vm_objp(vmg_ retval->val.obj);
@@ -928,17 +928,17 @@ void CVmBifT3::get_source_info(VMG_ const uchar *entry_addr, ulong method_ofs,
     /* get the filename string */
     fname = srcf->get_name();
 
-    /* 
+    /*
      *   determine how long the string will be when translated to utf8 from
-     *   the local filename character set 
+     *   the local filename character set
      */
     map_len = G_cmap_from_fname->map_str(0, 0, fname);
 
-    /* 
+    /*
      *   create a string value to hold the filename, and store it in the
      *   first element of the return list (note that this automatically
      *   protects the new string from garbage collection, by virtue of the
-     *   list referencing the string and the list itself being protected) 
+     *   list referencing the string and the list itself being protected)
      */
     ele.set_obj(CVmObjString::create(vmg_ FALSE, map_len));
     lst->cons_set_element(0, &ele);
@@ -958,7 +958,7 @@ void CVmBifT3::get_source_info(VMG_ const uchar *entry_addr, ulong method_ofs,
 
 /*
  *   Look up a named argument.  If 'mandatory' is set, we throw an error if
- *   we can't find a resolution. 
+ *   we can't find a resolution.
  */
 void CVmBifT3::get_named_arg(VMG_ uint argc)
 {
@@ -974,10 +974,10 @@ void CVmBifT3::get_named_arg(VMG_ uint argc)
     size_t namelen = vmb_get_len(name);
     name += VMB_LEN;
 
-    /* 
+    /*
      *   Scan the stack for named parameter tables.  A named parameter table
      *   is always in the calling frame at the stack slot just beyond the
-     *   last argument.  
+     *   last argument.
      */
     for (vm_val_t *fp = G_interpreter->get_frame_ptr() ; fp != 0 ;
          fp = G_interpreter->get_enclosing_frame_ptr(vmg_ fp))
@@ -1012,9 +1012,9 @@ void CVmBifT3::get_named_arg(VMG_ uint argc)
         }
     }
 
-    /* 
+    /*
      *   The argument is undefined.  If a default value was supplied, simply
-     *   return the default value.  Otherwise throw an error.  
+     *   return the default value.  Otherwise throw an error.
      */
     if (argc >= 2)
     {
@@ -1033,13 +1033,13 @@ void CVmBifT3::get_named_arg(VMG_ uint argc)
 }
 
 /*
- *   Retrieve a list of the named argument names.  
+ *   Retrieve a list of the named argument names.
  */
 void CVmBifT3::get_named_arg_list(VMG_ uint argc)
 {
     /* check arguments */
     check_argc(vmg_ argc, 0);
-    
+
     /* create the result list; we'll expand as necessary later */
     G_stk->push()->set_obj(CVmObjList::create(vmg_ FALSE, 10));
     CVmObjList *lst = (CVmObjList *)vm_objp(vmg_ G_stk->get(0)->val.obj);
@@ -1063,7 +1063,7 @@ void CVmBifT3::get_named_arg_list(VMG_ uint argc)
             int n = osrp2(t);
             t += 2;
 
-            /* 
+            /*
              *   Build the list.  The compiler generates the list in
              *   right-to-left order (the order of pushing the arguments).
              *   For readability, reverse this: generate the list left to
@@ -1075,7 +1075,7 @@ void CVmBifT3::get_named_arg_list(VMG_ uint argc)
                 /* get this string's offset and figure its length */
                 uint ofs = osrp2(t + i);
                 uint len = osrp2(t + i + 2) - ofs;
-                
+
                 /* create a string from the name */
                 vm_val_t str;
                 str.set_obj(CVmObjString::create(
@@ -1105,7 +1105,7 @@ void CVmBifT3::get_named_arg_list(VMG_ uint argc)
  *   and debug functions.  These functions are not meant for use by
  *   "normal" programs - they provide internal access to certain VM state
  *   that is not useful or meaningful except for testing and debugging the
- *   VM itself.  
+ *   VM itself.
  */
 
 /*
@@ -1113,12 +1113,12 @@ void CVmBifT3::get_named_arg_list(VMG_ uint argc)
  *   integer giving the object's VM ID number.  This is effectively an
  *   address that can be used to refer to the object.  Because this value
  *   is returned as an integer, it is NOT a reference to the object for
- *   the purposes of garbage collection or finalization.  
+ *   the purposes of garbage collection or finalization.
  */
 void CVmBifT3Test::get_obj_id(VMG_ uint argc)
 {
     vm_val_t val;
-    
+
     /* one argument required */
     check_argc(vmg_ argc, 1);
 
@@ -1133,17 +1133,17 @@ void CVmBifT3Test::get_obj_id(VMG_ uint argc)
  *   Get an object's garbage collection state.  Takes an object ID (NOT an
  *   object reference -- this is the integer value returned by get_obj_id)
  *   and returns a bit mask with the garbage collector state.
- *   
+ *
  *   (retval & 0x000F) gives the free state.  0 is free, 1 is in use.
- *   
+ *
  *   (retval & 0x00F0) gives the reachable state.  0x00 is unreachable,
  *   0x10 is finalizer-reachable, and 0x20 is fully reachable.
- *   
+ *
  *   (retval & 0x0F00) gives the finalizer state.  0x000 is unfinalizable,
  *   0x100 is finalizable, and 0x200 is finalized.
- *   
+ *
  *   (retval & 0xF000) gives the object ID validity.  0 is valid, 0xF000
- *   is invalid.  
+ *   is invalid.
  */
 void CVmBifT3Test::get_obj_gc_state(VMG_ uint argc)
 {
@@ -1161,7 +1161,7 @@ void CVmBifT3Test::get_obj_gc_state(VMG_ uint argc)
 }
 
 /*
- *   Get the Unicode character code of the first character of a string 
+ *   Get the Unicode character code of the first character of a string
  */
 void CVmBifT3Test::get_charcode(VMG_ uint argc)
 {
@@ -1173,9 +1173,9 @@ void CVmBifT3Test::get_charcode(VMG_ uint argc)
     /* get the object ID as an integer */
     str = pop_str_val(vmg0_);
 
-    /* 
+    /*
      *   if the string is empty, return nil; otherwise, return the Unicode
-     *   character code of the first character 
+     *   character code of the first character
      */
     if (vmb_get_len(str) == 0)
     {
@@ -1184,9 +1184,9 @@ void CVmBifT3Test::get_charcode(VMG_ uint argc)
     }
     else
     {
-        /* 
+        /*
          *   get the character code of the first character and return it
-         *   as an integer 
+         *   as an integer
          */
         retval_int(vmg_ (int)utf8_ptr::s_getch(str + VMB_LEN));
     }

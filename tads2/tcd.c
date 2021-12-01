@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/TCD.C,v 1.4 1999/07/11 00:46:30 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1992, 2000 by Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -221,9 +221,9 @@ void vocdusave_delwrd(voccxdef *ctx, objnum objn, prpnum typ, int flags,
                       char *wrd) {}
 void vocdusave_me(voccxdef *ctx, objnum old_me) {}
 
-/* 
+/*
  *   dummy runstat - we have no status line when running preinit under the
- *   compiler, so this doesn't need to do anything 
+ *   compiler, so this doesn't need to do anything
  */
 void runstat(void)
 {
@@ -248,7 +248,7 @@ static void tcduspt(errcxdef *ec, int first, int last)
 {
     int  i;
     char buf[128];
-    
+
     for (i = first ; i <= last ; ++i)
     {
         errmsg(ec, buf, (uint)sizeof(buf), i);
@@ -303,20 +303,20 @@ typedef struct tcdchkctx
 } tcdchkctx;
 
 /*
- *   Callback to check for undefined objects 
+ *   Callback to check for undefined objects
  */
 static void tcdchkundef(void *ctx0, toksdef *t)
 {
     tcdchkctx *ctx = (tcdchkctx *)ctx0;
     int        err;
-    
+
     switch(t->tokstyp)
     {
     case TOKSTFWDOBJ:
         /* undefined function */
         err = ERR_UNDEFO;
         goto log_the_error;
-        
+
     case TOKSTFWDFN:
         /* undefined object */
         err = ERR_UNDEFF;
@@ -338,7 +338,7 @@ static void tcdchkundef(void *ctx0, toksdef *t)
 
 
 /*
- *   Error callback context 
+ *   Error callback context
  */
 struct tcderrdef
 {
@@ -356,7 +356,7 @@ typedef struct tcderrdef tcderrdef;
  *   Version string information.  This information is used by both the
  *   pre-defined #define's that are set up by the compiler and by the
  *   version string display (keeping them common increases the likelihood
- *   that they'll remain in sync).  
+ *   that they'll remain in sync).
  */
 static char vsn_major[] = "2";
 static char vsn_minor[] = "5";
@@ -364,7 +364,7 @@ static char vsn_maint[] = "17";
 
 
 /*
- *   Default memory sizes, if previously defined 
+ *   Default memory sizes, if previously defined
  */
 #ifndef TCD_SETTINGS_DEFINED
 # define TCD_POOLSIZ  (6 * 1024)
@@ -501,7 +501,7 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
     char      *strfile = 0;                  /* name of string capture file */
     char      *charmap = 0;                       /* character mapping file */
     int        checked_undefs = FALSE;     /* checked for undefined symbols */
-    
+
     NOREG((&loadopen))
     NOREG((&linf))
 
@@ -553,18 +553,18 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
                 /* add the symbol */
                 tok_add_define_cvtcase(tc, sym, symlen, expan, explen);
                 break;
-                
+
             case 'U':
                 /* get the symbol and undefine it */
                 sym = cmdarg(ec, &argp, &i, argc, 1, tcdusage);
                 symlen = strlen(sym);
                 tok_del_define(tc, sym, symlen);
                 break;
-                
+
             case 'C':
                 c_mode = cmdtog(ec, c_mode, arg, 1, tcdusage);
                 break;
-                
+
             case 'c':
                 {
                     int case_sensitive;
@@ -589,7 +589,7 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
                         tcdusage(ec);
                     break;
                 }
-                
+
             case 'e':                                 /* error capture file */
                 {
                     char *errfname;
@@ -598,7 +598,7 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
                         errsig(ec, ERR_ERRFIL);
                     break;
                 }
-                
+
             case 'd':
                 if (arg[2] == 's')
                 {
@@ -617,21 +617,21 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
                 else
                     tcdusage(ec);
                 break;
-                
+
             case 'm':
                 switch(*(arg+2))
                 {
                 case '?':
                     tcdmusage(ec);
-                    
+
                 case 'g':
                     labsiz = atoi(cmdarg(ec, &argp, &i, argc, 2, tcdusage));
                     break;
-                    
+
                 case 'p':
                     poolsiz = atoi(cmdarg(ec, &argp, &i, argc, 2, tcdusage));
                     break;
-                    
+
                 case 'l':
                     lclsiz = atoi(cmdarg(ec, &argp, &i, argc, 2, tcdusage));
                     break;
@@ -639,29 +639,29 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
                 case 's':
                     stksiz = atoi(cmdarg(ec, &argp, &i, argc, 2, tcdusage));
                     break;
-                    
+
                 case 'h':
                     heapsiz = atoi(cmdarg(ec, &argp, &i, argc, 2, tcdusage));
                     break;
-                    
+
                 default:
                     cachelimit = atol(cmdarg(ec, &argp, &i, argc,
                                              1, tcdusage));
                     break;
                 }
                 break;
-                
+
             case 'o':
                 if (arg[2] == '-')
                     genoutput = FALSE;
                 else
                     outfile = cmdarg(ec, &argp, &i, argc, 1, tcdusage);
                 break;
-                
+
             case 's':
                 stats = cmdtog(ec, stats, arg, 1, tcdusage);
                 break;
-                
+
             case 't':
                 /* swap file options:  -tf file, -ts size, -t- (no swap) */
                 switch(*(arg+2))
@@ -669,32 +669,32 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
                 case 'f':
                     swapname = cmdarg(ec, &argp, &i, argc, 2, tcdusage);
                     break;
-                    
+
                 case 's':
                     swapsize = atol(cmdarg(ec, &argp, &i, argc, 2, tcdusage));
                     break;
-                    
+
                 default:
                     swapena = cmdtog(ec, swapena, arg, 1, tcdusage);
                     break;
                 }
                 break;
-                
+
             case 'i':
                 {
                     char *path = cmdarg(ec, &argp, &i, argc, 1, tcdusage);
                     tokaddinc(tc, path, (int)strlen(path));
                     break;
                 }
-                
+
             case 'l':
                 binin = cmdarg(ec, &argp, &i, argc, 1, tcdusage);
                 break;
-                
+
             case 'p':
                 ex_pause = cmdtog(ec, ex_pause, arg, 1, tcdusage);
                 break;
-                
+
             case 'w':
                 binout = cmdarg(ec, &argp, &i, argc, 1, tcdusage);
                 break;
@@ -732,30 +732,30 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
                 {
                 case '?':
                     tcd1usage(ec);
-                    
+
                 case 'k':
                     v1kw = cmdtog(ec, v1kw, arg, 2, tcdusage);
                     break;
-                    
+
                 case 'e':
                     v1else = cmdtog(ec, v1else, arg, 2, tcdusage);
                     break;
-                    
+
                 case 'a':
                     argchecking = cmdtog(ec, argchecking, arg, 2, tcdusage);
                     break;
-                    
+
                 case 'd':
                     do_kw = cmdarg(ec, &argp, &i, argc, 2, tcdusage);
                     break;
-                    
+
                 case '\0':
                     /* no suboption - invert all v1 options */
                     argchecking = !argchecking;
                     v1else = !v1else;
                     v1kw = !v1kw;
                     break;
-                    
+
                 default:
                     tcdusage(ec);
                 }
@@ -786,22 +786,22 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
                         tcdusage(ec);
                 }
                 break;
-                
+
             case 'Z':
                 switch(arg[2])
                 {
                 case '?':
                     tcdzusage(ec);
-                    
+
                 case 'a':
                     argchecking = cmdtog(ec, argchecking, arg, 2, tcdusage);
                     break;
-                    
+
                 default:
                     tcdusage(ec);
                 }
                 break;
-                
+
             default:
                 tcdusage(ec);
             }
@@ -818,7 +818,7 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
      *   TADS_SYSTEM_NAME defined to an appropriate single-quoted string
      *   for the system, and we also add a #define of the same name as the
      *   expansion of TADS_SYSTEM_NAME and give it the value 1, for
-     *   testing in #ifdef's.  
+     *   testing in #ifdef's.
      */
     {
         char buf[40];
@@ -867,7 +867,7 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
     /*
      *   add placeholders for __FILE__ and __LINE__ -- the actual
      *   definitions of these will be filled in dynamically whenever they
-     *   are needed 
+     *   are needed
      */
     tok_add_define_cvtcase(tc, file_name, (int)sizeof(file_name) - 1,
                            inbuf, OSFNMAX);
@@ -875,7 +875,7 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
                            inbuf, 40);
 
     /*
-     *   add the SYSINFO codes 
+     *   add the SYSINFO codes
      */
     tok_add_define_num_cvtcase(tc, si_sysinfo, (int)sizeof(si_sysinfo) - 1,
                                SYSINFO_SYSINFO);
@@ -993,14 +993,14 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
     if (i == argc) tcdusage(ec);
     infile = *argp;
     if (i + 1 != argc) tcdusage(ec);
-    
+
     /* add default .T extension to input file */
     strcpy(inbuf, infile);
     os_defext(inbuf, "t");
 
     /*
      *   if no output file is specified, use input file minus extension
-     *   plus GAM extension; otherwise, use specified output file 
+     *   plus GAM extension; otherwise, use specified output file
      */
     if (outfile)
     {
@@ -1023,7 +1023,7 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
         /* add .GAM extension */
         os_addext(outbuf, "gam");
     }
-    
+
     /* set input/output file pointers to refer to generated filenames */
     infile = inbuf;
     outfile = outbuf;
@@ -1037,7 +1037,7 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
         fprintf(errcbcx->tcderrfil, "TADS Compilation of %s\n%s\n",
                 infile, ctime(&t));
     }
-    
+
     /* open up the swap file */
     if (swapena && swapsize)
     {
@@ -1098,7 +1098,7 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
     }
     else
         pctx->prscxstrfile = 0;
-    
+
     /* set up flags */
     if (argchecking) pctx->prscxflg |= PRSCXFARC;
     if (symdeb) pctx->prscxflg |= (PRSCXFLIN | PRSCXFLCL);
@@ -1107,7 +1107,7 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
     if (c_mode) tc->tokcxflg |= TOKCXFCMODE;
     if (symdeb2) tc->tokcxflg |= TOKCXFLIN2;
     if (*filever != '*' && *filever < 'c') pctx->prscxflg |= PRSCXFTPL1;
-    
+
     /* set up vocabulary context */
     vocini(&vocctx, ec, mctx, &runctx, (objucxdef *)0, 50, 50, 100);
     vocctx.voccxflg |= VOCCXFVWARN;
@@ -1139,7 +1139,7 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
     dbg.dbgcxdep = 0;
     dbg.dbgcxfid = 0;                  /* start file serial numbers at zero */
     dbg.dbgcxflg = 0;
-    
+
     vocctx.voccxrun = &runctx;
     runctx.runcxdbg = &dbg;
     dbg.dbgcxtab = &symtab;
@@ -1157,13 +1157,13 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
     tc->tokcxlin = &linf->linflin;
     linf->linflin.linid = dbg.dbgcxfid++;
     linf->linflin.linnxt = (lindef *)0;
-    
+
     /* set up a hashed symbol table */
     tokthini(ec, mctx, (toktdef *)&symtab);
     pctx->prscxstab = (toktdef *)&symtab;               /* add symbols here */
 /*was:  tc->tokcxstab = (toktdef *)&labtab; */
     tc->tokcxstab = (toktdef *)&symtab;          /* search for symbols here */
-    
+
     /* allocate a code generator context */
     ectx = (emtcxdef *)mchalo(ec,
                               (sizeof(emtcxdef) + 511*sizeof(emtldef)),
@@ -1177,7 +1177,7 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
 
     /* add code generator context to parser context */
     pctx->prscxemt = ectx;
-    
+
     /* get the absolute path for the .gam file */
     os_get_abs_filename(outfile_abs, sizeof(outfile_abs), outfile);
     os_get_path_name(outfile_path, sizeof(outfile_path), outfile_abs);
@@ -1202,7 +1202,7 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
     runctx.runcxdmc = &supctx;
     runctx.runcxgamename = outfile;
     runctx.runcxgamepath = outfile_path;
-    
+
     /* set up setup context */
     supctx.supcxerr = ec;
     supctx.supcxmem = mctx;
@@ -1211,21 +1211,21 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
     supctx.supcxlen = 0;
     supctx.supcxvoc = &vocctx;
     supctx.supcxrun = &runctx;
-    
+
     /* set up built-in function context */
     CLRSTRUCT(bifctx);
     bifctx.bifcxerr = ec;
     bifctx.bifcxrun = &runctx;
     bifctx.bifcxtio = (tiocxdef *)0;
     bifctx.bifcxsavext = save_ext;
-    
+
     /* allocate object for expression code generation */
     mcmalo(pctx->prscxmem, (ushort)1024, &evalobj);
     mcmunlck(pctx->prscxmem, evalobj);
-    
+
     /* add vocabulary properties */
     pctx->prscxprp = PRP_LASTRSV + 1;
-    
+
     /* add the built-in functions, keywords, etc */
     suprsrv(&supctx, bif, (toktdef *)&symtab,
             (int)(sizeof(bif)/sizeof(bif[0])), v1kw, do_kw,
@@ -1249,7 +1249,7 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
         pctx->prscxsps =
         pctx->prscxspf = vocctx.voccxspl;
         loadopen = TRUE;
-        
+
         linf->linflin.linid = dbg.dbgcxfid++; /* get new line id for source */
 
         /* use same case sensitivity as original compilation */
@@ -1261,7 +1261,7 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
         /*
          *   run through the arguments again, and remove any preprocessor
          *   symbols loaded from the file that have been explicitly
-         *   undefined with -U in this run 
+         *   undefined with -U in this run
          */
         for (i = 1, argp = argv + 1 ; i < argc ; ++argp, ++i)
         {
@@ -1283,7 +1283,7 @@ static void tcdmain1(errcxdef *ec, int argc, char *argv[], tcderrdef *errcbcx,
                 }
             }
         }
-                
+
     }
 
     /* get the first token */
@@ -1322,11 +1322,11 @@ parse_loop:
         {
             int brace_cnt;
             int paren_cnt;
-            
+
             /*
              *   This is some kind of syntax error, which means we can
              *   keep going.  Log the error, throw away tokens up to the
-             *   next semicolon, then try to start again.  
+             *   next semicolon, then try to start again.
              */
             errclog(ec);
             for (brace_cnt = paren_cnt = 0 ;; )
@@ -1369,15 +1369,15 @@ parse_loop:
                 toknext(tc);
             }
         }
-        
+
         /* can't deal with this error - resignal it */
         errrse(ec);
     ERREND(ec)
-            
+
     /* set up vocab context with format string information */
     vocctx.voccxcpp = pctx->prscxcpp;
     vocctx.voccxcpl = pctx->prscxcpf;
-        
+
     /* likewise the special word information */
     vocctx.voccxspp = pctx->prscxspp;
     vocctx.voccxspl = pctx->prscxspf;
@@ -1388,19 +1388,19 @@ parse_loop:
 
         /* apply TADS/Graphic external resources */
         tcgcomp(ec, pctx, infile);
-    
+
         /* tell output subsystem about format strings */
         tiosetfmt((tiocxdef *)0, &runctx, pctx->prscxfsp,
                   (uint)pctx->prscxfsf);
-    
+
         /* get required object definitions if not precompiling headers */
         supfind(ec, &symtab, &vocctx, &preinit, warnlevel,
                 tc->tokcxflg & TOKCXCASEFOLD);
 
-        /* 
+        /*
          *   inherit vocabulary - do this before calling preinit, to ensure
          *   that preinit sees the same inherited location and vocabulary
-         *   data that would be seen during normal execution 
+         *   data that would be seen during normal execution
          */
         supivoc(&supctx);
 
@@ -1411,7 +1411,7 @@ parse_loop:
         toktheach(&symtab.tokthsc, tcdchkundef, &cbctx);
         checked_undefs = TRUE;
 
-        /* 
+        /*
          *   run preinit function if it's defined, and we're not generating
          *   debug output, and there have been no errors so far
          */
@@ -1419,7 +1419,7 @@ parse_loop:
             && errcbcx->tcderrcnt == 0 && errcbcx->tcdfatal == 0)
             runfn(&runctx, preinit, 0);
     }
-        
+
     if (binout && errcbcx->tcderrcnt == 0)
     {
         fiowrt(mctx, &vocctx, tc, &symtab, pctx->prscxfsp,
@@ -1450,7 +1450,7 @@ parse_loop:
     else if (!binout && !checked_undefs)
     {
         tcdchkctx cbctx;
-        
+
         /* we're not writing the file, but still check for undefined objects */
         cbctx.mem = mctx;
         cbctx.ec = ec;
@@ -1468,15 +1468,15 @@ parse_loop:
         vocdef    *voc;
         vocidef ***vpg;
         vocidef  **v;
-        
+
         IF_DEBUG(extern ulong mchtotmem;)
-            
+
         tcdptf("\n* * * Statistics * * *\n");
         tcdptf("Virtual Object Cache size:  %lu\n", mcmcsiz(mctx));
         tcdptf("Global symbol table size:   %lu\n",
                ((ulong)symtab.tokthpcnt * (ulong)TOKTHSIZE));
         IF_DEBUG(tcdptf("Total heap memory:          %lu\n", mchtotmem);)
-            
+
         /* count vocabulary words, eliminating duplicates */
         count = 0;
         for (i = 0, vhsh = vocctx.voccxhsh ; i < VOCHASHSIZ ; ++i, ++vhsh)
@@ -1506,7 +1506,7 @@ parse_loop:
             }
         }
         tcdptf("Vocabulary words:           %d\n", count);
-        
+
         /* count objects, using inheritance records */
         count = 0;
         for (vpg = vocctx.voccxinh, i = 0 ; i < VOCINHMAX ; ++vpg, ++i)
@@ -1527,7 +1527,7 @@ parse_loop:
         swapfp = (osfildef *)0;
         osfdel_temp(swapname);
     }
-    
+
     /* close load file if one was open */
     if (loadopen)
         fiorcls(&fiolctx);
@@ -1557,7 +1557,7 @@ parse_loop:
             tcdptf("*** Note for -m option:\n");
             tcdptf("*** Current cache size is %lu\n", mcmcsiz(mctx));
         }
-        
+
         /* close and delete swapfile, if one was opened */
         if (swapfp)
         {
@@ -1565,7 +1565,7 @@ parse_loop:
             swapfp = (osfildef *)0;
             osfdel_temp(swapname);
         }
-        
+
         /* close load file if one was opened */
         if (loadopen)
             fiorcls(&fiolctx);
@@ -1610,7 +1610,7 @@ static void tcdlogerr(void *ectx0, char *fac, int err, int argc,
         /* check for suppression, and ignore the error if suppressed */
         if (!ectx->tcdwrn_AMBIGBIN) return;
         goto do_warning;
-        
+
     case ERR_TRUNC:
     case ERR_INCRPT:
     case ERR_WEQASI:
@@ -1659,7 +1659,7 @@ static void tcdlogerr(void *ectx0, char *fac, int err, int argc,
 
     /*
      *   certain special errors include the line position in the argument
-     *   vector itself 
+     *   vector itself
      */
     switch(err)
     {
@@ -1679,15 +1679,15 @@ static void tcdlogerr(void *ectx0, char *fac, int err, int argc,
     }
 
     fp = ectx->tcderrfil;
-    
+
     tcdptf("%serror %s-%d: ", buf, fac, err);
     if (fp) fprintf(fp, "%serror %s-%d: ", buf, fac, err);
-    
+
     errmsg(ctx->tokcxerr, msg, (uint)sizeof(msg), err);
     errfmt(buf, (int)sizeof(buf), msg, argc, argv);
     tcdptf("%s\n", buf);
     if (fp) fprintf(fp, "%s\n", buf);
-    
+
 #ifdef OS_ERRLINE
     if ((err >= ERR_INVTOK && err < ERR_VOCINUS)
         || err == ERR_UNDFOBJ || err == ERR_UNDEFO || err == ERR_UNDEFF)
@@ -1704,7 +1704,7 @@ static void tcdlogerr(void *ectx0, char *fac, int err, int argc,
             p += strlen(p) + 1;
             len = strlen(p);
             break;
-            
+
         default:
             p = ctx->tokcxlin->linbuf;
             len = ctx->tokcxlin->linlen;
@@ -1764,13 +1764,13 @@ int tcdmain(int argc, char **argv, char *save_ext)
             TADS_OEM_VERSION, OS_SYSTEM_PATCHSUBLVL);
     tcdptf(vsnbuf);
     tcdptf("%s maintains this port.\n", TADS_OEM_NAME);
-    
+
     ERRBEGIN(&errctx)
         tcdmain1(&errctx, argc, argv, &errcbcx, save_ext);
     ERRCATCH(&errctx, err)
         if (err != ERR_USAGE)
             errclog(&errctx);
-    
+
         if (errctx.errcxfp) osfcls(errctx.errcxfp);
         if (errcbcx.tcderrfil) fclose(errcbcx.tcderrfil);
         /* os_expause(); */

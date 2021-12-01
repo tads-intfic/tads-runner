@@ -1,10 +1,10 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -22,7 +22,7 @@ Function
 
    - set the build options (source/symbol/object paths, debug mode,
      error options, etc)
-   
+
    - add a module object for each source file
 
    - set the image file name
@@ -30,7 +30,7 @@ Function
    - invoke build()
 
 Notes
-  
+
 Modified
   07/11/99 MJRoberts  - Creation
 */
@@ -42,7 +42,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   String buffer object 
+ *   String buffer object
  */
 class CTcMakeStr
 {
@@ -73,7 +73,7 @@ private:
 /* ------------------------------------------------------------------------ */
 /*
  *   Module source types.  This tells us how we resolved the given name of
- *   the module to a filename.  
+ *   the module to a filename.
  */
 enum tcmod_source_t
 {
@@ -91,9 +91,9 @@ enum tcmod_source_t
 /*
  *   Module list entry.  Each module is represented by one of these
  *   entries.
- *   
+ *
  *   A module defines a source file and its directly derived files: a
- *   symbol file, and an object file.  
+ *   symbol file, and an object file.
  */
 class CTcMakeModule
 {
@@ -126,21 +126,21 @@ public:
     int get_seqno() const { return seqno_; }
     void set_seqno(int n) { seqno_ = n; }
 
-    /* 
+    /*
      *   Set the module name.  This will fill in the source, symbol, and
      *   object filenames with names derived from the source name if those
      *   names are not already defined.  If any of the names are already
-     *   explicitly defined, this won't affect them.  
+     *   explicitly defined, this won't affect them.
      */
     void set_module_name(const textchar_t *modname);
 
-    /* 
+    /*
      *   Get/set the original module name.  The original module name is the
      *   name as it was given on the command line, in the library source, or
      *   wherever else it was originally specified.  This is the name before
      *   conversion to local filename conventions and before resolving to a
      *   specific directory; this is useful in debugging records because it
-     *   can be more portable than the resolved filename.  
+     *   can be more portable than the resolved filename.
      */
     const textchar_t *get_orig_name() const { return orig_name_.get(); }
     void set_orig_name(const textchar_t *name) { orig_name_.set(name); }
@@ -149,19 +149,19 @@ public:
     const textchar_t *get_source_name() const { return src_.get(); }
     void set_source_name(const textchar_t *fname) { src_.set(fname); }
 
-    /* 
+    /*
      *   Get/set the "search" source filename.  This is the filename we use
      *   when we're trying to find the file in a search path.  In some cases,
      *   this might not be identical to the given filename; for example, when
      *   we assume a relative path for a file, we won't use the assumed
      *   relative path in the search name, since we only assumed the relative
-     *   path because we thought that would tell us where the file is. 
+     *   path because we thought that would tell us where the file is.
      */
     const textchar_t *get_search_source_name() const
     {
-        /* 
+        /*
          *   if there's an explicit search name, use it; otherwise, simply
-         *   use the normal source name 
+         *   use the normal source name
          */
         if (search_src_.get() != 0 && search_src_.get()[0] != '\0')
             return search_src_.get();
@@ -201,10 +201,10 @@ public:
     /* set the module's source to the system library */
     void set_from_syslib() { source_type_ = TCMOD_SOURCE_SYSLIB; }
 
-    /* 
+    /*
      *   set the module's source to the given library, specified via
      *   URL-style library path (so a module in library 'bar' that was in
-     *   turn in library 'foo' will have library path 'foo/bar') 
+     *   turn in library 'foo' will have library path 'foo/bar')
      */
     void set_from_lib(const textchar_t *libname, const textchar_t *url)
     {
@@ -226,9 +226,9 @@ protected:
     /* source filename */
     CTcMakeStr src_;
 
-    /* 
+    /*
      *   sequence number - this is simply an ordinal giving our position in
-     *   the list of modules making up the build 
+     *   the list of modules making up the build
      */
     int seqno_;
 
@@ -248,14 +248,14 @@ protected:
     int needs_sym_recompile_;
     int needs_obj_recompile_;
 
-    /* 
+    /*
      *   flag: module is excluded from compilation (this is set when a
      *   module is included by a library and then explicitly excluded from
-     *   the build) 
+     *   the build)
      */
     int exclude_;
 
-    /* 
+    /*
      *   Library member URL - this is the URL-style string naming the module
      *   if it is a member of a library.  This is not used except for
      *   library members.  This value is formed by adding the library prefix
@@ -264,16 +264,16 @@ protected:
      *   variable value that included this module from its library.  A
      *   library prefix is formed by adding the library prefix for each
      *   enclosing sublibrary to the "library:" variable name that included
-     *   the library, plus a terminating "/".  
+     *   the library, plus a terminating "/".
      */
     CTcMakeStr url_;
 
     /* the name of the enclosing library */
     CTcMakeStr lib_name_;
 
-    /* 
+    /*
      *   library URL - this is the URL to our enclosing library, not
-     *   including the module name itself 
+     *   including the module name itself
      */
     CTcMakeStr lib_url_;
 
@@ -284,7 +284,7 @@ protected:
 /* ------------------------------------------------------------------------ */
 /*
  *   Search path list entry - each entry in this list is a directory that
- *   we'll search for a certain type of file (#include files, source files) 
+ *   we'll search for a certain type of file (#include files, source files)
  */
 class CTcMakePath
 {
@@ -317,7 +317,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Preprocessor symbol definition or undefinition item 
+ *   Preprocessor symbol definition or undefinition item
  */
 class CTcMakeDef
 {
@@ -351,7 +351,7 @@ public:
 protected:
     /* next in the list */
     CTcMakeDef *nxt_;
-    
+
     /* the symbol to define or undefine */
     CTcMakeStr sym_;
 
@@ -368,10 +368,10 @@ protected:
  *   The program maintenance facility class.  The program main entrypoint
  *   constructs one of these objects, sets its parameters, then calls the
  *   "build()" entrypoint to carry out the build instructions.
- *   
+ *
  *   The caller should not initialize or use compiler globals.  This
  *   object owns the compiler globals, and will create and destroy
- *   compiler globals in the course of its processing.  
+ *   compiler globals in the course of its processing.
  */
 class CTcMake
 {
@@ -384,7 +384,7 @@ public:
      *   files that don't specify a character set (using a #charset
      *   directive at the very start of the file) will be read using this
      *   character set.  If this isn't specified, we'll use the default
-     *   character set obtained from the OS.  
+     *   character set obtained from the OS.
      */
     void set_source_charset(const textchar_t *charset)
     {
@@ -395,9 +395,9 @@ public:
         source_charset_ = lib_copy_str(charset);
     }
 
-    /* 
+    /*
      *   turn on/off source-level debugging - we'll generate the extra
-     *   information necessary for debugging the program 
+     *   information necessary for debugging the program
      */
     void set_debug(int debug) { debug_ = debug; }
 
@@ -410,17 +410,17 @@ public:
     /* set "clean" mode */
     void set_clean_mode(int f) { clean_mode_ = f; }
 
-    /* 
+    /*
      *   set test reporting mode - in this mode, we suppress path names in
      *   filenames in progress reports, so that the output is independent of
-     *   local path conventions 
+     *   local path conventions
      */
     void set_test_report_mode(int flag) { test_report_mode_ = flag; }
 
-    /* 
+    /*
      *   set status percentage mode - in this mode, we'll output special
      *   status update lines with a percent-done indication, for use by
-     *   container environments such as Workbench 
+     *   container environments such as Workbench
      */
     void set_status_pct_mode(int flag) { status_pct_mode_ = flag; }
 
@@ -430,13 +430,13 @@ public:
     /*
      *   turn on/off linking - by default, we'll compile and link, but the
      *   linking phase can be turned off so we just compile sources to
-     *   object files 
+     *   object files
      */
     void set_do_link(int do_link) { do_link_ = do_link; }
 
-    /* 
+    /*
      *   turn on preinit mode - by default, we'll run preinit if and only
-     *   if we're not in debug mode 
+     *   if we're not in debug mode
      */
     void set_preinit(int preinit)
     {
@@ -462,11 +462,11 @@ public:
     /* turn pedantic messages on or off */
     void set_pedantic(int show) { pedantic_ = show; }
 
-    /* 
+    /*
      *   Set the list of warning messages to suppress.  The caller is
      *   responsible for maintaining this memory, keeping it valid as long as
      *   we have a reference to it and deleting the memory when it's no
-     *   longer needed.  We merely keep a reference to the caller's memory.  
+     *   longer needed.  We merely keep a reference to the caller's memory.
      */
     void set_suppress_list(const int *lst, size_t cnt)
     {
@@ -487,11 +487,11 @@ public:
     /* add a source file path */
     void add_source_path(const textchar_t *dir);
 
-    /* 
+    /*
      *   add a system include/source file path - system paths are always
      *   searched after all of the regular paths, so effectively the items
      *   in these lists come after all items in the add_include_path and
-     *   add_source_path lists, respectively 
+     *   add_source_path lists, respectively
      */
     class CTcMakePath *add_sys_include_path(const textchar_t *dir);
     class CTcMakePath *add_sys_source_path(const textchar_t *dir);
@@ -507,13 +507,13 @@ public:
 
     /*
      *   Set the symbol file directory.  Any symbol file that doesn't have
-     *   an absolute path will default to this directory. 
+     *   an absolute path will default to this directory.
      */
     void set_symbol_dir(const textchar_t *dir) { symdir_.set(dir); }
 
     /*
      *   Set the object file directory.  Any object file that doesn't have
-     *   an absolute path will default to this directory. 
+     *   an absolute path will default to this directory.
      */
     void set_object_dir(const textchar_t *dir) { objdir_.set(dir); }
 
@@ -521,7 +521,7 @@ public:
     void set_assembly_listing(osfildef *fp) { assembly_listing_fp_ = fp; }
 
     /*
-     *   Set the image file name 
+     *   Set the image file name
      */
     void set_image_file(const textchar_t *fname) { image_fname_.set(fname); }
 
@@ -531,9 +531,9 @@ public:
     /*
      *   Add a module (a module defines a source file and its directly
      *   derived files: a symbol file and an object file).
-     *   
+     *
      *   Once a module has been added to our list, we own the module.
-     *   We'll delete the module object when we're deleted.  
+     *   We'll delete the module object when we're deleted.
      */
     void add_module(CTcMakeModule *mod);
     void add_module_first(CTcMakeModule *mod);
@@ -542,11 +542,11 @@ public:
     CTcMakeModule *get_first_module() const { return mod_head_; }
     CTcMakeModule *get_last_module() const { return mod_tail_; }
 
-    /* 
+    /*
      *   Add a module by filename.  src_name must be specified, but
      *   sym_name and obj_name can be null, in which case we'll use the
      *   standard algorithm to derive these names from the source file
-     *   name.  
+     *   name.
      */
     CTcMakeModule *add_module(const char *src_name,
                               const char *sym_name,
@@ -566,7 +566,7 @@ public:
 
     /*
      *   Add a preprocessor symbol definition.  If the expansion text is
-     *   null, we'll set the expansion text to "1" by default.  
+     *   null, we'll set the expansion text to "1" by default.
      */
     void def_pp_sym(const textchar_t *sym, const textchar_t *expan);
 
@@ -582,37 +582,37 @@ public:
      *   Build the program.  This can be invoked once the options are set
      *   and all of the modules have been added.  This routine checks
      *   dependencies and performs the build:
-     *   
+     *
      *   - for each source file, generates a symbol file if the symbol file
      *   is not up to date
-     *   
+     *
      *   - after creating all symbol files: for each source file, compiles
      *   the source to an object file if the object file isn't up to date
-     *   
+     *
      *   - after creating all object files: links the object files to create
      *   an image file, if the image file isn't up to date
-     *   
+     *
      *   If any errors occur, we'll stop after the step in which the errors
      *   occur.  For example, if errors occur compiling an object file,
      *   we'll stop after finishing with the object file and will not
      *   proceed to any additional object file compilations.
-     *   
+     *
      *   The 'host_interface' object must be provided by the caller.  This
      *   tells the compiler how to report error messages and otherwise
      *   interact with the host environment.
-     *   
+     *
      *   Fills in '*error_count' and '*warning_count' with the number of
      *   errors and warnings, respectively, that occur during the
      *   compilation.
-     *   
+     *
      *   If 'force_build' is set, we'll build all derived files (symbols,
      *   objects, and image), regardless of whether it appears necessary
      *   based on file times.
-     *   
+     *
      *   'argv0' is the main program's argv[0], if available; a null pointer
      *   can be passed in if argv[0] is not available (for example, if we're
      *   not running in a command-line environment and the program's
-     *   executable filename is not available) 
+     *   executable filename is not available)
      */
     void build(class CTcHostIfc *host_interface,
                int *error_count, int *warning_count,
@@ -627,7 +627,7 @@ public:
      *   all of the information we will need when re-loading the symbol file
      *   to determine if the symbol file is up-to-date, so that we can
      *   determine if we must rebuild the symbol file from the source or can
-     *   use it without rebuilding.  
+     *   use it without rebuilding.
      */
     void write_build_config_to_sym_file(class CVmFile *fp);
 
@@ -636,15 +636,15 @@ public:
      *   symbol file.  Returns true if the configuration in the symbol file
      *   matches our current configuration, false if not.  A false return
      *   indicates that recompilation is necessary, because something in the
-     *   configuration has changed.  
+     *   configuration has changed.
      */
     int compare_build_config_from_sym_file(const char *sym_fname,
                                            class CVmFile *fp);
 
-    /* 
+    /*
      *   Set the string capture file.  If this is set, we'll write each
      *   string token in the compiled text to this file, one string per
-     *   line. 
+     *   line.
      */
     void set_string_capture(osfildef *fp) { string_fp_ = fp; }
 
@@ -653,9 +653,9 @@ public:
      *   the buffer with the derived name.  If the filenames don't have
      *   paths explicitly specified, we'll use our default path settings to
      *   build the full filename.
-     *   
+     *
      *   The buffers are assumed to be OSFNMAX characters long, which should
-     *   be large enough for any valid filename.  
+     *   be large enough for any valid filename.
      */
     void get_srcfile(textchar_t *dst, CTcMakeModule *mod);
     void get_symfile(textchar_t *dst, CTcMakeModule *mod);
@@ -683,7 +683,7 @@ private:
 
     /*
      *   read and compare a configuration string; returns true if the
-     *   string matches what's stored in the file, false if not 
+     *   string matches what's stored in the file, false if not
      */
     int read_and_compare_config_str(CVmFile *fp, const textchar_t *str);
 
@@ -737,7 +737,7 @@ private:
      *   we're in test reporting mode, we'll return the root name so that we
      *   suppress all paths in progress reports; otherwise, we'll just return
      *   the name as given.  If we're quoting filenames in messages, we'll
-     *   quote the filename.  
+     *   quote the filename.
      */
     const char *get_step_fname(char *buf, const char *fname);
 
@@ -767,9 +767,9 @@ private:
     CTcMakePath *src_head_;
     CTcMakePath *src_tail_;
 
-    /* 
+    /*
      *   tail of regular source path list - this is where we insert regular
-     *   source path entries, which come before all system path entries 
+     *   source path entries, which come before all system path entries
      */
     CTcMakePath *nonsys_src_tail_;
 
@@ -827,20 +827,20 @@ private:
     /* true -> preinit mode */
     int preinit_;
 
-    /* 
+    /*
      *   true -> obey 'preinit_' setting; otherwise, use default based on
-     *   'debug_' setting 
+     *   'debug_' setting
      */
     int explicit_preinit_;
 
-    /* 
+    /*
      *   data pool XOR mask - we'll mask each byte of each constant data
      *   pool with this byte when writing the image file, to obscure any
-     *   text strings in the constant data 
+     *   text strings in the constant data
      */
     uchar data_xor_mask_;
 
-    /* 
+    /*
      *   true -> test reporting mode: suppress all paths from filenames
      *   displayed in progress reports, in order to make the output
      *   independent of local path name conventions

@@ -1,10 +1,10 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -28,7 +28,7 @@ Function
   point has to be recorded separately, since a single function can have
   multiple local variable scopes with different symbol bindings.
 Notes
-  
+
 Modified
   04/22/00 MJRoberts  - Creation
 */
@@ -43,7 +43,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Extension for the frame descriptor object 
+ *   Extension for the frame descriptor object
  */
 struct vm_framedesc_ext
 {
@@ -58,15 +58,15 @@ struct vm_framedesc_ext
 };
 
 /*
- *   Extension for stack frame reference object 
+ *   Extension for stack frame reference object
  */
 struct vm_frameref_ext
 {
-    /* 
+    /*
      *   Stack frame pointer.  The VM automatically sets this to null when
      *   the frame exits.  This is also set to null when we restore a frame
      *   from a saved state file, since stack frames are inherently transient
-     *   and thus show up as null references in a save file.  
+     *   and thus show up as null references in a save file.
      */
     vm_val_t *fp;
 
@@ -80,10 +80,10 @@ struct vm_frameref_ext
     int nlocals;
     int nparams;
 
-    /* 
+    /*
      *   Snapshot copy of the method context variables.  We copy these values
      *   at the same time we copy the local variables when detaching the
-     *   frame (see below). 
+     *   frame (see below).
      */
     vm_val_t self;
     vm_obj_id_t defobj;
@@ -91,7 +91,7 @@ struct vm_frameref_ext
     vm_prop_id_t targprop;
     vm_val_t invokee;
 
-    /* 
+    /*
      *   Snapshot copy of the locals and parameters.  Just before the
      *   associated routine returns to its caller, rendering the true stack
      *   frame invalid, we make a private copy of the locals and parameters
@@ -102,9 +102,9 @@ struct vm_frameref_ext
      *   functions work.  The difference from anonymous functions is that our
      *   mechanism here can detach any frame on the fly, without the compiler
      *   having to make special arrangements in advance.
-     *   
+     *
      *   We overallocate the structure to make room for nparams + nlocals
-     *   slots.  The locals come first, followed by the parameters.  
+     *   slots.  The locals come first, followed by the parameters.
      */
     vm_val_t vars[1];
 };
@@ -112,7 +112,7 @@ struct vm_frameref_ext
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Stack frame descriptor object 
+ *   Stack frame descriptor object
  */
 class CVmObjFrameDesc: public CVmObject
 {
@@ -155,9 +155,9 @@ public:
     static vm_obj_id_t create(VMG_ vm_obj_id_t fref, int frame_idx,
                               uint ret_ofs);
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -278,7 +278,7 @@ class CVmObjFrameRef: public CVmObject
 {
     friend class CVmMetaclassFrameRef;
     friend class CVmObjFrameDesc;
-    
+
 public:
     /* metaclass registration object */
     static class CVmMetaclass *metaclass_reg_;
@@ -299,9 +299,9 @@ public:
     /* create */
     static vm_obj_id_t create(VMG_ vm_val_t *fp, const uchar *entry);
 
-    /* 
+    /*
      *   Invalidate the frame reference.  The bytecode interpreter calls this
-     *   when exiting a frame by 'return', 'throw', etc. 
+     *   when exiting a frame by 'return', 'throw', etc.
      */
     void inval_frame(VMG0_);
 
@@ -337,9 +337,9 @@ public:
     /* get the integer frame index for a variable given its descriptor */
     int get_var_frame_index(const CVmDbgFrameSymPtr *symp);
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -353,7 +353,7 @@ public:
         /* cannot set frame reference properties */
         err_throw(VMERR_INVALID_SETPROP);
     }
-    
+
     /* index the frame: this looks up a variable by frame index */
     virtual int index_val_q(VMG_ vm_val_t *result,
                             vm_obj_id_t self,
@@ -499,7 +499,7 @@ public:
 #endif /* VMFREF_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjFrameRef)
 VM_REGISTER_METACLASS(CVmObjFrameDesc)

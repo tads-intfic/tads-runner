@@ -5,9 +5,9 @@
 Name
   vmstrref.h - reference-counted string class
 Function
-  
+
 Notes
-  
+
 Modified
   08/11/10 MJRoberts  - Creation
 */
@@ -68,10 +68,10 @@ public:
         /* if necessary, reallocate the buffer */
         if (len + l > alo)
         {
-            /* 
+            /*
              *   calculate the expansion size: go to the needed length plus
              *   half again that total for headroom, with minimum headroom of
-             *   256 bytes 
+             *   256 bytes
              */
             alo = len + l + (len+l > 512 ? (len+l)/2 : 256);
 
@@ -133,17 +133,17 @@ public:
         }
     }
 
-    /* 
-     *   ensure there's space for 'n' added bytes 
+    /*
+     *   ensure there's space for 'n' added bytes
      */
     void ensure(long n)
     {
         if (n + len > alo)
         {
-            /* 
+            /*
              *   calculate the expansion size: go to the needed length plus
              *   half again that total for headroom, with minimum headroom of
-             *   256 bytes 
+             *   256 bytes
              */
             alo = len + n + (len+n > 512 ? (len+n)/2 : 256);
 

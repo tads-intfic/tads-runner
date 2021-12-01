@@ -2,11 +2,11 @@
 $Header: d:/cvsroot/tads/TADS2/OPC.H,v 1.2 1999/05/17 02:52:12 MJRoberts Exp $
 */
 
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -44,7 +44,7 @@ Modified
 #define OPCGETP     18      /* get property */
 #define OPCGETPDATA 19      /* get a property, allowing only data values */
 #define OPCGETLCL   20      /* get a local variable's value */
-#define OPCPTRGETPDATA 21   /* get property via pointer; only allow data */   
+#define OPCPTRGETPDATA 21   /* get property via pointer; only allow data */
 #define OPCRETURN   22      /* return without a value */
 #define OPCRETVAL   23      /* return a value */
 #define OPCENTER    24      /* enter a function */
@@ -143,13 +143,13 @@ ASSIGNMENT OPERATIONS
     (Note that this means that opcodes from 0xc0 up are all reserved
     for assignment operations.)  The low six bits of the opcode
     specify exactly what kind of operation is to be performed:
-    
+
     bits 0-1:  specifies destination type:
                00    2-byte operand is local number
                01    2-byte operand is property to set in obj at tos
                10    tos is index, [sp-1] is list to be indexed and set
                11    tos is property pointer, [sp-1] is object
-    
+
     bits 2-4:  specifies assignment operation:
                000   := (direct assignment)
                001   += (add tos to destination)
@@ -159,7 +159,7 @@ ASSIGNMENT OPERATIONS
                101   ++ (increment tos)
                110   -- (decrement tos)
                111   *reserved*
-               
+
     bit 5:     specifies what to do with value computed by assignment
                0     leave on stack (implies pre increment/decrement)
                1     discard (implies post increment/decrement)

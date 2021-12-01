@@ -11,7 +11,7 @@ Function
   data streams, so it can work with various underlying data sources; in
   particular, we provide File and ByteArray interfaces.
 Notes
-  
+
 Modified
   10/01/10 MJRoberts  - Creation
 */
@@ -30,13 +30,13 @@ public:
      *   Pack data from stack arguments into the given stream.  'arg_index'
      *   is the index in the stack of the format string argument; the data
      *   value arguments come after it on the stack.  'argc' is the total
-     *   number of arguments, including the format string.  
+     *   number of arguments, including the format string.
      */
-    static void pack(VMG_ int arg_index, int argc, 
+    static void pack(VMG_ int arg_index, int argc,
                      class CVmDataSource *dst);
 
     /*
-     *   Unpack data from the given stream into a list.  
+     *   Unpack data from the given stream into a list.
      */
     static void unpack(VMG_ vm_val_t *retval, const char *fmt, size_t fmtlen,
                        class CVmDataSource *src);
@@ -48,9 +48,9 @@ public:
                               char ch1, char ch2, long cnt);
 
 protected:
-    /* 
+    /*
      *   Pack a group.  pack() calls this to start packing the main string,
-     *   and we recurse for each parenthesized group we find.  
+     *   and we recurse for each parenthesized group we find.
      */
     static void pack_group(VMG_ struct CVmPackPos *pos,
                            struct CVmPackArgs *args,
@@ -112,9 +112,9 @@ protected:
     static void parse_type(struct CVmPackPos *p, struct CVmPackType *info,
                            const struct CVmPackGroup *group);
 
-    /* 
+    /*
      *   parse the suffix modifiers for a group, given a pointer to the
-     *   opening parenthesis of the group 
+     *   opening parenthesis of the group
      */
     static void parse_group_mods(const struct CVmPackPos *p,
                                  struct CVmPackType *gt);

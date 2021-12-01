@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -17,7 +17,7 @@ Function
   strings are all isolated in this module to allow for easy replacement
   for translated versions.
 Notes
-  
+
 Modified
   05/13/00 MJRoberts  - Creation
 */
@@ -30,9 +30,9 @@ Modified
  *   Error Messages - fixed English version; these can be replaced at
  *   run-time by messages loaded from an external file, but we compile in an
  *   English set as a fallback in case there's no message file.
- *   
+ *
  *   The messages must be sorted by message number, so that we can perform a
- *   binary search to look up a message by number.  
+ *   binary search to look up a message by number.
  */
 const err_msg_t tc_messages_english[] =
 {
@@ -1087,7 +1087,7 @@ const err_msg_t tc_messages_english[] =
     " statement.  The most likely cause is that braces before this \"catch\""
     " keyword aren't properly balanced.  Check braces preceding the "
     "\"catch\" clause for proper syntax." },
-    
+
     { TCERR_MISPLACED_FINALLY,
     "misplaced \"finally\" clause - must be associated with \"try\"",
     "This \"finally\" clause is invalid because it is not part of a \"try\""
@@ -1625,7 +1625,7 @@ const err_msg_t tc_messages_english[] =
     "A closing bracket ']' is required at the end of a grammar "
     "qualifier, but the compiler found \"%~.*s\" instead.  Check the "
     "syntax, and add the missing ']' or remove extraneous extra text." },
-    
+
     { TCERR_PLUSPROP_REQ_SYM,
     "symbol expected after '+ property', but found \"%~.*s\" instead",
     "A property symbol is required for the '+ property' statement, but the "
@@ -2328,7 +2328,7 @@ const err_msg_t tc_messages_english[] =
     "The expression on the left of the period '.' is not an object value.  "
     "The left of a '.' expression must be an object name, or an expression "
     "that evaluates to an object value.  Check spelling and syntax." },
-    
+
     { TCERR_SYM_NOT_OBJ,
     "symbol \"%~.*s\" is not an object - illegal on left of '.'",
     "The symbol \"%~.*s\" is not an object, so you cannot use this "
@@ -2418,7 +2418,7 @@ const err_msg_t tc_messages_english[] =
     "can be removed.  Check to make sure that the local variable isn't "
     "hidden by another variable of the same name inside nested braces '{ }' "
     "within the code." },
-        
+
     { TCERR_UNASSIGNED_LOCAL,
     "no value is assigned to local variable \"%~.*s\"",
     "No value is assigned to the local variable \"%~.*s\".  "
@@ -2594,7 +2594,7 @@ const err_msg_t tc_messages_english[] =
     "'inherited<>' requires the library function \"%~.*s\" to be included "
     "included in the build. This is not defined or is not a function. "
     "Check that the library file 'multmeth.t' is included in the build." },
-    
+
     { TCERR_MMINH_UNDEF_FUNC,
     "'inherited<>' function \"%~.*s\" undefined",
     "The function \"%~.*s\" with the specified inherited<> type list is "
@@ -2985,7 +2985,7 @@ const err_msg_t tc_messages_english[] =
     { TCERR_CATCH_FINALLY_GEN_CODE,
     "catch/finally gen_code called directly",
     "catch/finally gen_code called directly" },
-    
+
     { TCERR_INVAL_PROP_CODE_GEN,
     "invalid property value type for code generation",
     "invalid property value type for code generation" },
@@ -3035,10 +3035,10 @@ const err_msg_t tc_messages_english[] =
 size_t tc_message_count_english =
     sizeof(tc_messages_english)/sizeof(tc_messages_english[0]);
 
-/* 
+/*
  *   the actual message array - we'll initialize this to the english list
  *   that's linked in, but if we find an external message file, we'll use
- *   the external file instead 
+ *   the external file instead
  */
 const err_msg_t *tc_messages = tc_messages_english;
 

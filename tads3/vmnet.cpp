@@ -40,7 +40,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Server manager 
+ *   Server manager
  */
 TadsServerManager::TadsServerManager()
 {
@@ -62,7 +62,7 @@ TadsServerManager::~TadsServerManager()
 }
 
 /*
- *   generate a random number 
+ *   generate a random number
  */
 ulong TadsServerManager::rand()
 {
@@ -80,7 +80,7 @@ ulong TadsServerManager::rand()
 }
 
 /*
- *   Generate a random ID string 
+ *   Generate a random ID string
  */
 static inline char nybble2hex(unsigned char c)
 {
@@ -133,26 +133,26 @@ char *TadsServerManager::gen_rand_id(void *obj)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Message queue 
+ *   Message queue
  */
 
 /*
- *   wait for a message 
+ *   wait for a message
  */
 int TadsMessageQueue::wait(VMG_ unsigned long timeout, TadsMessage **msgp)
 {
     /* assume we won't return a message */
     *msgp = 0;
 
-    /* 
+    /*
      *   Wait for a message to arrive in the queue.  The sender will signal
      *   our event upon posting a message.  Note that our assumption that
      *   there's only one reader thread per queue means that we don't have to
      *   worry about another reader swiping the signaled message between the
      *   time the signal went off and the time we read the queue.
-     *   
+     *
      *   Also stop waiting if the quit event has been signaled, or the debug
-     *   event is signaled.  
+     *   event is signaled.
      */
     OS_Waitable *w[3];
     int cnt = 0;
@@ -166,17 +166,17 @@ int TadsMessageQueue::wait(VMG_ unsigned long timeout, TadsMessage **msgp)
     OS_Event *brkevt = 0;
     VM_IF_DEBUGGER(if (G_debugger != 0)
         w[cnt++] = brkevt = G_debugger->get_break_event());
-    
+
     /* wait for an event */
     int ret = OS_Waitable::multi_wait(cnt, w, timeout);
-    
+
     /* if the message event fired, retrieve the message */
     if (ret == OSWAIT_EVENT + 0)
         *msgp = get();
-    
-    /* 
+
+    /*
      *   always return +2 for the debug event (we'll have +1 from the
-     *   multi_wait if the list doesn't have a quit event) 
+     *   multi_wait if the list doesn't have a quit event)
      */
     if (w[ret - OSWAIT_EVENT] == brkevt)
         ret = OSWAIT_EVENT + 2;
@@ -184,16 +184,16 @@ int TadsMessageQueue::wait(VMG_ unsigned long timeout, TadsMessage **msgp)
     /* release the debugger break event, if we got it */
     if (brkevt != 0)
         brkevt->release_ref();
-    
+
     /* return the result */
     return ret;
 }
 
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   Custom string object.  This is a convenience class for complex string
- *   construction, which the network servers do a lot of.  
+ *   construction, which the network servers do a lot of.
  */
 struct NetString
 {
@@ -256,9 +256,9 @@ struct NetString
         /* adjust the counters */
         wrtidx += txtlen;
 
-        /* 
+        /*
          *   null terminate (but don't count it - we can overwrite it with a
-         *   subsequent append) 
+         *   subsequent append)
          */
         buf[wrtidx] = '\0';
     }
@@ -302,9 +302,9 @@ struct NetString
         va_end(argp);
     }
 
-    /* 
+    /*
      *   append text, converting plain text to valid XML by turning markup
-     *   characters into entities 
+     *   characters into entities
      */
     void append_xml(const char *txt)
     {
@@ -397,7 +397,7 @@ struct NetString
 /* ------------------------------------------------------------------------ */
 /*
  *   Given an XML buffer, find the end of the <?XML?> header and the start of
- *   the regular XML contents 
+ *   the regular XML contents
  */
 const char *TadsXml::strip_xml_header(const char *buf)
 {
@@ -417,11 +417,11 @@ const char *TadsXml::strip_xml_header(const char *buf)
             /* check for quotes */
             if (*p == '"' || *p == '\'')
             {
-                /* 
+                /*
                  *   if we're in a quoted section, and this is the matching
                  *   close quote, leave the quoted section; if we're not in a
                  *   quoted section, this is the opening quote of a quoted
-                 *   section 
+                 *   section
                  */
                 if (qu == 0)
                 {
@@ -436,37 +436,37 @@ const char *TadsXml::strip_xml_header(const char *buf)
             }
             else if (*p == '?' && *(p+1) == '>')
             {
-                /* 
+                /*
                  *   It's the end of the directive.  Skip the "?>" sequence
-                 *   and any subsequent newline characters.  
+                 *   and any subsequent newline characters.
                  */
                 for (p += 2 ; *p == '\n' || *p == '\r' ; ++p) ;
 
-                /* 
+                /*
                  *   we're now at the start of the XML contents - return the
-                 *   current pointer 
+                 *   current pointer
                  */
                 return p;
             }
         }
     }
 
-    /* 
+    /*
      *   we either didn't find the start of the <?XML?> directive, or we
      *   couldn't find the end of it - in either case, we don't have a
      *   well-formed directive, so there's nothing to strip: just return the
-     *   original buffer 
+     *   original buffer
      */
     return buf;
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   HTTP Server 
+ *   HTTP Server
  */
 
 /*
- *   construct 
+ *   construct
  */
 TadsListener::TadsListener(TadsListenerThread *t)
 {
@@ -482,7 +482,7 @@ TadsListener::~TadsListener()
 }
 
 /*
- *   launch a server 
+ *   launch a server
  */
 TadsListener *TadsListener::launch(const char *hostname, ushort portno,
                                    TadsListenerThread *thread)
@@ -526,36 +526,36 @@ void TadsListener::shutdown()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Generic listener thread base class. 
+ *   Generic listener thread base class.
  */
 
 /*
- *   Deletion 
+ *   Deletion
  */
 TadsListenerThread::~TadsListenerThread()
 {
     /* release our port, if we have one */
     if (port != 0)
         port->release_ref();
-    
+
     /* release our quit event and shutdown event */
     quit_evt->release_ref();
     shutdown_evt->release_ref();
-    
+
     /* release our mutex */
     mutex->release_ref();
-    
+
     /* free the error message string */
     lib_free_str(errmsg);
 
     /* free the password string */
     lib_free_str(password);
-    
-    /* 
+
+    /*
      *   Release all of our server threads.  Note that we don't need to
      *   protect against concurrent access here because we know that no one
      *   has a reference to this object any longer - it's the only way we can
-     *   be deleted.  
+     *   be deleted.
      */
     TadsServerThread *tcur, *tnxt;
     for (tcur = servers ; tcur != 0 ; tcur = tnxt)
@@ -567,19 +567,19 @@ TadsListenerThread::~TadsListenerThread()
 }
 
 /*
- *   Thread main 
+ *   Thread main
  */
 void TadsListenerThread::thread_main()
 {
-    /* 
+    /*
      *   keep going until we get the general application-wide 'quit' signal
-     *   or our own private listener shutdown event 
+     *   or our own private listener shutdown event
      */
     while (!quit_evt->test() && !shutdown_evt->test())
     {
-        /* 
+        /*
          *   wait for a new connection request OR the quit signal, whichever
-         *   comes first 
+         *   comes first
          */
         OS_Waitable *w[] = { port, quit_evt, shutdown_evt };
         switch (OS_Waitable::multi_wait(3, w))
@@ -637,9 +637,9 @@ void TadsListenerThread::thread_main()
             break;
 
         case OSWAIT_EVENT + 1:
-            /* 
+            /*
              *   The quit signal fired - the whole app is terminating.
-             *   Signal our internal shutdown event and abort. 
+             *   Signal our internal shutdown event and abort.
              */
             shutdown_evt->signal();
             break;
@@ -654,7 +654,7 @@ void TadsListenerThread::thread_main()
     for (;;)
     {
         TadsServerThread *st;
-        
+
         /* get the first thread from the list */
         mutex->lock();
         if ((st = servers) != 0)
@@ -674,7 +674,7 @@ void TadsListenerThread::thread_main()
 }
 
 /*
- *   Add a thread to our list 
+ *   Add a thread to our list
  */
 void TadsListenerThread::add_thread(TadsServerThread *t)
 {
@@ -693,7 +693,7 @@ void TadsListenerThread::add_thread(TadsServerThread *t)
 }
 
 /*
- *   Remove a thread from our list 
+ *   Remove a thread from our list
  */
 void TadsListenerThread::remove_thread(TadsServerThread *t)
 {
@@ -727,7 +727,7 @@ void TadsListenerThread::remove_thread(TadsServerThread *t)
 }
 
 /*
- *   generate a human-readable status report of my threads 
+ *   generate a human-readable status report of my threads
  */
 void TadsListenerThread::list_threads(NetString *buf)
 {
@@ -752,7 +752,7 @@ void TadsListenerThread::list_threads(NetString *buf)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Generic server thread base class 
+ *   Generic server thread base class
  */
 
 void TadsServerThread::thread_main()
@@ -794,7 +794,7 @@ long TadsServerThread::read(char *buf, size_t buflen, long minlen,
     /* if the caller provided a buffer, we can't read past the buffer */
     if (buf != 0 && minlen > (long)buflen)
         minlen = buflen;
-    
+
     /* keep going until we read some data */
     for (;;)
     {
@@ -805,19 +805,19 @@ long TadsServerThread::read(char *buf, size_t buflen, long minlen,
         /* figure the buffer destination and size to read on this round */
         if (buf == 0)
         {
-            /* 
+            /*
              *   There's no buffer, so read into our internal buffer.  Tead
              *   up to the remaining minimum size, or to our available
-             *   internal space, whichever is less.  
+             *   internal space, whichever is less.
              */
             dst = ibuf;
             dstlen = (minlen < sizeof(ibuf) ? minlen : sizeof(ibuf));
         }
         else
         {
-            /* 
+            /*
              *   Read into the caller's buffer, after any data we've read so
-             *   far, up to the remaining buffer length. 
+             *   far, up to the remaining buffer length.
              */
             dst = buf + totlen;
             dstlen = buflen - totlen;
@@ -832,15 +832,15 @@ long TadsServerThread::read(char *buf, size_t buflen, long minlen,
         {
             /* presume failure */
             int ok = FALSE;
-            
+
             /* if this is a would-block error, wait for data to arrive */
             if (socket->last_error() == OS_EWOULDBLOCK)
             {
-                /* 
+                /*
                  *   No data available - wait until we receive at least one
                  *   byte, or until the 'quit' event is signaled or a timeout
                  *   occurs.  Figure the next timeout expiration, if we have
-                 *   a timeout at all.  
+                 *   a timeout at all.
                  */
                 if (timeout != OS_FOREVER)
                 {
@@ -884,10 +884,10 @@ long TadsServerThread::read(char *buf, size_t buflen, long minlen,
         }
         else
         {
-            /* 
+            /*
              *   We've read some data, but not enough to satisfy the minimum
              *   length request.  Add the current chunk to the total read so
-             *   far, and deduct it from the remaining minimum.  
+             *   far, and deduct it from the remaining minimum.
              */
             totlen += len;
             minlen -= len;
@@ -898,7 +898,7 @@ long TadsServerThread::read(char *buf, size_t buflen, long minlen,
 /*
  *   Send data to the other side.  Blocks until we send all of the data, or
  *   until the Quit event is signaled or we encounter another error.  Returns
- *   true on success, false on failure.  
+ *   true on success, false on failure.
  */
 int TadsServerThread::send(const char *buf, size_t len)
 {
@@ -950,8 +950,8 @@ int TadsServerThread::send(const char *buf, size_t len)
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   argument structure for URL parsing 
+/*
+ *   argument structure for URL parsing
  */
 struct url_param
 {
@@ -976,7 +976,7 @@ struct url_param_alo: url_param
         val = lib_copy_str(src.val);
         return this;
     }
-        
+
     ~url_param_alo()
     {
         lib_free_str((char *)name);
@@ -1005,11 +1005,11 @@ static const char *get_arg_val(const char *name, const char *dflt,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   HTTP Listener Thread 
+ *   HTTP Listener Thread
  */
 
 /*
- *   construction 
+ *   construction
  */
 TadsHttpListenerThread::TadsHttpListenerThread(
     vm_obj_id_t srv_obj, TadsMessageQueue *q, long ulim)
@@ -1026,7 +1026,7 @@ TadsHttpListenerThread::TadsHttpListenerThread(
 }
 
 /*
- *   deletion 
+ *   deletion
  */
 TadsHttpListenerThread::~TadsHttpListenerThread()
 {
@@ -1036,11 +1036,11 @@ TadsHttpListenerThread::~TadsHttpListenerThread()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   HTTP Server Thread 
+ *   HTTP Server Thread
  */
 
 /*
- *   Constant strings for some common HTTP status codes we report 
+ *   Constant strings for some common HTTP status codes we report
  */
 static const char *S_http_400 = "400 Bad Request";
 
@@ -1054,7 +1054,7 @@ static const char *S_http_500_body =
     "</html>";
 
 static const char *S_http_503 = "503 Service Unavailable (Shutting Down)";
-static const char *S_http_503_quitting_body = 
+static const char *S_http_503_quitting_body =
     "<html>"
     "<title>503 Service Unavailable</title>"
     "<body>"
@@ -1064,7 +1064,7 @@ static const char *S_http_503_quitting_body =
     "</html>";
 
 /*
- *   Parse a space-delimited token.  
+ *   Parse a space-delimited token.
  */
 static void parse_tok(char *&p, char *&tok, size_t &tok_len)
 {
@@ -1074,9 +1074,9 @@ static void parse_tok(char *&p, char *&tok, size_t &tok_len)
     /* the token starts here */
     tok = p;
 
-    /* 
+    /*
      *   find the end of the token - it's the end of the string, or the next
-     *   whitespace or newline (CR or LF) character 
+     *   whitespace or newline (CR or LF) character
      */
     for ( ; *p != '\0' && !isspace(*p) && *p != '\n' && *p != '\r' ; ++p) ;
 
@@ -1085,7 +1085,7 @@ static void parse_tok(char *&p, char *&tok, size_t &tok_len)
 }
 
 /*
- *   HTTP server thread - Construction 
+ *   HTTP server thread - Construction
  */
 TadsHttpServerThread::TadsHttpServerThread(
     TadsHttpListenerThread *l, TadsMessageQueue *q, long ulim, OS_Socket *s)
@@ -1108,7 +1108,7 @@ TadsHttpServerThread::~TadsHttpServerThread()
 /*
  *   Send a simple response, with the given status code and message body.  If
  *   the mesage body is null, we'll just send the response header.  Returns
- *   true if successful, false on error.  
+ *   true if successful, false on error.
  */
 int TadsHttpServerThread::send_simple(
     const char *status_code, const char *mime_type,
@@ -1147,9 +1147,9 @@ int TadsHttpServerThread::send_simple(
     }
     else
     {
-        /* 
+        /*
          *   there's no body, so just send a blank line to mark the end of
-         *   the header 
+         *   the header
          */
         if (!send("\r\n", 2))
             return FALSE;
@@ -1160,7 +1160,7 @@ int TadsHttpServerThread::send_simple(
 }
 
 /*
- *   Read to one or two newline sequences. 
+ *   Read to one or two newline sequences.
  */
 int TadsHttpServerThread::read_to_nl(StringRef *dst, long ofs,
                                      int init_state, int end_state)
@@ -1192,10 +1192,10 @@ int TadsHttpServerThread::read_to_nl(StringRef *dst, long ofs,
         if (nlstate == end_state)
             break;
 
-        /* 
+        /*
          *   We didn't find the end sequence, so we need more input.  Read at
          *   least one byte with no timeout, so that we block until
-         *   something's available and then read all available bytes.  
+         *   something's available and then read all available bytes.
          */
         long len = read(buf, sizeof(buf), 1, OS_FOREVER);
         set_run_state("Processing request");
@@ -1213,9 +1213,9 @@ int TadsHttpServerThread::read_to_nl(StringRef *dst, long ofs,
 }
 
 
-/* 
+/*
  *   Process a request from our HTTP client.  The main server loop calls this
- *   when the socket has data ready to read.  
+ *   when the socket has data ready to read.
  */
 int TadsHttpServerThread::process_request()
 {
@@ -1234,9 +1234,9 @@ int TadsHttpServerThread::process_request()
     long hbodylen;
     const char *hcl, *hte;             /* content-length, transfer-encoding */
 
-    /* 
+    /*
      *   Read the header.  We read data into our buffer until we find a
-     *   double CR-LF sequence, indicating the end of the header.  
+     *   double CR-LF sequence, indicating the end of the header.
      */
     if ((ofs = read_to_nl(hdrs, 0, 0, 4)) < 0)
         goto done;
@@ -1251,7 +1251,7 @@ int TadsHttpServerThread::process_request()
     /*
      *   Parse the main verb in the header - get the method and the resource
      *   ID.  The format is:
-     *   
+     *
      *.     <space>* VERB <space>+ RESOURCE <space>+ HTTP-VERSION <CRLF>
      */
     p = hdrs->get();
@@ -1261,7 +1261,7 @@ int TadsHttpServerThread::process_request()
     /* now parse the remaining headers */
     TadsHttpRequestHeader::parse_headers(hdr_list, hdr_tail, FALSE, hdrs, 0);
 
-    /* 
+    /*
      *   Check to see if there's a message body.  There is if there's a
      *   content-length or transfer-encoding header.
      */
@@ -1269,10 +1269,10 @@ int TadsHttpServerThread::process_request()
     hte = hdr_list->find("transfer-encoding");
     if (hcl != 0 || hte != 0)
     {
-        /* 
+        /*
          *   There's a content body.  If there's a content-length field,
          *   pre-allocate a chunk of memory, then read the number of bytes
-         *   indicated.  If it's a chunked transfer, read it in pieces.  
+         *   indicated.  If it's a chunked transfer, read it in pieces.
          */
         if (hcl != 0)
         {
@@ -1330,7 +1330,7 @@ int TadsHttpServerThread::process_request()
             /* if we've already read some body text, copy it to the buffer */
             if (hbodylen != 0)
                 body->append(hbody, hbodylen);
-            
+
             /* keep going until we reach the end marker */
             for (ofs = 0 ; ; )
             {
@@ -1342,11 +1342,11 @@ int TadsHttpServerThread::process_request()
                 /* get the chunk length */
                 long chunklen = strtol(body->get() + ofs, 0, 16);
 
-                /* 
+                /*
                  *   We're done with the chunk length.  Move any read-ahead
                  *   content down in memory so that it directly abuts the
                  *   preceding chunk, so that when we're done we'll have the
-                 *   content assembled into one contiguous piece.  
+                 *   content assembled into one contiguous piece.
                  */
                 long ralen = body->getlen() - nlofs;
                 if (ralen > 0)
@@ -1369,29 +1369,29 @@ int TadsHttpServerThread::process_request()
                     overflow = TRUE;
                 }
 
-                /* 
+                /*
                  *   figure the remaining read size for this chunk, after any
-                 *   read-ahead portion 
+                 *   read-ahead portion
                  */
                 long chunkrem = chunklen - ralen;
 
-                /* 
+                /*
                  *   if we've already overflowed, read and discard the chunk;
-                 *   otherwise read it into our buffer 
+                 *   otherwise read it into our buffer
                  */
                 if (chunkrem + 2 <= 0)
                 {
-                    /* 
+                    /*
                      *   We've already read ahead by enough to cover the next
                      *   chunk and the newline at the end.  Go in and delete
                      *   the newline (or as much of it as exists).  Start by
                      *   getting the offset of the newline: it's just after
                      *   the current chunk, which starts at 'ofs' and runs
-                     *   for 'chunklen'.  
+                     *   for 'chunklen'.
                      */
                     nlofs = ofs + chunklen;
 
-                    /* 
+                    /*
                      *   if we haven't yet read the full newline sequence, do
                      *   so now
                      */
@@ -1407,9 +1407,9 @@ int TadsHttpServerThread::process_request()
                         }
                     }
 
-                    /* 
+                    /*
                      *   if there's anything after the newline, move it down
-                     *   to overwrite the newline 
+                     *   to overwrite the newline
                      */
                     if (ralen - chunklen > 2)
                     {
@@ -1460,17 +1460,17 @@ int TadsHttpServerThread::process_request()
                         goto done;
                     }
 
-                    /* 
+                    /*
                      *   move past the chunk for the next read, minus the
                      *   CR-LF that follows the chunk - that isn't part of
-                     *   the data, but just part of the protocol 
+                     *   the data, but just part of the protocol
                      */
                     ofs = body->getlen() - 2;
                     body->truncate(ofs);
                 }
             }
 
-            /* 
+            /*
              *   Read to the closing blank line.  We've just passed one
              *   newline, following the '0' end length marker, so we're in
              *   state 2.  We could have either another newline following, or
@@ -1480,9 +1480,9 @@ int TadsHttpServerThread::process_request()
             if (nlofs < 0)
                 goto done;
 
-            /* 
+            /*
              *   if we have more than just the closing blank line, we have
-             *   trailers - append them to the headers 
+             *   trailers - append them to the headers
              */
             if (nlofs > ofs + 2)
             {
@@ -1490,17 +1490,17 @@ int TadsHttpServerThread::process_request()
                     hdr_list, hdr_tail, TRUE, body, ofs);
             }
 
-            /* 
+            /*
              *   the trailers (if any) and closing newline aren't part of the
-             *   content - clip them out of the body 
+             *   content - clip them out of the body
              */
             body->truncate(ofs);
         }
         else
         {
-            /* 
+            /*
              *   Other combinations of these headers are illegal.  Send an
-             *   error and abort. 
+             *   error and abort.
              */
             send_simple(S_http_400, "text/html",
                         "<html><title>Bad Request</title>"
@@ -1531,13 +1531,13 @@ int TadsHttpServerThread::process_request()
 
     /* we've handed over the header list to the request */
     hdr_list = 0;
-    
+
     /* send it to the main thread, and wait for the reply */
     if (queue->send(req, OS_FOREVER))
     {
-        /* 
+        /*
          *   success - the server will already have sent the reply, so we're
-         *   done 
+         *   done
          */
     }
     else if (queue->is_quitting())
@@ -1550,7 +1550,7 @@ int TadsHttpServerThread::process_request()
         /* 'send' failed - return an internal server error */
         send_simple(S_http_500, "text/html", S_http_500_body);
     }
-    
+
     /* we're done with the request */
     req->release_ref();
 
@@ -1575,13 +1575,13 @@ done:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Complete an HTTP request 
+ *   Complete an HTTP request
  */
 void TadsHttpRequest::complete()
 {
-    /* 
+    /*
      *   if the client included a "connection" header with value "close",
-     *   close the socket 
+     *   close the socket
      */
     const char *conn = (hdr_list != 0 ? hdr_list->find("connection") : 0);
     if (conn != 0 && stricmp(conn, "close") == 0 && thread != 0)

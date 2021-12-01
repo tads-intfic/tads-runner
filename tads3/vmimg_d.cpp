@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -17,7 +17,7 @@ Function
   T3 VM.  These functions can be omitted (but must be stubbed out)
   for stand-alone non-debug versions.
 Notes
-  
+
 Modified
   12/03/99 MJRoberts  - Creation
 */
@@ -50,10 +50,10 @@ void CVmImageLoader::load_gsym(VMG_ ulong siz)
 {
     char buf[TOK_SYM_MAX_LEN + 128];
 
-    /* 
+    /*
      *   if there's no global symbol table, merely load into the runtime
      *   symbol table, since we don't seem to need the information for
-     *   debugging 
+     *   debugging
      */
     if (G_prs->get_global_symtab() == 0)
     {
@@ -64,16 +64,16 @@ void CVmImageLoader::load_gsym(VMG_ ulong siz)
         return;
     }
 
-    /* 
+    /*
      *   remember the starting seek position and size, so we can re-read the
-     *   block into the runtime symbol table 
+     *   block into the runtime symbol table
      */
     long init_seek_pos = fp_->get_seek();
     ulong init_siz = siz;
 
-    /* 
+    /*
      *   note that we have a GSYM block - this implies that the image was
-     *   linked for debugging 
+     *   linked for debugging
      */
     has_gsym_ = TRUE;
 
@@ -90,7 +90,7 @@ void CVmImageLoader::load_gsym(VMG_ ulong siz)
         CTcSymbol *sym;
         tc_symtype_t sym_type;
         char *dat;
-        
+
         /* read the symbol's length, extra data length, and type code */
         read_data(buf, 6, &siz);
         sym_len = osrp2(buf);
@@ -100,7 +100,7 @@ void CVmImageLoader::load_gsym(VMG_ ulong siz)
         /* check the lengths to make sure they don't overflow our buffer */
         if (sym_len > TOK_SYM_MAX_LEN)
         {
-            /* 
+            /*
              *   this symbol name is too long - skip the symbol and its
              *   extra data entirely
              */
@@ -111,10 +111,10 @@ void CVmImageLoader::load_gsym(VMG_ ulong siz)
         }
         else if (dat_len + sym_len > sizeof(buf))
         {
-            /* 
+            /*
              *   the extra data block is too long - truncate the extra
              *   data so that we don't overflow our buffer, but proceed
-             *   anyway with the truncated extra data 
+             *   anyway with the truncated extra data
              */
             read_data(buf, sizeof(buf), &siz);
 
@@ -130,10 +130,10 @@ void CVmImageLoader::load_gsym(VMG_ ulong siz)
         /* get the pointer to the extra data (after the name) */
         dat = buf + sym_len;
 
-        /* 
+        /*
          *   allocate a copy of the symbol name in parser memory - this is
          *   necessary because the symbol objects themselves always come
-         *   from parser memory, and hence never get individually deleted 
+         *   from parser memory, and hence never get individually deleted
          */
         sym_name = (char *)G_prsmem->alloc(sym_len);
         memcpy(sym_name, buf, sym_len);
@@ -147,13 +147,13 @@ void CVmImageLoader::load_gsym(VMG_ ulong siz)
                 sym_name, sym_len, FALSE,
                 (int)osrp2(dat + 4),                                /* argc */
 
-                /* 
+                /*
                  *   the optional argument count is present in 3.1+ records,
                  *   which are at least 10 bytes; otherwise there aren't any
-                 *   optional arguments 
+                 *   optional arguments
                  */
                 (dat_len >= 10 ? osrp2(dat+8) : 0),             /* opt_argc */
-                
+
                 dat[6] != 0,                                     /* varargs */
                 dat[7] != 0,                                  /* has_retval */
                 FALSE,                                    /* is_multimethod */
@@ -230,10 +230,10 @@ void CVmImageLoader::load_gsym(VMG_ ulong siz)
             sym = new CTcSymMetaclass(sym_name, sym_len, FALSE,
                                       osrp2(dat), t3rp4u(dat + 2));
 
-            /* 
+            /*
              *   add a reverse mapping symbol for the object instance
              *   (note that we add this as an object, not a metaclass,
-             *   since it refers to the IntrinsicClass instance) 
+             *   since it refers to the IntrinsicClass instance)
              */
             if ((vm_obj_id_t)t3rp4u(dat + 2) != VM_INVALID_OBJ)
                 G_debugger->add_rev_sym(sym_name, sym_len,
@@ -253,7 +253,7 @@ void CVmImageLoader::load_gsym(VMG_ ulong siz)
 
     /*
      *   Seek back to the starting position, and then load the GSYM data
-     *   into the runtime reflection symbol table 
+     *   into the runtime reflection symbol table
      */
     fp_->seek(init_seek_pos);
     load_runtime_symtab_from_gsym(vmg_ init_siz);
@@ -261,7 +261,7 @@ void CVmImageLoader::load_gsym(VMG_ ulong siz)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Callback context structure for fix_obj_meta_cb() 
+ *   Callback context structure for fix_obj_meta_cb()
  */
 struct fix_obj_meta_cb_ctx
 {
@@ -274,7 +274,7 @@ struct fix_obj_meta_cb_ctx
 
 /*
  *   Global symbol enumeration callback - fix up this symbol's compiler
- *   metaclass identifier, if this is an object symbol.  
+ *   metaclass identifier, if this is an object symbol.
  */
 static void fix_obj_meta_cb(void *ctx0, CTcSymbol *sym)
 {
@@ -292,7 +292,7 @@ static void fix_obj_meta_cb(void *ctx0, CTcSymbol *sym)
 
         /* cast the symbol to an object symbol */
         CTcSymObj *obj_sym = (CTcSymObj *)sym;
-        
+
         /* get the object */
         obj = vm_objp(vmg_ (vm_obj_id_t)obj_sym->get_obj_id());
 
@@ -315,7 +315,7 @@ static void fix_obj_meta_cb(void *ctx0, CTcSymbol *sym)
  *   object symbols.  This has to wait until we've finished reading the whole
  *   image file, because we have need to finish reading all of the actual
  *   objects (specifically the OBJS records) before we can be sure we'll have
- *   access to all of the metaclass information.  
+ *   access to all of the metaclass information.
  */
 void CVmImageLoader::fix_gsym_meta(VMG0_)
 {
@@ -366,7 +366,7 @@ void CVmImageLoader::fix_gsym_meta(VMG0_)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Load a method header list block 
+ *   Load a method header list block
  */
 void CVmImageLoader::load_mhls(VMG_ ulong siz)
 {
@@ -386,7 +386,7 @@ void CVmImageLoader::load_mhls(VMG_ ulong siz)
     {
         size_t cur;
         char *p;
-        
+
         /* read as many as we can fit, up to the number remaining */
         cur = sizeof(buf) / 4;
         if (cur > cnt)
@@ -406,7 +406,7 @@ void CVmImageLoader::load_mhls(VMG_ ulong siz)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Error handler for macro loader 
+ *   Error handler for macro loader
  */
 class MyLoadMacErr: public CTcTokLoadMacErr
 {
@@ -420,13 +420,13 @@ public:
 };
 
 /*
- *   Load a Macro Symbols (MACR) block 
+ *   Load a Macro Symbols (MACR) block
  */
 void CVmImageLoader::load_macros(VMG_ ulong siz)
 {
-    /* 
+    /*
      *   remember the starting position, so we can load the same data for
-     *   reflection after we load it for the debugger 
+     *   reflection after we load it for the debugger
      */
     long init_seek_pos = fp_->get_seek();
     ulong init_siz = siz;

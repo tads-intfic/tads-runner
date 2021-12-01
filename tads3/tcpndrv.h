@@ -1,10 +1,10 @@
 /* $Header: d:/cvsroot/tads/tads3/TCPNDRV.H,v 1.4 1999/07/11 00:46:53 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -28,7 +28,7 @@ Function
   tcpndrv.h   - target-independent derived CTPNXxxBase classes
   ???.h       - target-specific derived CTPNXxx final classes
 Notes
-  
+
 Modified
   05/10/99 MJRoberts  - Creation
 */
@@ -38,7 +38,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   "argcount" node 
+ *   "argcount" node
  */
 class CTPNArgcBase: public CTcPrsNode
 {
@@ -57,7 +57,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   "self" node 
+ *   "self" node
  */
 class CTPNSelfBase: public CTcPrsNode
 {
@@ -76,7 +76,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   "targetprop" node 
+ *   "targetprop" node
  */
 class CTPNTargetpropBase: public CTcPrsNode
 {
@@ -96,7 +96,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   "targetobj" node 
+ *   "targetobj" node
  */
 class CTPNTargetobjBase: public CTcPrsNode
 {
@@ -116,7 +116,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   "definingobj" node 
+ *   "definingobj" node
  */
 class CTPNDefiningobjBase: public CTcPrsNode
 {
@@ -135,7 +135,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   "invokee" node 
+ *   "invokee" node
  */
 class CTPNInvokeeBase: public CTcPrsNode
 {
@@ -151,7 +151,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   "inherited" node 
+ *   "inherited" node
  */
 class CTPNInhBase: public CTcPrsNode
 {
@@ -181,7 +181,7 @@ protected:
 };
 
 /*
- *   "inherited class" node - for (inherited superclass.method) construct 
+ *   "inherited class" node - for (inherited superclass.method) construct
  */
 class CTPNInhClassBase: public CTcPrsNode
 {
@@ -211,7 +211,7 @@ protected:
 
 
 /*
- *   "delegated" node - for (delegated expr.method) construct 
+ *   "delegated" node - for (delegated expr.method) construct
  */
 class CTPNDelegatedBase: public CTcPrsNode
 {
@@ -247,7 +247,7 @@ protected:
 };
 
 /*
- *   "replaced" node 
+ *   "replaced" node
  */
 class CTPNReplacedBase: public CTcPrsNode
 {
@@ -267,7 +267,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parse node for constant values (numbers, strings) 
+ *   Parse node for constant values (numbers, strings)
  */
 class CTPNConstBase: public CTcPrsNode
 {
@@ -302,7 +302,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Address-of Operator 
+ *   Address-of Operator
  */
 class CTPNAddrBase: public CTPNUnary
 {
@@ -319,7 +319,7 @@ public:
      *   (*comparable) to true if the comparison is meaningful, false if
      *   not; if (*comparable) is set to false, the caller should not
      *   attempt to perform a compile-time comparison of the addresses,
-     *   and must defer the comparison to run-time.  
+     *   and must defer the comparison to run-time.
      */
     int is_addr_eq(const class CTPNAddr *, int *comparable) const;
 
@@ -336,7 +336,7 @@ public:
  *   Symbol node.  This node handles symbols that are not resolved at
  *   parse time, and whose resolution must be deferred to code generation.
  *   Any symbol that doesn't resolve at parse time to something in local
- *   scope uses this type of node.  
+ *   scope uses this type of node.
  */
 class CTPNSymBase: public CTcPrsNode
 {
@@ -348,10 +348,10 @@ public:
         len_ = len;
     }
 
-    /* 
+    /*
      *   Assume that a simple symbol primary can be used as an lvalue.
      *   Some symbols are not suitable as lvalues, but we can't know this
-     *   at parse time, so assume that an lvalue is okay for now.  
+     *   at parse time, so assume that an lvalue is okay for now.
      */
     virtual int check_lvalue() const { return TRUE; }
 
@@ -360,7 +360,7 @@ public:
 
     /*
      *   At parse time, assume that we can take the address of a simple
-     *   symbol primary. 
+     *   symbol primary.
      */
     virtual int has_addr() const { return TRUE; }
 
@@ -393,7 +393,7 @@ protected:
  *   Resolved symbol node.  This node handles symbols that are resolve
  *   during parsing.  All local scope symbols, by the nature of the
  *   language, are resolvable during parsing, because local scope symbols
- *   must be declared before their first use.  
+ *   must be declared before their first use.
  */
 class CTPNSymResolvedBase: public CTcPrsNode
 {
@@ -416,10 +416,10 @@ public:
     /* determine if I can be an lvalue */
     virtual int check_lvalue() const { return sym_->check_lvalue(); }
 
-    /* 
+    /*
      *   check to see if this is an lvalue, resolving in the given scope -
      *   this type of symbol is pre-resolved, so we can ignore the symbol
-     *   table and just ask our resoloved symbol directly 
+     *   table and just ask our resoloved symbol directly
      */
     virtual int check_lvalue_resolved(class CTcPrsSymtab *) const
         { return sym_->check_lvalue(); }
@@ -448,7 +448,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Debugger local variable resolved symbol 
+ *   Debugger local variable resolved symbol
  */
 class CTPNSymDebugLocalBase: public CTcPrsNode
 {
@@ -463,13 +463,13 @@ public:
     /* determine if I have an address */
     virtual int has_addr() const { return FALSE; }
 
-    /* 
+    /*
      *   Determine if I have a return value when called as a function.  We
      *   have to assume that we do, since we can't know in advance what the
      *   variable will hold at run-time.  If it holds a function with a
      *   return value, we'll need to return the value; if it doesn't, the
      *   function will effectively return nil, so returning the non-result
-     *   will do no harm.  
+     *   will do no harm.
      */
     virtual int has_return_value_on_call() const { return TRUE; }
 
@@ -497,7 +497,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Argument List 
+ *   Argument List
  */
 class CTPNArglistBase: public CTcPrsNode
 {
@@ -513,11 +513,11 @@ public:
     int get_argc() const { return argc_; }
     void set_argc(int argc) { argc_ = argc; }
 
-    /* 
+    /*
      *   Get the head argument of the list.  The other arguments can be
      *   obtained by following the linked list from this one.  Note that
      *   we build some argument lists in reverse order, with the last
-     *   argument at the head of the list.  
+     *   argument at the head of the list.
      */
     class CTPNArg *get_arg_list_head() const { return list_; }
 
@@ -531,9 +531,9 @@ public:
     class CTcPrsNode *adjust_for_dyn(const tcpn_dyncomp_info *info);
 
 protected:
-    /* 
+    /*
      *   argument count (this is simply the number of entries in the list,
-     *   but we keep it separately for easy access) 
+     *   but we keep it separately for easy access)
      */
     int argc_;
 
@@ -545,7 +545,7 @@ protected:
 /* ------------------------------------------------------------------------ */
 /*
  *   Argument list entry.  Each list entry has the expression for the
- *   argument and a pointer to the next element of the argument list.  
+ *   argument and a pointer to the next element of the argument list.
  */
 class CTPNArgBase: public CTcPrsNode
 {
@@ -619,7 +619,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Function/Method Call node 
+ *   Function/Method Call node
  */
 class CTPNCallBase: public CTcPrsNode
 {
@@ -660,7 +660,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   double-quoted string node 
+ *   double-quoted string node
  */
 class CTPNDstrBase: public CTcPrsNode
 {
@@ -693,14 +693,14 @@ protected:
 
 /*
  *   The target must also define CTPNDebugDstr, a subclass of CTPNDstr.
- *   This for use in debugger expressions.  
+ *   This for use in debugger expressions.
  */
 /* class CTPNDebugDstr: public CTPNDstr ... */
 
 /*
  *   Double-quoted string embedding.  This node contains an expression
  *   embedded with the "<< >>" notation inside a double-quoted string.
- *   This type of expression requires an implicit say() call.  
+ *   This type of expression requires an implicit say() call.
  */
 class CTPNDstrEmbedBase: public CTPNUnary
 {
@@ -737,7 +737,7 @@ public:
      *   Create from a list of values, and the attribute string for selecting
      *   a value on each invocation.  The attributes string must be static
      *   data, since we don't make a copy.  Currently we only allow built-in
-     *   attribute selections, which we define in a static structure.  
+     *   attribute selections, which we define in a static structure.
      */
     CTPNStrOneOfBase(int dstr, class CTPNList *lst, class CTcSymObj *state_obj)
     {
@@ -751,16 +751,16 @@ public:
 
     /* adjust for dynamic compilation */
     class CTcPrsNode *adjust_for_dyn(const tcpn_dyncomp_info *info);
-    
+
     /* folder constants */
     class CTcPrsNode *fold_constants(class CTcPrsSymtab *symtab);
 
-    /* 
+    /*
      *   The overall "one of" list has a return value if it's in a
      *   single-quoted string, since the individual elements will themselves
      *   be represented as single-quoted strings.  If we're in a
      *   double-quoted string, the individual elements are double-quoted
-     *   strings. 
+     *   strings.
      */
     int has_return_value() const { return !dstr_; }
 
@@ -789,11 +789,11 @@ public:
         cnt_ = 0;
         head_ = tail_ = 0;
 
-        /* 
+        /*
          *   initially, the list is constant, because it's just an empty
          *   list; as we add elements, we'll check for constants, and
          *   we'll clear the constant flag the first time we add a
-         *   non-constant element 
+         *   non-constant element
          */
         is_const_ = TRUE;
 
@@ -813,19 +813,19 @@ public:
     /* get the constant value of the list */
     CTcConstVal *get_const_val()
     {
-        /* 
+        /*
          *   return our constant value only if we have one AND we're not a
          *   lookup table - a lookup table requires a NEW operation at
          *   run-time, so even if the underlying list of source values is
-         *   constant, the overall list value isn't 
+         *   constant, the overall list value isn't
          */
         return (is_const_ && !is_lookup_table_ ? &const_val_ : 0);
     }
 
-    /* 
+    /*
      *   get the first/last element - other elements can be reached by
      *   traversing the linked list of elements starting with the head or
-     *   tail 
+     *   tail
      */
     class CTPNListEle *get_head() const { return head_; }
     class CTPNListEle *get_tail() const { return tail_; }
@@ -853,9 +853,9 @@ protected:
     class CTPNListEle *head_;
     class CTPNListEle *tail_;
 
-    /* 
+    /*
      *   our constant value - this is valid only when all elements of the
-     *   list are constant, as indicated by the is_const_ paremeter 
+     *   list are constant, as indicated by the is_const_ paremeter
      */
     CTcConstVal const_val_;
 
@@ -868,7 +868,7 @@ protected:
 
 /*
  *   List Element.  Each list element is represented by one of these
- *   objects; these are in turn linked together into a list.  
+ *   objects; these are in turn linked together into a list.
  */
 class CTPNListEleBase: public CTcPrsNode
 {
@@ -927,7 +927,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Member with no arguments 
+ *   Member with no arguments
  */
 class CTPNMemberBase: public CTcPrsNode
 {
@@ -942,7 +942,7 @@ public:
         /* remember whether or not the property is an expression */
         prop_is_expr_ = prop_is_expr;
     }
-        
+
     /* a member with no arguments can always be used as an lvalue */
     virtual int check_lvalue() const { return TRUE; }
     virtual int check_lvalue_resolved(class CTcPrsSymtab *) const
@@ -980,14 +980,14 @@ protected:
 /*
  *   The target must also define another class, CTPNSpecDebugMember, a
  *   subclass of CTPNMember.  This new class must ensure at run-time that
- *   the property evaluation has no side effects. 
+ *   the property evaluation has no side effects.
  */
 /* class CTPNSpecDebugMember: public CTPNMember ... */
 
 /*
  *   Member with arguments - this is for a property evaluation with an
  *   argument list.  (Simple property evaluation without arguments is a
- *   normal binary node subclass.)  
+ *   normal binary node subclass.)
  */
 class CTPNMemArgBase: public CTcPrsNode
 {
@@ -1031,7 +1031,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Subscript 
+ *   Subscript
  */
 class CTPNSubscriptBase: public CTPNBin
 {
@@ -1062,15 +1062,15 @@ public:
     /* fold constants */
     class CTcPrsNode *fold_binop();
 
-    /* 
+    /*
      *   a comma expression's value is the value of the right operand, so the
-     *   type is boolean if the right operand's type is boolean 
+     *   type is boolean if the right operand's type is boolean
      */
     virtual int is_bool() const { return right_->is_bool(); }
 
-    /* 
+    /*
      *   determine if I have a value - I have a value if my right
-     *   subexpression has a value 
+     *   subexpression has a value
      */
     virtual int has_return_value() const
         { return right_->has_return_value(); }
@@ -1144,7 +1144,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'is in' 
+ *   'is in'
  */
 class CTPNIsInBase: public CTPNBin
 {
@@ -1158,17 +1158,17 @@ public:
     virtual int is_bool() const { return TRUE; }
 
 protected:
-    /* 
+    /*
      *   flag: if true, we have a constant true value (because the left
      *   side is a constant, and the right side list contains the same
-     *   constant) 
+     *   constant)
      */
     unsigned int const_true_ : 1;
 };
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'not in' 
+ *   'not in'
  */
 class CTPNNotInBase: public CTPNBin
 {
@@ -1181,17 +1181,17 @@ public:
     /* comparison operators yield boolean results */
     virtual int is_bool() const { return TRUE; }
 
-    /* 
+    /*
      *   flag: if true, we have a constant true value (because the left
      *   side is a constant, and the right side list is entirely constants
-     *   and doesn't contain the left side value) 
+     *   and doesn't contain the left side value)
      */
     unsigned int const_false_ : 1;
 };
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Logical AND operator node 
+ *   Logical AND operator node
  */
 class CTPNAndBase: public CTPNBin
 {
@@ -1208,7 +1208,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Logical OR operator node 
+ *   Logical OR operator node
  */
 class CTPNOrBase: public CTPNBin
 {
@@ -1225,7 +1225,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Simple assignment operator 
+ *   Simple assignment operator
  */
 class CTPNAsiBase: public CTPNBin
 {
@@ -1250,7 +1250,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   NOT operator node 
+ *   NOT operator node
  */
 class CTPNNotBase: public CTPNUnary
 {
@@ -1300,7 +1300,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Conditional operator parse node 
+ *   Conditional operator parse node
  */
 class CTPNIfBase: public CTcPrsNode
 {
@@ -1336,7 +1336,7 @@ public:
         /* return myself otherwise unchanged */
         return this;
     }
-    
+
 protected:
     class CTcPrsNode *first_;
     class CTcPrsNode *second_;
@@ -1345,7 +1345,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Derived target-independent symbol classes 
+ *   Derived target-independent symbol classes
  */
 
 /*
@@ -1355,7 +1355,7 @@ protected:
  *   symbol is an error, so the program cannot be successfully compiled
  *   once an undefined symbol is encountered, but this at least allows
  *   compilation to proceed through the rest of the program to check for
- *   other errors. 
+ *   other errors.
  */
 class CTcSymUndefBase: public CTcSymbol
 {
@@ -1376,7 +1376,7 @@ public:
 /*
  *   Function.  At construction time, a function's actual code offset is
  *   never known; we cannot know a function's code offset until after
- *   we've finished code generation.  
+ *   we've finished code generation.
  */
 class CTcSymFuncBase: public CTcSymbol
 {
@@ -1429,10 +1429,10 @@ public:
     /* this can't be an lvalue */
     virtual int check_lvalue() const { return FALSE; }
 
-    /* 
+    /*
      *   Get the argument count.  If is_varargs() returns true, this is a
      *   minimum argument count; otherwise, this is the exact number of
-     *   arguments required. 
+     *   arguments required.
      */
     int get_argc() const { return argc_; }
     int get_opt_argc() const { return opt_argc_; }
@@ -1441,11 +1441,11 @@ public:
     /* is the argument list within the correct range? */
     int argc_ok(int n) const
     {
-        /* 
+        /*
          *   the argument list is correct if it has at least the fixed
          *   arguments, AND either we have varargs (in which case there's no
          *   upper limit) or the argument count is less than the maximum
-         *   (which is the fixed plus optionals) 
+         *   (which is the fixed plus optionals)
          */
         return (n >= argc_
                 && (varargs_ || n <= argc_ + opt_argc_));
@@ -1492,10 +1492,10 @@ public:
     class CTcSymFunc *get_mod_base() const { return mod_base_; }
     void set_mod_base(class CTcSymFunc *f) { mod_base_ = f; }
 
-    /* 
+    /*
      *   Get/set the global symbol.  For a function replaced with 'modify',
      *   this is the original symbol for the function, which is still in the
-     *   global symbol table.  Otherwise, this is simply null.  
+     *   global symbol table.  Otherwise, this is simply null.
      */
     class CTcSymFunc *get_mod_global() const { return mod_global_; }
     void set_mod_global(class CTcSymFunc *f) { mod_global_ = f; }
@@ -1521,13 +1521,13 @@ public:
 
     /* load from an object file */
     static int load_from_obj_file(class CVmFile *fp, const textchar_t *fname);
-    
+
     /* get my anchor */
     struct CTcStreamAnchor *get_anchor() const { return anchor_; }
 
     /*
      *   Set my anchor.  This must be invoked during code generation when
-     *   our code body is generated.  
+     *   our code body is generated.
      */
     virtual void set_anchor(struct CTcStreamAnchor *anchor)
         { anchor_ = anchor; }
@@ -1560,9 +1560,9 @@ public:
     /* clear the modified base offset list */
     void clear_mod_base_offsets() { mod_base_ofs_list_.clear(); }
 
-    /* 
+    /*
      *   Set the absolute address.  For debugger expressions, this sets the
-     *   code pool address specified in the debugger source expression. 
+     *   code pool address specified in the debugger source expression.
      */
     virtual void set_abs_addr(uint32_t addr) = 0;
 
@@ -1570,9 +1570,9 @@ protected:
     /* head of the fixup list for our function's code */
     struct CTcAbsFixup *fixups_;
 
-    /* 
+    /*
      *   my stream anchor - this records my byte stream data size, code
-     *   stream offset, and (after linking) final pool address 
+     *   stream offset, and (after linking) final pool address
      */
     struct CTcStreamAnchor *anchor_;
 
@@ -1615,16 +1615,16 @@ protected:
     /* flag: this multi-method is defined in this file */
     unsigned int mm_def_ : 1;
 
-    /* 
+    /*
      *   Flag: this function has a known prototype.  An 'extern' function
      *   declaration is allowed without a prototype, in which case the
-     *   function can be defined elsewhere with any prototype. 
+     *   function can be defined elsewhere with any prototype.
      */
     unsigned int has_proto_ : 1;
 };
 
 /*
- *   metaclass symbol - property list entry 
+ *   metaclass symbol - property list entry
  */
 class CTcSymMetaProp
 {
@@ -1640,7 +1640,7 @@ public:
         /* not in a list yet */
         nxt_ = 0;
     }
-    
+
     /* property symbol for this entry */
     class CTcSymProp *prop_;
 
@@ -1653,7 +1653,7 @@ public:
 
 /*
  *   Metaclass.
- *   
+ *
  *   Metaclasses must be declared per module.  However, we store "soft"
  *   references in symbol files, purely so that the defined() operator knows
  *   whether a metaclass is included in the build.  The soft references don't
@@ -1753,14 +1753,14 @@ protected:
 
     /* metaclass dependency table index */
     int meta_idx_;
-    
+
     /* list of properties */
     CTcSymMetaProp *prop_head_;
     CTcSymMetaProp *prop_tail_;
 
-    /* 
+    /*
      *   modification object - this is the object that contains the user
-     *   methods added to the intrinsic class via 'modify' 
+     *   methods added to the intrinsic class via 'modify'
      */
     class CTcSymObj *mod_obj_;
 
@@ -1779,7 +1779,7 @@ protected:
 
 /*
  *   Object.  An object's ID number can be assigned as soon as the object
- *   is defined during parsing.  
+ *   is defined during parsing.
  */
 class CTcSymObjBase: public CTcSymbol
 {
@@ -1884,11 +1884,11 @@ public:
     ulong get_obj_id() const { return obj_id_; }
     void set_obj_id(ulong obj_id) { obj_id_ = obj_id; }
 
-    /* 
+    /*
      *   Get/set the 'extern' flag.  If an object symbol is defined as
      *   extern, it means that the object is referenced but not defined in
      *   the current file.  This is used for separate compilation; extern
-     *   objects must be resolved during linking. 
+     *   objects must be resolved during linking.
      */
     int is_extern() const { return is_extern_; }
     void set_extern(int f) { is_extern_ = f; }
@@ -1916,34 +1916,34 @@ public:
     /*
      *   Get/Set the 'modify' base object.  For a 'modify' object, this sets
      *   the symbol (which is always a synthesized symbol) of the object
-     *   being modified. 
+     *   being modified.
      */
     class CTcSymObj *get_mod_base_sym() const { return mod_base_sym_; }
     void set_mod_base_sym(class CTcSymObj *sym);
 
-    /* 
+    /*
      *   Get/set the modifiying object - this is the 'modify' object
      *   that's modifying us.  When we set this value, we'll also tell the
-     *   modified object that we are its modifier.  
+     *   modified object that we are its modifier.
      */
     class CTcSymObj *get_modifying_sym() const
         { return modifying_obj_.sym_; }
     void set_modifying_sym(CTcSymObj *sym)
         { modifying_obj_.sym_ = sym; }
 
-    /* 
+    /*
      *   Get/set the modifying object ID - the ID can be used instead of
      *   the symbol, if desired.  Note that only one or the other may be
-     *   stored, since they share the same data space. 
+     *   stored, since they share the same data space.
      */
     tctarg_obj_id_t get_modifying_obj_id() const
         { return modifying_obj_.id_; }
     void set_modifying_obj_id(tctarg_obj_id_t id)
         { modifying_obj_.id_ = id; }
 
-    /* 
+    /*
      *   get/set the 'modified' flag - this flag indicates that this is a
-     *   placeholder symbol for a modified object 
+     *   placeholder symbol for a modified object
      */
     int get_modified() const { return modified_; }
     void set_modified(int f) { modified_ = f; }
@@ -1951,13 +1951,13 @@ public:
     /*
      *   Synthesize a placeholder symbol to use for modified objects.
      *   This symbol keeps track of the original object after
-     *   modification. 
+     *   modification.
      */
     static class CTcSymObj *synthesize_modified_obj_sym(int anon);
 
-    /* 
+    /*
      *   synthesize the name of a modified object base class symbol given
-     *   the base class's object ID 
+     *   the base class's object ID
      */
     static void synthesize_modified_obj_name(char *buf,
                                              tctarg_obj_id_t obj_id);
@@ -1968,9 +1968,9 @@ public:
     /* an object's value is a compile-time constant */
     class CTcPrsNode *fold_constant();
 
-    /* 
+    /*
      *   we can't take the address of an object - an object symbol yields a
-     *   reference to begin with, so taking its address is meaningless 
+     *   reference to begin with, so taking its address is meaningless
      */
     virtual int has_addr() const { return FALSE; }
 
@@ -2032,7 +2032,7 @@ public:
      *   Delete a property from 'modify' base objects.  This must be
      *   defined by the target-specific code subclass, because the action
      *   of this routine is specific to the code generator.
-     *   
+     *
      *   This carries out a link-time 'replace' on a property in a
      *   'modify' object.  This object is the 'modify' object; we must
      *   delete the property in all of the base classes of this object
@@ -2040,7 +2040,7 @@ public:
      *   this 'modify' indirectly applies.  Do not delete the property
      *   from this object - only from its modified base classes.  Stop
      *   upon reaching a non-modified base class, because this is the base
-     *   class of the original.  
+     *   class of the original.
      */
     virtual void delete_prop_from_mod_base(tctarg_prop_id_t prop_id) = 0;
 
@@ -2048,11 +2048,11 @@ public:
      *   Mark the compiled data for this object as a class object.  This
      *   must be defined by the target-specific code subclass, because we
      *   need to modify the generated code for the object.
-     *   
+     *
      *   This routine is called when an object loaded from an object file
      *   is modified by an object in another object file, and hence
      *   becomes a base class at link-time.  We call this on the original,
-     *   which doesn't know it's being modified until link time.  
+     *   which doesn't know it's being modified until link time.
      */
     virtual void mark_compiled_as_class() = 0;
 
@@ -2105,28 +2105,28 @@ public:
         sc_name_tail_ = other_obj->sc_name_tail_;
     }
 
-    /* 
+    /*
      *   Add a named superclass.
-     *   
+     *
      *   We keep a superclass list here, separately from the superclass list
      *   that the associated object statement itself maintains, because we
      *   want hierarchy information for external objects as well as objects
      *   defined in the current module.  An external object has only a
      *   symbol table entry, so there's no object statement in which to
      *   stash the object list for such objects.
-     *   
+     *
      *   In addition, this symbolic superclass list isn't exactly the same
      *   as the true superclass list, because the symbolic list doesn't
      *   include the special unnamed objects created when 'modify' is used.
      *   The list we keep here mirrors the apparent structure as represented
-     *   in the source code.  
+     *   in the source code.
      */
     void add_sc_name_entry(const char *txt, size_t len);
 
-    /* 
+    /*
      *   determine if I have the given superclass - returns true if the
      *   given superclass is among my direct superclasses, or if any of my
-     *   direct superclasses has the given superclass 
+     *   direct superclasses has the given superclass
      */
     int has_superclass(class CTcSymObj *sc_sym) const;
 
@@ -2138,10 +2138,10 @@ public:
     void *get_meta_extra() const { return meta_extra_; }
     void set_meta_extra(void *ptr) { meta_extra_ = ptr; }
 
-    /* 
+    /*
      *   get/set the root-object-superclass flag - if this is set, it means
      *   that the object was explicitly defined with 'object' (the root
-     *   object type) as its superclass 
+     *   object type) as its superclass
      */
     int sc_is_root() const { return sc_is_root_; }
     void set_sc_is_root(int f) { sc_is_root_ = (f != 0); }
@@ -2158,7 +2158,7 @@ public:
     /*
      *   Create our grammar rule entry object.  If we already have one,
      *   we'll discard it in favor of the new one; this allows a 'replace'
-     *   or 'modify' to override any previously-defined grammar rules.  
+     *   or 'modify' to override any previously-defined grammar rules.
      */
     class CTcGramProdEntry *create_grammar_entry(
         const char *prod_sym, size_t prod_sym_len);
@@ -2167,9 +2167,9 @@ public:
     class CTcGramProdEntry *get_grammar_entry() const
         { return grammar_entry_; }
 
-    /* 
+    /*
      *   merge my grammar rule list (if any) into the global rule list for
-     *   the associated production object 
+     *   the associated production object
      */
     void merge_grammar_entry();
 
@@ -2198,10 +2198,10 @@ protected:
     /* the object's ID */
     ulong obj_id_;
 
-    /* 
+    /*
      *   the object stream (G_os, or other stream as appropriate) offset of
      *   our data - this is valid after code generation if we're not
-     *   external 
+     *   external
      */
     ulong stream_ofs_;
 
@@ -2211,26 +2211,26 @@ protected:
     /* head of our self-reference object ID fixup list */
     struct CTcIdFixup *fixups_;
 
-    /* 
+    /*
      *   Head of list of deleted properties.  This list is used only in
      *   the top object in a stack of modified objects (i.e., this list is
      *   attached to the latest 'modify' object), and only when the bottom
      *   object in the stack is external to the current translation unit.
      *   This is the list of objects that must be deleted at link time,
-     *   because they're external to the current translation unit.  
+     *   because they're external to the current translation unit.
      */
     class CTcObjPropDel *first_del_prop_;
 
     /*
      *   Base symbol for a 'modify' object.  This is the synthesized
-     *   symbol for the object that this object modifies. 
+     *   symbol for the object that this object modifies.
      */
     class CTcSymObj *mod_base_sym_;
 
-    /* 
+    /*
      *   Modifying symbol for an object modified by a 'modify' object.
      *   This points to the object that is modifying us - it's simply the
-     *   reverse link of mod_base_sym_.  
+     *   reverse link of mod_base_sym_.
      */
     union
     {
@@ -2244,12 +2244,12 @@ protected:
     /* head of vocabulary list for this object */
     class CTcVocabEntry *vocab_;
 
-    /* 
+    /*
      *   Head of superclass list - this list is used and valid ONLY during
      *   linking; it is null during compilation.  Because a class or object
      *   can be defined before its superclasses, and can be defined in
      *   separate a separate module from its superclass, we can't resolve
-     *   superclasses until link time.  
+     *   superclasses until link time.
      */
     class CTcObjScEntry *sc_;
 
@@ -2258,9 +2258,9 @@ protected:
      *   normal compilation, and keeps track of the symbolic name structure
      *   of the class hiearchy.  We don't resolve these names; we simply
      *   keep track of the names as they appear in the source code.
-     *   
+     *
      *   Note that the entries in this list must all have valid txt_ entries
-     *   - no entries with sym_ values are allowed in this list.  
+     *   - no entries with sym_ values are allowed in this list.
      */
     class CTPNSuperclass *sc_name_head_;
     class CTPNSuperclass *sc_name_tail_;
@@ -2287,10 +2287,10 @@ protected:
     /* flag: the object has been referenced */
     uint ref_ : 1;
 
-    /* 
+    /*
      *   'modify' and 'replace' flags - these indicate that this object
      *   modifies/replaces an *external* object, hence the modify/replace
-     *   action must be performed at link time 
+     *   action must be performed at link time
      */
     uint ext_modify_ : 1;
     uint ext_replace_ : 1;
@@ -2307,18 +2307,18 @@ protected:
     /* flag: this object has been counted as written to the object file */
     uint counted_in_obj_ : 1;
 
-    /* 
+    /*
      *   flag: we've built our full vocabulary by explicitly inheriting
-     *   our superclass's words into our own list 
+     *   our superclass's words into our own list
      */
     uint vocab_inherited_ : 1;
 
     /* flag: this object is anonymous */
     uint anon_ : 1;
 
-    /* 
+    /*
      *   flag: we are explicitly defined with the root object ('object') as
-     *   our superclass 
+     *   our superclass
      */
     uint sc_is_root_ : 1;
 
@@ -2327,16 +2327,16 @@ protected:
 };
 
 /*
- *   Object vocabulary word entry 
+ *   Object vocabulary word entry
  */
 class CTcVocabEntry
 {
 public:
     CTcVocabEntry(const char *txt, size_t len, tctarg_prop_id_t prop)
     {
-        /* 
+        /*
          *   keep a reference to the text - assume it's in parser memory,
-         *   so it'll stay around for the duration of the compilation 
+         *   so it'll stay around for the duration of the compilation
          */
         txt_ = txt;
         len_ = len;
@@ -2360,7 +2360,7 @@ public:
 };
 
 /*
- *   Object superclass list entry 
+ *   Object superclass list entry
  */
 class CTcObjScEntry
 {
@@ -2384,7 +2384,7 @@ public:
 
 /*
  *   Property.  A property's ID can be assigned as soon as the property is
- *   first used in an object definition. 
+ *   first used in an object definition.
  */
 class CTcSymPropBase: public CTcSymbol
 {
@@ -2408,7 +2408,7 @@ public:
 
     /* get the property ID */
     tctarg_prop_id_t get_prop() const { return prop_; }
-    
+
     /* we can get the address of a property */
     class CTcPrsNode *fold_addr_const();
 
@@ -2450,14 +2450,14 @@ protected:
     /* flag: this is a vocabulary property */
     unsigned int vocab_ : 1;
 
-    /* 
+    /*
      *   Flag: this is a "weak" property definition.  A weak definition is
      *   one that can be overridden by a conflicting definition for the same
      *   symbol using another type.  Symbols used with "&" are assumed to be
      *   properties, but only if we don't later find a conflicting
      *   definition; the weak flag tells us that we can drop the property
      *   assumption without complaint if we do find a different definition
-     *   for the symbol later.  
+     *   for the symbol later.
      */
     unsigned int weak_: 1;
 };
@@ -2559,16 +2559,16 @@ public:
         defval_seqno_ = seqno;
     }
 
-    /* 
+    /*
      *   get/set "list parameter" flag - a list parameter is still a local,
      *   but from the programmer's perspective acts like a parameter because
      *   its role is to contain a list of varargs parameters beyond a certain
-     *   point in the argument list 
+     *   point in the argument list
      */
     int is_list_param() const { return is_list_param_; }
     void set_list_param(int f) { is_list_param_ = f; }
 
-    /* 
+    /*
      *   true -> "context local" - A context local is a local variable
      *   contained in a scope enclosing an anonymous function.  Because
      *   the lifetime of an anonymous function can exceed that of the
@@ -2581,14 +2581,14 @@ public:
      *   activation record; instead, a reference to the context object is
      *   stored in the anonymous function, which ensures that the context
      *   object stays reachable as long as the anonymous function object
-     *   itself is reachable.  
+     *   itself is reachable.
      */
     int is_ctx_local() const { return (is_ctx_local_ != 0); }
 
     /*
      *   Establish the variable as a context local, assigning the property
      *   ID of the context object that stores the variable's value, and
-     *   the local variable that contains the context object itself.  
+     *   the local variable that contains the context object itself.
      */
     void set_ctx_level(int ctx_level)
     {
@@ -2602,9 +2602,9 @@ public:
         ctx_arr_idx_ = 0;
     }
 
-    /* 
+    /*
      *   get/set the original local in the enclosing scope for an
-     *   anonymous function's inherited local 
+     *   anonymous function's inherited local
      */
     class CTcSymLocal *get_ctx_orig() const { return ctx_orig_; }
     void set_ctx_orig(class CTcSymLocal *orig) { ctx_orig_ = orig; }
@@ -2615,17 +2615,17 @@ public:
     /* we can always assign to a local */
     virtual int check_lvalue() const { return TRUE; }
 
-    /* 
+    /*
      *   get/set the 'used' flag - this tracks whether or not the
      *   variable's value was referenced anywhere in the scope in which it
-     *   was defined 
+     *   was defined
      */
     int get_val_used() const { return val_used_; }
     void set_val_used(int f);
 
-    /* 
+    /*
      *   get/set the 'assigned' flag - this tracks whether or not the
-     *   variable has been assigned a value 
+     *   variable has been assigned a value
      */
     int get_val_assigned() const { return val_assigned_; }
     void set_val_assigned(int f);
@@ -2662,7 +2662,7 @@ protected:
     /* variable number - stack frame offset for local or parameter */
     int var_num_;
 
-    /* 
+    /*
      *   Parameter index.  This is the index within the formal parameter list
      *   of a positional parameter variable.  For regular positional
      *   parameters, this is the same as var_num_.  However, it's different
@@ -2671,39 +2671,39 @@ protected:
      *   rather than an argument number.  In order to generate the code that
      *   loads the actual argument value into the local variable, we have to
      *   keep track of both stack locations.  This is where we keep track of
-     *   the parameter index.  
+     *   the parameter index.
      */
     int param_index_;
 
-    /* 
+    /*
      *   context variable number - if this is a context variable, this is
      *   the stack frame index of the variable containing the object
-     *   containing our value 
+     *   containing our value
      */
     int ctx_var_num_;
 
-    /* 
+    /*
      *   Context level - this is the nesting level of the anonymous
      *   function's context.  A level of 0 indicates a local variable in
      *   the current function; a level of 1 indicates a variable in the
-     *   enclosing scope; 2 is the next enclosing scope; and so on. 
+     *   enclosing scope; 2 is the next enclosing scope; and so on.
      */
     int ctx_level_;
 
-    /* 
+    /*
      *   for a context variable, the index of this variable in the local
-     *   context array (zero means that it's not assigned) 
+     *   context array (zero means that it's not assigned)
      */
     int ctx_arr_idx_;
 
-    /* 
+    /*
      *   for a variable within an anonymous function, the original local
      *   variable symbol from the enclosing scope to which this variable
-     *   refers 
+     *   refers
      */
     class CTcSymLocal *ctx_orig_;
 
-    /* 
+    /*
      *   For a formal parameter with a default value, the default value
      *   expression, and the sequence number among the default expressions.
      *   We process these expressions at function entry in left-to-right
@@ -2722,11 +2722,11 @@ protected:
     /* true -> optional parametre */
     unsigned int is_opt_param_ : 1;
 
-    /* 
+    /*
      *   true -> not a real parameter, but a "parameter list" local - this is
      *   a local variable into which we deposit a list of the parameters
      *   beyond a certain point, defined via the "[varname]" syntax in a
-     *   formal parameter list 
+     *   formal parameter list
      */
     unsigned int is_list_param_ : 1;
 
@@ -2748,7 +2748,7 @@ protected:
 
 /*
  *   Dynamic local.  This is a symbol entry for a local variable accessed
- *   through a StackFrameRef object, for dynamic compilation. 
+ *   through a StackFrameRef object, for dynamic compilation.
  */
 class CTcSymDynLocalBase: public CTcSymbol
 {
@@ -2774,7 +2774,7 @@ protected:
 };
 
 /*
- *   Built-in function 
+ *   Built-in function
  */
 class CTcSymBifBase: public CTcSymbol
 {
@@ -2799,10 +2799,10 @@ public:
     ushort get_func_set_id() const { return func_set_id_; }
     ushort get_func_idx() const { return func_idx_; }
 
-    /* 
+    /*
      *   Get the minimum and maximum argument counts.  If is_varargs()
      *   returns true, there is no maximum, in which case get_max_argc()
-     *   is not meaningful.  
+     *   is not meaningful.
      */
     int get_min_argc() const { return min_argc_; }
     int get_max_argc() const { return max_argc_; }
@@ -2811,10 +2811,10 @@ public:
     /* determine if the function has a return value */
     int has_retval() const { return has_retval_; }
 
-    /* 
+    /*
      *   Do not write this to a symbol export file - this symbol is
      *   external to us, hence we have no need to define it for other
-     *   modules to import.  
+     *   modules to import.
      */
     virtual int write_to_sym_file(class CVmFile *) { return FALSE; }
 
@@ -2841,7 +2841,7 @@ protected:
 };
 
 /*
- *   External function 
+ *   External function
  */
 class CTcSymExtfnBase: public CTcSymbol
 {
@@ -2859,10 +2859,10 @@ public:
     /* this can't be an lvalue */
     virtual int check_lvalue() const { return FALSE; }
 
-    /* 
+    /*
      *   Get the argument count.  If is_varargs() returns true, this is a
      *   minimum argument count; otherwise, this is the exact number of
-     *   arguments required.  
+     *   arguments required.
      */
     int get_argc() const { return argc_; }
     int is_varargs() const { return varargs_; }
@@ -2911,10 +2911,10 @@ protected:
     /* the defining statement's parse node */
     class CTPNStmLabel *stm_;
 
-    /* 
+    /*
      *   flag: the symbol is referenced by at least one statement (we keep
      *   track of this so that we warn when a label is defined but never
-     *   used as a target) 
+     *   used as a target)
      */
     unsigned int referenced_ : 1;
 };
@@ -2923,7 +2923,7 @@ protected:
 /* ------------------------------------------------------------------------ */
 /*
  *   Program Node.  This is the top-level node in the tree; this node
- *   contains the entire program as a sublist. 
+ *   contains the entire program as a sublist.
  */
 class CTPNStmProg: public CTPNStm
 {
@@ -2941,7 +2941,7 @@ public:
      *   Generate the program code and write to the image file.  After
      *   parsing, if parsing is successful, the compiler can invoke this
      *   routine to construct the image file; there is no need to invoke
-     *   gen_code() directly.  
+     *   gen_code() directly.
      */
     void build_image(class CVmFile *image_fp, uchar xor_mask,
                      const char tool_data[4]);
@@ -2957,13 +2957,13 @@ public:
     virtual void gen_code(int discard, int for_condition);
 
 protected:
-    /* 
+    /*
      *   Generate code.  Returns zero on success, non-zero on error.  This
      *   is a common routine used by build_image() and build_object_file()
-     *   to complete code generation after parsing. 
+     *   to complete code generation after parsing.
      */
     int gen_code_for_build();
-    
+
     /* head of our list */
     class CTPNStmTop *first_stm_;
 };
@@ -2973,9 +2973,9 @@ protected:
 /*
  *   Top-level object - this is a base class for statements which can
  *   appear as top-level definitions, such as functions and objects.
- *   
+ *
  *   This class should not need to be derived per target, so further
- *   target-generic base classes are derived from this directly.  
+ *   target-generic base classes are derived from this directly.
  */
 class CTPNStmTop: public CTPNStm
 {
@@ -2985,17 +2985,17 @@ public:
         /* we're not in a list yet */
         next_stm_top_ = 0;
     }
-    
+
     /* get/set the next top-level statement in the top-level list */
     CTPNStmTop *get_next_stm_top() const { return next_stm_top_; }
     void set_next_stm_top(CTPNStmTop *nxt) { next_stm_top_ = nxt; }
 
-    /* 
+    /*
      *   Check the local symbol table.  This is called after all of the
      *   code has been generated for the entire program, which ensures
      *   that all of the code that could affect any local symbols (even
      *   those shared through context variables) has been finished.  By
-     *   default we do nothing.  
+     *   default we do nothing.
      */
     virtual void check_locals() { }
 
@@ -3013,7 +3013,7 @@ protected:
      *   statement in the nested statement list.  The DynamicFunc instances
      *   aren't actually populated until the code is generated, but the
      *   object numbers are assigned in advance to allow cross-references in
-     *   generated code.  
+     *   generated code.
      */
     tctarg_obj_id_t dyn_obj_id_;
 
@@ -3024,7 +3024,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Anonymous function 
+ *   Anonymous function
  */
 class CTPNAnonFuncBase: public CTcPrsNode
 {
@@ -3044,7 +3044,7 @@ public:
     /* I have a return value when called if the underlying code body does */
     virtual int has_return_value_on_call() const { return has_retval_; }
 
-    /* 
+    /*
      *   fold constants - we don't have to fold constants in the
      *   underlying code body, because its constants will be folded along
      *   with other top-level statements
@@ -3073,7 +3073,7 @@ protected:
 /* ------------------------------------------------------------------------ */
 /*
  *   Code Body.  A code body has local variables, goto labels, and a
- *   compound statement.  
+ *   compound statement.
  */
 class CTPNCodeBodyBase: public CTPNStmTop
 {
@@ -3084,23 +3084,23 @@ public:
                      int local_cnt, int self_valid,
                      struct CTcCodeBodyRef *enclosing_code_body);
 
-    /* 
+    /*
      *   Mark the code as having been replaced - this is used when this is
      *   the code body for a function, and the function is replaced by
      *   another implementation in the same translation unit.  When we've
      *   been replaced, we can't be referenced, hence we don't need to
-     *   generate any code. 
+     *   generate any code.
      */
     void set_replaced(int f) { replaced_ = f; }
     int is_replaced() const { return replaced_; }
 
-    /* 
+    /*
      *   Set our fixup list anchor - our creator must invoke this if we
      *   are to use a fixup list associated with a symbol table entry.  A
      *   code body that can be reached from a symbol table entry (such as
      *   a function name) must have its fixup list anchor associated with
      *   the symbol table entry so that we can create the necessary
-     *   associations in an object file. 
+     *   associations in an object file.
      */
     void set_symbol_fixup_list(class CTcSymFunc *sym,
                                struct CTcAbsFixup **fixup_list_anchor)
@@ -3163,9 +3163,9 @@ public:
         /* note that we have a local context */
         has_local_ctx_ = TRUE;
 
-        /* 
+        /*
          *   remember our the local variable number that contains our
-         *   context object 
+         *   context object
          */
         local_ctx_var_ = var_num;
 
@@ -3176,16 +3176,16 @@ public:
     /* does this function have a local context? */
     int has_local_ctx() const { return has_local_ctx_; }
 
-    /* 
+    /*
      *   Get the context variable for a given recursion level, creating
      *   the new variable if necessary.  Level 1 is the first enclosing
-     *   scope, 2 is the next enclosing scope, and so on.  
+     *   scope, 2 is the next enclosing scope, and so on.
      */
     int get_or_add_ctx_var_for_level(int level);
 
-    /* 
+    /*
      *   find a context variable given a requested level; returns true if
-     *   successful, false if not 
+     *   successful, false if not
      */
     int get_ctx_var_for_level(int level, int *varnum);
 
@@ -3231,7 +3231,7 @@ public:
      *   Get the base function symbol for a code body defining a modified
      *   function (i.e., 'modify <funcname>...').  This is the function to
      *   which 'replaced' refers within this code body and within nested code
-     *   bodies.  
+     *   bodies.
      */
     class CTcSymFunc *get_replaced_func() const;
 
@@ -3273,21 +3273,21 @@ protected:
     /* statement making up the code body */
     class CTPNStm *stm_;
 
-    /* 
+    /*
      *   fixup list head pointer - this will be set to &internal_fixups_
      *   if we don't have a symbol table fixup list, or will point to our
      *   symbol table fixup list if we have an external symbol providing
-     *   the fixup list 
+     *   the fixup list
      */
     struct CTcAbsFixup **fixup_list_anchor_;
 
     /* our symbol table entry, if our fixup list is defined there */
     class CTcSymFunc *fixup_owner_sym_;
 
-    /* 
+    /*
      *   Our internal list head for our fixup list for references to this
      *   code block.  This is used only if we don't have an external fixup
-     *   list defined in a symbol table entry. 
+     *   list defined in a symbol table entry.
      */
     struct CTcAbsFixup *internal_fixups_;
 
@@ -3297,7 +3297,7 @@ protected:
     /* head/tail of anonymous function context list */
     struct CTcCodeBodyCtx *ctx_head_;
     struct CTcCodeBodyCtx *ctx_tail_;
-    
+
     /* number of local variable slots required */
     int local_cnt_;
 
@@ -3313,15 +3313,15 @@ protected:
     /* if function has a local context, this is its local ID */
     int local_ctx_var_;
 
-    /* 
+    /*
      *   number of slots in the local context array, if we have a local
-     *   context at all 
+     *   context at all
      */
     int local_ctx_arr_size_;
 
-    /* 
+    /*
      *   flag: we have a varargs-list local (varargs_list_local_ has the
-     *   local variable symbol object) 
+     *   local variable symbol object)
      */
     unsigned int varargs_list_ : 1;
 
@@ -3331,19 +3331,19 @@ protected:
     /* flag: I've been replaced (and hence don't need codegen) */
     unsigned int replaced_ : 1;
 
-    /* 
+    /*
      *   flag: the code body requires a local context - this is set if we
      *   have any local variables that are stored in context objects for
-     *   use in anonymous functions 
+     *   use in anonymous functions
      */
     unsigned int has_local_ctx_ : 1;
 
     /* flag: the local context requires 'self' */
     unsigned int local_ctx_needs_self_ : 1;
 
-    /* 
+    /*
      *   flag: the local context requires the full method context (self,
-     *   targetprop, targetobj, definingobj) 
+     *   targetprop, targetobj, definingobj)
      */
     unsigned int local_ctx_needs_full_method_ctx_ : 1;
 
@@ -3366,12 +3366,12 @@ protected:
 };
 
 /*
- *   Context level information 
+ *   Context level information
  */
 struct CTcCodeBodyCtx
 {
     CTcCodeBodyCtx() { }
-    
+
     /* level number */
     int level_;
 
@@ -3385,7 +3385,7 @@ struct CTcCodeBodyCtx
 
 /*
  *   Code body reference.
- *   
+ *
  *   We don't create a CTPNCodeBody object for a code body we're parsing
  *   until after we finish parsing it, so we can't establish a pointer to an
  *   enclosing code body while we're parsing a nested code body within the
@@ -3395,7 +3395,7 @@ struct CTcCodeBodyCtx
  *   the code body, and then fill it in with the code body object once we
  *   finish parsing; nested code bodies can refer to the reference object
  *   during parsing, so that after parsing they can get to the code body
- *   itself.  
+ *   itself.
  */
 struct CTcCodeBodyRef
 {
@@ -3438,7 +3438,7 @@ public:
 
     /*
      *   Determine if this statement has a code label.  We have a code
-     *   label if our first statement has a code label.  
+     *   label if our first statement has a code label.
      */
     virtual int has_code_label() const
     {
@@ -3456,29 +3456,29 @@ protected:
     /* source location of closing brace */
     class CTcTokFileDesc *end_desc_;
     long end_linenum_;
-    
+
     /* first statement in our list of statements */
     class CTPNStm *first_stm_;
-    
-    /* 
+
+    /*
      *   our local symbol table; this is a private symbol table with the
      *   symbols for our local scope if we have any, or is simply the
      *   enclosing scope's symbol table if there are no variables in the
-     *   local scope 
+     *   local scope
      */
     class CTcPrsSymtab *symtab_;
 
-    /* 
+    /*
      *   flag: we have our own private symbol table (it's not the
-     *   enclosing scope's symbol table) 
+     *   enclosing scope's symbol table)
      */
     unsigned int has_own_scope_ : 1;
 };
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   Null statement - this is the statement that results from an empty
- *   pair of braces, or simply a semicolon. 
+ *   pair of braces, or simply a semicolon.
  */
 class CTPNStmNullBase: public CTPNStm
 {
@@ -3498,7 +3498,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Expression statement. 
+ *   Expression statement.
  */
 class CTPNStmExprBase: public CTPNStm
 {
@@ -3531,7 +3531,7 @@ protected:
 /*
  *   Static property initializer statement.  This is used to hold the
  *   expression of a static initializer, just under the CTPNObjProp
- *   element in the tree.  
+ *   element in the tree.
  */
 class CTPNStmStaticPropInitBase: public CTPNStm
 {
@@ -3544,11 +3544,11 @@ public:
         prop_ = prop;
     }
 
-    /* 
+    /*
      *   fold constants - this is never used, because we always fold the
      *   constants in the underlying expression before we create one of
      *   these nodes, as this type of node is only created during constant
-     *   folding of the containing property initializer node 
+     *   folding of the containing property initializer node
      */
     class CTcPrsNode *fold_constants(class CTcPrsSymtab *) { return this; }
 
@@ -3562,7 +3562,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'if' statement 
+ *   'if' statement
  */
 class CTPNStmIfBase: public CTPNStm
 {
@@ -3603,7 +3603,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'for' statement 
+ *   'for' statement
  */
 class CTPNStmForBase: public CTPNStmEnclosing
 {
@@ -3626,9 +3626,9 @@ public:
         /* no body yet */
         body_stm_ = 0;
 
-        /* 
+        /*
          *   presume we use our parent's symbol table, not our own private
-         *   one 
+         *   one
          */
         has_own_scope_ = FALSE;
     }
@@ -3670,14 +3670,14 @@ protected:
     /* reinitialization expression */
     class CTcPrsNode *reinit_expr_;
 
-    /* 
+    /*
      *   Head of list of "in" expressions (lval in collection, lval in
      *   from..to).  These appear as ordinary expressions within the
      *   init_expr_ comma list, but we track them separately here, since they
      *   implicitly generate code in the condition and reinit phases as well.
      */
     class CTPNForIn *in_exprs_;
-    
+
     /* body of the loop */
     class CTPNStm *body_stm_;
 
@@ -3692,7 +3692,7 @@ protected:
 /*
  *   '<variable> in <expression>' node, for 'for' statements.  Since 3.1,
  *   regular 'for' statements can include 'in' clauses mixed in with other
- *   initializer expressions.  
+ *   initializer expressions.
  */
 class CTPNVarInBase: public CTPNForIn
 {
@@ -3731,7 +3731,7 @@ protected:
 /*
  *   '<variable> in <from> .. <to>' node, for 'for' statements.  Since 3.1,
  *   'for' statements can include 'in' clauses with range expressions using
- *   '..'.  
+ *   '..'.
  */
 class CTPNVarInRangeBase: public CTPNForIn
 {
@@ -3779,16 +3779,16 @@ protected:
     /* local variable number for the evaluated "to" expression */
     int to_local_id_;
 
-    /* 
+    /*
      *   local variable number for the evaluated "step" expression - this is
-     *   used only if we have a non-constant step expression 
+     *   used only if we have a non-constant step expression
      */
     int step_local_id_;
 };
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'foreach' statement 
+ *   'foreach' statement
  */
 class CTPNStmForeachBase: public CTPNStmEnclosing
 {
@@ -3811,22 +3811,22 @@ public:
         /* remember my private iterator local */
         iter_local_id_ = iter_local_id;
 
-        /* 
+        /*
          *   presume we use our parent's symbol table, not our own private
-         *   one 
+         *   one
          */
         has_own_scope_ = FALSE;
     }
-    
+
     /* set the body */
     void set_body(class CTPNStm *body) { body_stm_ = body; }
 
     /* fold constants */
     class CTcPrsNode *fold_constants(class CTcPrsSymtab *symtab);
-    
+
     /* evaluate control flow for the loop */
     virtual unsigned long get_control_flow(int warn) const;
-    
+
     /* set our own-scope flag */
     void set_has_own_scope(int f) { has_own_scope_ = f; }
 
@@ -3838,14 +3838,14 @@ public:
         body_stm_ = (CTPNStm *)body_stm_->adjust_for_dyn(info);
         return this;
     }
-    
+
 protected:
     /* iteration lvalue expression */
     class CTcPrsNode *iter_expr_;
-    
+
     /* collection expression */
     class CTcPrsNode *coll_expr_;
-    
+
     /* body of the loop */
     class CTPNStm *body_stm_;
 
@@ -3854,7 +3854,7 @@ protected:
 
     /* ID of secret local variable containing the iterator object */
     int iter_local_id_;
-    
+
     /* flag: we have our own private symbol table (not our parent's) */
     unsigned int has_own_scope_ : 1;
 };
@@ -3863,7 +3863,7 @@ protected:
 /*
  *   'while' statement - this is an enclosing statement, because it can
  *   interact with 'try' blocks with 'break' and 'continue' statements
- *   used within the body of the loop 
+ *   used within the body of the loop
  */
 class CTPNStmWhileBase: public CTPNStmEnclosing
 {
@@ -3895,7 +3895,7 @@ public:
         body_stm_ = (CTPNStm *)body_stm_->adjust_for_dyn(info);
         return this;
     }
-    
+
 protected:
     /* loop condition expression */
     class CTcPrsNode *cond_expr_;
@@ -3906,7 +3906,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'do-while' statement 
+ *   'do-while' statement
  */
 class CTPNStmDoWhileBase: public CTPNStmEnclosing
 {
@@ -3918,9 +3918,9 @@ public:
         cond_expr_ = 0;
         body_stm_ = 0;
 
-        /* 
+        /*
          *   we don't know the location of the 'while' part yet, so assume
-         *   it's at the same location as the 'do' for now 
+         *   it's at the same location as the 'do' for now
          */
         while_desc_ = file_;
         while_linenum_ = linenum_;
@@ -3952,7 +3952,7 @@ public:
         body_stm_ = (CTPNStm *)body_stm_->adjust_for_dyn(info);
         return this;
     }
-    
+
 protected:
     /* source location of 'while' */
     class CTcTokFileDesc *while_desc_;
@@ -3967,7 +3967,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'break' statement 
+ *   'break' statement
  */
 class CTPNStmBreakBase: public CTPNStm
 {
@@ -4004,7 +4004,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'continue' statement 
+ *   'continue' statement
  */
 class CTPNStmContinueBase: public CTPNStm
 {
@@ -4042,7 +4042,7 @@ protected:
 /* ------------------------------------------------------------------------ */
 /*
  *   'return' statement; if the expression node is null, this is a simple
- *   void return 
+ *   void return
  */
 class CTPNStmReturnBase: public CTPNStm
 {
@@ -4059,9 +4059,9 @@ public:
     /* evaluate control flow for the statement */
     virtual unsigned long get_control_flow(int /*warn*/) const
     {
-        /* 
+        /*
          *   we return a value if we have an expression, otherwise we're
-         *   just a void return 
+         *   just a void return
          */
         return (expr_ == 0 ? TCPRS_FLOW_RET_VOID : TCPRS_FLOW_RET_VAL);
     }
@@ -4081,7 +4081,7 @@ protected:
 /* ------------------------------------------------------------------------ */
 /*
  *   'switch' statement.  This is an 'enclosing' statement type because
- *   'break' can refer to the statement from within the code body.  
+ *   'break' can refer to the statement from within the code body.
  */
 class CTPNStmSwitchBase: public CTPNStmEnclosing
 {
@@ -4150,7 +4150,7 @@ protected:
  *   code label statement - a code label contains the statement that it
  *   labels.  This is an enclosing statement type because targeting a
  *   label with a 'goto', 'break', or 'continue' requires that we be able
- *   to find intermediate 'try' blocks.  
+ *   to find intermediate 'try' blocks.
  */
 class CTPNStmLabelBase: public CTPNStmEnclosing
 {
@@ -4180,9 +4180,9 @@ public:
     /* I am a code label, thus I have a code label */
     virtual int has_code_label() const { return TRUE; }
 
-    /* 
+    /*
      *   add explicit targeting flags (break, continue, goto) to my
-     *   statement 
+     *   statement
      */
     void add_control_flow_flags(ulong flags);
 
@@ -4200,7 +4200,7 @@ public:
 protected:
     /* my label */
     class CTcSymLabel *lbl_;
-    
+
     /* my enclosed statement */
     class CTPNStm *stm_;
 
@@ -4209,7 +4209,7 @@ protected:
      *   'break' or 'continue' statement enclosed within the labeled
      *   statement, we'll set the appropriate flags here.  When charting
      *   the control flow through the statement, we will take these into
-     *   account after charting the flow through our body.  
+     *   account after charting the flow through our body.
      */
     ulong control_flow_flags_;
 };
@@ -4223,10 +4223,10 @@ class CTPNStmGotoBase: public CTPNStm
 public:
     CTPNStmGotoBase(const textchar_t *lbl, size_t lbl_len)
     {
-        /* 
+        /*
          *   remember the label - we can store a reference to it without
          *   copying, because the tokenizer keeps symbol token text around
-         *   throughout compilation 
+         *   throughout compilation
          */
         lbl_ = lbl;
         lbl_len_ = lbl_len;
@@ -4289,7 +4289,7 @@ public:
         stm_ = (CTPNStm *)stm_->adjust_for_dyn(info);
         return this;
     }
-    
+
 protected:
     /* my expression */
     class CTcPrsNode *expr_;
@@ -4300,7 +4300,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'default' label statement 
+ *   'default' label statement
  */
 class CTPNStmDefaultBase: public CTPNStm
 {
@@ -4334,7 +4334,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'try' statement 
+ *   'try' statement
  */
 class CTPNStmTryBase: public CTPNStmEnclosing
 {
@@ -4349,7 +4349,7 @@ public:
         first_catch_stm_ = last_catch_stm_ = 0;
         finally_stm_ = 0;
     }
-    
+
     /* set my protected statement */
     void set_body_stm(class CTPNStm *body_stm) { body_stm_ = body_stm; }
 
@@ -4365,13 +4365,13 @@ public:
     {
         return (first_catch_stm_ != 0 || finally_stm_ != 0);
     }
-    
+
     /* fold constants */
     class CTcPrsNode *fold_constants(class CTcPrsSymtab *symtab);
-    
+
     /* evaluate control flow for the statement list */
     virtual unsigned long get_control_flow(int warn) const;
-    
+
     /* adjust for dynamic (run-time) compilation */
     class CTcPrsNode *adjust_for_dyn(const tcpn_dyncomp_info *info);
 
@@ -4486,9 +4486,9 @@ public:
     /* set my body */
     void set_body(class CTPNStm *stm) { body_ = stm; }
 
-    /* 
+    /*
      *   set my ending source position (i.e., the position of the closing
-     *   brace of the block of code contained within the 'finally' block 
+     *   brace of the block of code contained within the 'finally' block
      */
     void set_end_pos(class CTcTokFileDesc *desc, long linenum)
     {
@@ -4517,24 +4517,24 @@ protected:
     /* my body */
     class CTPNStm *body_;
 
-    /* 
+    /*
      *   our exception local ID - this is an unnamed local variable that
      *   we use to store our exception parameter temporarily while we run
-     *   the 'finally' block 
+     *   the 'finally' block
      */
     int exc_local_id_;
 
-    /* 
+    /*
      *   our subroutine return address local ID - this is another unnamed
-     *   local that we use to store our subroutine return address 
+     *   local that we use to store our subroutine return address
      */
     int jsr_local_id_;
 
-    /* 
+    /*
      *   source position of end of the 'finally' clause - we keep track of
      *   this location because code generated after the return from
      *   calling the 'finally' clause is most sensibly thought of as being
-     *   at this location 
+     *   at this location
      */
     class CTcTokFileDesc *end_desc_;
     long end_linenum_;
@@ -4552,17 +4552,17 @@ public:
         /* remember the expression to be thrown */
         expr_ = expr;
     }
-    
+
     /* fold constants */
     class CTcPrsNode *fold_constants(class CTcPrsSymtab *symtab);
-    
+
     /* evaluate control flow for the statement */
     virtual unsigned long get_control_flow(int /*warn*/) const
     {
         /* this statement always exits by 'throw' (obviously) */
         return TCPRS_FLOW_THROW;
     }
-    
+
     /* adjust for dynamic (run-time) compilation */
     class CTcPrsNode *adjust_for_dyn(const tcpn_dyncomp_info *info)
     {
@@ -4577,7 +4577,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'dictionary' statement 
+ *   'dictionary' statement
  */
 class CTPNStmDictBase: public CTPNStmTop
 {
@@ -4599,7 +4599,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parse node for object superclass list entries 
+ *   Parse node for object superclass list entries
  */
 class CTPNSuperclass: public CTcPrsNode
 {
@@ -4660,7 +4660,7 @@ protected:
 };
 
 /*
- *   Superclass list 
+ *   Superclass list
  */
 class CTPNSuperclassList
 {
@@ -4688,7 +4688,7 @@ private:
 
 
 /*
- *   Property list 
+ *   Property list
  */
 class CTPNPropList
 {
@@ -4718,13 +4718,13 @@ private:
 /*
  *   Mix-in base for an object definer node.  This is instantiated in the
  *   top-level object statement class (CTPNStmObject) and the in-line object
- *   definition expression node (CTPNInlineObject). 
+ *   definition expression node (CTPNInlineObject).
  */
 class CTPNObjDef
 {
 public:
     CTPNObjDef()
-    { 
+    {
         /* presume there's no object symbol */
         obj_sym_ = 0;
 
@@ -4751,23 +4751,23 @@ public:
         class CTcSymProp *prop_sym, class CTcPrsNode *expr,
         int replace, int is_static);
 
-    /* 
+    /*
      *   Add a method.  'expr' is the original expression for cases where the
      *   code body is derived from a simple expression in the source code
      *   rather than an explicit code block.  Keeping the original expression
      *   allows us to use a simple constant value if the expression ends up
-     *   folding to a constant. 
+     *   folding to a constant.
      */
     class CTPNObjProp *add_method(
         class CTcSymProp *prop_sym, class CTPNCodeBody *code_body,
         class CTcPrsNode *expr, int replace);
 
-    /* 
+    /*
      *   Add a method to an inline object.  The method in this case is
      *   represented as an anonymous method object.  'expr' is the original
      *   expression for cases where the anonymous function is derived from a
      *   simple expression in the source code rather than an explicit code
-     *   block. 
+     *   block.
      */
     class CTPNObjProp *add_inline_method(
         class CTcSymProp *prop_sym, class CTPNAnonFunc *inline_method,
@@ -4795,9 +4795,9 @@ public:
     /* get the object symbol */
     class CTcSymObj *get_obj_sym() const { return obj_sym_; }
 
-    /* 
+    /*
      *   set my object symbol - when an object is modified (via the 'modify'
-     *   statement), the object tree can be moved to a new symbol 
+     *   statement), the object tree can be moved to a new symbol
      */
     void set_obj_sym(class CTcSymObj *obj_sym) { obj_sym_ = obj_sym; }
 
@@ -4818,12 +4818,12 @@ protected:
     /* superclass list */
     CTPNSuperclassList sclist_;
 
-    /* 
+    /*
      *   Flag: this object definition includes an undescribed superclass.
      *   This indicates that we're based on a class that was explicitly
      *   defined as 'extern', in which case it can't be used as the source of
      *   a template, since we know nothing about the class other than that it
-     *   is indeed a class.  
+     *   is indeed a class.
      */
     unsigned int undesc_sc_ : 1;
 
@@ -4860,10 +4860,10 @@ public:
     /* this is a regular top-level object definition */
     virtual int is_inline_object() const { return FALSE; }
 
-    /* 
+    /*
      *   mark the object as replaced - this indicates that another object
      *   in the same translation unit has replaced this object, hence we
-     *   should not generate any code for this object 
+     *   should not generate any code for this object
      */
     void set_replaced(int f) { replaced_ = f; }
 
@@ -4871,7 +4871,7 @@ public:
      *   Mark the object as modified - this indicates that another object
      *   in the same translation unit has modified this object.  We'll
      *   store this information in the object stream header data for use
-     *   at link time.  
+     *   at link time.
      */
     void set_modified(int f) { modified_ = f; }
 
@@ -4886,7 +4886,7 @@ public:
      *   Delete a property value.  This is used when a 'modify' object
      *   defines a property with 'replace', so that the property defined in
      *   the modified original object is removed entirely rather than left in
-     *   as an inherited property.  
+     *   as an inherited property.
      */
     virtual void delete_property(class CTcSymProp *prop_sym);
 
@@ -4895,7 +4895,7 @@ public:
      *   code generation; we'll check to see if the object requires an
      *   implicit constructor, and add one to the object if so.  An object
      *   provides an implicit constructor if it has multiple superclasses
-     *   and no explicit constructor.  
+     *   and no explicit constructor.
      */
     void add_implicit_constructor();
 
@@ -4915,7 +4915,7 @@ public:
         CTPNObjDef::fold_proplist(symtab);
         return this;
     }
-    
+
 protected:
     /* add an entry to my property list */
     virtual void add_prop_entry(class CTPNObjProp *prop, int replace);
@@ -4976,7 +4976,7 @@ public:
  *   of either one in this single class (rather than subclassing for the
  *   two possibilities) because we might have to transform from an
  *   expression to a code body if we find a non-constant expression, which
- *   we can't determine until constant-folding time.  
+ *   we can't determine until constant-folding time.
  */
 class CTPNObjPropBase: public CTPNStm
 {
@@ -4984,7 +4984,7 @@ class CTPNObjPropBase: public CTPNStm
     friend class CTPNStmObjectBase;
     friend class CTPNStmObject;
     friend class CTPNPropList;
-    
+
 public:
     CTPNObjPropBase(class CTPNObjDef *objdef, class CTcSymProp *prop_sym,
                     class CTcPrsNode *expr, class CTPNCodeBody *code_body,
@@ -5024,7 +5024,7 @@ public:
     /* am I a constructor? */
     int is_constructor() const;
 
-    /* 
+    /*
      *   Set/get flag indicating that we're overwritable.  An overwritable
      *   property can be superseded with a duplicate definition of the same
      *   property in the same object.  By default, it's an error to define
@@ -5033,7 +5033,7 @@ public:
      *   explicit redefinition.  Specifically, a 'location' property added
      *   with the '+' notation can be overwritten, and the automatic
      *   'sourceTextOrder' and 'sourceTextGroup' properties can be
-     *   overwritten.  
+     *   overwritten.
      */
     int is_overwritable() const { return is_overwritable_; }
     void set_overwritable() { is_overwritable_ = TRUE; }
@@ -5069,7 +5069,7 @@ protected:
 
 /*
  *   Deleted property object.  This is used for an entry in a deleted
- *   property list for a 'modify' object.  
+ *   property list for a 'modify' object.
  */
 class CTcObjPropDel: public CTcPrsAllocObj
 {

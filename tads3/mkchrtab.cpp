@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/mkchrtab.cpp,v 1.3 1999/07/11 00:46:58 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   mkchrtab.cpp - TADS character table generator
 Function
-  
+
 Notes
-  
+
 Modified
   10/17/98 MJRoberts  - creation (from TADS 2 mkchrtab.c)
 */
@@ -36,27 +36,27 @@ static int read_number(unsigned short *result, char **p,
     unsigned short base;
     unsigned short acc;
     int digcnt;
-    
+
     /* skip any leading spaces */
     while (isspace(**p))
         ++(*p);
 
-    /* 
+    /*
      *   if the entry is optional, and we've reached a comment or the end
      *   of the line, return failure, but don't print an error (since the
-     *   number is optional, it's not an error if it's not present) 
+     *   number is optional, it's not an error if it's not present)
      */
     if (optional &&
         (**p == '\0' || **p == '\n' || **p == '\r' || **p == '#'))
         return 2;
 
     /*
-     *   Check for a character value 
+     *   Check for a character value
      */
     if (**p == '\'')
     {
         unsigned char c;
-        
+
         /* get the next character */
         ++(*p);
 
@@ -121,15 +121,15 @@ static int read_number(unsigned short *result, char **p,
         return 0;
     }
 
-    /* 
+    /*
      *   determine the base - if there's a leading zero, it's hex or
-     *   octal; otherwise, it's decimal 
+     *   octal; otherwise, it's decimal
      */
     if (**p == '0')
     {
         /* skip the leading zero */
         ++(*p);
-        
+
         /* if the next character is 'x', it's hex, otherwise it's octal */
         if (**p == 'x' || **p == 'X')
         {
@@ -158,7 +158,7 @@ static int read_number(unsigned short *result, char **p,
         if (isdigit(**p) || (base == 16 && isxdigit(**p)))
         {
             unsigned short dig;
-            
+
             /* get this digit's value */
             dig = (unsigned short)(isdigit(**p)
                                    ? **p - '0'
@@ -203,7 +203,7 @@ static int read_number(unsigned short *result, char **p,
 
 
 /*
- *   HTML Entity mapping structure 
+ *   HTML Entity mapping structure
  */
 struct entity_t
 {
@@ -213,7 +213,7 @@ struct entity_t
 
 /*
  *   List of HTML TADS entity names and the corresponding Unicode
- *   character codes 
+ *   character codes
  */
 static const struct entity_t entities[] =
 {
@@ -548,14 +548,14 @@ static const struct entity_t entities[] =
 /*
  *   Entity mapping list entry.  We store each entity mapping we find in
  *   the file in one of these structures, and link the structures together
- *   into a list. 
+ *   into a list.
  */
 struct entity_map_t
 {
-    /* 
+    /*
      *   Flag: this mapping is a display expansion only (not a round-trip
      *   mapping).  If this is set, then we contain a display expansion;
-     *   otherwise, we contain a round-trip mapping.  
+     *   otherwise, we contain a round-trip mapping.
      */
     int disp_only;
 
@@ -584,15 +584,15 @@ struct entity_map_t
  *   selected by the high 8 bits of the unicode code point.  We don't
  *   allocate a page until we set a character on the page for the first
  *   time.
- *   
+ *
  *   Each page contains 256 slots for entity_map_t pointers, so each page
- *   is an array of (entity_map_t *) elements.  
+ *   is an array of (entity_map_t *) elements.
  */
 static entity_map_t **G_mapping[256];
 
 /*
  *   Construct a unicode character given a page number and index on the
- *   page 
+ *   page
  */
 static inline unsigned int make_unicode(int pagenum, int idx)
 {
@@ -600,7 +600,7 @@ static inline unsigned int make_unicode(int pagenum, int idx)
 }
 
 /*
- *   Get the mapping for a particular unicode character value 
+ *   Get the mapping for a particular unicode character value
  */
 static entity_map_t *get_mapping(unsigned int unicode_char)
 {
@@ -647,7 +647,7 @@ static void set_mapping(unsigned int unicode_char, entity_map_t *mapping)
  *   that gives the expansion of a unicode character to a string of unicode
  *   characters for display.  The characters of the expansion can be
  *   specified with ASCII character enclosed in single quotes, or as a series
- *   of numbers giving Unicode code points.  
+ *   of numbers giving Unicode code points.
  */
 static entity_map_t *read_translation(char *p, char *infile, int linenum)
 {
@@ -690,10 +690,10 @@ static entity_map_t *read_translation(char *p, char *infile, int linenum)
                     return 0;
                 }
 
-                /* 
+                /*
                  *   store this character - since it's given as an ASCII
                  *   character, it has the same representation in Unicode as
-                 *   it does in ASCII 
+                 *   it does in ASCII
                  */
                 *dstp++ = *p;
             }
@@ -748,14 +748,14 @@ static entity_map_t *read_translation(char *p, char *infile, int linenum)
 }
 
 /*
- *   Parse an entity name mapping 
+ *   Parse an entity name mapping
  */
 static entity_map_t *parse_entity(char *p, char *infile, int linenum,
                                   unsigned short *unicode_char)
 {
     const char *start;
     const struct entity_t *entp;
-    
+
     /* find the end of the entity name */
     start = p;
     for ( ; isalpha(*p) || isdigit(*p) ; ++p) ;
@@ -789,9 +789,9 @@ static entity_map_t *parse_entity(char *p, char *infile, int linenum,
  *   notation.  If the character value is in the range 0-255, we'll store one
  *   byte; otherwise, we'll store two bytes, high-order 8 bits first.
  *   Returns the number of bytes stored.
- *   
+ *
  *   If the output buffer is null, we'll simply return the storage length
- *   without actually storing anything.  
+ *   without actually storing anything.
  */
 size_t local_to_buf(unsigned char *dst, unsigned short c)
 {
@@ -821,7 +821,7 @@ size_t local_to_buf(unsigned char *dst, unsigned short c)
 
 
 /*
- *   Main entrypoint 
+ *   Main entrypoint
  */
 int main(int argc, char **argv)
 {
@@ -859,12 +859,12 @@ int main(int argc, char **argv)
     display_mappings = FALSE;
 
 #if 1
-    /* 
+    /*
      *   there currently are no options, so there's no option scanning
-     *   needed; just start at the first argument 
+     *   needed; just start at the first argument
      */
     curarg = 1;
-    
+
 #else
     /* scan options */
     for (curarg = 1 ; curarg < argc && argv[curarg][0] == '-' ; ++curarg)
@@ -957,11 +957,11 @@ int main(int argc, char **argv)
         /* check our mode */
         if (display_mappings)
         {
-            /* 
+            /*
              *   We're doing display mappings: each mapping specifies a
              *   sequence of one or more unicode characters to substitute for
              *   a single unicode character on display.  These translations
-             *   can use SGML entity names for the unicode characters.  
+             *   can use SGML entity names for the unicode characters.
              */
 
             /* check for an entity name */
@@ -969,7 +969,7 @@ int main(int argc, char **argv)
             {
                 /* skip the '&' */
                 ++p;
-                
+
                 /* parse the entity */
                 mapp = parse_entity(p, infile, linenum, &unicode_char);
             }
@@ -978,7 +978,7 @@ int main(int argc, char **argv)
                 /* read the Unicode character number */
                 if (read_number(&unicode_char, &p, infile, linenum, FALSE))
                     continue;
-                
+
                 /* read the translation */
                 mapp = read_translation(p, infile, linenum);
             }
@@ -986,14 +986,14 @@ int main(int argc, char **argv)
             /*
              *   If the entry is already set, flag an error and delete the
              *   entry - if it's set as a round-trip entry, we don't want to
-             *   set it in the display-only section 
+             *   set it in the display-only section
              */
             if (get_mapping(unicode_char) != 0)
             {
                 /* flag the error */
                 printf("%s: line %d: mapping previously defined - "
                        "new mapping ignored\n", infile, linenum);
-                
+
                 /* delete the mapping and forget it */
                 t3free(mapp);
                 mapp = 0;
@@ -1005,9 +1005,9 @@ int main(int argc, char **argv)
                 /* mark it as display-only */
                 mapp->disp_only = TRUE;
 
-                /* 
+                /*
                  *   if this is an expansion into multiple unicode characters
-                 *   for display, count it among the expansions 
+                 *   for display, count it among the expansions
                  */
                 if (mapp->mapping.disp.exp_len > 1)
                 {
@@ -1019,22 +1019,22 @@ int main(int argc, char **argv)
         else
         {
             unsigned short local_char;
-            unsigned short extra_char;   
+            unsigned short extra_char;
 
             /*
              *   Doing regular translations.  The format must be two
              *   columns of numbers; the first number is the local
              *   character code, and the second is the unicode character
              *   code.
-             *   
+             *
              *   Some mapping files contain variations on this format:
-             *   
+             *
              *   - Some files use three columns, where the first column is
              *   another character set translation (for example, JIS0208
              *   uses the first column to give the Shift-JIS code for each
              *   character).  In these cases, we'll skip the first column,
              *   and use only the last two columns.
-             *   
+             *
              *   - Some files for multi-byte (i.e., mixed single- and
              *   double-byte characters) have entries for DBCS leading
              *   bytes with no Unicode character specified.  In these
@@ -1042,20 +1042,20 @@ int main(int argc, char **argv)
              *   lead byte value in the local character set, and no
              *   Unicode value at all.  We'll simply ignore these lines
              *   entirely, since they contribute no information that we
-             *   need.  
+             *   need.
              */
 
-            /* 
+            /*
              *   read two numbers - the second one is optional, since
-             *   we'll skip any single-column entries as explained above 
+             *   we'll skip any single-column entries as explained above
              */
             if (read_number(&local_char, &p, infile, linenum, FALSE)
                 || read_number(&unicode_char, &p, infile, linenum, TRUE))
                 continue;
 
-            /* 
+            /*
              *   check for a third column - if it's present, drop the
-             *   first column and keep only the second and third columns 
+             *   first column and keep only the second and third columns
              */
             if (!read_number(&extra_char, &p, infile, linenum, TRUE))
             {
@@ -1105,12 +1105,12 @@ int main(int argc, char **argv)
      *   mapping immediately follows the local-to-unicode round-trip mapping;
      *   each entry in the round-trip mapping is of a fixed size, so we can
      *   easily figure out how much space it will take up.
-     *   
+     *
      *   Each round-trip record takes up 4 bytes (two UINT2's)
      *.  A UINT4 is needed for this header itself.
-     *   
+     *
      *.  The round-trip section contains at least one UINT2 (for its
-     *   own count header) 
+     *   own count header)
      */
     ofs = (roundtrip_count * 4) + 4 + 2;
     oswp4(valbuf, ofs);
@@ -1126,9 +1126,9 @@ int main(int argc, char **argv)
         goto done;
     }
 
-    /* 
+    /*
      *   Write the round-trip mappings.  Scan the entire set of pages, and
-     *   write out each entry not marked as "display-only".  
+     *   write out each entry not marked as "display-only".
      */
     for (pagenum = 0 ; pagenum < 256 ; ++pagenum)
     {
@@ -1142,16 +1142,16 @@ int main(int argc, char **argv)
             /* get the mapping */
             entp = G_mapping[pagenum][i];
 
-            /* 
+            /*
              *   if we have no mapping, or this is a display-only mapping,
-             *   skip it - we're only interested in round-trip mappings here 
+             *   skip it - we're only interested in round-trip mappings here
              */
             if (entp == 0 || entp->disp_only)
                 continue;
 
-            /* 
+            /*
              *   the entry has a UINT2 for the unicode value, followed by a
-             *   UINT2 for the local character code point 
+             *   UINT2 for the local character code point
              */
             oswp2(valbuf, make_unicode(pagenum, i));
             oswp2(valbuf + 2, entp->mapping.local_char);
@@ -1165,26 +1165,26 @@ int main(int argc, char **argv)
             }
         }
     }
-    
+
     /*
      *   Compile information on the display mappings.  We must determine the
      *   number of display mappings we have, and the number of bytes we'll
      *   need for the display mappings in the output file.
-     *   
+     *
      *   Every entry is a display mapping, since a round-trip mapping
      *   provides a unicode-to-local mapping.
-     *   
+     *
      *   For a round-trip mapping, we simply store the one-byte or two-byte
      *   local character sequence given by the local mapping.
-     *   
+     *
      *   For a display-only mapping, we must scan the expansion, which is a
      *   list of unicode characters.  For each unicode character in the
      *   expansion, we must find the round-trip mapping for that unicode
      *   character to get its local mapping, and then count the one-byte or
      *   two-byte local character sequence for that round-trip mapping.
-     *   
+     *
      *   Note that each entry stores a one-byte length prefix, so we must
-     *   count one additional byte per entry for this prefix.  
+     *   count one additional byte per entry for this prefix.
      */
     for (disp_count = 0, disp_bytes = 0, pagenum = 0 ;
          pagenum < 256 ; ++pagenum)
@@ -1197,7 +1197,7 @@ int main(int argc, char **argv)
         for (i = 0 ; i < 256 ; ++i)
         {
             size_t local_len;
-            
+
             /* get the mapping */
             entp = G_mapping[pagenum][i];
 
@@ -1219,13 +1219,13 @@ int main(int argc, char **argv)
             {
                 size_t idx;
                 unsigned short *expp;
-                
+
                 /*
                  *   This is a display-only mapping, so we have a list of
                  *   unicode characters that we substitute for this unicode
                  *   character, then translate to the local character set
                  *   for display.  Scan the expansion list and include the
-                 *   bytes for each character in the expansion list. 
+                 *   bytes for each character in the expansion list.
                  */
                 for (idx = 0, expp = entp->mapping.disp.expansion ;
                      idx < entp->mapping.disp.exp_len ;
@@ -1233,17 +1233,17 @@ int main(int argc, char **argv)
                 {
                     unsigned short uc;
                     entity_map_t *entp_uc;
-                    
+
                     /* get this unicode expansion character */
                     uc = *expp;
 
                     /* look up the mapping for this expansion character */
                     entp_uc = get_mapping(uc);
 
-                    /* 
+                    /*
                      *   if we don't have a mapping, or it's not a
                      *   round-trip mapping, complain; otherwise, count the
-                     *   local character expansion in our output length 
+                     *   local character expansion in our output length
                      */
                     if (entp_uc == 0)
                     {
@@ -1262,10 +1262,10 @@ int main(int argc, char **argv)
                     }
                     else if (entp_uc->disp_only)
                     {
-                        /* 
+                        /*
                          *   the unicode character itself has a display
                          *   mapping - recursive display mappings are not
-                         *   allowed 
+                         *   allowed
                          */
                         printf("display mapping for unicode character 0x%X "
                                "refers to unicode character 0x%X, which "
@@ -1291,23 +1291,23 @@ int main(int argc, char **argv)
             }
             else
             {
-                /* 
+                /*
                  *   this is a round-trip mapping, so we simply store the
                  *   one or two bytes given for the local character in the
-                 *   mapping 
+                 *   mapping
                  */
                 local_len = local_to_buf(0, entp->mapping.local_char);
             }
 
-            /* 
+            /*
              *   add local length of this mapping to the total display bytes
-             *   we've computed so far 
+             *   we've computed so far
              */
             disp_bytes += local_len;
 
-            /* 
+            /*
              *   store the local length of this mapping for easy reference
-             *   when we write out the mapping 
+             *   when we write out the mapping
              */
             entp->local_len = local_len;
         }
@@ -1327,9 +1327,9 @@ int main(int argc, char **argv)
     if (fatal_err)
         goto done;
 
-    /* 
+    /*
      *   Write out the number of display mappings, and the number of bytes
-     *   of display mappings.  
+     *   of display mappings.
      */
     oswp2(valbuf, disp_count);
     oswp4(valbuf + 2, disp_bytes);
@@ -1344,10 +1344,10 @@ int main(int argc, char **argv)
     if (default_char_set)
     {
         size_t len;
-        
-        /* 
+
+        /*
          *   Write out the default display entity.  We store this mapping at
-         *   the translation for Unicode code point zero. 
+         *   the translation for Unicode code point zero.
          */
         oswp2(valbuf, 0);
         len = local_to_buf(valbuf + 3, default_char);
@@ -1368,9 +1368,9 @@ int main(int argc, char **argv)
         goto done;
     }
 
-    /* 
+    /*
      *   write all of the mappings - both the display and round-trip
-     *   mappings provide unicode-to-local mappings 
+     *   mappings provide unicode-to-local mappings
      */
 
     /* go through all of the pages */
@@ -1379,7 +1379,7 @@ int main(int argc, char **argv)
         /* if this page isn't present, skip it */
         if (G_mapping[pagenum] == 0)
             continue;
-        
+
         /* go through the page */
         for (i = 0 ; i < 256 ; ++i)
         {
@@ -1391,7 +1391,7 @@ int main(int argc, char **argv)
             /* if the mapping doesn't exist, skip it */
             if (entp == 0)
                 continue;
-                
+
             /* write out this entity's unicode value and local length */
             oswp2(valbuf, make_unicode(pagenum, i));
             valbuf[2] = (uchar)entp->local_len;
@@ -1406,10 +1406,10 @@ int main(int argc, char **argv)
             {
                 size_t idx;
                 unsigned short *expp;
-                
-                /* 
+
+                /*
                  *   display-only mapping - translate the local expansion
-                 *   into unicode character 
+                 *   into unicode character
                  */
                 for (idx = 0, expp = entp->mapping.disp.expansion ;
                      idx < entp->mapping.disp.exp_len ;
@@ -1417,10 +1417,10 @@ int main(int argc, char **argv)
                 {
                     unsigned short uc;
                     entity_map_t *entp_uc;
-                    
+
                     /* get this unicode expansion character */
                     uc = *expp;
-                    
+
                     /* look up the mapping for this expansion character */
                     entp_uc = get_mapping(uc);
 
@@ -1479,10 +1479,10 @@ int main(int argc, char **argv)
             /* get the mapping */
             entp = G_mapping[pagenum][i];
 
-            /* 
+            /*
              *   if the mapping doesn't exist, or it's not a display-only
              *   mapping, or it doesn't expand to multiple unicode
-             *   characters, skip it 
+             *   characters, skip it
              */
             if (entp == 0
                 || !entp->disp_only

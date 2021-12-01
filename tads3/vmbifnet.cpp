@@ -8,9 +8,9 @@ static char RCSid[] =
 Name
   vmbifnet.cpp - TADS networking function set
 Function
-  
+
 Notes
-  
+
 Modified
   04/20/2010 MJRoberts  - Creation
 */
@@ -52,7 +52,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   NetEvent.evType values 
+ *   NetEvent.evType values
  */
 #define VMBN_EVT_REQUEST    1
 #define VMBN_EVT_TIMEOUT    2
@@ -61,7 +61,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Static initialization 
+ *   Static initialization
  */
 void CVmBifNet::attach(VMG0_)
 {
@@ -73,7 +73,7 @@ void CVmBifNet::attach(VMG0_)
 }
 
 /*
- *   Static cleanup 
+ *   Static cleanup
  */
 void CVmBifNet::detach(VMG0_)
 {
@@ -115,13 +115,13 @@ void CVmBifNet::connect_ui(VMG_ uint oargc)
     int port;
     int ok = srvp->get_listener_addr(addr, ip, port);
 
-    /* 
+    /*
      *   If we don't have a network configuration yet, create one.  This
      *   notifies other subsystems that we have an active web UI; for
      *   example, the presence of a network UI disables the regular console
      *   UI, since all UI actions have to go through the web UI once it's
      *   established.
-     *   
+     *
      *   The interpreter startup creates a network configuration if it
      *   receives command-line information telling it that the game was
      *   launched by a Web server in response to an incoming client request.
@@ -129,7 +129,7 @@ void CVmBifNet::connect_ui(VMG_ uint oargc)
      *   the operating system shell, there's no Web server launch
      *   information, so the startup code doesn't create a net config object.
      *   So, if we get here and find we don't have this object, it means that
-     *   we're running in local standalone mode.  
+     *   we're running in local standalone mode.
      */
     if (G_net_config == 0)
         G_net_config = new TadsNetConfig();
@@ -209,7 +209,7 @@ void CVmBifNet::get_event(VMG_ uint oargc)
                 /* ask the message to set up a new NetRequestEvent */
                 int evt_code;
                 ev_cl = evtmsg->prep_event_obj(vmg_ &argc, &evt_code);
-            
+
                 /* add the event type argument */
                 G_interpreter->push_int(vmg_ evt_code);
                 ++argc;
@@ -232,7 +232,7 @@ void CVmBifNet::get_event(VMG_ uint oargc)
             argc = 1;
             G_interpreter->push_int(vmg_ VMBN_EVT_DBGBRK);
             break;
-            
+
         case OSWAIT_TIMEOUT:
             /* the timeout expired - return a NetTimeoutEvent */
             ev_cl = G_predef->net_timeout_event;
@@ -252,17 +252,17 @@ void CVmBifNet::get_event(VMG_ uint oargc)
                 vmg_ G_predef->net_exception, 1, err);
             AFTER_ERR_THROW(break;)
         }
-        
-        /* 
+
+        /*
          *   if the specific event type subclass isn't defined, fall back on
-         *   the base NetEvent class 
+         *   the base NetEvent class
          */
         if (ev_cl == VM_INVALID_OBJ)
             ev_cl = G_predef->net_event;
 
-        /* 
+        /*
          *   construct the NetEvent subclass, or a generic list if we don't
-         *   even have the NetEvent class defined 
+         *   even have the NetEvent class defined
          */
         if (ev_cl != VM_INVALID_OBJ)
             vm_objp(vmg_ ev_cl)->create_instance(vmg_ ev_cl, 0, argc);
@@ -291,13 +291,13 @@ void CVmBifNet::get_hostname(VMG_ uint oargc)
     int client_level, server_level;
     G_host_ifc->get_net_safety(&client_level, &server_level);
 
-    /* 
+    /*
      *   If the network safety level doesn't allow outside network access for
      *   either client or server, return "localhost".  If they don't allow
      *   any network access at all, return nil.
-     *   
+     *
      *   If there's a host name defined in the web configuration, return that
-     *   host name.  Otherwise, return the default host name from the OS.  
+     *   host name.  Otherwise, return the default host name from the OS.
      */
     if (client_level >= VM_NET_SAFETY_MAXIMUM
         && server_level >= VM_NET_SAFETY_MAXIMUM)
@@ -313,7 +313,7 @@ void CVmBifNet::get_hostname(VMG_ uint oargc)
     }
     else
     {
-        /* 
+        /*
          *   the network safety level allows outside network access, so we
          *   can return the actual host name - get it from the system
          */
@@ -344,10 +344,10 @@ void CVmBifNet::get_host_ip(VMG_ uint oargc)
     int client_level, server_level;
     G_host_ifc->get_net_safety(&client_level, &server_level);
 
-    /* 
+    /*
      *   If the network safety level doesn't allow outside network access for
      *   either client or server, return "localhost".  If they don't allow
-     *   any network access at all, return nil.  
+     *   any network access at all, return nil.
      */
     if (client_level >= VM_NET_SAFETY_MAXIMUM
         && server_level >= VM_NET_SAFETY_MAXIMUM)
@@ -381,7 +381,7 @@ void CVmBifNet::get_host_ip(VMG_ uint oargc)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Get the network storage server URL. 
+ *   Get the network storage server URL.
  */
 
 /* get the storage server URL */
@@ -479,7 +479,7 @@ void CVmBifNet::get_net_config(VMG_ uint oargc)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Send a network request - result event. 
+ *   Send a network request - result event.
  */
 class TadsHttpReqResult: public TadsEventMessage
 {
@@ -591,11 +591,11 @@ public:
             vm_obj_id_t fileobj = CVmObjFile::create(
                 vmg_ FALSE, 0, csobj, reply, mode,
                 VMOBJFILE_ACCESS_READ, TRUE);
-            
+
             /* push the file object */
             G_interpreter->push_obj(vmg_ fileobj);
 
-            /* 
+            /*
              *   the File object owns the data source, which owns the reply
              *   stream, so forget about the reply stream
              */
@@ -686,7 +686,7 @@ protected:
     /* VM globals */
     vm_globals *vmg;
 
-    /* 
+    /*
      *   VM global variable for the ID value.  We need to hang on to the ID
      *   value until the request completes, since we have to pass it back to
      *   the program via the NetEvent we generate at completion.  Since the
@@ -710,7 +710,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Request option flags 
+ *   Request option flags
  */
 #define NetReqNoRedirect    0x0001
 
@@ -731,9 +731,9 @@ struct iter_body_table_ctx
 class HttpReqThread: public OS_Thread
 {
 public:
-    /* 
+    /*
      *   Set up the thread.  All string parameters are provided in internal
-     *   string format, with VMB_LEN length prefixes.  
+     *   string format, with VMB_LEN length prefixes.
      */
     HttpReqThread(VMG_ const vm_val_t *id, const char *url,
                   const char *verb, int32_t options,
@@ -791,9 +791,9 @@ public:
             }
         }
 
-        /* 
+        /*
          *   The rest (including the '/') is the resource string.  If there's
-         *   nothing left, the resource is implicitly '/'. 
+         *   nothing left, the resource is implicitly '/'.
          */
         if (urll > 0)
             resource = lib_copy_str(url, urll);
@@ -811,8 +811,8 @@ public:
         {
             /* set up an empty payload */
             this->body = new OS_HttpPayload();
-            
-            /* 
+
+            /*
              *   Convert the body to a stream payload, if it's a string or
              *   ByteArray.  If it's a LookupTable, it's a set of form
              *   fields.
@@ -820,28 +820,28 @@ public:
             if (body->typ == VM_OBJ
                 && CVmObjLookupTable::is_lookup_table_obj(vmg_ body->val.obj))
             {
-                /* 
+                /*
                  *   The body is a LookupTable, so we have a set of form
-                 *   fields to encode as HTML form data. 
+                 *   fields to encode as HTML form data.
                  */
-                
+
                 /* cast the object value */
                 CVmObjLookupTable *tab =
                     (CVmObjLookupTable *)vm_objp(vmg_ body->val.obj);
-                
+
                 /* add each key in the table as a form field */
                 iter_body_table_ctx ctx(this, rc);
                 tab->for_each(vmg_ iter_body_table, &ctx);
             }
             else
             {
-                /* 
+                /*
                  *   It's not a lookup table, so it must be bytes to upload,
                  *   as a string or ByteArray.
                  */
                 const char *def_mime_type = 0;
                 CVmDataSource *s = val_to_ds(vmg_ body, &def_mime_type);
-                
+
                 /* presume we're going to use the default mime type */
                 const char *mime_type = def_mime_type;
                 size_t mime_type_len =
@@ -853,7 +853,7 @@ public:
                     mime_type = body_type + VMB_LEN;
                     mime_type_len = vmb_get_len(body_type);
                 }
-                
+
                 /* add the stream */
                 this->body->add(
                     "", 0, "", 0, mime_type, mime_type_len, s);
@@ -911,8 +911,8 @@ public:
         int status = OS_HttpClient::request(
             rflags, host, port, verb, resource, hdrs, hdrs_len, body,
             reply, &reply_hdrs, locp, 0);
-        
-        /* 
+
+        /*
          *   if the status is negative, a system-level error occurred, so
          *   there's no reply data - delete and forget the reply stream
          */
@@ -921,8 +921,8 @@ public:
             delete reply;
             reply = 0;
         }
-        
-        /* 
+
+        /*
          *   Always post a result event, even on failure, since the event is
          *   the way we transmit the status information back to the caller.
          *   Note that the event object takes ownership of the reply stream,
@@ -951,7 +951,7 @@ public:
 
 protected:
     /*
-     *   Convert a string or ByteArray object to a data stream 
+     *   Convert a string or ByteArray object to a data stream
      */
     static CVmDataSource *val_to_ds(VMG_ const vm_val_t *val,
                                     const char **def_mime_type)
@@ -976,11 +976,11 @@ protected:
             /* cast the ByteArray object value */
             CVmObjByteArray *barr =
                 (CVmObjByteArray *)vm_objp(vmg_ val->val.obj);
-            
+
             /* create a stream copy of the byte array's contents */
             unsigned long arrlen = barr->get_element_count();
             CVmDataSource *s = new CVmMemorySource(arrlen);
-            
+
             /* copy the array's contents to the stream */
             const size_t BLOCKLEN = 1024;
             char block[BLOCKLEN];
@@ -989,18 +989,18 @@ protected:
                 /* read as much as remains */
                 unsigned long rem = arrlen - idx + 1;
                 size_t cur = (rem < BLOCKLEN ? (size_t)rem : BLOCKLEN);
-                
+
                 /* copy the data */
                 barr->copy_to_buf((unsigned char *)block, idx, cur);
                 s->write(block, cur);
             }
 
-            /* 
+            /*
              *   rewind the stream to the start, so that the network code
-             *   reads the entire contents from the beginning 
+             *   reads the entire contents from the beginning
              */
             s->seek(0, OSFSK_SET);
-            
+
             /* return the stream */
             return s;
         }
@@ -1011,7 +1011,7 @@ protected:
         }
     }
 
-    /* 
+    /*
      *   Lookup Table for_each callback for building a form payload.  When
      *   the caller specifies the body as a lookup table, we'll iterate over
      *   the table's contents using this callback, which adds each field to
@@ -1028,17 +1028,17 @@ protected:
         if (field_name == 0)
             return;
 
-        /* 
+        /*
          *   the value must be either a string giving the simple form field
-         *   value, or a FileUpload object giving a file to upload 
+         *   value, or a FileUpload object giving a file to upload
          */
         if (val->is_instance_of(vmg_ G_predef->file_upload_cl))
         {
-            /* 
+            /*
              *   It's a FileUpload object.  The 'file' property is the
              *   content object, which must be provided as a string or
              *   ByteArray; the 'filename' and 'contentType' properties are
-             *   strings giving us details on how to treat the content data. 
+             *   strings giving us details on how to treat the content data.
              */
 
             /* retrieve the property values we're interested in */
@@ -1120,7 +1120,7 @@ protected:
     /* the content body */
     OS_HttpPayload *body;
 
-    /* 
+    /*
      *   VM global variable for the ID value.  We need to hang on to the ID
      *   value until the request completes, since we have to pass it back to
      *   the program via the NetEvent we generate at completion.  Since the
@@ -1133,7 +1133,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Match a domain name in a URL to the given string 
+ *   Match a domain name in a URL to the given string
  */
 static int match_url_domain(const char *url, size_t urll, const char *domain)
 {
@@ -1150,10 +1150,10 @@ static int match_url_domain(const char *url, size_t urll, const char *domain)
             url += 3;
             urll -= 3;
 
-            /* 
+            /*
              *   we have a match if the domain name follows, and either it's
              *   the whole rest of the string, or the next character after
-             *   the domain name is '/' or ':' 
+             *   the domain name is '/' or ':'
              */
             return (urll >= domainl
                     && memicmp(url, domain, domainl) == 0
@@ -1176,11 +1176,11 @@ void CVmBifNet::send_net_request(VMG_ uint argc)
     /* check arguments - we need (id, url), and after that it varies */
     check_argc_range(vmg_ argc, 2, 32767);
 
-    /* 
+    /*
      *   set up a recursive VM context, in case we need it (we might, for
-     *   evaluating FileUpload properties in a form body lookup table) 
+     *   evaluating FileUpload properties in a form body lookup table)
      */
-    vm_rcdesc rc(vmg_ "sendNetRequest", CVmBifNet::bif_table, 6, 
+    vm_rcdesc rc(vmg_ "sendNetRequest", CVmBifNet::bif_table, 6,
                  G_stk->get(0), argc);
 
     /* get the network safety levels */
@@ -1207,7 +1207,7 @@ void CVmBifNet::send_net_request(VMG_ uint argc)
     /* map the URL to the local file character set */
     char *lurl;
     size_t lurll = G_cmap_to_file->map_utf8_alo(&lurl, url, urll);
-    
+
     /* log the request */
     vm_log_fmt(vmg_ "client request to %.*s by %s",
                (int)lurll, lurl, image_url);
@@ -1222,7 +1222,7 @@ void CVmBifNet::send_net_request(VMG_ uint argc)
     {
         /* HTTP or HTTPS */
 
-        /* 
+        /*
          *   if we're restricted to local access, verify that the domain is
          *   "localhost" or "127.0.0.1"
          */
@@ -1254,9 +1254,9 @@ void CVmBifNet::send_net_request(VMG_ uint argc)
             /* get the body value */
             body = G_stk->get(5);
 
-            /* 
+            /*
              *   verify the body type - this must be a string, byte array, or
-             *   lookup table 
+             *   lookup table
              */
             if (body->get_as_string(vmg0_) != 0
                 || (body->typ == VM_OBJ
@@ -1285,7 +1285,7 @@ void CVmBifNet::send_net_request(VMG_ uint argc)
         /* launch the thread */
         if (!th->launch())
         {
-            /* 
+            /*
              *   We couldn't launch the thread - post a result event
              *   indicating failure.  We have to post the result event
              *   ourselves because (a) a result event always has to be

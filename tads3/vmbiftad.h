@@ -1,16 +1,16 @@
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmbiftad.h - function set definition - TADS function set
 Function
-  
+
 Notes
-  
+
 Modified
   12/06/98 MJRoberts  - Creation
 */
@@ -34,7 +34,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   TADS function set built-in functions 
+ *   TADS function set built-in functions
  */
 class CVmBifTADS: public CVmBif
 {
@@ -43,7 +43,7 @@ public:
     static vm_bif_desc bif_table[];
 
     /*
-     *   General functions 
+     *   General functions
      */
     static void datatype(VMG_ uint argc);
     static void getarg(VMG_ uint argc);
@@ -95,8 +95,8 @@ protected:
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   Random Number Generator ID values for randomize(id, ...) 
+/*
+ *   Random Number Generator ID values for randomize(id, ...)
  */
 #define VMBT_RNGID_ISAAC     1
 #define VMBT_RNGID_LCG       2
@@ -108,7 +108,7 @@ protected:
 /*
  *   Global information for the TADS intrinsics.  We allocate this
  *   structure with the VM global variables - G_bif_tads_globals contains
- *   the structure.  
+ *   the structure.
  */
 class CVmBifTADSGlobals
 {
@@ -123,10 +123,10 @@ public:
     class CRegexParser *rex_parser;
     class CRegexSearcherSimple *rex_searcher;
 
-    /* 
+    /*
      *   global variable for the last regular expression search string (we
      *   need to hold onto this because we might need to extract group-match
-     *   substrings from it) 
+     *   substrings from it)
      */
     struct vm_globalvar_t *last_rex_str;
 
@@ -142,7 +142,7 @@ public:
 
     /* -------------------------------------------------------------------- */
     /*
-     *   Bit-Shift Random Number Generator state 
+     *   Bit-Shift Random Number Generator state
      */
 #ifdef VMBIFTADS_RNG_BITSHIFT
 
@@ -156,11 +156,11 @@ public:
      *   ISAAC Random Number Generator state
      */
     struct isaacctx *isaac_ctx;
-    
+
 
     /* -------------------------------------------------------------------- */
     /*
-     *   Mersenne Twister MT19937 Random Number Generator state 
+     *   Mersenne Twister MT19937 Random Number Generator state
      */
     class CVmMT19937 *mt_ctx;
 };
@@ -174,9 +174,9 @@ public:
  *   TADS function set vector.  Define this only if VMBIF_DEFINE_VECTOR has
  *   been defined, so that this file can be included for the prototypes alone
  *   without defining the function vector.
- *   
+ *
  *   Note that this vector is specifically defined outside of the section of
- *   the file protected against multiple inclusion.  
+ *   the file protected against multiple inclusion.
  */
 #ifdef VMBIF_DEFINE_VECTOR
 

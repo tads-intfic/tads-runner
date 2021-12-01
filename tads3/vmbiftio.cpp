@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmbiftio.cpp - TADS Input/Output functions
 Function
-  
+
 Notes
-  
+
 Modified
   02/08/00 MJRoberts  - Creation
 */
@@ -53,7 +53,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Display a value 
+ *   Display a value
  */
 void CVmBifTIO::say(VMG_ uint argc)
 {
@@ -62,7 +62,7 @@ void CVmBifTIO::say(VMG_ uint argc)
 }
 
 /*
- *   Display the value or values at top of stack to the given console 
+ *   Display the value or values at top of stack to the given console
  */
 void CVmBifTIO::say_to_console(VMG_ CVmConsole *console, uint argc)
 {
@@ -142,7 +142,7 @@ void CVmBifTIO::say_to_console(VMG_ CVmConsole *console, uint argc)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Logging - turn on or off output text capture 
+ *   Logging - turn on or off output text capture
  */
 
 #define LOG_SCRIPT   1
@@ -153,7 +153,7 @@ void CVmBifTIO::logging(VMG_ uint argc)
 {
     /* presume success */
     int ok = TRUE;
-    
+
     /* check arguments */
     check_argc_range(vmg_ argc, 1, 2);
 
@@ -161,9 +161,9 @@ void CVmBifTIO::logging(VMG_ uint argc)
     const vm_val_t *filespec = G_stk->get(0);
     int log_type = (argc >= 2 ? G_stk->get(1)->num_to_int(vmg0_) : LOG_SCRIPT);
 
-    /* 
+    /*
      *   if they passed us nil, turn off logging; otherwise, start logging
-     *   to the filename given by the string 
+     *   to the filename given by the string
      */
     if (filespec->typ == VM_NIL)
     {
@@ -240,10 +240,10 @@ void CVmBifTIO::more(VMG_ uint argc)
     if (G_net_config != 0)
         return;
 
-    /* 
+    /*
      *   if we're reading from a script, ignore this request - these types of
      *   interactive pauses are irrelevant when reading a script, since we're
-     *   getting our input non-interactively 
+     *   getting our input non-interactively
      */
     if (G_console->is_reading_script())
         return;
@@ -310,7 +310,7 @@ void CVmBifTIO::inputkey(VMG_ uint argc)
 
     /* flush any output */
     G_console->flush_all(vmg_ VM_NL_INPUT);
-    
+
     /* there's no console in web host mode - simply return eof */
     if (G_net_config != 0)
     {
@@ -321,15 +321,15 @@ void CVmBifTIO::inputkey(VMG_ uint argc)
     /* get a keystroke */
     c[0] = (char)os_getc_raw();
     len = 1;
-    
+
     /* if it's an extended key, map it specially */
     if (c[0] == 0)
     {
         char extc;
-        
+
         /* get the second part of the sequence */
         extc = (char)os_getc_raw();
-        
+
         /* map the extended key */
         map_ext_key(vmg_ buf, (unsigned char)extc);
     }
@@ -338,31 +338,31 @@ void CVmBifTIO::inputkey(VMG_ uint argc)
         /* continue fetching bytes until we have a full character */
         while (!raw_key_complete(vmg_ c, len) && len + 1 < sizeof(c))
         {
-            /* 
+            /*
              *   We don't yet have enough bytes for a complete character, so
              *   read another raw byte.  The keyboard driver should already
              *   have queued up all of the bytes we need to complete the
              *   character sequence, so there should never be a delay from
              *   os_getc_raw() here - it should simply return the next byte
-             *   of the sequence immediately.  
+             *   of the sequence immediately.
              */
             c[len++] = (char)os_getc_raw();
         }
         c[len] = '\0';
-        
-        /* 
+
+        /*
          *   translate the key from the local character set to UTF-8, and map
-         *   the extended key code to the portable representation 
+         *   the extended key code to the portable representation
          */
         map_raw_key(vmg_ buf, c, len);
     }
-    
+
     /* reset the [MORE] counter */
     G_console->reset_line_count(FALSE);
-    
+
     /* log the event */
     G_console->log_event(vmg_ OS_EVT_KEY, buf, strlen(buf), TRUE);
-    
+
     /* return the string */
     retval_str(vmg_ buf);
 }
@@ -455,9 +455,9 @@ void CVmBifTIO::inputevent(VMG_ uint argc)
     switch(evt)
     {
     case OS_EVT_KEY:
-        /* 
+        /*
          *   we need two elements - one for the event type code, one for the
-         *   keystroke string 
+         *   keystroke string
          */
         ele_count = 2;
         break;
@@ -468,9 +468,9 @@ void CVmBifTIO::inputevent(VMG_ uint argc)
         break;
 
     case OS_EVT_HREF:
-        /* 
+        /*
          *   we need two elements - one for the event type code, one for the
-         *   HREF string 
+         *   HREF string
          */
         ele_count = 2;
         break;
@@ -530,20 +530,20 @@ void CVmBifTIO::inputevent(VMG_ uint argc)
             for (c[0] = (char)info.key[0], len = 1 ;
                  !raw_key_complete(vmg_ c, len) && len < sizeof(c) ; )
             {
-                /* 
+                /*
                  *   Read another input event.  The keyboard driver should
                  *   already have queued up all of the bytes needed to
                  *   complete this character sequence, so there should never
                  *   be a delay from os_get_event() here - it should simply
                  *   return immediately with another OS_EVT_KEY event with
-                 *   the next byte of the sequence.  
+                 *   the next byte of the sequence.
                  */
                 evt = os_get_event(0, FALSE, &info);
 
-                /* 
+                /*
                  *   if it's not a keystroke event, something's wrong -
                  *   ignore the event and stop trying to read the remaining
-                 *   bytes of the character sequence 
+                 *   bytes of the character sequence
                  */
                 if (evt != OS_EVT_KEY)
                     break;
@@ -612,14 +612,14 @@ void CVmBifTIO::inputevent(VMG_ uint argc)
 /*
  *   Service routine: Map an "extended" keystroke from raw os_getc_raw()
  *   notation to a UTF-8 key name.  The caller should pass the second byte of
- *   the extended two-byte raw sequence.  
+ *   the extended two-byte raw sequence.
  */
 int CVmBifTIO::map_ext_key(VMG_ char *namebuf, int extc)
 {
     /*
      *   Portable key names for the extended keystrokes.  We map the extended
      *   key codes to these strings, so that the TADS code can access arrow
-     *   keys and the like.  
+     *   keys and the like.
      */
     static const char *ext_key_names[] =
     {
@@ -687,7 +687,7 @@ int CVmBifTIO::map_ext_key(VMG_ char *namebuf, int extc)
  *   normal keystroke in the local character set or an extended command key
  *   using a CMD_xxx code, to UTF-8.  If the keystroke is a control character
  *   or any CMD_xxx code, we'll map the key to a high-level keystroke name
- *   enclosed in square brackets.  
+ *   enclosed in square brackets.
  */
 int CVmBifTIO::map_raw_key(VMG_ char *namebuf, const char *c, size_t len)
 {
@@ -700,10 +700,10 @@ int CVmBifTIO::map_raw_key(VMG_ char *namebuf, const char *c, size_t len)
         {
         case 10:
         case 13:
-            /* 
+            /*
              *   return an ASCII 10 (regardless of local newline conventions
              *   - this is the internal string representation, which we
-             *   define to use ASCII 10 to represent a newline everywhere) 
+             *   define to use ASCII 10 to represent a newline everywhere)
              */
             namebuf[0] = 10;
             namebuf[1] = '\0';
@@ -747,7 +747,7 @@ int CVmBifTIO::map_raw_key(VMG_ char *namebuf, const char *c, size_t len)
 
 /*
  *   Service routine: determine if a raw byte sequence forms a complete
- *   character in the local character set.  
+ *   character in the local character set.
  */
 int CVmBifTIO::raw_key_complete(VMG_ const char *c, size_t len)
 {
@@ -758,7 +758,7 @@ int CVmBifTIO::raw_key_complete(VMG_ const char *c, size_t len)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Standard system button labels for bifinpdlg() 
+ *   Standard system button labels for bifinpdlg()
  */
 #define BIFINPDLG_LBL_OK      1
 #define BIFINPDLG_LBL_CANCEL  2
@@ -784,7 +784,7 @@ void CVmBifTIO::inputdialog(VMG_ uint argc)
     int cancel_resp;
     int resp;
     char numbuf[32];
-    
+
     /* check arguments */
     check_argc(vmg_ argc, 5);
 
@@ -808,15 +808,15 @@ void CVmBifTIO::inputdialog(VMG_ uint argc)
     {
         int i;
         vm_val_t *valp;
-        
+
         /* we're not using any standard button set */
         std_btns = 0;
 
-        /* 
+        /*
          *   run through the list and get the button items into our array
          *   (we do this rather than traversing the list directly so that
          *   we don't have to worry about a constant list's data being
-         *   paged out) 
+         *   paged out)
          */
         vm_val_t *lst = G_stk->get(0);
 
@@ -840,18 +840,18 @@ void CVmBifTIO::inputdialog(VMG_ uint argc)
         {
             const char *p;
 
-            /* 
+            /*
              *   We could have a number or a string in each element.  If
              *   the element is a number, it refers to a standard label.
-             *   If it's a string, use the string directly. 
+             *   If it's a string, use the string directly.
              */
             if ((p = valp->get_as_string(vmg0_)) != 0)
             {
                 size_t copy_len;
-                
-                /* 
+
+                /*
                  *   it's a string - make a copy in the label buffer,
-                 *   making sure to leave space for null termination 
+                 *   making sure to leave space for null termination
                  */
                 copy_len = vmb_get_len(p);
                 if (copy_len > dstrem - 1)
@@ -873,7 +873,7 @@ void CVmBifTIO::inputdialog(VMG_ uint argc)
                 int id;
                 int resid;
                 char rscbuf[128];
-                
+
                 /* it's a standard system label ID - get the ID */
                 id = (int)valp->val.intval;
 
@@ -901,9 +901,9 @@ void CVmBifTIO::inputdialog(VMG_ uint argc)
                     break;
                 }
 
-                /* 
+                /*
                  *   if we got a valid resource ID, load the resource;
-                 *   otherwise, skip this button 
+                 *   otherwise, skip this button
                  */
                 if (resid != 0
                     && !os_get_str_rsc(resid, rscbuf, sizeof(rscbuf)))
@@ -1014,7 +1014,7 @@ void CVmBifTIO::askfile(VMG_ uint argc)
     int from_script = FALSE;
     char warning[OSFNMAX + 255] = "";
     int from_ui = FALSE;
-    
+
     /* check arguments */
     check_argc(vmg_ argc, 4);
 
@@ -1025,7 +1025,7 @@ void CVmBifTIO::askfile(VMG_ uint argc)
     dialog_type = pop_int_val(vmg0_);
     file_type = (os_filetype_t)pop_int_val(vmg0_);
 
-    /* 
+    /*
      *   Pop and discard the flags.  (This argument isn't used currently;
      *   it's just there in case we need some option flags in the future.
      *   Pop it as an integer to ensure the caller specified the correct
@@ -1041,15 +1041,15 @@ void CVmBifTIO::askfile(VMG_ uint argc)
         vmg_ &evt, fname, sizeof(fname), filter, countof(filter), &attrs))
     {
         int ok = TRUE;
-        
+
         /* we got a response from the script */
         from_script = TRUE;
         result = (fname[0] != '\0' ? OS_AFE_SUCCESS : OS_AFE_CANCEL);
 
-        /* 
+        /*
          *   If this is a "save" prompt, and the OVERWRITE flag isn't set,
          *   and the file already exists, show an interactive warning that
-         *   we're about to ovewrite the file.  
+         *   we're about to ovewrite the file.
          */
         if (ok
             && dialog_type == OS_AFP_SAVE
@@ -1063,7 +1063,7 @@ void CVmBifTIO::askfile(VMG_ uint argc)
                       "OV The script might overwrite the file %s. ", fname);
         }
 
-        /* 
+        /*
          *   If this is a "save" prompt, check to see if we can write the
          *   file, and warn if not.
          */
@@ -1094,7 +1094,7 @@ void CVmBifTIO::askfile(VMG_ uint argc)
 
         /*
          *   If this is an "open" prompt, and the file isn't readable, warn
-         *   about it.  
+         *   about it.
          */
         if (ok
             && dialog_type == OS_AFP_OPEN
@@ -1108,12 +1108,12 @@ void CVmBifTIO::askfile(VMG_ uint argc)
                       fname);
         }
 
-        /* 
+        /*
          *   If we generated a warning, and we're not in Web UI mode, display
          *   the warning as a Yes/No/Cancel console input dialog.  We can't
          *   do this in Web UI mode, since we can't use the regular console
          *   in Web mode.  Instead, we'll return the warning information to
-         *   the caller for display.  
+         *   the caller for display.
          */
         if (!ok && G_net_config == 0)
         {
@@ -1126,10 +1126,10 @@ void CVmBifTIO::askfile(VMG_ uint argc)
                       "file, or Cancel to stop replaying this script.",
                       warning + 3);
 
-            /* 
+            /*
              *   display a dialog - note that this goes directly to user,
              *   bypassing the active script, since this is a question about
-             *   how to handle a problem in the script 
+             *   how to handle a problem in the script
              */
         show_warning:
             switch (G_console->input_dialog(
@@ -1149,14 +1149,14 @@ void CVmBifTIO::askfile(VMG_ uint argc)
                 /* this didn't come from the script after all */
                 from_script = FALSE;
 
-                /* 
+                /*
                  *   If they canceled the file selection, go back to the
                  *   warning dialog; if the dialog itself failed, cancel the
                  *   script entirely.  If they selected a file, proceed with
                  *   their new file replacing the script input.  Note that we
                  *   don't have to repeat the tests above on the new file,
                  *   since the user explicitly entered it and thus presumably
-                 *   knows that it's the one they really want to use.  
+                 *   knows that it's the one they really want to use.
                  */
                 if (result == OS_AFE_CANCEL)
                     goto show_warning;
@@ -1189,11 +1189,11 @@ void CVmBifTIO::askfile(VMG_ uint argc)
          *   through a browser window, which might be in a separate child
          *   process; we have to present the file dialog UI in the same
          *   manner.  We have a special OS function for this situation.
-         *   
+         *
          *   This only applies in the stand-alone configuration, where we
          *   have no "hostname" parameter in the net config.  If we have a
          *   hostname, it means that we're operating in full client/server
-         *   mode, in which case we go through the Web UI directly.  
+         *   mode, in which case we go through the Web UI directly.
          */
         if (G_net_config->get("hostname") == 0)
         {
@@ -1218,11 +1218,11 @@ void CVmBifTIO::askfile(VMG_ uint argc)
         from_ui = TRUE;
     }
 
-    /* 
+    /*
      *   Create the return list.  In all cases, we need one element for the
      *   status code.  On success, we need three addition elements (the
      *   filename string, the descriptive text [future expansion], and the
-     *   warning message text).  
+     *   warning message text).
      */
     lst_obj = CVmObjList::create(vmg_ FALSE,
                                  result == OS_AFE_SUCCESS ? 4 : 1);
@@ -1254,7 +1254,7 @@ void CVmBifTIO::askfile(VMG_ uint argc)
             val.set_obj(CVmObjFileName::create_from_local(
                 vmg_ fnamep, strlen(fnamep)));
 
-            /* 
+            /*
              *   if the name came from the console UI, flag the FileName as
              *   being user-selected, which allows it to override the file
              *   safety settings; since the user manually selected the name,
@@ -1276,21 +1276,21 @@ void CVmBifTIO::askfile(VMG_ uint argc)
         /* store the string as the second list element */
         lst->cons_set_element(1, &val);
 
-        /* 
+        /*
          *   Add nil for the descriptive text, since we don't currently
          *   implement this feature.  (This is a future enhancement that some
          *   system file selector dialogs might provide, allowing the user to
          *   enter descriptive text in addition to the filename.  The Web UI
          *   storage server already uses this to save user descriptive text
-         *   with saved game files.)  
+         *   with saved game files.)
          */
         val.set_nil();
         lst->cons_set_element(2, &val);
 
-        /* 
+        /*
          *   Add the script warning message, or nil if there's no warning.
          *   The warning message contains the filename text from the script,
-         *   so translate it to the local character set.  
+         *   so translate it to the local character set.
          */
         if (warning[0] != '\0')
             val.set_obj(str_from_ui_str(vmg_ warning));
@@ -1321,7 +1321,7 @@ void CVmBifTIO::askfile(VMG_ uint argc)
 void CVmBifTIO::timedelay(VMG_ uint argc)
 {
     long delay_ms;
-    
+
     /* check arguments */
     check_argc(vmg_ argc, 1);
 
@@ -1427,10 +1427,10 @@ void CVmBifTIO::sysinfo(VMG_ uint argc)
         }
         else
         {
-            /* 
+            /*
              *   the information type is not known to the OS layer -
              *   return nil to indicate that the information isn't
-             *   available 
+             *   available
              */
             retval_nil(vmg0_);
         }
@@ -1441,16 +1441,16 @@ void CVmBifTIO::sysinfo(VMG_ uint argc)
          *   This sysinfo flag is explicitly not used in TADS 3, since we're
          *   always in HTML mode.  (We make this case explicit to call
          *   attention to the fact that it was not accidentally omitted, but
-         *   is intentionally not used.)  
+         *   is intentionally not used.)
          */
         /* fall through to default case */
-        
+
     default:
         /*
          *   Other codes fail harmlessly with a nil return value.  Pop all
          *   remaining arguments and return nil.  (Note that we discard
          *   only (argc-1) arguments because we've already popped the
-         *   first argument.)  
+         *   first argument.)
          */
         G_stk->discard(argc - 1);
         retval_nil(vmg0_);
@@ -1465,7 +1465,7 @@ void CVmBifTIO::sysinfo(VMG_ uint argc)
 void CVmBifTIO::status_mode(VMG_ uint argc)
 {
     int mode;
-    
+
     /* check arguments */
     check_argc(vmg_ argc, 1);
 
@@ -1478,7 +1478,7 @@ void CVmBifTIO::status_mode(VMG_ uint argc)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   status_right - set the string in the right half of the status line 
+ *   status_right - set the string in the right half of the status line
  */
 void CVmBifTIO::status_right(VMG_ uint argc)
 {
@@ -1497,7 +1497,7 @@ void CVmBifTIO::status_right(VMG_ uint argc)
 /* ------------------------------------------------------------------------ */
 /*
  *   res_exists - check to see if an external resource can be loaded
- *   through the host application 
+ *   through the host application
  */
 void CVmBifTIO::res_exists(VMG_ uint argc)
 {
@@ -1519,7 +1519,7 @@ void CVmBifTIO::res_exists(VMG_ uint argc)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   set_script_file flags 
+ *   set_script_file flags
  */
 
 /* read in 'quiet' mode - do not dipslay output while reading the script */
@@ -1532,29 +1532,29 @@ void CVmBifTIO::res_exists(VMG_ uint argc)
 #define VMBIFTADS_SCRIPT_EVENT     0x0004
 
 /*
- *   set_script_file special request codes 
+ *   set_script_file special request codes
  */
 #define VMBIFTADS_SCRIPTREQ_GET_STATUS  0x7000
 
 
 /*
- *   set_script_file - open a command input scripting file 
+ *   set_script_file - open a command input scripting file
  */
 void CVmBifTIO::set_script_file(VMG_ uint argc)
 {
     /* check arguments */
     check_argc_range(vmg_ argc, 1, 2);
 
-    /* 
+    /*
      *   If the filename is nil, close the current script file.  If the
      *   "filename" is a number, it's a special request.  Otherwise, the
-     *   filename must be a string giving the name of the file to open. 
+     *   filename must be a string giving the name of the file to open.
      */
     if (G_stk->get(0)->typ == VM_NIL)
     {
         /* discard the nil filename */
         G_stk->discard();
-        
+
         /* pop the flags if present - they're superfluous in this case */
         if (argc >= 2)
             G_stk->discard();
@@ -1569,7 +1569,7 @@ void CVmBifTIO::set_script_file(VMG_ uint argc)
     {
         /* get the request code */
         int flags = pop_int_val(vmg0_);
-        
+
         /* any additional argument is superfluous in this case */
         if (argc >= 2)
             G_stk->discard();
@@ -1606,7 +1606,7 @@ void CVmBifTIO::set_script_file(VMG_ uint argc)
     {
         /* get the filename argument */
         const vm_val_t *filespec = G_stk->get(0);
-    
+
         /* if they provided flags, get the flags */
         int flags = (argc >= 2 ? G_stk->get(1)->num_to_int(vmg0_) : 0);
 
@@ -1629,7 +1629,7 @@ void CVmBifTIO::set_script_file(VMG_ uint argc)
 }
 
 /*
- *   close the script file 
+ *   close the script file
  */
 void CVmBifTIO::close_script_file(VMG0_)
 {
@@ -1644,7 +1644,7 @@ void CVmBifTIO::close_script_file(VMG0_)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   get_charset selectors 
+ *   get_charset selectors
  */
 
 /* display character set */
@@ -1657,7 +1657,7 @@ void CVmBifTIO::close_script_file(VMG0_)
 #define VMBIFTADS_CHARSET_FILECONTENTS 0x0003
 
 /*
- *   get_charset - get a local character set name 
+ *   get_charset - get a local character set name
  */
 void CVmBifTIO::get_charset(VMG_ uint argc)
 {
@@ -1674,9 +1674,9 @@ void CVmBifTIO::get_charset(VMG_ uint argc)
     switch(which)
     {
     case VMBIFTADS_CHARSET_DISPLAY:
-        /* 
+        /*
          *   if there was an explicit character set parameter specified at
-         *   start-up time, use that 
+         *   start-up time, use that
          */
         if (G_disp_cset_name != 0)
         {
@@ -1731,7 +1731,7 @@ void CVmBifTIO::flush_output(VMG_ uint argc)
 /* ------------------------------------------------------------------------ */
 /*
  *   input_timeout - get a line of input from the keyboard, with an optional
- *   timeout 
+ *   timeout
  */
 void CVmBifTIO::input_timeout(VMG_ uint argc)
 {
@@ -1756,7 +1756,7 @@ void CVmBifTIO::input_timeout(VMG_ uint argc)
     }
     else if (G_stk->get(0)->typ == VM_NIL)
     {
-        /* 
+        /*
          *   there's a timeout argument, but it's nil, so this means there's
          *   no timeout
          */
@@ -1835,7 +1835,7 @@ void CVmBifTIO::input_cancel(VMG_ uint argc)
 {
     vm_val_t val;
     int reset;
-    
+
     /* check arguments */
     check_argc(vmg_ argc, 1);
 
@@ -1849,11 +1849,11 @@ void CVmBifTIO::input_cancel(VMG_ uint argc)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Banner Window Functions 
+ *   Banner Window Functions
  */
 
 /*
- *   create a banner 
+ *   create a banner
  */
 void CVmBifTIO::banner_create(VMG_ uint argc)
 {
@@ -1873,10 +1873,10 @@ void CVmBifTIO::banner_create(VMG_ uint argc)
     /* retrieve the 'parent' parameter */
     if (argc == 7)
     {
-        /* 
+        /*
          *   there's no parent argument - this is an obsolete format for the
          *   arguments, but accept it for now, and simply treat it as
-         *   equivalent to a nil parent 
+         *   equivalent to a nil parent
          */
         parent_id = 0;
     }
@@ -1950,9 +1950,9 @@ void CVmBifTIO::banner_create(VMG_ uint argc)
         vmg_ parent_id, where, other_id, wintype,
         align, siz, siz_units, style);
 
-    /* 
+    /*
      *   If we succeeded, return the handle; otherwise, return nil.  A banner
-     *   handle of zero indicates failure. 
+     *   handle of zero indicates failure.
      */
     if (hdl != 0)
         retval_int(vmg_ hdl);
@@ -1961,7 +1961,7 @@ void CVmBifTIO::banner_create(VMG_ uint argc)
 }
 
 /*
- *   delete a banner 
+ *   delete a banner
  */
 void CVmBifTIO::banner_delete(VMG_ uint argc)
 {
@@ -1973,7 +1973,7 @@ void CVmBifTIO::banner_delete(VMG_ uint argc)
 }
 
 /*
- *   clear a window 
+ *   clear a window
  */
 void CVmBifTIO::banner_clear(VMG_ uint argc)
 {
@@ -1996,7 +1996,7 @@ void CVmBifTIO::banner_clear(VMG_ uint argc)
 }
 
 /*
- *   write values to a banner 
+ *   write values to a banner
  */
 void CVmBifTIO::banner_say(VMG_ uint argc)
 {
@@ -2011,16 +2011,16 @@ void CVmBifTIO::banner_say(VMG_ uint argc)
     if (console == 0)
         err_throw(VMERR_BAD_VAL_BIF);
 
-    /* 
+    /*
      *   write the argument(s) to the console (note that the first argument,
      *   which we've already retrieved, is the console handle, so don't count
-     *   it among the arguments to display) 
+     *   it among the arguments to display)
      */
     say_to_console(vmg_ console, argc - 1);
 }
 
 /*
- *   flush text to a banner 
+ *   flush text to a banner
  */
 void CVmBifTIO::banner_flush(VMG_ uint argc)
 {
@@ -2043,7 +2043,7 @@ void CVmBifTIO::banner_flush(VMG_ uint argc)
 }
 
 /*
- *   set the banner size 
+ *   set the banner size
  */
 void CVmBifTIO::banner_set_size(VMG_ uint argc)
 {
@@ -2076,7 +2076,7 @@ void CVmBifTIO::banner_set_size(VMG_ uint argc)
 }
 
 /*
- *   size a banner to its contents in one or both dimensions 
+ *   size a banner to its contents in one or both dimensions
  */
 void CVmBifTIO::banner_size_to_contents(VMG_ uint argc)
 {
@@ -2133,7 +2133,7 @@ void CVmBifTIO::banner_goto(VMG_ uint argc)
     if (hdl == 0 || console == 0)
         err_throw(VMERR_BAD_VAL_BIF);
 
-    /* 
+    /*
      *   make sure we've flushed and discarded any pending output (since we
      *   don't want any pending output to show up at the new cursor position)
      */
@@ -2145,7 +2145,7 @@ void CVmBifTIO::banner_goto(VMG_ uint argc)
 }
 
 /*
- *   set the text color in a banner 
+ *   set the text color in a banner
  */
 void CVmBifTIO::banner_set_text_color(VMG_ uint argc)
 {
@@ -2175,7 +2175,7 @@ void CVmBifTIO::banner_set_text_color(VMG_ uint argc)
 }
 
 /*
- *   set the screen color in a banner 
+ *   set the screen color in a banner
  */
 void CVmBifTIO::banner_set_screen_color(VMG_ uint argc)
 {
@@ -2207,7 +2207,7 @@ void CVmBifTIO::banner_set_screen_color(VMG_ uint argc)
 static void set_list_int(CVmObjList *lst, size_t idx, long intval)
 {
     vm_val_t val;
-    
+
     /* set the value */
     val.set_int(intval);
 
@@ -2243,7 +2243,7 @@ void CVmBifTIO::banner_get_info(VMG_ uint argc)
         vm_obj_id_t lst_obj;
         CVmObjList *lst;
         vm_val_t val;
-        
+
         /* set up a return list with space for six entries */
         lst_obj = CVmObjList::create(vmg_ FALSE, 6);
         lst = (CVmObjList *)vm_objp(vmg_ lst_obj);
@@ -2252,9 +2252,9 @@ void CVmBifTIO::banner_get_info(VMG_ uint argc)
         val.set_obj(lst_obj);
         G_stk->push(&val);
 
-        /* 
+        /*
          *   return the values: [align, style, rows, columns, pix_height,
-         *   pix_width] 
+         *   pix_width]
          */
         set_list_int(lst, 0, info.align);
         set_list_int(lst, 1, info.style);
@@ -2282,7 +2282,7 @@ void CVmBifTIO::banner_get_info(VMG_ uint argc)
  */
 
 /*
- *   create a log console 
+ *   create a log console
  */
 void CVmBifTIO::log_console_create(VMG_ uint argc)
 {
@@ -2294,9 +2294,9 @@ void CVmBifTIO::log_console_create(VMG_ uint argc)
     const vm_val_t *charset = G_stk->get(1);
     int width = G_stk->get(2)->num_to_int(vmg0_);
 
-    /* 
+    /*
      *   Retrieve the character mapper, which can be given as either a
-     *   CharacterSet object or a string giving the character set name.  
+     *   CharacterSet object or a string giving the character set name.
      */
     CCharmapToLocal *cmap = 0;
     if (charset->typ == VM_NIL)
@@ -2310,7 +2310,7 @@ void CVmBifTIO::log_console_create(VMG_ uint argc)
     {
         /* it's a CharacterSet object - pop the reference */
         vm_obj_id_t obj = charset->val.obj;
-        
+
         /* retrieve the character mapper from the character set */
         cmap = ((CVmObjCharSet *)vm_objp(vmg_ obj))->get_to_local(vmg0_);
         cmap->add_ref();
@@ -2321,7 +2321,7 @@ void CVmBifTIO::log_console_create(VMG_ uint argc)
         const char *str = charset->get_as_string(vmg0_);
         if (str == 0)
             err_throw(VMERR_BAD_TYPE_BIF);
-        
+
         /* get the length and skip the length prefix */
         size_t len = vmb_get_len(str);
         str += VMB_LEN;
@@ -2329,10 +2329,10 @@ void CVmBifTIO::log_console_create(VMG_ uint argc)
         /* get a null-terminated version of the name */
         char *nm = lib_copy_str(str, len);
 
-        /* 
+        /*
          *   Create a character mapping for the given name.  Note that this
          *   will automatically add a reference to the mapper on our behalf,
-         *   so we don't have to add our own extra reference. 
+         *   so we don't have to add our own extra reference.
          */
         cmap = CCharmapToLocal::load(G_host_ifc->get_sys_res_loader(), nm);
 
@@ -2359,10 +2359,10 @@ void CVmBifTIO::log_console_create(VMG_ uint argc)
 
         /* make sure the file safety level allows the operation */
         CVmObjFile::check_safety_for_open(vmg_ nf, VMOBJFILE_ACCESS_WRITE);
-        
+
         /* open the file for writing (in text mode) */
         fp = osfopwt(nf->lclfname, OSFTLOG);
-    
+
         /* if that failed, we can't contine */
         if (fp == 0)
             G_interpreter->throw_new_class(vmg_ G_predef->file_creation_exc,
@@ -2378,10 +2378,10 @@ void CVmBifTIO::log_console_create(VMG_ uint argc)
     }
     err_finally
     {
-        /* 
+        /*
          *   release our character map reference - if we succeeded in
          *   creating the log console, it will have added its own reference
-         *   by now 
+         *   by now
          */
         cmap->release_ref();
 
@@ -2398,9 +2398,9 @@ void CVmBifTIO::log_console_create(VMG_ uint argc)
     /* discard arguments */
     G_stk->discard(argc);
 
-    /* 
+    /*
      *   If we succeeded, return the handle; otherwise, return nil.  A handle
-     *   of zero indicates failure.  
+     *   of zero indicates failure.
      */
     if (hdl != 0)
         retval_int(vmg_ hdl);
@@ -2415,7 +2415,7 @@ void CVmBifTIO::log_console_close(VMG_ uint argc)
 {
     int handle;
     CVmConsole *console;
-    
+
     /* check arguments */
     check_argc(vmg_ argc, 1);
 
@@ -2451,7 +2451,7 @@ void CVmBifTIO::log_console_say(VMG_ uint argc)
     /* get the console handle */
     hdl = pop_int_val(vmg0_);
 
-    /* 
+    /*
      *   if it's the special value -1, it means that we want to write to the
      *   main console's log file; otherwise, it's a log console that we
      *   previously created explicitly via log_console_create()
@@ -2472,7 +2472,7 @@ void CVmBifTIO::log_console_say(VMG_ uint argc)
     /*
      *   write the argument(s) to the console (note that the first argument,
      *   which we've already retrieved, is the console handle, so don't count
-     *   it among the arguments to display) 
+     *   it among the arguments to display)
      */
     err_try
     {
@@ -2489,7 +2489,7 @@ void CVmBifTIO::log_console_say(VMG_ uint argc)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Log an input event obtained from an external source, such as the Web UI 
+ *   Log an input event obtained from an external source, such as the Web UI
  */
 void CVmBifTIO::log_input_event(VMG_ uint argc)
 {
@@ -2519,9 +2519,9 @@ void CVmBifTIO::log_input_event(VMG_ uint argc)
         vm_val_t ele2;
         lst->ll_index(vmg_ &ele2, 2);
 
-        /* 
+        /*
          *   Get its string value.  If it's a filename object, use the
-         *   filename path string. 
+         *   filename path string.
          */
         CVmObjFileName *fname_param = vm_val_cast(CVmObjFileName, &ele2);
         if (fname_param != 0)

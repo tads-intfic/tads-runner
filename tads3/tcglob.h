@@ -1,10 +1,10 @@
 /* $Header: d:/cvsroot/tads/tads3/tcglob.h,v 1.4 1999/07/11 00:46:58 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -16,7 +16,7 @@ Function
   of parameters that are passed around among subsystems.
 
 Notes
-  
+
 Modified
   05/01/99 MJRoberts  - creation
 */
@@ -27,7 +27,7 @@ Modified
 /*
  *   If we're not explicitly defining the storage for the globals, define
  *   them as external - this lets everyone pick up external declarations
- *   for all of the globals simply by including this file.  
+ *   for all of the globals simply by including this file.
  */
 #ifndef TC_GLOB_DECLARE
 #define TC_GLOB_DECLARE extern
@@ -48,10 +48,10 @@ TC_GLOB_DECLARE class CTcPrsMem *G_prsmem;
 /* the tokenizer */
 TC_GLOB_DECLARE class CTcTokenizer *G_tok;
 
-/* 
+/*
  *   Current code stream - this points to the currently active code stream
  *   object.  The active code stream can vary according to what kind of
- *   code we're generating. 
+ *   code we're generating.
  */
 TC_GLOB_DECLARE class CTcCodeStream *G_cs;
 
@@ -94,38 +94,38 @@ TC_GLOB_DECLARE class CTcDataStream *G_static_init_id_stream;
 /* target-specific code generator class */
 TC_GLOB_DECLARE class CTcGenTarg *G_cg;
 
-/* 
+/*
  *   Run-time metaclass table.  When we're doing dynamic compilation, the
  *   interpreter will set this to its live metaclass table for the loaded
- *   program. 
+ *   program.
  */
 TC_GLOB_DECLARE class CVmMetaTable *G_metaclass_tab;
 
-/* 
+/*
  *   object ID fixup list head, and flag indicating whether to keep object
- *   fixups 
+ *   fixups
  */
 TC_GLOB_DECLARE struct CTcIdFixup *G_objfixup;
 TC_GLOB_DECLARE int G_keep_objfixups;
 
-/* 
+/*
  *   property ID fixup list head, and flag indicating whether to keep
- *   property ID fixups 
+ *   property ID fixups
  */
 TC_GLOB_DECLARE struct CTcIdFixup *G_propfixup;
 TC_GLOB_DECLARE int G_keep_propfixups;
 
 /*
  *   enumerator ID fixup list head, and flag indicating whether to keep
- *   enumerator fixups 
+ *   enumerator fixups
  */
 TC_GLOB_DECLARE struct CTcIdFixup *G_enumfixup;
 TC_GLOB_DECLARE int G_keep_enumfixups;
 
 
-/* 
+/*
  *   Debug mode - if this is true, we're compiling for debugging, so we
- *   must generate additional symbolic information for the debugger. 
+ *   must generate additional symbolic information for the debugger.
  */
 TC_GLOB_DECLARE int G_debug;
 
@@ -137,7 +137,7 @@ TC_GLOB_DECLARE class CTcUnasOut *G_disasm_out;
  *   based on the current VM version we're targeting.  For the dynamic
  *   compiler, these are adjusted to match the data from the loaded image
  *   file; this is necessary to ensure that code we generate matches static
- *   code loaded from the image.  
+ *   code loaded from the image.
  */
 struct tc_image_info
 {
@@ -167,7 +167,7 @@ TC_GLOB_DECLARE tc_image_info G_sizes;
 /*
  *   Compiler interface to the live VM.  In dynamic compilation mode, the VM
  *   supplies the compiler with this object to provide the compiler with
- *   access to VM resources.  
+ *   access to VM resources.
  */
 TC_GLOB_DECLARE class CTcVMIfc *G_vmifc;
 

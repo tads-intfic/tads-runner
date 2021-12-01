@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmsortv.cpp - CVmSortVal implementation
 Function
-  
+
 Notes
-  
+
 Modified
   05/14/00 MJRoberts  - Creation
 */
@@ -32,7 +32,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   compare two vm_val_t values 
+ *   compare two vm_val_t values
  */
 int CVmQSortVal::compare(VMG_ size_t a, size_t b)
 {
@@ -77,7 +77,7 @@ int CVmQSortVal::compare(VMG_ size_t a, size_t b)
 }
 
 /*
- *   exchange two vm_val_t elements 
+ *   exchange two vm_val_t elements
  */
 void CVmQSortVal::exchange(VMG_ size_t a, size_t b)
 {

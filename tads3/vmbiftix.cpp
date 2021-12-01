@@ -8,9 +8,9 @@ static char RCSid[] =
 Name
   vmbiftix.cpp - TADS Input/Output Extensions function set
 Function
-  
+
 Notes
-  
+
 Modified
   03/02/05 MJRoberts  - Creation
 */
@@ -41,7 +41,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Show a popup menu 
+ *   Show a popup menu
  */
 void CVmBifTIOExt::show_popup_menu(VMG_ uint argc)
 {
@@ -53,7 +53,7 @@ void CVmBifTIOExt::show_popup_menu(VMG_ uint argc)
     vm_obj_id_t lst_obj;
     CVmObjList *lst;
     vm_val_t val;
-    
+
     /* check arguments */
     check_argc(vmg_ argc, 3);
 
@@ -137,7 +137,7 @@ void CVmBifTIOExt::show_popup_menu(VMG_ uint argc)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Enable one system menu command 
+ *   Enable one system menu command
  */
 static void enable_sys_menu_cmd_item(VMG_ const vm_val_t *idval, int stat)
 {
@@ -159,7 +159,7 @@ void CVmBifTIOExt::enable_sys_menu_cmd(VMG_ uint argc)
     vm_val_t *valp;
     int stat;
     int cnt;
-    
+
     /* check arguments */
     check_argc(vmg_ argc, 2);
 
@@ -167,9 +167,9 @@ void CVmBifTIOExt::enable_sys_menu_cmd(VMG_ uint argc)
     G_stk->push(G_stk->get(1));
     stat = pop_int_val(vmg0_);
 
-    /* 
+    /*
      *   The first argument is either a single menu ID, or a list of menu
-     *   IDs.  Check what we have.  
+     *   IDs.  Check what we have.
      */
     valp = G_stk->get(0);
     if (valp->is_listlike(vmg0_) && (cnt = valp->ll_length(vmg0_)) >= 0)

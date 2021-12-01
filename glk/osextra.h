@@ -22,7 +22,7 @@
  *****************************************************************************/
 
 /*
- *   For C++ files, define externals with C linkage 
+ *   For C++ files, define externals with C linkage
  */
 #ifdef __cplusplus
 extern "C" {

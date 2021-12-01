@@ -1,18 +1,18 @@
 /* $Header: d:/cvsroot/tads/tads3/vmhash.h,v 1.3 1999/07/11 00:46:59 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1997, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmhash.h - hash table implementation
 Function
-  
+
 Notes
-  
+
 Modified
   10/25/97 MJRoberts  - Creation
 */
@@ -29,7 +29,7 @@ Modified
 /*
  *   Hash function interface class.  Hash table clients must implement an
  *   appropriate hash function to use with the hash table; this abstract
- *   class provides the necessary interface.  
+ *   class provides the necessary interface.
  */
 class CVmHashFunc
 {
@@ -42,7 +42,7 @@ public:
 /* ------------------------------------------------------------------------ */
 /*
  *   Hash table symbol entry.  This is an abstract class; subclasses must
- *   provide a symbol-matching method.  
+ *   provide a symbol-matching method.
  */
 class CVmHashEntry
 {
@@ -53,7 +53,7 @@ public:
      *   the original string around as long as this hash entry is around.
      *   If 'copy' is true, we'll make a private copy of the string
      *   immediately, so the caller need not keep it around after
-     *   constructing the entry.  
+     *   constructing the entry.
      */
     CVmHashEntry(const char *str, size_t len, int copy);
     virtual ~CVmHashEntry();
@@ -77,7 +77,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Hash table 
+ *   Hash table
  */
 class CVmHashTable
 {
@@ -86,7 +86,7 @@ public:
      *   Construct a hash table.  If own_hash_func is true, the hash table
      *   object takes ownership of the hash function object, so the hash
      *   table object will delete the hash function object when the table
-     *   is deleted.  
+     *   is deleted.
      */
     CVmHashTable(int hash_table_size, CVmHashFunc *hash_function,
                  int own_hash_func)
@@ -97,7 +97,7 @@ public:
 
     /*
      *   Construct a hash table, using memory allocated and owned by the
-     *   caller for the hash array. 
+     *   caller for the hash array.
      */
     CVmHashTable(int hash_table_size, CVmHashFunc *hash_function,
                  int own_hash_func, CVmHashEntry **hash_array)
@@ -117,23 +117,23 @@ public:
      *   string.  IMPORTANT: the hash table takes over ownership of the
      *   hash table entry; the hash table will delete this object when the
      *   hash table is deleted, so the client must not delete the entry
-     *   once it's been added to the table.  
+     *   once it's been added to the table.
      */
     void add(CVmHashEntry *entry);
 
     /*
      *   Remove an object from the cache.  This routine does not delete
-     *   the object. 
+     *   the object.
      */
     void remove(CVmHashEntry *entry);
 
     /*
-     *   Delete all entries in the table 
+     *   Delete all entries in the table
      */
     void delete_all_entries();
 
     /*
-     *   Find an entry in the table matching the given string 
+     *   Find an entry in the table matching the given string
      */
     CVmHashEntry *find(const char *str, size_t len) const;
 
@@ -147,16 +147,16 @@ public:
                            void (*cb)(void *cbctx, CVmHashEntry *entry),
                            void *cbctx);
 
-    /* 
+    /*
      *   Find an entry that matches the longest leading substring of the
      *   given string.  (For this routine, we find a match where the
-     *   dictionary word is SHORTER than the given word.)  
+     *   dictionary word is SHORTER than the given word.)
      */
     CVmHashEntry *find_leading_substr(const char *str, size_t len);
 
     /*
      *   Enumerate all entries, invoking a callback for each entry in the
-     *   table 
+     *   table
      */
     void enum_entries(void (*func)(void *ctx, class CVmHashEntry *entry),
                       void *ctx);
@@ -164,7 +164,7 @@ public:
     /*
      *   Enumerate all entries safely.  This does the same thing as
      *   enum_entries(), but this version is safe to use regardless of any
-     *   changes to the table that the callback makes.  
+     *   changes to the table that the callback makes.
      */
     void safe_enum_entries(void (*func)(void *ctx, class CVmHashEntry *entry),
                            void *ctx);
@@ -176,10 +176,10 @@ public:
      *   formerly in this table.  We don't reallocate any of the entries -
      *   they simply are unlinked from this table and moved into the new
      *   table.  This can be used to rebuild a hash table with a new bucket
-     *   count or hash function.  
+     *   count or hash function.
      */
     void move_entries_to(CVmHashTable *new_tab);
-    
+
     /* dump information on the hash table to stderr for debugging */
     void debug_dump() const;
 
@@ -195,7 +195,7 @@ private:
     /* initialize */
     void init(int hash_table_size, CVmHashFunc *hash_function,
               int own_hash_func, CVmHashEntry **hash_array);
-    
+
     /* internal service routine for checking hash table sizes for validity */
     int is_power_of_two(int n);
 
@@ -215,7 +215,7 @@ private:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Simple case-insensitive hash function 
+ *   Simple case-insensitive hash function
  */
 class CVmHashFuncCI: public CVmHashFunc
 {
@@ -225,7 +225,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Simple case-sensitive hash function implementation 
+ *   Simple case-sensitive hash function implementation
  */
 class CVmHashFuncCS: public CVmHashFunc
 {
@@ -236,7 +236,7 @@ public:
 /* ------------------------------------------------------------------------ */
 /*
  *   Concrete subclass of CVmHashEntry providing a case-insensitive
- *   symbol match implementation 
+ *   symbol match implementation
  */
 class CVmHashEntryCI: public CVmHashEntry
 {
@@ -250,7 +250,7 @@ public:
 /* ------------------------------------------------------------------------ */
 /*
  *   Concrete subclass of CVmHashEntry providing a case-sensitive symbol
- *   match implementation 
+ *   match implementation
  */
 class CVmHashEntryCS: public CVmHashEntry
 {

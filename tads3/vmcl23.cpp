@@ -3,11 +3,11 @@ static char RCSid[] =
     "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -49,11 +49,11 @@ Modified
 
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   Check for a "-plain" option; if it's there, set the terminal to plain
  *   text mode.  We must make this check before doing anything else, because
  *   os_plain() must be called prior to os_init() if it's going to be called
- *   at all.  
+ *   at all.
  */
 static void check_plain_option(int argc, char **argv)
 {
@@ -66,7 +66,7 @@ static void check_plain_option(int argc, char **argv)
         {
             /* set plain text mode in the OS layer */
             os_plain();
-            
+
             /* we've found what we're looking for - no need to look further */
             break;
         }
@@ -76,12 +76,12 @@ static void check_plain_option(int argc, char **argv)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Invoke the tads 2 main entrypoint with the given command-line arguments 
+ *   Invoke the tads 2 main entrypoint with the given command-line arguments
  */
 static int main_t2(int argc, char **argv)
 {
     int stat;
-    
+
     /* check for a "-plain" option */
     check_plain_option(argc, argv);
 
@@ -122,11 +122,11 @@ static int main_t3(int argc, char **argv)
     /* check for a "-plain" option */
     check_plain_option(argc, argv);
 
-    /* 
+    /*
      *   Initialize the OS layer.  Since this is a command-line-only
      *   implementation, there's no need to ask the OS layer to try to get
      *   us a filename to run, so pass in null for the prompt and filename
-     *   buffer.  
+     *   buffer.
      */
     os_init(&argc, argv, 0, 0, 0);
 
@@ -157,7 +157,7 @@ static int main_t3(int argc, char **argv)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Main entrypoint 
+ *   Main entrypoint
  */
 int main(int argc, char **argv)
 {
@@ -167,15 +167,15 @@ int main(int argc, char **argv)
     char fname[OSFNMAX];
     int engine_ver;
 
-    /* 
+    /*
      *   if one of our special usage message arguments was given, show the
-     *   usage 
+     *   usage
      */
     if (argc == 2 && stricmp(argv[1], "-help2") == 0)
     {
         /* invoke the tads 2 main entrypoint with no arguments */
         main_t2(1, argv);
-        
+
         /* that's all we need to do with this option */
         AFTER_OS_TERM(os_term(OSEXSUCC);)
     }
@@ -183,7 +183,7 @@ int main(int argc, char **argv)
     {
         /* invoke the tads 3 main entrypoint with no arguments */
         main_t3(1, argv);
-        
+
         /* that's all we need to do with this option */
         AFTER_OS_TERM(os_term(OSEXSUCC);)
     }
@@ -191,9 +191,9 @@ int main(int argc, char **argv)
     /* look at the arguments and try to find the program name */
     if (!vm_get_game_arg(argc, argv, prog_arg, sizeof(prog_arg), &engine_ver))
     {
-        /* 
+        /*
          *   there's no game file name specified or implied - show the
-         *   generic combined v2/v3 usage message 
+         *   generic combined v2/v3 usage message
          */
         /* copyright-date-string */
         printf("TADS Interpreter - "
@@ -272,7 +272,7 @@ int main(int argc, char **argv)
 
 /*
  *   For command-line builds, we don't have any special UI setup that depends
- *   on the loaded intrinsics, so we can stub out this routine.  
+ *   on the loaded intrinsics, so we can stub out this routine.
  */
 void os_init_ui_after_load(class CVmBifTable *, class CVmMetaTable *)
 {

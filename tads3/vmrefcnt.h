@@ -33,18 +33,18 @@ Modified
 class CVmRefCntObj
 {
 public:
-    /* 
+    /*
      *   on construction, set the counter to 1, to count the initial
-     *   reference on behalf of the caller that performed the 'new' 
+     *   reference on behalf of the caller that performed the 'new'
      */
     CVmRefCntObj() : cnt(1) { }
 
     /* add a reference */
     void add_ref() { cnt.inc(); }
 
-    /* 
+    /*
      *   release a reference; automatically deletes the object when the
-     *   reference count reaches zero 
+     *   reference count reaches zero
      */
     void release_ref()
     {
@@ -52,9 +52,9 @@ public:
             delete this;
     }
 
-    /* 
+    /*
      *   debugging add/remove ref - print a console message showing where the
-     *   add/remove came from 
+     *   add/remove came from
      */
     void add_ref(void *from, const char *msg)
     {
@@ -68,14 +68,14 @@ public:
                (unsigned long long)this, cnt.get()-1, (unsigned long long)from, msg);
         release_ref();
     }
-    
+
     /* get the current reference count */
     long get_ref_count() const { return cnt.get(); }
 
 protected:
-    /* 
+    /*
      *   the destructor must be virtual because this class is designed for
-     *   subclassing, and we invoke the destructor from this base class 
+     *   subclassing, and we invoke the destructor from this base class
      */
     virtual ~CVmRefCntObj() { }
 
@@ -98,14 +98,14 @@ public:
      *   creates a new strong reference to the object and returns the strong
      *   reference.  The caller is responsible for releasing the returned
      *   strong reference when it's done with the reference.  If the object
-     *   has already been deleted, this returns null.  
+     *   has already been deleted, this returns null.
      */
     class CVmWeakRefable *ref();
 
     /*
      *   Test the reference to see if the object is still alive.  Returns
      *   true if the object is alive, false if not.
-     *   
+     *
      *   If this returns true, there's of course no guarantee that the object
      *   won't be deleted at any time.  If this returns false, however, you
      *   can be certain that it will return false (and ref() will return nil)
@@ -115,7 +115,7 @@ public:
      *   periodically cleaning up a cache containing weak references.  When
      *   you need to use the object after determining if it's alive, you
      *   should use ref() instead, since that atomically tests to see if the
-     *   object is alive and creates a strong reference to it if it is.  
+     *   object is alive and creates a strong reference to it if it is.
      */
     int test() { return ref_ != 0; }
 
@@ -124,10 +124,10 @@ protected:
 
     virtual ~CVmWeakRef();
 
-    /* 
+    /*
      *   Clear our reference.  The referenced object calls this when it's
      *   about to be deleted, to let us know that we can no longer access it.
-     *   
+     *
      *   The referenced object only calls this after locking the mutex.
      */
     void clear_ref() { ref_ = 0; }
@@ -149,7 +149,7 @@ protected:
 class CVmWeakRefable: public CVmRefCntObj
 {
     friend class CVmWeakRef;
-    
+
 public:
     CVmWeakRefable();
 
@@ -157,7 +157,7 @@ public:
     void release_ref();
 
     /*
-     *   Get the weak reference to this object 
+     *   Get the weak reference to this object
      */
     CVmWeakRef *get_weak_ref();
 

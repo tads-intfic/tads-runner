@@ -1,10 +1,10 @@
 /* $Header: d:/cvsroot/tads/tads3/vmfunc.h,v 1.3 1999/07/11 00:46:59 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -15,7 +15,7 @@ Function
   The function header is stored in binary portable format, so that image
   files can be loaded directly into memory and executed without translation.
 Notes
-  
+
 Modified
   11/20/98 MJRoberts  - Creation
 */
@@ -30,40 +30,40 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   FUNCTION HEADER 
+ *   FUNCTION HEADER
  */
 
-/*   
+/*
  *   The function header is a packed array of bytes, with each element stored
  *   in a canonical binary format for binary portability.  No padding is
  *   present except where otherwise specified.  The fields in the function
  *   header, starting at offset zero, are:
- *   
+ *
  *   UBYTE argc - the number of parameters the function expects to receive.
  *   If the high-order bit is set (i.e., (argc & 0x80) != 0), then the
  *   function takes a variable number of parameters, with a minimum of (argc
  *   & 0x7f) and no maximum.  If the high-order bit is clear, argc gives the
  *   exact number of parameters required.
- *   
+ *
  *   UBYTE optional_argc - number of additional optional parameters the
  *   function can receive, beyond the fixed arguments given by the 'argc'
  *   field.
- *   
+ *
  *   UINT2 locals - the number of local variables the function uses.  This
  *   does not count the implicit argument counter local variable, which is
  *   always pushed by the VM after setting up a new activation frame.
- *   
+ *
  *   UINT2 total_stack - the total number of stack slots required by the
  *   function, including local variables, intermediate results of
  *   calculations, and actual parameters to functions invoked by this code.
- *   
+ *
  *   UINT2 exception_table_ofs - the byte offset from the start of this
  *   method header of the function's exception table.  This value is zero if
  *   the function has no exception table.
- *   
+ *
  *   UINT2 debug_ofs - the byte offset from the start of this method header
  *   of the function's debugger records.  This value is zero if the function
- *   has no debugger records.  
+ *   has no debugger records.
  */
 
 /* minimum function header size supported by this version of the VM */
@@ -109,9 +109,9 @@ public:
     /* is this a varargs function? */
     int is_varargs() const { return ((get_argc() & 0x80) != 0); }
 
-    /* 
+    /*
      *   check an actual parameter count for correctness; returns true if
-     *   the count is correct for this function, false if not 
+     *   the count is correct for this function, false if not
      */
     int argc_ok(int argc) const
     {
@@ -123,31 +123,31 @@ public:
         }
         else if (is_varargs() && argc > get_min_argc())
         {
-            /* 
+            /*
              *   we have variable arguments, and we have at least the
-             *   minimum, so we're okay 
+             *   minimum, so we're okay
              */
             return TRUE;
         }
         else
         {
-            /* 
+            /*
              *   either we don't have variable arguments, or we don't have
              *   the minimum varargs count - in either case, we have an
-             *   argument count mistmatch 
+             *   argument count mistmatch
              */
             return FALSE;
         }
     }
 
-    /* 
+    /*
      *   Get the internal argument count.  This has the high bit set for a
      *   varargs function, and the low-order seven bits give the nominal
      *   argument count.  If this is a varargs function, the nominal
      *   argument count is the minimum count: any actual number of arguments
      *   at least the nominal count is valid.  If this is not a varargs
      *   function, the nominal count is the exact count: the actual number
-     *   of arguments must match the nominal count.  
+     *   of arguments must match the nominal count.
      */
     uchar get_argc() const { return *(p_ + 0); }
 
@@ -166,15 +166,15 @@ public:
     /* get the debugger records table offset */
     uint get_debug_ofs() const { return osrp2(p_ + 8); }
 
-    /* 
+    /*
      *   Set up an exception table pointer for this function.  Returns
-     *   true if successful, false if there's no exception table. 
+     *   true if successful, false if there's no exception table.
      */
     int set_exc_ptr(class CVmExcTablePtr *exc_ptr) const;
 
     /*
      *   Set up a debug table pointer for this function.  Returns true if
-     *   successful, false if there's no debug table. 
+     *   successful, false if there's no debug table.
      */
     int set_dbg_ptr(class CVmDbgTablePtr *dbg_ptr) const;
 
@@ -185,7 +185,7 @@ private:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   EXCEPTION TABLE 
+ *   EXCEPTION TABLE
  */
 
 /*
@@ -194,27 +194,27 @@ private:
  *   table specifies the handler for one protected range of code.  We
  *   search the table in forward order, so the handlers must be stored in
  *   order of precedence.
- *   
+ *
  *   Each table entry contains:
- *   
+ *
  *   UINT2 start_ofs - the starting offset (as a byte offset from the
  *   start of the function) of the protected range for this handler.
- *   
+ *
  *   UINT2 end_ofs - the ending offset (as a byte offset from the start of
  *   the function) of the protected range for this handler.  The range is
  *   inclusive of this offset, so a one-byte range would have start_ofs
  *   and end_ofs set to the same value.
- *   
+ *
  *   UINT4 exception_class - the object ID of the class of exception
  *   handled by this handler.
- *   
+ *
  *   UINT2 handler_ofs - the handler offset (as a byte offset from the
  *   start of the function).  This is the offset of the first instruction
- *   of the code to be invoked to handle this exception.  
+ *   of the code to be invoked to handle this exception.
  */
 
 /*
- *   Exception Table Entry Pointer 
+ *   Exception Table Entry Pointer
  */
 class CVmExcEntryPtr
 {
@@ -244,16 +244,16 @@ private:
 };
 
 /*
- *   Exception Table Pointer 
+ *   Exception Table Pointer
  */
 class CVmExcTablePtr
 {
 public:
-    /* 
+    /*
      *   Initialize with a pointer to the start of the function -- we'll
      *   read the exception table offset out of the method header.
      *   Returns true if the function has an exception table, false if
-     *   there is no exception table defined in the function.  
+     *   there is no exception table defined in the function.
      */
     int set(const uchar *p)
     {
@@ -287,7 +287,7 @@ private:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   DEBUGGER RECORDS TABLE 
+ *   DEBUGGER RECORDS TABLE
  */
 
 /*
@@ -295,7 +295,7 @@ private:
  *   the header, with general information on the method or function.  The
  *   second section is the line records, which give the code boundaries of
  *   the source lines.  The third section is the frame records, giving the
- *   local symbol tables.  
+ *   local symbol tables.
  */
 
 /*
@@ -307,9 +307,9 @@ class CVmDbgLinePtr
     friend class CVmDbgTablePtr;
 
 public:
-    /* 
+    /*
      *   get the byte-code offset (from method start) of the start of the
-     *   byte-code for this line 
+     *   byte-code for this line
      */
     uint get_start_ofs() const { return osrp2(p_); }
 
@@ -337,13 +337,13 @@ private:
 };
 
 /*
- *   Debugger frame symbol entry pointer 
+ *   Debugger frame symbol entry pointer
  */
 class CVmDbgFrameSymPtr
 {
     /* let CVmDbgFramePtr initialize us */
     friend class CVmDbgFramePtr;
-    
+
 public:
     /* get the local/parameter number */
     uint get_var_num() const { return osrp2(p_); }
@@ -382,10 +382,10 @@ public:
     /* is my symbol in-line or in the constant pool? */
     int is_sym_inline() const { return !(get_flags() & 0x0004); }
 
-    /* 
+    /*
      *   Set up a vm_val_t for the symbol.  For an in-line symbol, this
      *   creates a new string object; for a constant pool element, this
-     *   returns a VM_SSTR pointer to it. 
+     *   returns a VM_SSTR pointer to it.
      */
     void get_str_val(VMG_ vm_val_t *val) const;
 
@@ -393,12 +393,12 @@ private:
     /* get my flags value */
     uint get_flags() const { return osrp2(p_ + 2); }
 
-    /* 
+    /*
      *   get a pointer to my symbol data - this points to a UINT2 length
-     *   prefix followed by the bytes of the UTF-8 string 
+     *   prefix followed by the bytes of the UTF-8 string
      */
     const char *get_symptr(VMG0_) const;
-        
+
     /* initialize with a pointer to the first byte of our entry */
     void set(const uchar *p) { p_ = p; }
 
@@ -451,16 +451,16 @@ private:
 
 
 /*
- *   Debugger Records Table Pointer 
+ *   Debugger Records Table Pointer
  */
 class CVmDbgTablePtr
 {
 public:
-    /* 
+    /*
      *   Initialize with a pointer to the start of the function -- we'll
      *   read the debugger table offset out of the method header.  Returns
      *   true if the function has debugger records, false if there is no
-     *   debugger table defined in the function.  
+     *   debugger table defined in the function.
      */
     int set(const uchar *p)
     {
@@ -508,30 +508,30 @@ public:
     {
         size_t index_ofs;
         size_t frame_ofs;
-        
-        /* 
+
+        /*
          *   Compute the location of the index table entry - note that
          *   'idx' is a one-based index value, so we must decrement it
          *   before performing our offset arithmetic.  Note also that we
          *   must add two bytes to get past the count field at the start
          *   of the frame table.  Each index entry is two bytes long.
-         *   
+         *
          *   (If we were clever, we would distribute the multiply-by-two,
          *   which would yield a constant subtraction of two, which would
          *   cancel the constant addition of two.  Let's hope the C++
          *   catches on to this, because we would rather not be clever and
-         *   instead write it explicitly for greater clarity.)  
+         *   instead write it explicitly for greater clarity.)
          */
         index_ofs = get_frame_ofs(vmg0_) + 2 + (2 * (idx - 1));
 
         /* read the frame offset from the entry */
         frame_ofs = osrp2(p_ + index_ofs);
 
-        /* 
+        /*
          *   the frame offset in the table is relative to the location of
          *   the table location containing the entry, so add the index
          *   offset to the frame offset to get the actual location of the
-         *   frame entry 
+         *   frame entry
          */
         entry->set(p_ + index_ofs + frame_ofs);
     }
@@ -540,17 +540,17 @@ private:
     /* get the offset to the start of the frame table */
     size_t get_frame_ofs(VMG0_) const
     {
-        /* 
+        /*
          *   the frame table follows the line records, which follow the
          *   debug table header and the line counter, plus another two
-         *   bytes for the post-frame offset pointer 
+         *   bytes for the post-frame offset pointer
          */
         return (G_dbg_hdr_size
                 + 2
                 + (get_line_count(vmg0_) * G_line_entry_size)
                 + 2);
     }
-    
+
     /* pointer to the first byte of the debugger records table */
     const uchar *p_;
 };

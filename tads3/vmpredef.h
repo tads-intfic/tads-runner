@@ -1,10 +1,10 @@
 /* $Header: d:/cvsroot/tads/tads3/VMPREDEF.H,v 1.2 1999/05/17 02:52:28 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -15,7 +15,7 @@ Function
   predefined value symbol table; at load time, we cache these values
   for quick access.
 Notes
-  
+
 Modified
   12/09/98 MJRoberts  - Creation
 */
@@ -29,7 +29,7 @@ Modified
 /*
  *   some special import names - these are exports that we might need to
  *   synthesize, so we need to know their names in the image loader code as
- *   well as in the imports table 
+ *   well as in the imports table
  */
 #define VM_IMPORT_NAME_LASTPROPOBJ   "*LastPropObj"
 #define VM_IMPORT_NAME_RTERRMSG      "exceptionMessage"
@@ -38,27 +38,27 @@ Modified
 #define VM_IMPORT_NAME_ISARGTABLE    "_isNamedArgTable"
 
 /*
- *   pre-defined values 
+ *   pre-defined values
  */
 struct CVmPredef
 {
     /* initialize */
     CVmPredef()
     {
-        /* 
+        /*
          *   the pre-defined variables are all undefined initially
          */
         reset();
     }
 
     /*
-     *   Reset the predef variables to their initial undefined values 
+     *   Reset the predef variables to their initial undefined values
      */
     void reset()
     {
-        /* 
+        /*
          *   include the import list to generate initializations for the
-         *   predef variables 
+         *   predef variables
          */
 #define VM_IMPORT_OBJ(sym, mem) mem = VM_INVALID_OBJ;
 #define VM_NOIMPORT_OBJ(sym, mem) VM_IMPORT_OBJ(sym, mem)
@@ -75,7 +75,7 @@ struct CVmPredef
      *   Now include the import list to generate the actual member variables
      *   for the imported symbols.  During image file load, the loader will
      *   set these members to the actual values imported from the image
-     *   file.  
+     *   file.
      */
 #define VM_IMPORT_OBJ(sym, mem) vm_obj_id_t mem;
 #define VM_NOIMPORT_OBJ(sym, mem) VM_IMPORT_OBJ(sym, mem)

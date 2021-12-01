@@ -8,9 +8,9 @@ static char RCSid[] =
 Name
   vmlog.cpp - system log file
 Function
-  
+
 Notes
-  
+
 Modified
   12/01/11 MJRoberts  - Creation
 */
@@ -27,11 +27,11 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   System log file 
+ *   System log file
  */
 
 /*
- *   Log a message with sprintf-style formatting 
+ *   Log a message with sprintf-style formatting
  */
 void vm_log_fmt(VMG_ const char *fmt, ...)
 {

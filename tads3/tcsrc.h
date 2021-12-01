@@ -1,10 +1,10 @@
 /* $Header: d:/cvsroot/tads/tads3/TCSRC.H,v 1.3 1999/07/11 00:46:55 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -40,7 +40,7 @@ Function
   file, we take the file to be in the current global default character
   set.
 Notes
-  
+
 Modified
   04/12/99 MJRoberts  - Creation
 */
@@ -53,7 +53,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Generic source object 
+ *   Generic source object
  */
 class CTcSrcObject
 {
@@ -61,7 +61,7 @@ public:
     CTcSrcObject() { }
     virtual ~CTcSrcObject() { }
 
-    /* 
+    /*
      *   Read the next line.  Fills in the buffer with a null-terminated
      *   string, ending in a newline if the line fits in the buffer, or
      *   ending without a newline if not.  Returns zero at end of file.
@@ -81,20 +81,20 @@ class CTcSrcFile: public CTcSrcObject
 public:
     /*
      *   Create the source file reader.  We take ownership of the mapper
-     *   object, so we'll delete it when we're deleted. 
+     *   object, so we'll delete it when we're deleted.
      */
     CTcSrcFile(osfildef *fp, class CCharmapToUni *mapper);
 
     /* delete */
     virtual ~CTcSrcFile();
 
-    /* 
+    /*
      *   Read a line of text from the file.  On success, returns the
      *   length of the line read, including the null terminator character
      *   and any newline character.  At end of file or other error,
      *   returns zero.  Because the result is always null-terminated, a
      *   return value of zero will never occur except on error.
-     *   
+     *
      *   The result will be a UTF-8 string, and will always be
      *   null-terminated.  If the source line fits into the buffer, a
      *   newline character ('\n') will be the last character of the
@@ -106,10 +106,10 @@ public:
      *   the last line will be returned without a newline; this condition
      *   can be distinguished by the non-zero return value of the
      *   subsequent call to read_line().
-     *   
+     *
      *   This routine translates from the source character set to UTF-8,
      *   and automatically translates newline conventions.  We handle CR,
-     *   LF, CR-LF, or LF-CR newlines (CR is ASCII 13, LF is ASCII 10).  
+     *   LF, CR-LF, or LF-CR newlines (CR is ASCII 13, LF is ASCII 10).
      */
     size_t read_line(char *buf, size_t bufl);
 
@@ -121,19 +121,19 @@ public:
      *   determine what type of source file reader to use, then create an
      *   appropriate source file reader subclass to read the file.  We
      *   expect the filename to be limited to ASCII characters.
-     *   
+     *
      *   If we can't identify the character set that the file uses, we'll
      *   use the given default character set.  If no default character set
      *   is given, we'll create a plain ASCII reader.
-     *   
+     *
      *   If we encounter a #charset directive, and we can't load the
      *   desired character set map, we'll set *charset_error to true;
      *   otherwise, we'll set *charset_error to false.  Note that
      *   *charset_error will be set to false if there's simply no #charset
      *   directive.
-     *   
+     *
      *   If we fail to open the default character set, we'll return null
-     *   and set *default_charset_error to true.  
+     *   and set *default_charset_error to true.
      */
     static CTcSrcFile *open_source(const char *filename,
                                    class CResLoader *res_loader,
@@ -146,19 +146,19 @@ public:
      *   for a #charset marker, but it does check for Unicode byte-order
      *   markers.  If we find a Unicode byte-order marker, we'll read the
      *   file using the suitable Unicode mapper; otherwise we'll read it
-     *   using a plain ASCII mapper.  
+     *   using a plain ASCII mapper.
      */
     static CTcSrcFile *open_plain(const char *filename);
 
     /*
-     *   Open a plain ASCII source file. 
+     *   Open a plain ASCII source file.
      */
     static CTcSrcFile *open_ascii(const char *filename);
 
 protected:
-    /* 
+    /*
      *   match the leading substring of a unicode utf-16 string to a given
-     *   ascii string 
+     *   ascii string
      */
     static int ucs_str_starts_with(const char *ustr, size_t ulen,
                                    const char *astr,
@@ -172,10 +172,10 @@ protected:
                 return FALSE;
         }
 
-        /* 
+        /*
          *   if we reached the end of the ASCII string, we have a match;
          *   otherwise, we ran out of the Unicode string before we ran out of
-         *   the ASCII string, so we don't have a match 
+         *   the ASCII string, so we don't have a match
          */
         return (*astr == 0);
     }
@@ -208,7 +208,7 @@ protected:
 
     /* end-of-file flag */
     unsigned int at_eof_ : 1;
-    
+
     /* my source file */
     class CVmDataSource *fp_;
 
@@ -227,7 +227,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Memory buffer-based source reader 
+ *   Memory buffer-based source reader
  */
 class CTcSrcMemory: public CTcSrcObject
 {
@@ -244,7 +244,7 @@ public:
 private:
     /* allocated buffer */
     char *buf_alo_;
-    
+
     /* current buffer pointer */
     const char *buf_;
 };

@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -27,7 +27,7 @@ Function
   their pre-initialized state, and we add any new strings dynamically
   created during pre-initialization to the constant pool.
 Notes
-  
+
 Modified
   07/21/99 MJRoberts  - Creation
 */
@@ -78,7 +78,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Write a string to a buffer with a one-byte prefix 
+ *   Write a string to a buffer with a one-byte prefix
  */
 static char *write_str_byte_prefix(char *ptr, const char *str, size_t len)
 {
@@ -106,13 +106,13 @@ static char *write_str_byte_prefix(char *ptr, const char *str)
 /*
  *   Rebuild the OBJS blocks and write the data to the file.  This goes
  *   through the objects in memory and constructs fixed image-file
- *   versions of the objects, then writes them to OBJS blocks.  
+ *   versions of the objects, then writes them to OBJS blocks.
  */
 static void vm_rewrite_objs_blocks(VMG_ CVmImageWriter *writer,
                                    class CVmConstMapper *mapper)
 {
     size_t i;
-    
+
     /* rewrite the image block for each of our defined metaclasses */
     for (i = 0 ; i < G_meta_table->get_count() ; ++i)
     {
@@ -123,7 +123,7 @@ static void vm_rewrite_objs_blocks(VMG_ CVmImageWriter *writer,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Re-write the image file 
+ *   Re-write the image file
  */
 void vm_rewrite_image(VMG_ CVmFile *origfp, CVmFile *newfp,
                       ulong static_cs_ofs)
@@ -147,19 +147,19 @@ void vm_rewrite_image(VMG_ CVmFile *origfp, CVmFile *newfp,
     /* create our constant mapper */
     const_mapper = new CVmConstMapper(vmg0_);
 
-    /* 
+    /*
      *   clear all undo information - we don't save undo with the rebuilt
      *   file, so there's no reason to keep any of the objects that are
-     *   referenced only in the undo records 
+     *   referenced only in the undo records
      */
     G_undo->drop_undo(vmg0_);
 
     /* discard everything on the stack */
     G_stk->discard(G_stk->get_depth());
 
-    /* 
+    /*
      *   perform a full garbage collection pass, to make sure we don't
-     *   include any unreachable objects in the new image file 
+     *   include any unreachable objects in the new image file
      */
     G_obj_table->gc_full(vmg0_);
 
@@ -169,9 +169,9 @@ void vm_rewrite_image(VMG_ CVmFile *origfp, CVmFile *newfp,
     /* convert objects to constant data to the extent possible */
     G_obj_table->rebuild_image_convert_const_data(vmg_ const_mapper);
 
-    /* 
+    /*
      *   copy the header (signature, UINT2 format version number, 32
-     *   reserved bytes, 24-byte compilation timestamp) to the new file 
+     *   reserved bytes, 24-byte compilation timestamp) to the new file
      */
     origfp->read_bytes(buf, sizeof(VMIMAGE_SIG) - 1 + 2 + 32 + 24);
     newfp->write_bytes(buf, sizeof(VMIMAGE_SIG) - 1 + 2 + 32 + 24);
@@ -192,14 +192,14 @@ void vm_rewrite_image(VMG_ CVmFile *origfp, CVmFile *newfp,
             || CVmImageLoader::block_type_is(buf, "MCLD")
             || CVmImageLoader::block_type_is(buf, "SINI"))
         {
-            /* 
+            /*
              *   Simply skip all of the original OBJS (object data) or
              *   MCLD (metaclass dependency table) blocks -- we'll replace
              *   them with our re-built blocks.
-             *   
+             *
              *   Also skip SINI (static initializer) blocks, since these
              *   are only needed for pre-initialization and can be
-             *   discarded from the final image file.  
+             *   discarded from the final image file.
              */
             origfp->set_pos(origfp->get_pos() + (long)siz);
         }
@@ -209,7 +209,7 @@ void vm_rewrite_image(VMG_ CVmFile *origfp, CVmFile *newfp,
             uint pool_id;
             ulong pgcnt;
             ulong pgsiz;
-            
+
             /* read the pool definition */
             origfp->read_bytes(cpdf_buf, 10);
 
@@ -218,10 +218,10 @@ void vm_rewrite_image(VMG_ CVmFile *origfp, CVmFile *newfp,
             pgcnt = t3rp4u(cpdf_buf + 2);
             pgsiz = t3rp4u(cpdf_buf + 6);
 
-            /* 
+            /*
              *   if this is the constant pool (pool ID = 2), increase the
              *   page count by the extra constant pool pages we need for
-             *   converting new object data to constants 
+             *   converting new object data to constants
              */
             if (pool_id == 2)
             {
@@ -239,27 +239,27 @@ void vm_rewrite_image(VMG_ CVmFile *origfp, CVmFile *newfp,
              *   initializers are grouped at the high end of the code
              *   pool, so we can discard them and only them by truncating
              *   the code pool before the page containing the first static
-             *   initializer) 
+             *   initializer)
              */
             if (pool_id == 1 && static_cs_ofs != 0)
             {
-                /* 
+                /*
                  *   calculate the new count - it's the offset to the
                  *   first static initializer divided by the size of each
-                 *   code page 
+                 *   code page
                  */
                 pgcnt = static_cs_ofs / pgsiz;
-                
+
                 /* write the new count */
                 oswp4(cpdf_buf + 2, pgcnt);
 
-                /* 
+                /*
                  *   remember the code page size for later, when we're
-                 *   scanning the code pages themselves 
+                 *   scanning the code pages themselves
                  */
                 code_page_size = pgsiz;
             }
-            
+
             /* update the constant block definition */
             newfp->write_bytes(buf, 10);
             newfp->write_bytes(cpdf_buf, 10);
@@ -274,12 +274,12 @@ void vm_rewrite_image(VMG_ CVmFile *origfp, CVmFile *newfp,
 
             /* presume we're going to keep this block */
             keep_block = TRUE;
-            
-            /* 
+
+            /*
              *   This is a constant page - if it's in pool 2 (constants),
              *   use its XOR mask for any new pages we write.  First, read
              *   the pool header, then seek back so we can copy the block
-             *   unchanged.  
+             *   unchanged.
              */
             start_pos = origfp->get_pos();
             origfp->read_bytes(cppg_buf, 7);
@@ -293,12 +293,12 @@ void vm_rewrite_image(VMG_ CVmFile *origfp, CVmFile *newfp,
             if (pool_id == 2)
                 xor_mask = cppg_buf[6];
 
-            /* 
+            /*
              *   if it's pool 1 (code), and it's above the start of the
              *   static initializers, skip it - we don't want to copy
              *   static initializer code to the final image file, since
              *   they're only needed for static initialization, which we
-             *   necessarily have finished by the time we reach this point 
+             *   necessarily have finished by the time we reach this point
              */
             if (pool_id == 1
                 && static_cs_ofs != 0
@@ -311,9 +311,9 @@ void vm_rewrite_image(VMG_ CVmFile *origfp, CVmFile *newfp,
             /* keep or skip the block, as appropriate */
             if (keep_block)
             {
-                /* 
+                /*
                  *   we only wanted to get information from this block, so
-                 *   go copy it as-is to the output 
+                 *   go copy it as-is to the output
                  */
                 goto copy_block;
             }
@@ -345,9 +345,9 @@ void vm_rewrite_image(VMG_ CVmFile *origfp, CVmFile *newfp,
         copy_block:
             /*
              *   For anything else, we'll simply copy the original block
-             *   from the original image file unchanged. 
+             *   from the original image file unchanged.
              */
-            
+
             /* write the block header unchanged */
             newfp->write_bytes(buf, 10);
 
@@ -356,9 +356,9 @@ void vm_rewrite_image(VMG_ CVmFile *origfp, CVmFile *newfp,
             {
                 size_t cur;
 
-                /* 
+                /*
                  *   read as much as we can, up to the amount remaining or
-                 *   the buffer size, whichever is smaller 
+                 *   the buffer size, whichever is smaller
                  */
                 cur = sizeof(buf);
                 if (cur > siz)
@@ -390,7 +390,7 @@ void CVmObjTable::rebuild_image(VMG_ int meta_dep_idx, CVmImageWriter *writer,
                                 class CVmConstMapper *mapper)
 {
     int pass;
-    
+
     /* write persistent and transient objects separately */
     for (pass = 1 ; pass <= 2 ; ++pass)
     {
@@ -405,7 +405,7 @@ void CVmObjTable::rebuild_image(VMG_ int meta_dep_idx, CVmImageWriter *writer,
 }
 
 /*
- *   Write all of the transient or persistent objects of a given metaclass. 
+ *   Write all of the transient or persistent objects of a given metaclass.
  */
 void CVmObjTable::rebuild_image(VMG_ int meta_dep_idx, CVmImageWriter *writer,
                                 class CVmConstMapper *mapper, int trans)
@@ -426,9 +426,9 @@ void CVmObjTable::rebuild_image(VMG_ int meta_dep_idx, CVmImageWriter *writer,
     /* presume we'll use small objects */
     large_objects = FALSE;
 
-    /* 
+    /*
      *   allocate an initial object buffer - we'll expand this as needed
-     *   if we find an object that doesn't fit 
+     *   if we find an object that doesn't fit
      */
     bufsiz = 4096;
     buf = (char *)t3malloc((size_t)bufsiz);
@@ -448,10 +448,10 @@ void CVmObjTable::rebuild_image(VMG_ int meta_dep_idx, CVmImageWriter *writer,
         /* go through each entry on this page */
         for ( ; j > 0 ; --j, ++entry, ++id)
         {
-            /* 
+            /*
              *   if this entry is in use, and its transient/persistent type
              *   matches the type we're writing, and its metaclass matches
-             *   the one we're writing, write it out 
+             *   the one we're writing, write it out
              */
             if (!entry->free_
                 && (entry->transient_ != 0) == (trans != 0)
@@ -461,10 +461,10 @@ void CVmObjTable::rebuild_image(VMG_ int meta_dep_idx, CVmImageWriter *writer,
             {
                 ulong objsiz;
 
-                /* 
+                /*
                  *   if this object has been mapped to a constant value,
                  *   there's no need to store it, since it is no longer
-                 *   reachable 
+                 *   reachable
                  */
                 if (mapper->get_pool_addr(id) != 0)
                     continue;
@@ -478,7 +478,7 @@ void CVmObjTable::rebuild_image(VMG_ int meta_dep_idx, CVmImageWriter *writer,
                     /* if the object is too large, throw an error */
                     if (objsiz > OSMALMAX)
                         err_throw(VMERR_OBJ_SIZE_OVERFLOW);
-                    
+
                     /* reallocate to next 4k increment */
                     bufsiz = (objsiz + 4095) & ~4095;
                     buf = (char *)t3realloc(buf, (size_t)bufsiz);
@@ -495,10 +495,10 @@ void CVmObjTable::rebuild_image(VMG_ int meta_dep_idx, CVmImageWriter *writer,
                 {
                     char prefix[20];
 
-                    /* 
+                    /*
                      *   if this object's size exceeds 64k, and the
                      *   current OBJS block is a small block, end this
-                     *   OBJS block and begin a large OBJS block 
+                     *   OBJS block and begin a large OBJS block
                      */
                     if (objsiz > 65535 && !large_objects)
                     {
@@ -513,15 +513,15 @@ void CVmObjTable::rebuild_image(VMG_ int meta_dep_idx, CVmImageWriter *writer,
                         /* make the next block a large block */
                         large_objects = TRUE;
                     }
-                    
-                    /* 
+
+                    /*
                      *   If this object plus its prefix would push this OBJS
                      *   block over 64k, and we have a small-object block
                      *   open, close it off and start a new block.  Don't do
                      *   this if we're already in a large-objects block,
                      *   since that means we have a single object that we
                      *   can't fit in 64k, meaning that it would be
-                     *   impossible to keep the block itself to within 64k.  
+                     *   impossible to keep the block itself to within 64k.
                      */
                     if (block_size + objsiz + 6 > 64000L
                         && block_cnt != 0
@@ -534,15 +534,15 @@ void CVmObjTable::rebuild_image(VMG_ int meta_dep_idx, CVmImageWriter *writer,
                         block_cnt = 0;
                         block_size = 0;
 
-                        /* 
+                        /*
                          *   go bak to the small-object block format if this
                          *   object doesn't itself require a large-objects
-                         *   block 
+                         *   block
                          */
                         if (objsiz <= 65535)
                             large_objects = FALSE;
                     }
-                    
+
                     /* if this is the first object, write the header */
                     if (block_cnt == 0)
                         writer->begin_objs_block(meta_dep_idx, large_objects,
@@ -592,7 +592,7 @@ void CVmObjTable::rebuild_image(VMG_ int meta_dep_idx, CVmImageWriter *writer,
  *   Scan all active objects and convert objects to constant data where
  *   possible.  Certain object metaclasses, such as strings and lists, can
  *   be represented in a rebuilt image file as constant data; this routine
- *   makes all of these conversions.  
+ *   makes all of these conversions.
  */
 void CVmObjTable::rebuild_image_convert_const_data
    (VMG_ CVmConstMapper *const_mapper)
@@ -601,10 +601,10 @@ void CVmObjTable::rebuild_image_convert_const_data
     size_t i;
     vm_obj_id_t id;
 
-    /* 
+    /*
      *   First pass: go through each page in the object table, and reserve
      *   space for the constant conversion.  This assigns each object that
-     *   can be converted its address in the new constant pool pages. 
+     *   can be converted its address in the new constant pool pages.
      */
     for (id = 0, i = pages_used_, pg = pages_ ; i > 0 ; ++pg, --i)
     {
@@ -618,9 +618,9 @@ void CVmObjTable::rebuild_image_convert_const_data
         /* go through each entry on this page */
         for ( ; j > 0 ; --j, ++entry, ++id)
         {
-            /* 
+            /*
              *   if this entry is in use, tell it to reserve space for
-             *   conversion to constant data 
+             *   conversion to constant data
              */
             if (!entry->free_)
                 entry->get_vm_obj()
@@ -636,7 +636,7 @@ void CVmObjTable::rebuild_image_convert_const_data
      *   conversions.  We must do this on a separate second pass because
      *   we must fix up all references to objects being converted, hence
      *   we must know the conversion status of every object to be
-     *   converted before we can fix up anything.  
+     *   converted before we can fix up anything.
      */
     for (id = 0, i = pages_used_, pg = pages_ ; i > 0 ; ++pg, --i)
     {
@@ -662,7 +662,7 @@ void CVmObjTable::rebuild_image_convert_const_data
 /*
  *   Convert a value to constant data.  If the value is an object that has
  *   reserved constant data space for itself, we'll update the value to
- *   reflect the constant data conversion for the value.  
+ *   reflect the constant data conversion for the value.
  */
 static void convert_dh_to_const_data(VMG_ CVmConstMapper *mapper, char *p)
 {
@@ -689,7 +689,7 @@ static void convert_dh_to_const_data(VMG_ CVmConstMapper *mapper, char *p)
 }
 
 /*
- *   Convert a vm_val_t value to constant data if appropriate. 
+ *   Convert a vm_val_t value to constant data if appropriate.
  */
 static void convert_val_to_const_data(VMG_ CVmConstMapper *mapper,
                                       vm_val_t *val)
@@ -712,7 +712,7 @@ static void convert_val_to_const_data(VMG_ CVmConstMapper *mapper,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   List Metaclass implementation - image rebuilding 
+ *   List Metaclass implementation - image rebuilding
  */
 
 /*
@@ -720,7 +720,7 @@ static void convert_val_to_const_data(VMG_ CVmConstMapper *mapper,
  *   can't always convert a list to a constant value when rebuilding an
  *   image file; in particular, if the list exceeds the size of a constant
  *   pool page (unlikely but possible), we will have to store the list as
- *   object data.  
+ *   object data.
  */
 ulong CVmObjList::rebuild_image(VMG_ char *buf, ulong buflen)
 {
@@ -728,7 +728,7 @@ ulong CVmObjList::rebuild_image(VMG_ char *buf, ulong buflen)
 
     /* calculate how much space we need to store the data */
     copy_size = calc_alloc(vmb_get_len(ext_));
-    
+
     /* make sure we have room for our data */
     if (copy_size > buflen)
         return copy_size;
@@ -756,7 +756,7 @@ void CVmObjList::reserve_const_data(VMG_ CVmConstMapper *mapper,
  *   Convert to constant data.  We must check each object that we
  *   reference via a modified property and convert it to a constant data
  *   item if necessary.  Then, we must store our data in the constant
- *   pool, if we successfully reserved an address for it.  
+ *   pool, if we successfully reserved an address for it.
  */
 void CVmObjList::convert_to_const_data(VMG_ CVmConstMapper *mapper,
                                        vm_obj_id_t self)
@@ -774,9 +774,9 @@ void CVmObjList::convert_to_const_data(VMG_ CVmConstMapper *mapper,
         convert_dh_to_const_data(vmg_ mapper, p);
     }
 
-    /* 
+    /*
      *   if we managed to convert our object to constant data, store our
-     *   value 
+     *   value
      */
     if (mapper->get_pool_addr(self))
         mapper->store_data(self, ext_, calc_alloc(vmb_get_len(ext_)));
@@ -785,7 +785,7 @@ void CVmObjList::convert_to_const_data(VMG_ CVmConstMapper *mapper,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   String Metaclass implementation - image rebuilding 
+ *   String Metaclass implementation - image rebuilding
  */
 
 /*
@@ -793,7 +793,7 @@ void CVmObjList::convert_to_const_data(VMG_ CVmConstMapper *mapper,
  *   can't always convert a string to a constant value when rebuilding an
  *   image file; in particular, if the string exceeds the size of a
  *   constant pool page (unlikely but possible), we will have to store the
- *   string as object data.  
+ *   string as object data.
  */
 ulong CVmObjString::rebuild_image(VMG_ char *buf, ulong buflen)
 {
@@ -828,14 +828,14 @@ void CVmObjString::reserve_const_data(VMG_ CVmConstMapper *mapper,
 /*
  *   Convert to constant data.  We don't reference any objects, so we need
  *   simply store our data in the constant pool, if we successfully
- *   reserved an address for it.  
+ *   reserved an address for it.
  */
 void CVmObjString::convert_to_const_data(VMG_ CVmConstMapper *mapper,
                                          vm_obj_id_t self)
 {
-    /* 
+    /*
      *   if we managed to convert our object to constant data, store our
-     *   value 
+     *   value
      */
     if (mapper->get_pool_addr(self))
         mapper->store_data(self, ext_, vmb_get_len(ext_) + VMB_LEN);
@@ -844,7 +844,7 @@ void CVmObjString::convert_to_const_data(VMG_ CVmConstMapper *mapper,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   TADS Object implementation - image rebuilding 
+ *   TADS Object implementation - image rebuilding
  */
 
 
@@ -865,17 +865,17 @@ extern "C"
 }
 
 /*
- *   build an image file record for the object 
+ *   build an image file record for the object
  */
 ulong CVmObjTads::rebuild_image(VMG_ char *buf, ulong buflen)
 {
-    /* 
+    /*
      *   Make sure the buffer is big enough.  Start out with worst-case
      *   assumption that we'll need every allocated property slot; we might
      *   actually need fewer, since some of the slots could be empty by
      *   virtue of having been undone.  We need space for our own header
      *   (UINT2 superclass count, UINT2 property count, UINT2 flags), plus a
-     *   UINT4 per superclass, plus a (UINT2 + DATAHOLDER) per property.  
+     *   UINT4 per superclass, plus a (UINT2 + DATAHOLDER) per property.
      */
     size_t max_size = (2 + 2 + 2)
                       + get_sc_count() * 4
@@ -885,9 +885,9 @@ ulong CVmObjTads::rebuild_image(VMG_ char *buf, ulong buflen)
     if (max_size > buflen)
         return max_size;
 
-    /* 
+    /*
      *   set up our header - use a placeholder 0 for the property count
-     *   for now, until we calculate the real value 
+     *   for now, until we calculate the real value
      */
     oswp2(buf, get_sc_count());
     oswp2(buf+2, 0);
@@ -934,7 +934,7 @@ ulong CVmObjTads::rebuild_image(VMG_ char *buf, ulong buflen)
 /*
  *   Convert to constant data.  We must check each object that we
  *   reference via a modified property and convert it to a constant data
- *   item if necessary.  
+ *   item if necessary.
  */
 void CVmObjTads::convert_to_const_data(VMG_ CVmConstMapper *mapper,
                                        vm_obj_id_t /*self*/)
@@ -942,12 +942,12 @@ void CVmObjTads::convert_to_const_data(VMG_ CVmConstMapper *mapper,
     size_t i;
     vm_tadsobj_prop *entry;
 
-    /* 
+    /*
      *   Scan the property entries.  Note that we don't have to worry about
      *   the original properties, since they can only refer to data that was
      *   in the original image file, and hence never need to be converted --
      *   if it was good enough for the original image file, it's good enough
-     *   for us.  
+     *   for us.
      */
     for (i = get_hdr()->prop_entry_free, entry = get_hdr()->prop_entry_arr ;
          i != 0 ; --i, ++entry)
@@ -965,11 +965,11 @@ void CVmObjTads::convert_to_const_data(VMG_ CVmConstMapper *mapper,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Dictionary object implementation - image rebuilding 
+ *   Dictionary object implementation - image rebuilding
  */
 
-/* 
- *   callback context for image rebuild 
+/*
+ *   callback context for image rebuild
  */
 struct rebuild_ctx
 {
@@ -983,17 +983,17 @@ struct rebuild_ctx
     char *dst;
 };
 
-/* 
- *   rebuild for image file 
+/*
+ *   rebuild for image file
  */
 ulong CVmObjDict::rebuild_image(VMG_ char *buf, ulong buflen)
 {
     rebuild_ctx ctx;
-    
-    /* 
+
+    /*
      *   calculate the amount of space we need - start with the comparator
      *   object, which needs four bytes, and the entry count, which needs two
-     *   bytes 
+     *   bytes
      */
     ctx.space_needed = 6;
 
@@ -1021,7 +1021,7 @@ ulong CVmObjDict::rebuild_image(VMG_ char *buf, ulong buflen)
 
 /*
  *   enumeration callback - rebuild phase 1: count the space needed for
- *   this table entry 
+ *   this table entry
  */
 void CVmObjDict::rebuild_cb_1(void *ctx0, class CVmHashEntry *entry0)
 {
@@ -1029,10 +1029,10 @@ void CVmObjDict::rebuild_cb_1(void *ctx0, class CVmHashEntry *entry0)
     CVmHashEntryDict *entry = (CVmHashEntryDict *)entry0;
     vm_dict_entry *cur;
 
-    /* 
+    /*
      *   count the space needed for this string - one byte for the length
      *   prefix, the bytes of the name string, and two bytes for the item
-     *   count 
+     *   count
      */
     ctx->space_needed += 1 + entry->getlen() + 2;
 
@@ -1042,9 +1042,9 @@ void CVmObjDict::rebuild_cb_1(void *ctx0, class CVmHashEntry *entry0)
     /* count the items */
     for (cur = entry->get_head() ; cur != 0 ; cur = cur->nxt_)
     {
-        /* 
+        /*
          *   add the space for this item - four byte for the object ID,
-         *   two bytes for the property ID 
+         *   two bytes for the property ID
          */
         ctx->space_needed += 6;
     }
@@ -1052,7 +1052,7 @@ void CVmObjDict::rebuild_cb_1(void *ctx0, class CVmHashEntry *entry0)
 
 /*
  *   enumeration callback - rebuild phase 2: write the entries to the
- *   image buffer 
+ *   image buffer
  */
 void CVmObjDict::rebuild_cb_2(void *ctx0, class CVmHashEntry *entry0)
 {
@@ -1094,7 +1094,7 @@ void CVmObjDict::rebuild_cb_2(void *ctx0, class CVmHashEntry *entry0)
 }
 
 /*
- *   callback context for constant data conversion 
+ *   callback context for constant data conversion
  */
 struct cvt_const_ctx
 {
@@ -1102,31 +1102,31 @@ struct cvt_const_ctx
     CVmConstMapper *mapper;
 };
 
-/* 
- *   convert to constant data 
+/*
+ *   convert to constant data
  */
 void CVmObjDict::convert_to_const_data(VMG_ CVmConstMapper *mapper,
                                        vm_obj_id_t self)
 {
     cvt_const_ctx ctx;
-    
+
     /* make sure the comparator object isn't mappable to a constant */
     if (mapper->get_pool_addr(get_ext()->comparator_) != 0)
         err_throw_a(VMERR_DICT_NO_CONST, 1, ERR_TYPE_TEXTCHAR_LEN,
                     "<comparator>", 12);
 
-    /* 
+    /*
      *   Go through our dictionary and make sure we don't have any
      *   references to constant data.  We don't actually have to perform
      *   any conversions, because we simply don't allow references to
-     *   anything but TADS-object objects in the dictionary.  
+     *   anything but TADS-object objects in the dictionary.
      */
     ctx.mapper = mapper;
     get_ext()->hashtab_->enum_entries(&cvt_const_cb, &ctx);
 }
 
 /*
- *   enumeration callback - convert to constant data 
+ *   enumeration callback - convert to constant data
  */
 void CVmObjDict::cvt_const_cb(void *ctx0, class CVmHashEntry *entry0)
 {
@@ -1146,20 +1146,20 @@ void CVmObjDict::cvt_const_cb(void *ctx0, class CVmHashEntry *entry0)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Grammar production object - image rebuilding operations 
+ *   Grammar production object - image rebuilding operations
  */
 
-/* 
- *   rebuild for image file 
+/*
+ *   rebuild for image file
  */
 ulong CVmObjGramProd::rebuild_image(VMG_ char *buf, ulong buflen)
 {
     if (get_ext()->modified_)
     {
-        /* 
+        /*
          *   We've been modified at run-time, so we need to rebuild the image
          *   data from the current alt list.  First, save to a counting
-         *   stream just to determine how much space we need.  
+         *   stream just to determine how much space we need.
          */
         CVmCountingStream cstr;
         save_to_stream(vmg_ &cstr);
@@ -1177,15 +1177,15 @@ ulong CVmObjGramProd::rebuild_image(VMG_ char *buf, ulong buflen)
     }
     else
     {
-        /* 
+        /*
          *   We weren't modified, so simply copy back our original image data
-         *   unchanged. 
+         *   unchanged.
          */
 
         /* make sure we have room */
         if (get_ext()->image_data_size_ > buflen)
             return get_ext()->image_data_size_;
-        
+
         /* copy the data */
         memcpy(buf, get_ext()->image_data_, get_ext()->image_data_size_);
 
@@ -1196,7 +1196,7 @@ ulong CVmObjGramProd::rebuild_image(VMG_ char *buf, ulong buflen)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   BigNumber Metaclass implementation - image rebuilding 
+ *   BigNumber Metaclass implementation - image rebuilding
  */
 
 /*
@@ -1234,14 +1234,14 @@ void CVmObjBigNum::reserve_const_data(VMG_ CVmConstMapper *mapper,
 /*
  *   Convert to constant data.  We don't reference any other objects, so
  *   we simply need to store our data in the constant pool, if we
- *   successfully reserved an address for it.  
+ *   successfully reserved an address for it.
  */
 void CVmObjBigNum::convert_to_const_data(VMG_ CVmConstMapper *mapper,
                                          vm_obj_id_t self)
 {
-    /* 
+    /*
      *   if we managed to convert our object to constant data, store our
-     *   value 
+     *   value
      */
     if (mapper->get_pool_addr(self))
         mapper->store_data(self, ext_, calc_alloc(get_prec(ext_)));
@@ -1250,24 +1250,24 @@ void CVmObjBigNum::convert_to_const_data(VMG_ CVmConstMapper *mapper,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Object-to-Constant mapper 
+ *   Object-to-Constant mapper
  */
 
 /*
- *   initialize 
+ *   initialize
  */
 CVmConstMapper::CVmConstMapper(VMG0_)
 {
     vm_obj_id_t max_id;
     size_t i;
-    
+
     /* get the maximum object ID we've allocated */
     max_id = G_obj_table->get_max_used_obj_id();
 
-    /* 
+    /*
      *   Allocate our master translation page list so that we have room
      *   for enough pages to store the maximum object ID.  We need one
-     *   slot for each page of 1024 translation elements.  
+     *   slot for each page of 1024 translation elements.
      */
     obj_addr_cnt_ = max_id / 1024;
     obj_addr_ = (ulong **)t3malloc(obj_addr_cnt_ * sizeof(obj_addr_[0]));
@@ -1281,15 +1281,15 @@ CVmConstMapper::CVmConstMapper(VMG0_)
     /* get the constant pool's page size */
     page_size_ = G_const_pool->get_page_size();
 
-    /* 
+    /*
      *   our first page is the next page after the last page in the
-     *   current pool 
+     *   current pool
      */
     first_page_idx_ = G_const_pool->get_page_count();
 
-    /* 
+    /*
      *   get the starting address - we'll start writing our data at the
-     *   first page after all existing pages in the pool 
+     *   first page after all existing pages in the pool
      */
     base_addr_ = page_size_ * G_const_pool->get_page_count();
 
@@ -1299,22 +1299,22 @@ CVmConstMapper::CVmConstMapper(VMG0_)
     /* we have the entire first page available */
     rem_ = page_size_;
 
-    /* 
+    /*
      *   we haven't allocated any page data yet (we'll do this after we've
      *   reserved all space, when the client invokes
-     *   prepare_to_store_data()) 
+     *   prepare_to_store_data())
      */
     pages_ = 0;
     pages_cnt_ = 0;
 }
 
 /*
- *   delete 
+ *   delete
  */
 CVmConstMapper::~CVmConstMapper()
 {
     size_t i;
-    
+
     /* delete each page in our mapping table */
     for (i = 0 ; i < obj_addr_cnt_ ; ++i)
     {
@@ -1336,7 +1336,7 @@ CVmConstMapper::~CVmConstMapper()
 }
 
 /*
- *   Get an object's pool address, if it has one 
+ *   Get an object's pool address, if it has one
  */
 ulong CVmConstMapper::get_pool_addr(vm_obj_id_t obj_id)
 {
@@ -1355,14 +1355,14 @@ ulong CVmConstMapper::get_pool_addr(vm_obj_id_t obj_id)
 ulong CVmConstMapper::alloc_pool_space(vm_obj_id_t obj_id, size_t len)
 {
     ulong ret;
-    
-    /* 
+
+    /*
      *   if the data block is too large to fit on a constant pool page, we
-     *   can't store it 
+     *   can't store it
      */
     if (len > page_size_)
         return 0;
-    
+
     /* if the translation page isn't mapped yet, map it */
     if (obj_addr_[obj_id / 1024] == 0)
     {
@@ -1400,12 +1400,12 @@ ulong CVmConstMapper::alloc_pool_space(vm_obj_id_t obj_id, size_t len)
 }
 
 /*
- *   Prepare to begin storing data 
+ *   Prepare to begin storing data
  */
 void CVmConstMapper::prepare_to_store_data()
 {
     size_t i;
-    
+
     /* figure out how many pages we need */
     pages_cnt_ = calc_page_count();
 
@@ -1418,9 +1418,9 @@ void CVmConstMapper::prepare_to_store_data()
     /* allocate each page */
     for (i = 0 ; i < pages_cnt_ ; ++i)
     {
-        /* 
+        /*
          *   allocate this page - allocate the header structure plus space
-         *   for the page data 
+         *   for the page data
          */
         pages_[i] = (vm_const_mapper_page *)
                     t3malloc(sizeof(pages_[i]) + page_size_);
@@ -1433,7 +1433,7 @@ void CVmConstMapper::prepare_to_store_data()
 }
 
 /*
- *   Store an object's data 
+ *   Store an object's data
  */
 void CVmConstMapper::store_data(vm_obj_id_t obj_id,
                                 const void *ptr, size_t len)
@@ -1453,9 +1453,9 @@ void CVmConstMapper::store_data(vm_obj_id_t obj_id,
     page_idx = (size_t)((addr - base_addr_) / page_size_);
     page_ofs = (size_t)((addr - base_addr_) % page_size_);
 
-    /* 
+    /*
      *   if this address takes us above the high-water mark for the page,
-     *   move the page's marker accordingly 
+     *   move the page's marker accordingly
      */
     if (page_ofs + len > pages_[page_idx]->max_ofs_used)
         pages_[page_idx]->max_ofs_used = page_ofs + len;
@@ -1465,13 +1465,13 @@ void CVmConstMapper::store_data(vm_obj_id_t obj_id,
 }
 
 /*
- *   Write the pool pages to an image file 
+ *   Write the pool pages to an image file
  */
 void CVmConstMapper::write_to_image_file(CVmImageWriter *writer,
                                          uchar xor_mask)
 {
     size_t i;
-    
+
     /* go through each of our pages */
     for (i = 0 ; i < pages_cnt_ ; ++i)
     {
@@ -1484,16 +1484,16 @@ void CVmConstMapper::write_to_image_file(CVmImageWriter *writer,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   metaclass table - image rewriter implementation 
+ *   metaclass table - image rewriter implementation
  */
 
 /*
- *   write the new metaclass dependency table 
+ *   write the new metaclass dependency table
  */
 void CVmMetaTable::rebuild_image(CVmImageWriter *writer)
 {
     size_t i;
-    
+
     /* begin the new metaclass dependency table */
     writer->begin_meta_dep(get_count());
 
@@ -1505,19 +1505,19 @@ void CVmMetaTable::rebuild_image(CVmImageWriter *writer)
 
         /* get this entry */
         entry = get_entry(i);
-        
+
         /* write this metaclass name */
         writer->write_meta_dep_item(entry->image_meta_name_);
 
-        /* 
+        /*
          *   Write the property translation list.  Note that xlat_func()
          *   requires a 1-based index, so we loop from 1 to the count,
-         *   rather than following the usual C-style 0-based conventions.  
+         *   rather than following the usual C-style 0-based conventions.
          */
         for (j = 1 ; j <= entry->func_xlat_cnt_ ; ++j)
             writer->write_meta_item_prop(entry->xlat_func(j));
     }
-    
+
     /* end the metaclass dependency table */
     writer->end_meta_dep();
 }
@@ -1525,11 +1525,11 @@ void CVmMetaTable::rebuild_image(CVmImageWriter *writer)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Hashtable Metaclass implementation - image rebuilding 
+ *   Hashtable Metaclass implementation - image rebuilding
  */
 
 /*
- *   Build an image file record 
+ *   Build an image file record
  */
 ulong CVmObjLookupTable::rebuild_image(VMG_ char *buf, ulong buflen)
 {
@@ -1541,9 +1541,9 @@ ulong CVmObjLookupTable::rebuild_image(VMG_ char *buf, ulong buflen)
     char *dst;
     uint idx;
 
-    /* 
+    /*
      *   we need space for the fixed header (6 bytes), 2 bytes per bucket,
-     *   the entries themselves, and the default value 
+     *   the entries themselves, and the default value
      */
     copy_size = 6
                 + (ext->bucket_cnt * 2)
@@ -1615,7 +1615,7 @@ void CVmObjLookupTable::convert_to_const_data(VMG_ CVmConstMapper *mapper,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   StringBuffer metaclass - image rebuilding 
+ *   StringBuffer metaclass - image rebuilding
  */
 ulong CVmObjStringBuffer::rebuild_image(VMG_ char *buf, ulong buflen)
 {
@@ -1644,11 +1644,11 @@ ulong CVmObjStringBuffer::rebuild_image(VMG_ char *buf, ulong buflen)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   IntrinsicClass Metaclass implementation - image rebuilding 
+ *   IntrinsicClass Metaclass implementation - image rebuilding
  */
 
 /*
- *   Build an image file record 
+ *   Build an image file record
  */
 ulong CVmObjClass::rebuild_image(VMG_ char *buf, ulong buflen)
 {
@@ -1676,7 +1676,7 @@ ulong CVmObjClass::rebuild_image(VMG_ char *buf, ulong buflen)
  */
 
 /*
- *   Build an image file record 
+ *   Build an image file record
  */
 ulong CVmObjIterIdx::rebuild_image(VMG_ char *buf, ulong buflen)
 {
@@ -1696,7 +1696,7 @@ ulong CVmObjIterIdx::rebuild_image(VMG_ char *buf, ulong buflen)
 
 /*
  *   Convert to constant data.  We must convert our collection object
- *   reference to constant data if possible.  
+ *   reference to constant data if possible.
  */
 void CVmObjIterIdx::convert_to_const_data(VMG_ CVmConstMapper *mapper,
                                           vm_obj_id_t self)
@@ -1708,11 +1708,11 @@ void CVmObjIterIdx::convert_to_const_data(VMG_ CVmConstMapper *mapper,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Hashtable Iterator 
+ *   Hashtable Iterator
  */
 
 /*
- *   Build an image file record 
+ *   Build an image file record
  */
 ulong CVmObjIterLookupTable::rebuild_image(VMG_ char *buf, ulong buflen)
 {
@@ -1734,7 +1734,7 @@ ulong CVmObjIterLookupTable::rebuild_image(VMG_ char *buf, ulong buflen)
 
 /*
  *   Convert to constant data.  We must convert our collection object
- *   reference to constant data if possible.  
+ *   reference to constant data if possible.
  */
 void CVmObjIterLookupTable::convert_to_const_data(
     VMG_ CVmConstMapper *mapper, vm_obj_id_t self)
@@ -1746,11 +1746,11 @@ void CVmObjIterLookupTable::convert_to_const_data(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Vector Metaclass implementation - image rebuilding 
+ *   Vector Metaclass implementation - image rebuilding
  */
 
 /*
- *   Build an image file record 
+ *   Build an image file record
  */
 ulong CVmObjVector::rebuild_image(VMG_ char *buf, ulong buflen)
 {
@@ -1758,9 +1758,9 @@ ulong CVmObjVector::rebuild_image(VMG_ char *buf, ulong buflen)
     size_t ele_cnt;
     size_t alloc_cnt;
 
-    /* 
+    /*
      *   calculate how much space we need to store the data - store only
-     *   the data, not the undo bits 
+     *   the data, not the undo bits
      */
     ele_cnt = get_element_count();
     alloc_cnt = get_allocated_count();
@@ -1794,7 +1794,7 @@ void CVmObjVector::reserve_const_data(VMG_ CVmConstMapper *mapper,
 
 /*
  *   Convert to constant data.  We must convert each object we reference to
- *   constant data if possible; we use the same algorithm as CVmObjList.  
+ *   constant data if possible; we use the same algorithm as CVmObjList.
  */
 void CVmObjVector::convert_to_const_data(VMG_ CVmConstMapper *mapper,
                                         vm_obj_id_t self)
@@ -1815,11 +1815,11 @@ void CVmObjVector::convert_to_const_data(VMG_ CVmConstMapper *mapper,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   ByteArray Metaclass implementation - image rebuilding 
+ *   ByteArray Metaclass implementation - image rebuilding
  */
 
 /*
- *   Build an image file record 
+ *   Build an image file record
  */
 ulong CVmObjByteArray::rebuild_image(VMG_ char *buf, ulong buflen)
 {
@@ -1868,11 +1868,11 @@ ulong CVmObjByteArray::rebuild_image(VMG_ char *buf, ulong buflen)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CharacterSet Metaclass implementation - image rebuilding 
+ *   CharacterSet Metaclass implementation - image rebuilding
  */
 
 /*
- *   Build an image file record 
+ *   Build an image file record
  */
 ulong CVmObjCharSet::rebuild_image(VMG_ char *buf, ulong buflen)
 {
@@ -1896,19 +1896,19 @@ ulong CVmObjCharSet::rebuild_image(VMG_ char *buf, ulong buflen)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   File Metaclass implementation - image rebuilding 
+ *   File Metaclass implementation - image rebuilding
  */
 
 /*
- *   Build an image file record 
+ *   Build an image file record
  */
 ulong CVmObjFile::rebuild_image(VMG_ char *buf, ulong buflen)
 {
     ulong copy_size;
 
-    /* 
+    /*
      *   we need the character set object ID, the mode byte, the access
-     *   byte, and the uint32 flags 
+     *   byte, and the uint32 flags
      */
     copy_size = VMB_OBJECT_ID + 1 + 1 + 4;
 
@@ -1933,7 +1933,7 @@ ulong CVmObjFile::rebuild_image(VMG_ char *buf, ulong buflen)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjTemporaryFile intrinsic object 
+ *   CVmObjTemporaryFile intrinsic object
  */
 ulong CVmObjTemporaryFile::rebuild_image(VMG_ char *buf, ulong buflen)
 {
@@ -1943,14 +1943,14 @@ ulong CVmObjTemporaryFile::rebuild_image(VMG_ char *buf, ulong buflen)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjFileName intrinsic object 
+ *   CVmObjFileName intrinsic object
  */
 ulong CVmObjFileName::rebuild_image(VMG_ char *buf, ulong buflen)
 {
     /* get my extension */
     vm_filnam_ext *ext = get_ext();
 
-    /* 
+    /*
      *   if we're going to store the filename, we'll store it in universal
      *   notation; do the conversion first so we can figure the length
      */
@@ -1964,10 +1964,10 @@ ulong CVmObjFileName::rebuild_image(VMG_ char *buf, ulong buflen)
             uni = to_universal(vmg0_);
             unilen = strlen(uni);
         }
-        
-        /* 
+
+        /*
          *   figure the required size: special file ID, plus the universal
-         *   name with length prefix if the sfid is zero 
+         *   name with length prefix if the sfid is zero
          */
         needlen = 4 + (ext->sfid != 0 ? 0 : VMB_LEN + unilen);
 
@@ -1998,11 +1998,11 @@ ulong CVmObjFileName::rebuild_image(VMG_ char *buf, ulong buflen)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Pattern metaclass 
+ *   Pattern metaclass
  */
 
 /*
- *   build an image file record for the object 
+ *   build an image file record for the object
  */
 ulong CVmObjPattern::rebuild_image(VMG_ char *buf, ulong buflen)
 {
@@ -2034,11 +2034,11 @@ void CVmObjPattern::convert_to_const_data(VMG_ CVmConstMapper *mapper,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   StringComparator intrinsic class 
+ *   StringComparator intrinsic class
  */
 
 /*
- *   build the image data 
+ *   build the image data
  */
 ulong CVmObjStrComp::rebuild_image(VMG_ char *buf, ulong buflen)
 {
@@ -2049,11 +2049,11 @@ ulong CVmObjStrComp::rebuild_image(VMG_ char *buf, ulong buflen)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   DynamicFunc intrinsic class 
+ *   DynamicFunc intrinsic class
  */
 
 /*
- *   build the image data 
+ *   build the image data
  */
 ulong CVmDynamicFunc::rebuild_image(VMG_ char *buf, ulong buflen)
 {
@@ -2068,7 +2068,7 @@ ulong CVmDynamicFunc::rebuild_image(VMG_ char *buf, ulong buflen)
     /* make sure there's room */
     if (needlen > buflen)
         return needlen;
-    
+
     /* save the sizes: bytecode length, object reference count */
     oswp2(buf, ext->bytecode_len);
     oswp2(buf, ext->obj_ref_cnt);
@@ -2096,7 +2096,7 @@ ulong CVmDynamicFunc::rebuild_image(VMG_ char *buf, ulong buflen)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Stack Frame Descriptor intrinsic object 
+ *   Stack Frame Descriptor intrinsic object
  */
 ulong CVmObjFrameDesc::rebuild_image(VMG_ char *buf, ulong buflen)
 {
@@ -2126,7 +2126,7 @@ ulong CVmObjFrameDesc::rebuild_image(VMG_ char *buf, ulong buflen)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Stack Frame Reference intrinsic object 
+ *   Stack Frame Reference intrinsic object
  */
 ulong CVmObjFrameRef::rebuild_image(VMG_ char *buf, ulong buflen)
 {
@@ -2187,7 +2187,7 @@ ulong CVmObjFrameRef::rebuild_image(VMG_ char *buf, ulong buflen)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjDate intrinsic object 
+ *   CVmObjDate intrinsic object
  */
 ulong CVmObjDate::rebuild_image(VMG_ char *buf, ulong buflen)
 {
@@ -2211,7 +2211,7 @@ ulong CVmObjDate::rebuild_image(VMG_ char *buf, ulong buflen)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjTimeZone intrinsic object 
+ *   CVmObjTimeZone intrinsic object
  */
 ulong CVmObjTimeZone::rebuild_image(VMG_ char *buf, ulong buflen)
 {
@@ -2228,7 +2228,7 @@ ulong CVmObjTimeZone::rebuild_image(VMG_ char *buf, ulong buflen)
     if (G_tzcache->is_local_zone(tz))
         name = ":local", namelen = 6;
 
-    /* 
+    /*
      *   figure the required size - int32 gmt offset, int32 dst offset,
      *   abbreviation (with one-byte prefix), name (with one-byte prefix)
      */
@@ -2269,7 +2269,7 @@ ulong CVmObjHTTPServer::rebuild_image(VMG_ char *buf, ulong buflen)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjHTTPRequest intrinsic object 
+ *   CVmObjHTTPRequest intrinsic object
  */
 ulong CVmObjHTTPRequest::rebuild_image(VMG_ char *buf, ulong buflen)
 {

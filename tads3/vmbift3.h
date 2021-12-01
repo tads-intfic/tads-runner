@@ -1,18 +1,18 @@
 /* $Header: d:/cvsroot/tads/tads3/vmbiftad.h,v 1.2 1999/05/17 02:52:29 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmbift3.h - function set definition - T3 VM system interface
 Function
-  
+
 Notes
-  
+
 Modified
   12/06/98 MJRoberts  - Creation
 */
@@ -71,9 +71,9 @@ public:
     static void get_named_arg_list(VMG_ uint argc);
 
 protected:
-    /* 
+    /*
      *   service routine - retrieve source information for a given code
-     *   location 
+     *   location
      */
     static void get_source_info(VMG_ const uchar *entry_addr, ulong method_ofs,
                                 vm_val_t *retval);
@@ -106,7 +106,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   debug_trace mode flags 
+ *   debug_trace mode flags
  */
 
 /* check to see if the debugger is present */
@@ -124,7 +124,7 @@ public:
 /*
  *   Function set vector.  Define this only if VMBIF_DEFINE_VECTOR has
  *   been defined, so that this file can be included for the prototypes
- *   alone without defining the function vector.  
+ *   alone without defining the function vector.
  */
 #ifdef VMBIF_DEFINE_VECTOR
 

@@ -1,10 +1,10 @@
 /* $Header: d:/cvsroot/tads/tads3/vmbif.h,v 1.2 1999/05/17 02:52:29 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -28,7 +28,7 @@ Function
   as the functions in the original set are at the same index positions
   in the modified function set.
 Notes
-  
+
 Modified
   12/05/98 MJRoberts  - Creation
 */
@@ -45,18 +45,18 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   Image function set table.  We maintain one global function set table,
- *   which we create when we load the image file. 
+ *   which we create when we load the image file.
  */
 
 class CVmBifTable
 {
 public:
-    /* 
+    /*
      *   Create a table with a given number of initial entries.  The table
      *   may be expanded in the future if necessary, but if the caller can
      *   predict the maximum number of entries required, we can
      *   preallocate the table at its final size and thus avoid the
-     *   overhead and memory fragmentation of expanding the table.  
+     *   overhead and memory fragmentation of expanding the table.
      */
     CVmBifTable(size_t init_entries);
 
@@ -66,14 +66,14 @@ public:
     /* clear all entries from the table */
     void clear(VMG0_);
 
-    /* 
+    /*
      *   Add an entry to the table, given the function set identifier (a
      *   string giving the universally unique name for the function set).
      *   Fills in the next available slot.  Throws an error if the
      *   function set is not present in the system.  A function set may
      *   not be present because it's a newer version than this
      *   implementation provides, or because this particular host
-     *   application environment does not provide the function set.  
+     *   application environment does not provide the function set.
      */
     void add_entry(VMG_ const char *func_set_id);
 
@@ -89,11 +89,11 @@ public:
     /* get the entry at the given index */
     const struct vm_bif_entry_t *get_entry(uint idx)
         { return idx < count_ ? table_[idx] : 0; }
-    
-    /* 
+
+    /*
      *   Look up an entry by function set name.  If the name has a "/nnnnnn"
      *   version suffix, we'll return null if the loaded version is older
-     *   than the requested version. 
+     *   than the requested version.
      */
     const struct vm_bif_entry_t *get_entry(const char *name);
 
@@ -101,12 +101,12 @@ public:
     void call_func(VMG_ uint set_index, uint func_index, uint argc);
 
 private:
-    /* 
+    /*
      *   Ensure we have space for a given number of entries, allocating
      *   more if necessary.  If we must allocate more space, we'll
      *   increase the current allocation size by at least the given
      *   increment (more if necessary to bring it up to the required
-     *   size).  
+     *   size).
      */
     void ensure_space(size_t entries, size_t increment);
 
@@ -116,19 +116,19 @@ private:
      *   load time, this should simply throw an error; otherwise, this
      *   should make a null entry in the function set table so that we can
      *   recognize the missing function set if one of its functions is
-     *   ever invoked.  
+     *   ever invoked.
      */
     void add_entry_unresolved(VMG_ const char *func_set_id);
 
     /* the table array - we keep an array of pointers */
     struct vm_bif_entry_t **table_;
 
-    /* 
+    /*
      *   Name array - this is a list of the global function set names;
      *   each entry corresponds to the entry of the table_ array at the
      *   same index.  We use this only for call-time resolution, so that
      *   we can report the name of an unavailable function set when a
-     *   function from the unavailable set is invoked.  
+     *   function from the unavailable set is invoked.
      */
     char **names_;
 
@@ -142,26 +142,26 @@ private:
 /* ------------------------------------------------------------------------ */
 /*
  *   Built-in function descriptor.  This tells us how to call a function, and
- *   provides reflection data on the function. 
+ *   provides reflection data on the function.
  */
 struct vm_bif_desc
 {
     /*
      *   The function entrypoint.
-     *   
+     *
      *   Each function has a common C interface, because the functions take
      *   arguments and return values on the VM stack.  The order of the
      *   functions within the vector is defined by the function set
      *   specification; a function set which uses a particular universal
      *   identifier must always conform to the specification for that
      *   universal identifier.
-     *   
+     *
      *   For each function, 'argc' is the number of actual parameters passed
      *   to the function by the caller.  The function receives its parameters
      *   from the VM stack; the first argument is at the top of the stack,
      *   the second argument is the next item on the stack, and so on.  The
      *   function must remove all of the arguments from the stack before
-     *   returning, and must push a return value if appropriate.  
+     *   returning, and must push a return value if appropriate.
      */
     void (*func)(VMG_ uint argc);
 
@@ -177,16 +177,16 @@ struct vm_bif_desc
     /*
      *   VM_BIFPTR value for this function.  During image file loading, we
      *   fill this in for each function, so that the function can create a
-     *   pointer to itself during execution as needed.  
+     *   pointer to itself during execution as needed.
      */
     vm_val_t bifptr;
 
-    /* 
+    /*
      *   Synthetic method header.  We build this during the initialization
      *   process to mimic a byte-code method header.  This makes bif pointers
      *   fit in with the rest of the type system by letting CVmFuncPtr pull
      *   out reflection information using the same format as for byte-code
-     *   methods.  
+     *   methods.
      */
     char synth_hdr[VMFUNC_HDR_MIN_SIZE];
 
@@ -196,10 +196,10 @@ struct vm_bif_desc
         /* set everything to zeros to start with */
         memset(synth_hdr, 0, sizeof(synth_hdr));
 
-        /* 
+        /*
          *   Fill in the base arguments field.  This is an 8-bit field
          *   containing the minimum number of arguments, with the high bit
-         *   (0x80) set if it's varargs.  
+         *   (0x80) set if it's varargs.
          */
         synth_hdr[0] = (char)(min_argc | (varargs ? 0x80 : 0));
 
@@ -208,16 +208,16 @@ struct vm_bif_desc
 
         /*
          *   We can leave all of the other fields zeroed out:
-         *   
+         *
          *   - locals, total_stack: the caller doesn't allocate a standard
          *   stack frame for a built-in, so these are unused
-         *   
+         *
          *   - exception_table_ofs: we don't have any bytecode, so we
          *   obviously don't have a bytecode exception table; leave it zeroed
          *   out to indicate the absence of a table
-         *   
+         *
          *   - debug_ofs: we don't have any debugger information since we
-         *   don't have any bytecode; zero indicates no records 
+         *   don't have any bytecode; zero indicates no records
          */
     }
 };
@@ -225,14 +225,14 @@ struct vm_bif_desc
 /* ------------------------------------------------------------------------ */
 /*
  *   Function set table entry.  This contains information on the function
- *   set at one index in the table. 
+ *   set at one index in the table.
  */
 struct vm_bif_entry_t
 {
-    /* 
+    /*
      *   Function set identifier - a string of 7-bit ASCII characters, one
      *   byte per character, in the range 32 to 126 inclusive, of length 1
-     *   to 255 characters, null-terminated. 
+     *   to 255 characters, null-terminated.
      */
     const char *func_set_id;
 
@@ -276,7 +276,7 @@ struct vm_bif_entry_t
 /* ------------------------------------------------------------------------ */
 /*
  *   Base class for function set collections.  This class provides some
- *   utility functions that intrinsics might find useful. 
+ *   utility functions that intrinsics might find useful.
  */
 class CVmBif
 {
@@ -288,32 +288,32 @@ public:
      *   only call this when the function set is actually going to be used,
      *   which avoids unnecessarily allocation resources when the function
      *   set isn't needed.
-     *   
+     *
      *   Note that this is a static function, but it's kind of like a "class
      *   virtual" in that the loader explicitly calls the suitable
      *   Subclass::attach() and Subclass::detach() for each CVmBif subclass
      *   linked from the image file.  If you don't define an overriding
      *   static in a subclass, the compiler will simply link to this base
-     *   class method.  
+     *   class method.
      */
     static void attach(VMG0_) { }
-    
+
     /*
      *   Detach from the function set.  The system calls this during program
      *   termination to let the function set do any static cleanup of
-     *   resources allocated during attach(). 
+     *   resources allocated during attach().
      */
     static void detach(VMG0_) { }
 
-    /* 
+    /*
      *   check arguments; throws an error if the argument count doesn't
-     *   match the given value 
+     *   match the given value
      */
     static void check_argc(VMG_ uint argc, uint needed_argc);
 
-    /* 
+    /*
      *   check arguments; throws an error if the argument count is outside
-     *   of the given range 
+     *   of the given range
      */
     static void check_argc_range(VMG_ uint argc,
                                  uint argc_min, uint argc_max);
@@ -340,7 +340,7 @@ public:
      *   list, as appropriate, we'll return the constant pool pointer; if
      *   the value is an object of metaclass String or List, as
      *   appropriate, we'll return the metaclass data.  Throws an error if
-     *   the value is of any other type.  
+     *   the value is of any other type.
      */
     static const char *pop_str_val(VMG0_);
     static const char *pop_list_val(VMG0_);
@@ -351,7 +351,7 @@ public:
     /*
      *   Pop a null-terminated string into the given buffer.  If the
      *   string is too long for the buffer, we'll truncate it to the given
-     *   size. 
+     *   size.
      */
     static void pop_str_val_buf(VMG_ char *buf, size_t buflen);
     static void get_str_val_buf(VMG_ char *buf, size_t buflen,
@@ -371,19 +371,19 @@ public:
      *   Pop a filename value, returning the result as a filename in the
      *   given buffer.  The returned filename is null-terminated and
      *   converted to the local filename character set.  The source value can
-     *   be a string or FileName object. 
+     *   be a string or FileName object.
      */
     static void pop_fname_val(VMG_ char *buf, size_t buflen);
     static void get_fname_val(VMG_ char *buf, size_t buflen,
                               const vm_val_t *val);
-    
+
     /*
      *   Pop a null-terminated string into the given buffer, converting the
      *   string to the UI character set.  Null-terminates the resulting
      *   string.  If the given buffer is null, we'll allocate a buffer with
      *   t3malloc() and return it; the caller is responsible for freeing the
      *   buffer with t3free().  In any case, returns the buffer into which we
-     *   store the results.  
+     *   store the results.
      */
     static char *pop_str_val_ui(VMG_ char *buf, size_t buflen);
 
@@ -391,20 +391,20 @@ public:
     static vm_obj_id_t str_from_ui_str(VMG_ const char *str);
     static vm_obj_id_t str_from_ui_str(VMG_ const char *str, size_t len);
 
-    /* 
+    /*
      *   Get/pop a CharacterSet argument from the stack.  If the argument is
      *   an object, it must be a CharacterSet object.  If it's a string,
      *   we'll create a CharacterSet object based on the given character set
-     *   name.  We'll also allow nil if desired.  
+     *   name.  We'll also allow nil if desired.
      */
     static vm_obj_id_t pop_charset_obj(VMG0_);
     static vm_obj_id_t get_charset_obj(VMG_ int stk_idx);
 
     /* get a character set object from a value */
     static vm_obj_id_t get_charset_obj(VMG_ const vm_val_t *val);
-    
+
     /*
-     *   Return a value 
+     *   Return a value
      */
     static void retval(VMG_ const struct vm_val_t *val);
     static void retval_nil(VMG0_);

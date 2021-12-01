@@ -1,10 +1,10 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -13,7 +13,7 @@ Function
   Maintains a list of the source file records found in the "SRCF" block
   in the image file
 Notes
-  
+
 Modified
   12/01/99 MJRoberts  - Creation
 */
@@ -24,19 +24,19 @@ Modified
 #include "t3std.h"
 
 /*
- *   Source file line record 
+ *   Source file line record
  */
 struct CVmSrcfLine
 {
     /* line number in source file */
     ulong linenum;
-    
+
     /* code address of generated code for source line */
     ulong code_addr;
 };
 
 /*
- *   Source file entry 
+ *   Source file entry
  */
 class CVmSrcfEntry
 {
@@ -76,16 +76,16 @@ public:
     /* get a pointer to my name buffer */
     char *get_name_buf() { return name_buf_; }
 
-    /* 
+    /*
      *   allocate space for source line entries - this can be used to
      *   pre-allocate space if the number of line entries is known in
-     *   advance 
+     *   advance
      */
     void alloc_line_records(ulong cnt);
 
-    /* 
+    /*
      *   Add a source line entry.  Line entries must be added in ascending
-     *   order of line number. 
+     *   order of line number.
      */
     void add_line_record(ulong linenum, ulong code_addr);
 
@@ -96,14 +96,14 @@ public:
      *   is at such a low address at all, its header would take up the
      *   first few bytes, putting the first executable instruction at a
      *   non-zero address).
-     *   
+     *
      *   If 'exact' is true, we'll fail unless we find an exact match;
      *   otherwise, we'll return the code address for the next executable
      *   line after the given line, or the last executable line in the
      *   file if there are no more executable lines after the given line.
-     *   
+     *
      *   If we find a non-exact match, we'll update *linenum to give the
-     *   actual line number where we found the executable line.  
+     *   actual line number where we found the executable line.
      */
     ulong find_src_addr(ulong *linenum, int exact);
 
@@ -117,11 +117,11 @@ private:
     /* flag: I'm the original entry */
     uint is_orig_ : 1;
 
-    /* 
+    /*
      *   Line records array.  For simplicity, this is simply a single
      *   array.  This could be a little constraining for 16-bit machines,
      *   but even on a 16-bit machine, this will accommodate 8000 records,
-     *   which should be enough for even fairly large source files. 
+     *   which should be enough for even fairly large source files.
      */
     CVmSrcfLine *lines_;
 
@@ -133,7 +133,7 @@ private:
 };
 
 /*
- *   Source file table 
+ *   Source file table
  */
 class CVmSrcfTable
 {

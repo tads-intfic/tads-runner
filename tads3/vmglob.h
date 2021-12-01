@@ -1,10 +1,10 @@
 /* $Header: d:/cvsroot/tads/tads3/vmglob.h,v 1.2 1999/05/17 02:52:29 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -93,7 +93,7 @@ Function
   should be determined, and the most efficient configuration that meets
   those needs should be chosen.
 Notes
-  
+
 Modified
   11/28/98 MJRoberts  - Creation
 */
@@ -110,11 +110,11 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   HOST SYSTEM GLOBAL INITIALIZATION
- *   
+ *
  *   The host system should declare a local variable as follows:
- *   
+ *
  *   vm_globals *vmg__; // two underscores
- *   
+ *
  *   The program must call vmglob_alloc() each time it wants to initialize a
  *   global variable context.  This routine must always be called at least
  *   once.  (In the VMGLOB_STRUCT or VMGLOB_VARS configuration, this routine
@@ -123,47 +123,47 @@ Modified
  *   the current static global variable pointer in the VMGLOB_POINTER
  *   configuration, so the caller must take care to keep track of each set of
  *   globals it allocates for later restoration.
- *   
- *   When calling vmglob_alloc(), assign the return value to vmg__.  
+ *
+ *   When calling vmglob_alloc(), assign the return value to vmg__.
  */
 
 /*
  *   HOST SYSTEM GLOBAL TERMINATION
- *   
+ *
  *   The caller should invoke vmglob_delete() for each set of globals it
- *   allocated.  
+ *   allocated.
  */
 
-/*   
+/*
  *   HOST SYSTEM VM FUNCTION CALLS
- *   
+ *
  *   In each call to a VM function, the host system should include the
  *   macro "vmg_" (one underscore) at the start of each parameter list; do
  *   not put a comma after vmg_.  Call functions that take no other
- *   parameters with vmg0_ instead of vmg_.  
+ *   parameters with vmg0_ instead of vmg_.
  */
 
 /* ------------------------------------------------------------------------ */
 /*
  *   INTERNAL FUNCTION DECLARATION AND CALLING
- *   
+ *
  *   Every function that requires global access, or which calls a function
  *   that requires global access, must put "VMG_" at the very start of its
  *   formal parameters declaration.  Do not put a comma after VMG_, but
  *   simply list the first parameter.  If the function has no parameters
  *   at all, use VMG0_ instead of VMG_.  For example:
- *   
+ *
  *   void CVmClass::func1(VMG_ const textchar_t *str, size_t len) { ... }
  *.  void CVmClass::func2(VMG0_) { ... }
- *   
+ *
  *   In each call to a function that uses global variables or calls
  *   functions that use global variables, put "vmg_" at the very start of
  *   the actual parmaeters list in the call; do not put a comma after the
  *   vmg_.  If the function takes no parameters at all, use vmg0_ instead
  *   of vmg_.
- *   
+ *
  *   func1(vmg_ "test", 4);
- *.  func2(vmg0_); 
+ *.  func2(vmg0_);
  */
 
 
@@ -178,7 +178,7 @@ Modified
  *   first argument to a function with multiple arguments) or vmg_var0(x)
  *   (for a single-argument call), as appropriate, where x is the local
  *   copy.
- *   
+ *
  *   To access globals from this type of routine, put the VMGLOB_PTR(x)
  *   macro in with the local variable decalarations for the function,
  *   passing as the argument the stashed address of the global structure.
@@ -198,7 +198,7 @@ struct my_context_def
 int func_calling_external_interfaces(VMG_ int x, int y, int z)
 {
     my_context_def ctx;
-    
+
     /* stash the address of the VM globals in my private context */
     ctx.vmg = VMGLOB_ADDR;
 
@@ -224,7 +224,7 @@ int func_called_from_external_interface(my_context_def *ctx, int x, int y)
 /* ------------------------------------------------------------------------ */
 /*
  *   Conditional access to globals.
- *   
+ *
  *   Some code that accesses global variables might need to be able to run
  *   during startup or shutdown.  On platforms where the globals are
  *   dynamically allocated, such code might need to test to see not only
@@ -236,7 +236,7 @@ int func_called_from_external_interface(my_context_def *ctx, int x, int y)
  *   merely accessing G_console itself will dereference the global variable
  *   structure pointer, and this pointer might be null on platforms where the
  *   globals are allocated.
- *   
+ *
  *   For such situations, use VMGLOB_IF_AVAIL(varname) to cover the global
  *   variable name.  On platforms where the globals are allocated, this will
  *   return null if the globals themselves aren't yet allocated or have
@@ -256,10 +256,10 @@ CVmConsole *con = VMGLOB_IF_AVAIL(G_console);
  *   configurations, put pointers to the global structures in a structure.
  *   For the static STRUCT configuration, actually allocate all of the
  *   objects statically.
- *   
+ *
  *   Use VM_GLOBAL_OBJDEF() to define the entry for an object (struct or
  *   class) type.  The global variable will be a pointer to this type.
- *   
+ *
  *   Use VM_GLOBAL_PREOBJDEF to define the entry for an object type that's to
  *   be defined as a pre-allocated static object in the VARS configuration.
  *   This can be used for objects that (1) have very frequent access and thus
@@ -269,11 +269,11 @@ CVmConsole *con = VMGLOB_IF_AVAIL(G_console);
  *   variables can be allocated at compile-time, which allows the compiler to
  *   generate code that accesses the objects' internal members without any
  *   pointer dereferences.
- *   
+ *
  *   Any variable defined with VM_GLOBAL_PREOBJDEF MUST have its accessor
  *   defined through VMGLOB_PREACCESS() rather than VMGLOB_ACCESS().
- *   
- *   Use VM_GLOBAL_VARDEF to define a scalar variable.  
+ *
+ *   Use VM_GLOBAL_VARDEF to define a scalar variable.
  */
 #if defined(VMGLOB_POINTER) || defined(VMGLOB_PARAM) || defined(VMGLOB_STRUCT)
 #define VM_GLOBALS_BEGIN  struct vm_globals {
@@ -284,9 +284,9 @@ CVmConsole *con = VMGLOB_IF_AVAIL(G_console);
 #define VM_GLOBAL_ARRAYDEF(typ, var, eles) typ var[eles];
 #define VM_GLOBALS_END    };
 
-/* 
+/*
  *   we do allocate all global objects, including external objects; hence
- *   external globals are non-static 
+ *   external globals are non-static
  */
 #define VM_IF_ALLOC_PRE_GLOBAL(x)          x
 #define VM_IFELSE_ALLOC_PRE_GLOBAL(x, y)   x
@@ -320,7 +320,7 @@ struct vm_globals { int x; };
 /* ------------------------------------------------------------------------ */
 /*
  *   If we're not including from the global-defining source file, merely
- *   declare the globals. 
+ *   declare the globals.
  */
 #ifndef VMGLOB_DECLARE
 #define VMGLOB_DECLARE extern
@@ -332,7 +332,7 @@ struct vm_globals { int x; };
  *   INDIVIDUAL STATIC GLOBAL VARIABLES configuration.  In this
  *   configuration, the globals are defined as individual global variables.
  *   This is the most efficient configuration, but it only allows one VM
- *   instance in a given process.  
+ *   instance in a given process.
  */
 #ifdef VMGLOB_VARS
 
@@ -342,9 +342,9 @@ inline vm_globals *vmglob_alloc() { return 0; }
 /* termination - this has no effect in this mode */
 inline void vmglob_delete(vm_globals *) { }
 
-/* 
+/*
  *   we don't require anything for the parameter declaration or usage, since
- *   we don't use the local parameter mechanism at all 
+ *   we don't use the local parameter mechanism at all
  */
 #define VMG_
 #define VMG0_
@@ -354,9 +354,9 @@ inline void vmglob_delete(vm_globals *) { }
 #define VMG0NULL_
 #define Pvmg0_P             /* "vmg0_" in parens, for constructor arguments */
 
-/* 
+/*
  *   get the address of the globals - this doesn't do anything in this
- *   configuration, as there's not really a global variables structure 
+ *   configuration, as there's not really a global variables structure
  */
 #define VMGLOB_ADDR   0
 
@@ -381,7 +381,7 @@ inline void vmglob_delete(vm_globals *) { }
  *   STATIC GLOBAL STRUCTURE configuration.  In this configuration, the
  *   globals are defined in a single static global structure.  This is the
  *   second most efficient configuration, but it only allows one VM instance
- *   per process.  
+ *   per process.
  */
 #ifdef VMGLOB_STRUCT
 
@@ -397,9 +397,9 @@ inline vm_globals *vmglob_alloc()
 /* termination - this has no effect in this mode */
 inline void vmglob_delete(vm_globals *) { }
 
-/* 
+/*
  *   we don't require anything for the parameter declaration or usage,
- *   since we don't use the local parameter mechanism at all 
+ *   since we don't use the local parameter mechanism at all
  */
 #define VMG_
 #define VMG0_
@@ -449,9 +449,9 @@ inline vm_globals *vmglob_alloc()
 /* termination - delete a set of globals */
 inline void vmglob_delete(vm_globals *glob) { delete glob; }
 
-/* 
+/*
  *   we don't require anything for the parameter declaration or usage,
- *   since we don't use the local parameter mechanism at all 
+ *   since we don't use the local parameter mechanism at all
  */
 #define VMG_
 #define VMG0_
@@ -484,7 +484,7 @@ inline void vmglob_delete(vm_globals *glob) { delete glob; }
 /*
  *   PARAMETER configuration.  In this configuration, the globals are
  *   stored in an allocated structure whose address is passed to each VM
- *   function as a parameter. 
+ *   function as a parameter.
  */
 #ifdef VMGLOB_PARAM
 
@@ -529,7 +529,7 @@ inline void vmglob_delete(vm_globals *glob) { delete glob; }
  *   Global variable accessors.  For convenience, we define these cover
  *   macros that access the global variables in the appropriate manner for
  *   our configuration.  Code can use these G_xxx symbols syntactically as
- *   though they were normal global variables.  
+ *   though they were normal global variables.
  */
 #define G_mem         VMGLOB_ACCESS(mem)
 #define G_undo        VMGLOB_ACCESS(undo)

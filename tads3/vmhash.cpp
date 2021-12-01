@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/vmhash.cpp,v 1.3 1999/07/11 00:46:59 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1997, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmhash.cpp - hash table implementation
 Function
-  
+
 Notes
-  
+
 Modified
   10/25/97 MJRoberts  - Creation
 */
@@ -58,7 +58,7 @@ unsigned int CVmHashFuncCI::compute_hash(const char *s, size_t l) const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Simple case-sensitive hash function implementation 
+ *   Simple case-sensitive hash function implementation
  */
 unsigned int CVmHashFuncCS::compute_hash(const char *s, size_t l) const
 {
@@ -66,7 +66,7 @@ unsigned int CVmHashFuncCS::compute_hash(const char *s, size_t l) const
 
     /*
      *   add up all the character values in the string, treating case as
-     *   significant 
+     *   significant
      */
     for (acc = 0 ; l != 0 ; ++s, --l)
     {
@@ -84,7 +84,7 @@ unsigned int CVmHashFuncCS::compute_hash(const char *s, size_t l) const
 /* ------------------------------------------------------------------------ */
 /*
  *   Hash table symbol entry.  This is an abstract class; subclasses must
- *   provide a symbol-matching method.  
+ *   provide a symbol-matching method.
  */
 CVmHashEntry::CVmHashEntry(const char *str, size_t len, int copy)
 {
@@ -129,13 +129,13 @@ CVmHashEntry::~CVmHashEntry()
 /* ------------------------------------------------------------------------ */
 /*
  *   Concrete subclass of CVmHashEntry providing a case-insensitive
- *   symbol match implementation 
+ *   symbol match implementation
  */
 int CVmHashEntryCI::matches(const char *str, size_t len) const
 {
     /*
      *   it's a match if the strings are the same length and all
-     *   characters match, ignoring case 
+     *   characters match, ignoring case
      */
     return (len == len_
             && memicmp(str, str_, len * sizeof(*str)) == 0);
@@ -145,13 +145,13 @@ int CVmHashEntryCI::matches(const char *str, size_t len) const
 /* ------------------------------------------------------------------------ */
 /*
  *   Concrete subclass of CVmHashEntry providing a case-sensitive symbol
- *   match implementation 
+ *   match implementation
  */
 int CVmHashEntryCS::matches(const char *str, size_t len) const
 {
     /*
      *   it's a match if the strings are the same length and all
-     *   characters match, treating case as significant 
+     *   characters match, treating case as significant
      */
     return (len == len_
             && memcmp(str, str_, len * sizeof(*str)) == 0);
@@ -159,7 +159,7 @@ int CVmHashEntryCS::matches(const char *str, size_t len) const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Hash table 
+ *   Hash table
  */
 
 void CVmHashTable::init(int hash_table_size,
@@ -219,7 +219,7 @@ CVmHashTable::~CVmHashTable()
 }
 
 /*
- *   delete all entries in the hash table, but keep the table itself 
+ *   delete all entries in the hash table, but keep the table itself
  */
 void CVmHashTable::delete_all_entries()
 {
@@ -248,7 +248,7 @@ void CVmHashTable::delete_all_entries()
 
 /*
  *   Verify that a value is a power of two.  Hash table sizes must be
- *   powers of two. 
+ *   powers of two.
  */
 int CVmHashTable::is_power_of_two(int n)
 {
@@ -260,7 +260,7 @@ int CVmHashTable::is_power_of_two(int n)
 }
 
 /*
- *   Compute the hash value for an entry 
+ *   Compute the hash value for an entry
  */
 unsigned int CVmHashTable::compute_hash(CVmHashEntry *entry) const
 {
@@ -268,7 +268,7 @@ unsigned int CVmHashTable::compute_hash(CVmHashEntry *entry) const
 }
 
 /*
- *   Compute the hash value for a string 
+ *   Compute the hash value for a string
  */
 unsigned int CVmHashTable::compute_hash(const char *str, size_t len) const
 {
@@ -291,7 +291,7 @@ void CVmHashTable::add(CVmHashEntry *entry)
 }
 
 /*
- *   Remove an object 
+ *   Remove an object
  */
 void CVmHashTable::remove(CVmHashEntry *entry)
 {
@@ -300,9 +300,9 @@ void CVmHashTable::remove(CVmHashEntry *entry)
     /* compute the hash value for this entry */
     hash = compute_hash(entry);
 
-    /* 
+    /*
      *   if it's the first item in the chain, advance the head over it;
-     *   otherwise, we'll need to find the previous item to unlink it 
+     *   otherwise, we'll need to find the previous item to unlink it
      */
     if (table_[hash] == entry)
     {
@@ -312,7 +312,7 @@ void CVmHashTable::remove(CVmHashEntry *entry)
     else
     {
         CVmHashEntry *prv;
-        
+
         /* find the previous item in the list for this hash value */
         for (prv = table_[hash] ; prv != 0 && prv->nxt_ != entry ;
              prv = prv->nxt_) ;
@@ -324,7 +324,7 @@ void CVmHashTable::remove(CVmHashEntry *entry)
 }
 
 /*
- *   Find an object in the table matching a given string. 
+ *   Find an object in the table matching a given string.
  */
 CVmHashEntry *CVmHashTable::find(const char *str, size_t len) const
 {
@@ -364,7 +364,7 @@ void CVmHashTable::enum_hash_matches(const char *str, size_t len,
 }
 
 /*
- *   Enumerate hash matches for a given hash code 
+ *   Enumerate hash matches for a given hash code
  */
 void CVmHashTable::enum_hash_matches(unsigned int hash,
                                      void (*cb)(void *cbctx,
@@ -391,17 +391,17 @@ void CVmHashTable::enum_hash_matches(unsigned int hash,
  *   and ABCE, and this routine is called to find something matching
  *   ABCDEFGH, we'll return ABC as the match (not ABCE, since it doesn't
  *   match any leading substring of the given string, and not A or AB,
- *   even though they match, since ABC also matches and it's longer).  
+ *   even though they match, since ABC also matches and it's longer).
  */
 CVmHashEntry *CVmHashTable::find_leading_substr(const char *str, size_t len)
 {
     size_t sublen;
     CVmHashEntry *entry;
 
-    /* 
+    /*
      *   try to find each leading substring, starting with the longest,
      *   decreasing by one character on each iteration, until we've used
-     *   the whole string 
+     *   the whole string
      */
     for (sublen = len ; sublen > 0 ; --sublen)
     {
@@ -415,7 +415,7 @@ CVmHashEntry *CVmHashTable::find_leading_substr(const char *str, size_t len)
 }
 
 /*
- *   Enumerate all entries 
+ *   Enumerate all entries
  */
 void CVmHashTable::enum_entries(void (*func)(void *, CVmHashEntry *),
                                 void *ctx)
@@ -432,9 +432,9 @@ void CVmHashTable::enum_entries(void (*func)(void *, CVmHashEntry *),
         /* go through each entry at this hash value */
         for (entry = *tableptr ; entry ; entry = nxt)
         {
-            /* 
+            /*
              *   remember the next entry, in case the callback deletes the
-             *   current entry 
+             *   current entry
              */
             nxt = entry->nxt_;
 
@@ -448,7 +448,7 @@ void CVmHashTable::enum_entries(void (*func)(void *, CVmHashEntry *),
  *   Enumerate all entries - ultra-safe version.  This version should be
  *   used when the callback code might delete arbitrary entries from the
  *   hash table.  This version is slower than the standard enum_entries, but
- *   will tolerate any changes to the table made in the callback.  
+ *   will tolerate any changes to the table made in the callback.
  */
 void CVmHashTable::safe_enum_entries(void (*func)(void *, CVmHashEntry *),
                                      void *ctx)
@@ -461,18 +461,18 @@ void CVmHashTable::safe_enum_entries(void (*func)(void *, CVmHashEntry *),
     {
         size_t list_idx;
 
-        /* 
+        /*
          *   start at the first (0th) entry in the current hash chain, and
-         *   keep going until we run out of entries in the chain 
+         *   keep going until we run out of entries in the chain
          */
         for (list_idx = 0 ; ; ++list_idx)
         {
             CVmHashEntry *entry;
             size_t j;
 
-            /* 
+            /*
              *   Scan the hash chain for the current entry index.
-             *   
+             *
              *   This is the part that makes this version slower than the
              *   standard version and safer than the standard version.  It's
              *   slower than enum_entries() because we must scan the chain
@@ -481,7 +481,7 @@ void CVmHashTable::safe_enum_entries(void (*func)(void *, CVmHashEntry *),
              *   It's safer because we don't keep any pointers - if next
              *   element is deleted in the callback in enum_entries(), that
              *   stored next pointer would be invalid, but we store no
-             *   pointers that could become stale.  
+             *   pointers that could become stale.
              */
             for (j = 0, entry = *tableptr ; j < list_idx && entry != 0 ;
                  entry = entry->nxt_, ++j) ;
@@ -498,7 +498,7 @@ void CVmHashTable::safe_enum_entries(void (*func)(void *, CVmHashEntry *),
 
 
 /*
- *   Move all entries in this table to a new table 
+ *   Move all entries in this table to a new table
  */
 void CVmHashTable::move_entries_to(CVmHashTable *new_tab)
 {
@@ -514,17 +514,17 @@ void CVmHashTable::move_entries_to(CVmHashTable *new_tab)
         /* go through each entry at this hash value */
         for (entry = *tableptr ; entry ; entry = nxt)
         {
-            /* 
+            /*
              *   remember the next entry, since we'll be unlinking it from
              *   this table, which will render the nxt_ member unusable
-             *   for the purposes of completing this enumeration 
+             *   for the purposes of completing this enumeration
              */
             nxt = entry->nxt_;
 
-            /* 
+            /*
              *   clear the 'next' pointer in this entry, to unlink it from
              *   our table - since everything is being removed, there's no
-             *   need to worry about what came before us 
+             *   need to worry about what came before us
              */
             entry->nxt_ = 0;
 
@@ -532,9 +532,9 @@ void CVmHashTable::move_entries_to(CVmHashTable *new_tab)
             new_tab->add(entry);
         }
 
-        /* 
+        /*
          *   clear this hash value chain head - we've now removed
-         *   everything from it 
+         *   everything from it
          */
         *tableptr = 0;
     }
@@ -542,7 +542,7 @@ void CVmHashTable::move_entries_to(CVmHashTable *new_tab)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Debugging Functions 
+ *   Debugging Functions
  */
 
 #ifdef T3_DEBUG
@@ -558,13 +558,13 @@ void CVmHashTable::debug_dump() const
     int over_avg;
     int empty;
     size_t i;
-    
+
     /* gather statistics on the hash table */
     for (total = longest = 0, empty = 0, i = 0 ; i < table_size_ ; ++i)
     {
         CVmHashEntry *cur;
         int curlen;
-        
+
         /* scan this chain */
         for (curlen = 0, cur = table_[i] ; cur != 0 ; cur = cur->nxt_)
         {
@@ -599,7 +599,7 @@ void CVmHashTable::debug_dump() const
             ++over_avg;
     }
 
-        
+
     /* display the statistics */
     fprintf(stderr,
             "hash table: total %ld, longest %ld, average %ld\n"

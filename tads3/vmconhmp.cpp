@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 2002 by Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -15,7 +15,7 @@ Function
   of TADS (such as HTML TADS or HyperTADS), because we still need text-only
   interpretation of HTML markups for log-file targets.
 Notes
-  
+
 Modified
   06/08/02 MJRoberts  - Creation
 */
@@ -42,18 +42,18 @@ Modified
 /*
  *   Horizontal Tab object.  We use these objects to record tab stops
  *   defined with <TAB ID=xxx> in our HTML mini-parser.
- *   
+ *
  *   This is a hash table entry subclass because we use a hash table of tab
  *   entries, keyed by ID strings.  Note that we use a case-sensitive hash
  *   table entry - clients must convert ID's to lower-case if they don't
  *   want case sensitivity.
- *   
+ *
  *   Note that this code looks a bit cavalier with unicode vs ASCII, but
  *   this is actually safe.  The underlying hash table code uses
  *   counted-length strings, so it doesn't care about embedded null bytes.
  *   We therefore can pass a wchar_t buffer to the underlying hash table,
  *   even though the underlying hash table uses char's, because we multiply
- *   our length by the size of a wchar_t to get the byte length.  
+ *   our length by the size of a wchar_t to get the byte length.
  */
 class CVmFmtTabStop: public CVmHashEntryCS
 {
@@ -70,21 +70,21 @@ public:
 
     /*
      *   Find a tabstop object with a given ID, optionally creating a new
-     *   object if an existing one isn't found.  
+     *   object if an existing one isn't found.
      */
     static CVmFmtTabStop *find(CVmHashTable *hashtab, wchar_t *id, int create)
     {
-        /* 
+        /*
          *   Get the length - in characters AND in bytes - of the new ID.
          *   We mostly work with the new ID in bytes rather than wchar_t's,
-         *   because the underlying hash table does everything in bytes.  
+         *   because the underlying hash table does everything in bytes.
          */
-        
-        /* 
+
+        /*
          *   Convert the new ID to folded case.  The hash table doesn't deal
          *   with unicode case conversions, so we use a case-sensitive hash
          *   table and simply make sure we only give it lower-case
-         *   characters.  
+         *   characters.
          */
         size_t flen = fold_case(0, id);
         wchar_t *fid = 0;
@@ -104,10 +104,10 @@ public:
             /* get the folded ID length in characters and bytes */
             size_t id_chars = wcslen(id);
             size_t id_bytes = id_chars * sizeof(wchar_t);
-            
+
             /* look for an existing tab-stop entry with the same ID */
             entry = (CVmFmtTabStop *)hashtab->find((char *)id, id_bytes);
-            
+
             /* if we didn't find it, and they want to create it, do so */
             if (entry == 0 && create)
                 hashtab->add(entry = new CVmFmtTabStop((char *)id, id_bytes));
@@ -130,9 +130,9 @@ public:
         size_t dstlen = 0;
         for ( ; *str != 0 ; ++str)
         {
-            /* 
+            /*
              *   get the case folding of the current character, defaulting to
-             *   an identity mapping if there's no folding defined 
+             *   an identity mapping if there's no folding defined
              */
             const wchar_t *f = t3_to_fold(*str);
             wchar_t fi[2] = { *str, 0 };
@@ -150,7 +150,7 @@ public:
         /* add the null */
         if (dst != 0)
             *dst = 0;
-        
+
         /* return the length (excluding the null) */
         return dstlen;
     }
@@ -162,13 +162,13 @@ public:
  *   HTML entity mapping table.  When we're in non-HTML mode, we keep our own
  *   expansion table so that we can map HTML entity names into the local
  *   character set.
- *   
+ *
  *   The entries in this table must be in sorted order (by HTML entity name),
- *   because we use a binary search to find an entity name in the table.  
+ *   because we use a binary search to find an entity name in the table.
  */
 
 /*
- *   '&' character name definition structure 
+ *   '&' character name definition structure
  */
 struct amp_tbl_t
 {
@@ -179,8 +179,8 @@ struct amp_tbl_t
     wchar_t html_cval;
 };
 
-/* 
- *   table of '&' character name sequences 
+/*
+ *   table of '&' character name sequences
  */
 static const struct amp_tbl_t amp_tbl[] =
 {
@@ -505,7 +505,7 @@ static const struct amp_tbl_t amp_tbl[] =
 /*
  *   Color names.  For text-mode interpreters, we parse certain tag
  *   attributes that can specify colors, so we must recognize the basic set
- *   of HTML color names for these attributes.  
+ *   of HTML color names for these attributes.
  */
 struct color_tbl_t
 {
@@ -553,16 +553,16 @@ static const color_tbl_t color_tbl[] =
 /* ------------------------------------------------------------------------ */
 /*
  *   Parse the COLOR attribute of a FONT tag.  Sets *result to the parsed
- *   color value.  Returns true if we found a valid value, false if not.  
+ *   color value.  Returns true if we found a valid value, false if not.
  */
 int CVmFormatter::parse_color_attr(VMG_ const wchar_t *val,
                                    os_color_t *result)
 {
     const color_tbl_t *p;
 
-    /* 
+    /*
      *   if the value starts with '#', it's a hex RGB value; otherwise, it's
-     *   a color name 
+     *   a color name
      */
     if (*val == '#')
     {
@@ -580,10 +580,10 @@ int CVmFormatter::parse_color_attr(VMG_ const wchar_t *val,
                        : *val - 'A' + 0x0A);
         }
 
-        /* 
+        /*
          *   os_color_t uses the same encoding as HTML, so just return the
          *   value as given (ensuring that it doesn't overflow the 24 bits
-         *   assigned to our RGB encoding) 
+         *   assigned to our RGB encoding)
          */
         *result = (os_color_t)(hexval & 0x00FFFFFF);
         return TRUE;
@@ -611,7 +611,7 @@ int CVmFormatter::parse_color_attr(VMG_ const wchar_t *val,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Find a tab 
+ *   Find a tab
  */
 CVmFmtTabStop *CVmFormatter::find_tab(wchar_t *id, int create)
 {
@@ -625,7 +625,7 @@ CVmFmtTabStop *CVmFormatter::find_tab(wchar_t *id, int create)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Expand the pending tab. 
+ *   Expand the pending tab.
  */
 void CVmFormatter::expand_pending_tab(VMG_ int allow_anon)
 {
@@ -633,14 +633,14 @@ void CVmFormatter::expand_pending_tab(VMG_ int allow_anon)
     int spaces;
     int i;
     int col;
-    
+
     /* check the alignment */
     switch(pending_tab_align_)
     {
     case VMFMT_TAB_LEFT:
-        /* 
+        /*
          *   left-aligned tabs are never pending, so this should never
-         *   happen 
+         *   happen
          */
         assert(FALSE);
         return;
@@ -654,13 +654,13 @@ void CVmFormatter::expand_pending_tab(VMG_ int allow_anon)
          *   It's a right-aligned tab.  If we have a TO, expand the tab with
          *   enough spaces to push the text up to the defined tab's column;
          *   otherwise, insert spaces to push the text to the full line
-         *   width.  
+         *   width.
          */
         if (pending_tab_entry_ != 0)
         {
-            /* 
+            /*
              *   if we're not past the tab, insert enough spaces to get us
-             *   there; if we're already past the tab, insert nothing 
+             *   there; if we're already past the tab, insert nothing
              */
             if (pending_tab_entry_->column_ > linecol_)
                 spaces = pending_tab_entry_->column_ - linecol_;
@@ -684,23 +684,23 @@ void CVmFormatter::expand_pending_tab(VMG_ int allow_anon)
          *   It's a center-aligned tab.  If we have a TO, expand the tab
          *   with enough spaces to center the text on the defined tab's
          *   column; otherwise, center the text between the tab's starting
-         *   column and the full line width. 
+         *   column and the full line width.
          */
         txtlen = linecol_ - pending_tab_start_;
         if (pending_tab_entry_ != 0)
         {
             int startcol;
-            
-            /* 
+
+            /*
              *   find the column where the text would have to start for the
-             *   text to be centered over the tab's column 
+             *   text to be centered over the tab's column
              */
             startcol = pending_tab_entry_->column_ - (txtlen / 2);
 
-            /* 
+            /*
              *   if that's past the starting column, insert enough spaces to
              *   get us there; otherwise, do nothing, as we'd have to start
-             *   to the left of the leftmost place we can put the text 
+             *   to the left of the leftmost place we can put the text
              */
             if (startcol > pending_tab_start_)
                 spaces = startcol - pending_tab_start_;
@@ -723,7 +723,7 @@ void CVmFormatter::expand_pending_tab(VMG_ int allow_anon)
     case VMFMT_TAB_DECIMAL:
         /*
          *   Decimal tab.  Scan the text after the tab, looking for the
-         *   first occurrence of the decimal point character. 
+         *   first occurrence of the decimal point character.
          */
         for (col = pending_tab_start_, i = linepos_ - (linecol_ - col) ;
              i < linepos_ ; ++i, ++col)
@@ -733,10 +733,10 @@ void CVmFormatter::expand_pending_tab(VMG_ int allow_anon)
                 break;
         }
 
-        /* 
+        /*
          *   insert enough spaces to put the decimal point character in the
          *   defined tab's column; if the decimal point character is already
-         *   past the tab's column, do nothing 
+         *   past the tab's column, do nothing
          */
         if (pending_tab_entry_->column_ > col)
             spaces = pending_tab_entry_->column_ - col;
@@ -748,18 +748,18 @@ void CVmFormatter::expand_pending_tab(VMG_ int allow_anon)
     /* insert the spaces into the buffer where the <TAB> appeared */
     if (spaces > 0)
     {
-        /* 
+        /*
          *   Calculate the index in the buffer of the insertion point.  To
          *   do this, start with linepos_, which the current output index in
          *   the buffer, and subtract the difference between linecol_ and
          *   the tab starting column, since this will give us the number of
-         *   characters in the buffer since the tab insertion point. 
+         *   characters in the buffer since the tab insertion point.
          */
         i = linepos_ - (linecol_ - pending_tab_start_);
 
-        /* 
+        /*
          *   open up the line buffer and line color buffer by the number of
-         *   spaces we're adding 
+         *   spaces we're adding
          */
         memmove(linebuf_ + i + spaces, linebuf_ + i,
                 (linepos_ - i + 1)*sizeof(linebuf_[0]));
@@ -788,8 +788,8 @@ void CVmFormatter::expand_pending_tab(VMG_ int allow_anon)
  *   Resume text-only HTML mini-parser.  This is called when we start writing
  *   a new string and discover that we're parsing inside an HTML tag in our
  *   mini-parser.
- *   
- *   Returns the next character after the run of text we parse.  
+ *
+ *   Returns the next character after the run of text we parse.
  */
 wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                                           const char **sp, size_t *slenp)
@@ -799,7 +799,7 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
     {
         /*
          *   If we're parsing HTML here, and we're inside a tag, skip
-         *   characters until we reach the end of the tag.  
+         *   characters until we reach the end of the tag.
          */
         if (html_parse_state_ != VMCON_HPS_NORMAL)
         {
@@ -809,9 +809,9 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
             switch(html_parse_state_)
             {
             case VMCON_HPS_TAG:
-                /* 
+                /*
                  *   keep skipping up to the closing '>', but note when we
-                 *   enter any quoted section 
+                 *   enter any quoted section
                  */
                 switch(c)
                 {
@@ -845,10 +845,10 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                         if (new_tab_entry_ != 0
                             || new_tab_align_ != VMFMT_TAB_NONE)
                         {
-                            /*   
+                            /*
                              *   We have either a <TAB TO>, maybe with an
                              *   ALIGN attribute, or at least a <TAB ALIGN>.
-                             *   
+                             *
                              *   If there's no TO, then we use the default
                              *   treatment based on the alignment: for
                              *   ALIGN=RIGHT, the text up to the end of the
@@ -856,9 +856,9 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                              *   display; for ALIGN=CENTER, it's centered
                              *   within the margins.  For other alignments,
                              *   a TAB without a TO attribute has no effect.
-                             *   
+                             *
                              *   Check for ALIGN without TO, and ignore it
-                             *   if it's not CENTER or RIGHT alignment.  
+                             *   if it's not CENTER or RIGHT alignment.
                              */
                             if (new_tab_entry_ == 0
                                 && new_tab_align_ != VMFMT_TAB_RIGHT
@@ -866,20 +866,20 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                             {
                                 /*
                                  *   meaningless alignment for <TAB> without
-                                 *   a TO attribute - ignore the tab 
+                                 *   a TO attribute - ignore the tab
                                  */
                             }
                             else if (new_tab_align_ == VMFMT_TAB_LEFT
                                      || new_tab_align_ == VMFMT_TAB_NONE)
                             {
                                 int delta;
-                                
+
                                 /*
                                  *   This is a left-aligned tab (explicitly
                                  *   or implicitly: if no alignment is
                                  *   specified, default to left alignment).
                                  *   This is easy: just insert spaces to the
-                                 *   desired column.  
+                                 *   desired column.
                                  */
                                 delta = new_tab_entry_->column_ - linecol_;
                                 if (delta > 0)
@@ -891,7 +891,7 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                                  *   For other alignments, we won't know how
                                  *   much space to insert until we find the
                                  *   the next <TAB> or the end of the line.
-                                 *   
+                                 *
                                  *   Remember the starting column of the
                                  *   pending tab.  When we reach another
                                  *   <TAB>, or we reach the end of the line,
@@ -900,7 +900,7 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                                  *   we can use the color active at the
                                  *   <TAB> tag when we insert the spaces
                                  *   expanding the tab.
-                                 *   
+                                 *
                                  *   Also remember the characteristics
                                  *   specified in the <TAB> tag (alignment,
                                  *   decimal-point alignment character), so
@@ -921,10 +921,10 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                         }
                         else
                         {
-                            /* 
+                            /*
                              *   it's just a <TAB> with no attributes -
                              *   default to <TAB MULTIPLE=4>, so that it
-                             *   behaves like a simple '\t' 
+                             *   behaves like a simple '\t'
                              */
                             write_tab(vmg_ 0, 4);
                         }
@@ -980,43 +980,43 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                 break;
 
             case VMCON_HPS_ATTR_NAME:
-                /* 
+                /*
                  *   parsing an attribute name; resume at the last character
-                 *   of the buffer so far 
+                 *   of the buffer so far
                  */
                 dst = attrname_ + wcslen(attrname_);
-                
+
                 /* add characters to the attribute name */
                 while (t3_is_alpha(c) || t3_is_digit(c))
                 {
                     /* store this character if there's room */
                     if (dst + 1 < attrname_ + CVFMT_MAX_ATTR_NAME)
                         *dst++ = c;
-                    
+
                     /* get the next character */
                     c = next_wchar(sp, slenp);
                 }
-                
+
                 /* null-terminate the result so far */
                 *dst++ = '\0';
 
-                /* 
+                /*
                  *   if we've reached the end of the string, stop here,
-                 *   staying in the same mode 
+                 *   staying in the same mode
                  */
                 if (c == '\0')
                     break;
-                
+
                 /* skip any whitespace */
                 while (t3_is_whitespace(c))
                     c = next_wchar(sp, slenp);
-                
+
                 /* if we found an '=', switch to parsing the value */
                 if (c == '=')
                 {
                     /* switch to value mode */
                     html_parse_state_ = VMCON_HPS_ATTR_VAL;
-                    
+
                     /* empty the value buffer */
                     attrval_[0] = L'\0';
                     attr_qu_ = L'\0';
@@ -1026,12 +1026,12 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                 }
                 else
                 {
-                    /* 
+                    /*
                      *   There's no value explicitly given, so the value is
-                     *   implicitly the same as the attribute name. 
+                     *   implicitly the same as the attribute name.
                      */
                     wcscpy(attrval_, attrname_);
-                    
+
                     /* this takes us back to tag mode */
                     html_parse_state_ = VMCON_HPS_TAG;
 
@@ -1082,9 +1082,9 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                         break;
                     }
 
-                    /* 
+                    /*
                      *   if it's a space or a '>', and the attribute isn't
-                     *   quoted, this marks the end of the attribute 
+                     *   quoted, this marks the end of the attribute
                      */
                     if (attr_qu_ == 0 && (t3_is_whitespace(c) || c == '>'))
                     {
@@ -1106,29 +1106,29 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                 /* null-terminate the destination */
                 *dst = L'\0';
 
-                /* 
+                /*
                  *   if we're still in value-parsing mode, it means that we
                  *   reached the end of the string without reaching a value
-                 *   delimiter - simply stop scanning and wait for more 
+                 *   delimiter - simply stop scanning and wait for more
                  */
                 if (html_parse_state_ == VMCON_HPS_ATTR_VAL)
                     break;
 
             process_attr_val:
-                /* 
+                /*
                  *   We have our tag and value, so see if we recognize it,
-                 *   and it's meaningful in the context of the current tag.  
+                 *   and it's meaningful in the context of the current tag.
                  */
                 if (html_defer_br_ != HTML_DEFER_BR_NONE
                     && CVmCaseFoldStr::wstreq(attrname_, L"height"))
                 {
                     int ht;
-                    
+
                     /*
                      *   If the height is zero, always treat this as a
                      *   non-blanking flush.  If it's one, treat it as we
                      *   originally planned to.  If it's greater than one,
-                     *   add n blank lines.  
+                     *   add n blank lines.
                      */
                     ht = wtoi(attrval_);
                     if (ht == 0)
@@ -1142,8 +1142,8 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                     }
                     else
                     {
-                        /* 
-                         *   write out the desired number of blank lines 
+                        /*
+                         *   write out the desired number of blank lines
                          */
                         for ( ; ht > 0 ; --ht)
                             write_blank_line(vmg0_);
@@ -1160,7 +1160,7 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                          && CVmCaseFoldStr::wstreq(attrname_, L"color"))
                 {
                     os_color_t new_color;
-                    
+
                     /* parse the color, and use it as the new foreground */
                     if (parse_color_attr(vmg_ attrval_, &new_color))
                         cur_color_.fg = new_color;
@@ -1204,22 +1204,22 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                          *   column position.  (If we already have an entry
                          *   with the same name, the new definition replaces
                          *   the old definition, so just change the existing
-                         *   entry.)  
+                         *   entry.)
                          */
                         CVmFmtTabStop *entry = find_tab(attrval_, TRUE);
 
                         /* define the entry in the current column */
                         entry->column_ = linecol_;
-                        
+
                         /* this finishes the <TAB> */
                         html_in_tab_ = FALSE;
                     }
                     else if (CVmCaseFoldStr::wstreq(attrname_, L"to"))
                     {
-                        /* 
+                        /*
                          *   find the tab object with the given ID, and
                          *   remember it; when we're done parsing the tag,
-                         *   we'll look at this to generate our tab output 
+                         *   we'll look at this to generate our tab output
                          */
                         new_tab_entry_ = find_tab(attrval_, FALSE);
 
@@ -1229,9 +1229,9 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                     }
                     else if (CVmCaseFoldStr::wstreq(attrname_, L"indent"))
                     {
-                        /* 
+                        /*
                          *   it's a simple <TAB INDENT=n> - this simply
-                         *   inserts the given number of spaces 
+                         *   inserts the given number of spaces
                          */
                         write_tab(vmg_ wtoi(attrval_), 0);
 
@@ -1240,9 +1240,9 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                     }
                     else if (CVmCaseFoldStr::wstreq(attrname_, L"multiple"))
                     {
-                        /* 
+                        /*
                          *   it's a simple <TAB MULTIPLE=n> - this simply
-                         *   inserts spaces to the given column multiple 
+                         *   inserts spaces to the given column multiple
                          */
                         write_tab(vmg_ wtoi(attrval_), 0);
 
@@ -1286,10 +1286,10 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                         cur_flags_ |= VMCON_OBF_BREAK_ANY;
                     }
                 }
-                
-                /* 
+
+                /*
                  *   since we already read the next character, simply loop
-                 *   back immediately 
+                 *   back immediately
                  */
                 continue;
 
@@ -1298,9 +1298,9 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                 break;
             }
 
-            /* 
+            /*
              *   move on to the next character, and start over with the
-             *   new character 
+             *   new character
              */
             c = next_wchar(sp, slenp);
             continue;
@@ -1309,7 +1309,7 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
         /*
          *   If we're in a title, and this isn't the start of a new tag,
          *   skip the character - we suppress all regular text output
-         *   inside a <TITLE> ... </TITLE> sequence. 
+         *   inside a <TITLE> ... </TITLE> sequence.
          */
         if (html_in_ignore_)
         {
@@ -1322,7 +1322,7 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
             else
             {
                 wchar_t curCh;
-                
+
                 /* check for entities */
                 if (c == '&')
                 {
@@ -1337,30 +1337,30 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                     /* get the next character */
                     c = next_wchar(sp, slenp);
                 }
-                
-                /* 
+
+                /*
                  *   if we're gathering a title, and there's room in the
                  *   title buffer for more (always leaving room for a null
-                 *   terminator), add this to the title buffer 
+                 *   terminator), add this to the title buffer
                  */
                 if (html_in_title_ && html_title_ptr_ != 0)
                 {
                     size_t rem, orig_rem;
-                    
-                    /* 
+
+                    /*
                      *   figure the remaining title buffer space, leaving
-                     *   room for a terminating null byte 
+                     *   room for a terminating null byte
                      */
                     orig_rem = rem = html_title_buf_size_ - 1;
-                
-                    /* 
+
+                    /*
                      *   map this character into the local character set and
-                     *   add it to the buffer 
+                     *   add it to the buffer
                      */
                     if (G_cmap_to_ui->map(curCh, &html_title_ptr_, &rem)
                         > orig_rem)
                     {
-                        /* 
+                        /*
                          *   it didn't fit - add null termination and close
                          *   out the buffer (we might have to add more than
                          *   one byte, because a single character might take
@@ -1368,7 +1368,7 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
                          *   ensure that we don't skip a wide character then
                          *   later add a narrower character, close out the
                          *   entire buffer when first we encounter a
-                         *   character that doesn't fit) 
+                         *   character that doesn't fit)
                          */
                         while (html_title_ptr_
                                < html_title_buf_ + html_title_buf_size_)
@@ -1381,7 +1381,7 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
             continue;
         }
 
-        /* 
+        /*
          *   we didn't find any HTML parsing we need to do with this
          *   character, so return the character
          */
@@ -1397,7 +1397,7 @@ wchar_t CVmFormatter::resume_html_parsing(VMG_ wchar_t c,
  *   Parse the beginning HTML markup.  This is called when we are scanning a
  *   '<' or '&' character in output text, and we're in HTML mode, and the
  *   underlying target doesn't support HTML parsing.  Returns the next
- *   character to process after we finish our initial parsing.  
+ *   character to process after we finish our initial parsing.
  */
 wchar_t CVmFormatter::parse_html_markup(VMG_ wchar_t c,
                                         const char **sp, size_t *slenp)
@@ -1409,10 +1409,10 @@ wchar_t CVmFormatter::parse_html_markup(VMG_ wchar_t c,
         wchar_t tagbuf[MAX_TAG_SIZE];
         wchar_t *dst;
         int is_end_tag;
-        
+
         /* skip the opening '<' */
         c = next_wchar(sp, slenp);
-        
+
         /* note if this is a closing tag */
         if (c == '/' || c == '\\')
         {
@@ -1422,10 +1422,10 @@ wchar_t CVmFormatter::parse_html_markup(VMG_ wchar_t c,
         }
         else
             is_end_tag = FALSE;
-        
-        /* 
+
+        /*
          *   find the end of the tag name - the tag continues to the next
-         *   space, '>', or end of line 
+         *   space, '>', or end of line
          */
         for (dst = tagbuf ; c != '\0' && c != ' ' && c != '>' ;
              c = next_wchar(sp, slenp))
@@ -1434,19 +1434,19 @@ wchar_t CVmFormatter::parse_html_markup(VMG_ wchar_t c,
             if (dst + 1 < tagbuf + MAX_TAG_SIZE)
                 *dst++ = c;
         }
-        
+
         /* null-terminate the tag name */
         *dst = '\0';
-        
+
         /*
          *   Check to see if we recognize the tag.  We only recognize a few
-         *   simple tags that map easily to character mode.  
+         *   simple tags that map easily to character mode.
          */
         if (CVmCaseFoldStr::wstreq(tagbuf, L"br"))
         {
-            /* 
+            /*
              *   line break - if there's anything buffered up, just flush the
-             *   current line, otherwise write out a blank line 
+             *   current line, otherwise write out a blank line
              */
             if (html_in_ignore_)
                 /* suppress in ignore mode */;
@@ -1629,33 +1629,33 @@ wchar_t CVmFormatter::parse_html_markup(VMG_ wchar_t c,
         }
         else if (CVmCaseFoldStr::wstreq(tagbuf, L"title"))
         {
-            /* 
+            /*
              *   Turn ignore mode on or off as appropriate, and turn on or
-             *   off title mode as well.  
+             *   off title mode as well.
              */
             if (is_end_tag)
             {
-                /* 
+                /*
                  *   note that we're leaving an ignore section and a title
-                 *   section 
+                 *   section
                  */
                 --html_in_ignore_;
                 --html_in_title_;
 
-                /*  
+                /*
                  *   If we're no longer in a title, and we have a buffer
                  *   where we've gathered up the title string, call the OS
                  *   layer to tell it the title string, in case it wants to
                  *   change the window title or otherwise make use of the
                  *   title.  (Note that some streams don't bother keeping
                  *   track of the title at all, so we might not have a title
-                 *   buffer.)  
+                 *   buffer.)
                  */
                 if (html_in_title_ == 0 && html_title_ptr_ != 0)
                 {
                     /* null-terminate the title string */
                     *html_title_ptr_ = '\0';
-                    
+
                     /* tell the OS about the title */
                     if (!html_in_ignore_)
                         set_title_in_os(html_title_buf_);
@@ -1663,16 +1663,16 @@ wchar_t CVmFormatter::parse_html_markup(VMG_ wchar_t c,
             }
             else
             {
-                /* 
+                /*
                  *   if we aren't already in a title, set up to capture the
-                 *   title into the title buffer 
+                 *   title into the title buffer
                  */
                 if (!html_in_title_)
                     html_title_ptr_ = html_title_buf_;
-                
-                /* 
+
+                /*
                  *   note that we're in a title and in an ignore section,
-                 *   since nothing within gets displayed 
+                 *   since nothing within gets displayed
                  */
                 ++html_in_ignore_;
                 ++html_in_title_;
@@ -1720,9 +1720,9 @@ wchar_t CVmFormatter::parse_html_markup(VMG_ wchar_t c,
         /* suppress everything up to the next '>' */
         html_parse_state_ = VMCON_HPS_TAG;
 
-        /* 
+        /*
          *   return the next character - since we're now in TAG mode, we'll
-         *   resume the HTML mini-parser to parse the contents of the tag 
+         *   resume the HTML mini-parser to parse the contents of the tag
          */
         return c;
     }
@@ -1740,9 +1740,9 @@ wchar_t CVmFormatter::parse_html_markup(VMG_ wchar_t c,
     }
     else
     {
-        /* 
+        /*
          *   we have nothing special to do with this character - simply
-         *   buffer it and move on to the next character 
+         *   buffer it and move on to the next character
          */
         buffer_char(vmg_ c);
         return next_wchar(sp, slenp);
@@ -1753,7 +1753,7 @@ wchar_t CVmFormatter::parse_html_markup(VMG_ wchar_t c,
 /*
  *   Parse an HTML entity markup.  Call this with the current character
  *   pointer at the '&'.  We'll parse the entity name and return it in *ent.
- *   The return value is the next character to be parsed after the entity.  
+ *   The return value is the next character to be parsed after the entity.
  */
 wchar_t CVmFormatter::parse_entity(VMG_ wchar_t *ent, const char **sp,
                                    size_t *slenp)
@@ -1767,13 +1767,13 @@ wchar_t CVmFormatter::parse_entity(VMG_ wchar_t *ent, const char **sp,
     size_t lo, hi, cur;
     wchar_t c;
 
-    /* 
+    /*
      *   remember where the part after the '&' begins, so we can come back
-     *   here later if necessary 
+     *   here later if necessary
      */
     orig_s = *sp;
     orig_slen = *slenp;
-    
+
     /* get the character after the ampersand */
     c = next_wchar(sp, slenp);
 
@@ -1781,16 +1781,16 @@ wchar_t CVmFormatter::parse_entity(VMG_ wchar_t *ent, const char **sp,
     if (c == '#')
     {
         uint val;
-        
+
         /* skip the '#' */
         c = next_wchar(sp, slenp);
-        
+
         /* check for hex */
         if (c == 'x' || c == 'X')
         {
             /* skip the 'x' */
             c = next_wchar(sp, slenp);
-            
+
             /* read the hex number */
             for (val = 0 ; is_xdigit(c) ; c = next_wchar(sp, slenp))
             {
@@ -1814,18 +1814,18 @@ wchar_t CVmFormatter::parse_entity(VMG_ wchar_t *ent, const char **sp,
                 val += c - '0';
             }
         }
-        
+
         /* if we found a ';' at the end, skip it */
         if (c == ';')
             c = next_wchar(sp, slenp);
 
         /* return the entity from the numeric character value */
         *ent = (wchar_t)val;
-        
+
         /* we're done with this character */
         return c;
     }
-    
+
     /*
      *   Parse the sequence after the '&'.  Parse up to the closing
      *   semicolon, or any non-alphanumeric, or until we fill up the buffer.
@@ -1838,17 +1838,17 @@ wchar_t CVmFormatter::parse_entity(VMG_ wchar_t *ent, const char **sp,
         /* copy this character to the name buffer */
         *dst++ = (char)c;
     }
-    
+
     /* null-terminate the name */
     *dst = '\0';
-    
+
     /* do a binary search for the name */
     lo = 0;
     hi = sizeof(amp_tbl)/sizeof(amp_tbl[0]) - 1;
     for (;;)
     {
         int diff;
-        
+
         /* if we've converged, look no further */
         if (lo > hi
             || lo >= sizeof(amp_tbl)/sizeof(amp_tbl[0]))
@@ -1860,7 +1860,7 @@ wchar_t CVmFormatter::parse_entity(VMG_ wchar_t *ent, const char **sp,
         /* split the difference */
         cur = lo + (hi - lo)/2;
         ampptr = &amp_tbl[cur];
-        
+
         /* see where we are relative to the target item */
         diff = strcmp(ampptr->cname, ampbuf);
         if (diff == 0)
@@ -1901,13 +1901,13 @@ wchar_t CVmFormatter::parse_entity(VMG_ wchar_t *ent, const char **sp,
         for (*sp = orig_s, *slenp = orig_slen ; skipcnt != 0 ;
              c = next_wchar(sp, slenp), --skipcnt) ;
 
-        /* 
+        /*
          *   that positions us on the last character of the entity name; skip
-         *   one more, so that we're on the character after the entity name 
+         *   one more, so that we're on the character after the entity name
          */
         c = next_wchar(sp, slenp);
     }
-    
+
     /* if we found the entry, write out the character */
     if (ampptr != 0)
     {
@@ -1916,13 +1916,13 @@ wchar_t CVmFormatter::parse_entity(VMG_ wchar_t *ent, const char **sp,
     }
     else
     {
-        /* 
+        /*
          *   we didn't find it - ignore the entire sequence, and just write
          *   it out verbatim; for our caller's purposes, the result of the
-         *   parse is just the '&' itself 
+         *   parse is just the '&' itself
          */
         *ent = '&';
-        
+
         /* now go back and scan from the next character after the ampersand */
         *sp = orig_s;
         *slenp = orig_slen;
@@ -1937,7 +1937,7 @@ wchar_t CVmFormatter::parse_entity(VMG_ wchar_t *ent, const char **sp,
 /* ------------------------------------------------------------------------ */
 /*
  *   Service routine - read a number represented as a base-10 string of wide
- *   characters 
+ *   characters
  */
 int CVmFormatter::wtoi(const wchar_t *p)
 {

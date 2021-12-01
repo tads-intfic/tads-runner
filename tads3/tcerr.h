@@ -1,18 +1,18 @@
 /* $Header: d:/cvsroot/tads/tads3/TCERR.H,v 1.3 1999/05/17 02:52:27 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   tcerr.h - TADS 3 Compiler Error Management
 Function
-  
+
 Notes
-  
+
 Modified
   04/22/99 MJRoberts  - Creation
 */
@@ -23,31 +23,31 @@ Modified
 #include "vmerr.h"
 
 /*
- *   Error Severity Levels.  
+ *   Error Severity Levels.
  */
 enum tc_severity_t
 {
     /* information only - not an error */
     TC_SEV_INFO,
 
-    /* 
+    /*
      *   Pedantic warning - doesn't prevent compilation from succeeding,
      *   and doesn't even necessarily indicate anything is wrong.  We use
      *   a separate severity level for these because some users will want
-     *   to be able to filter these out.  
+     *   to be able to filter these out.
      */
     TC_SEV_PEDANTIC,
 
-    /* 
+    /*
      *   warning - does not prevent compilation from succeeding, but
-     *   indicates a potential problem 
+     *   indicates a potential problem
      */
     TC_SEV_WARNING,
 
-    /* 
+    /*
      *   error - compilation cannot be completed successfully, although it
      *   may be possible to continue with compilation to the extent
-     *   necessary to check for any additional errors 
+     *   necessary to check for any additional errors
      */
     TC_SEV_ERROR,
 

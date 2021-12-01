@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -36,7 +36,7 @@ Modified
 #include "vmconsol.h"
 
 /*
- *   formatted text-only file prompt 
+ *   formatted text-only file prompt
  */
 int CVmConsole::askfile(VMG_ const char *prompt, size_t prompt_len,
                         char *reply, size_t replen,
@@ -51,9 +51,9 @@ int CVmConsole::askfile(VMG_ const char *prompt, size_t prompt_len,
     if (read_line(vmg_ reply, replen))
         return OS_AFE_FAILURE;
 
-    /* 
+    /*
      *   if they entered an empty line, return "cancel"; otherwise, return
-     *   success 
+     *   success
      */
     return (reply[0] == '\0' ? OS_AFE_CANCEL : OS_AFE_SUCCESS);
 }

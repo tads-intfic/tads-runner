@@ -1,18 +1,18 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmdict.h - VM 'Dictionary' metaclass
 Function
-  
+
 Notes
-  
+
 Modified
   01/24/00 MJRoberts  - Creation
 */
@@ -36,8 +36,8 @@ Modified
 class CVmObjDict;
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   undo action codes 
+/*
+ *   undo action codes
  */
 enum dict_undo_action
 {
@@ -55,34 +55,34 @@ enum dict_undo_action
 /* ------------------------------------------------------------------------ */
 /*
  *   The image file data block is arranged as follows:
- *   
+ *
  *.  UINT4 comparator_object_id
  *.  UINT2 load_image_entry_count
  *.  entry 1
  *.  entry 2
  *.  ...
  *.  entry N
- *   
+ *
  *   Each entry has the following structure:
- *   
+ *
  *.  UCHAR key_string_byte_length
  *.  key_string (UTF-8 characters, not null terminated, XOR'ed with 0xBD)
  *.  UINT2 number of sub-entries
  *.  sub-entry 1
  *.  sub-entry 2
  *.  etc
- *   
+ *
  *   Each sub-entry is structured like this:
- *   
+ *
  *   UINT4 associated_object_id
  *.  UINT2 defining_property_id
- *   
+ *
  *   Note that each byte of the key string is XOR'ed with the arbitrary
  *   byte value 0xBD.  This is simply to provide a minimal level of
  *   obfuscation in the image file to prevent casual browsing of the image
- *   contents.  
+ *   contents.
  */
-/*   
+/*
  *   Separately, we maintain a hash table and entries in the hash table.  We
  *   don't attempt to keep the hash table in a portable format, which means
  *   that we have to rebuild the hash table on restoring a saved state file.
@@ -98,7 +98,7 @@ enum vm_dict_comp_type
 
 /*
  *   Dictionary object extension - we use this memory (in the variable
- *   heap) to keep track of our image data and our hash table.  
+ *   heap) to keep track of our image data and our hash table.
  */
 struct vm_dict_ext
 {
@@ -127,10 +127,10 @@ struct vm_dict_ext
 /* ------------------------------------------------------------------------ */
 /*
  *   For spelling correction, we maintain a Trie on the dictionary in
- *   parallel to the hash table.  
+ *   parallel to the hash table.
  */
 
-/* 
+/*
  *   Trie Node - a node in the trie tree.
  */
 struct vmdict_TrieNode
@@ -173,21 +173,21 @@ struct vmdict_TrieNode
     /* delete a word */
     void del_word(const char *str, size_t len);
 
-    /* 
+    /*
      *   Transition character from parent to this node.  Append this
      *   character to the string that reached the parent node to get the
-     *   string that reaches the child node. 
+     *   string that reaches the child node.
      */
     wchar_t ch;
 
-    /* 
+    /*
      *   Number of words at this node.  Since we use the Trie only for
      *   spelling correction, we don't care about any of the other data
      *   stored per word; we can look that up through the hash table.  All we
      *   care about is whether or not a given node has any words associated
      *   with it.  Since the same word can be entered in the dictionary
      *   several times, we need to keep a count - that way, we can track
-     *   dynamic removal of words by matching deletions against insertions.  
+     *   dynamic removal of words by matching deletions against insertions.
      */
     int word_cnt;
 
@@ -201,7 +201,7 @@ struct vmdict_TrieNode
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Dictionary object interface 
+ *   Dictionary object interface
  */
 class CVmObjDict: public CVmObject
 {
@@ -224,9 +224,9 @@ public:
     static vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr,
                                          uint argc);
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -305,29 +305,29 @@ public:
     vm_obj_id_t get_comparator() const { return get_ext()->comparator_; }
     void set_comparator(VMG_ vm_obj_id_t obj);
 
-    /* 
+    /*
      *   Match a pair of strings.
-     *   
+     *
      *   'valstrval' is the vm_val_t with the string value, if one is
      *   available; if not, this can be given as null and we'll synthesize a
      *   new string object from 'valstr' and 'vallen' if one is needed.  We
      *   don't require the caller to synthesize a string object because we
      *   might not need one; we'll create one only if one is actually needed.
-     *   
+     *
      *   'valstr' and 'vallen' directly give the text of the value string,
      *   and 'refstr' and 'reflen' likewise directly give the text of the
-     *   reference string.  
+     *   reference string.
      */
     int match_strings(VMG_ const vm_val_t *valstrval,
                       const char *valstr, size_t vallen,
                       const char *refstr, size_t reflen,
                       vm_val_t *result_val);
 
-    /* 
+    /*
      *   Calculate the hash value for a string.  As in match_strings(),
      *   'valstrval' can be passed as null if no vm_val_t for the string text
      *   is available, in which case we'll synthesize a new string object
-     *   from 'valstr' and 'vallen' if one is needed. 
+     *   from 'valstr' and 'vallen' if one is needed.
      */
     unsigned int calc_str_hash(VMG_ const vm_val_t *valstrval,
                                const char *valstr, size_t vallen);
@@ -402,9 +402,9 @@ protected:
     /* get my extension, properly cast */
     vm_dict_ext *get_ext() const { return (vm_dict_ext *)ext_; }
 
-    /* 
+    /*
      *   add an entry; returns true if successful, false if the entry
-     *   already exists, in which case no new entry is made 
+     *   already exists, in which case no new entry is made
      */
     int add_hash_entry(VMG_ const char *p, size_t len, int copy,
                        vm_obj_id_t obj, vm_prop_id_t prop, int from_image);
@@ -418,7 +418,7 @@ protected:
 
     /* callback for hash table enumeration - save file */
     static void save_file_cb(void *ctx, class CVmHashEntry *entry);
-    
+
     /* callback for hash table enumeration - convert to constant data */
     static void cvt_const_cb(void *ctx, class CVmHashEntry *entry);
 
@@ -444,7 +444,7 @@ protected:
 /* ------------------------------------------------------------------------ */
 /*
  *   hash table list entry - each hash entry has a list of associated
- *   objects; this structure represents an entry in one of these lists 
+ *   objects; this structure represents an entry in one of these lists
  */
 struct vm_dict_entry
 {
@@ -470,7 +470,7 @@ struct vm_dict_entry
 };
 
 /*
- *   Dictionary object hash table entry 
+ *   Dictionary object hash table entry
  */
 class CVmHashEntryDict: public CVmHashEntryCS
 {
@@ -503,33 +503,33 @@ public:
     /* get the first entry in our list */
     vm_dict_entry *get_head() const { return list_; }
 
-    /* 
+    /*
      *   add an entry to our list - returns true if we added the entry,
      *   false if an entry with the same object ID was already present, in
-     *   which case we will ignore the addition 
+     *   which case we will ignore the addition
      */
     int add_entry(vm_obj_id_t obj, vm_prop_id_t prop, int from_image)
     {
         vm_dict_entry *entry;
         vm_dict_entry *prv;
 
-        /* 
+        /*
          *   check to see if this entry is already in our list - if it is,
-         *   don't bother adding the redundant definition 
+         *   don't bother adding the redundant definition
          */
         for (prv = 0, entry = list_ ; entry != 0 ; entry = entry->nxt_)
         {
-            /* 
+            /*
              *   if this entry matches the object ID and property ID,
-             *   ignore the addition 
+             *   ignore the addition
              */
             if (entry->obj_ == obj && entry->prop_ == prop)
                 return FALSE;
 
-            /* 
+            /*
              *   if this entry matches the property, remember it as the
              *   insertion point, so that we keep all definitions for the
-             *   same word with the same property together in the list 
+             *   same word with the same property together in the list
              */
             if (entry->prop_ == prop)
                 prv = entry;
@@ -538,9 +538,9 @@ public:
         /* create a list entry */
         entry = new vm_dict_entry(obj, prop, from_image);
 
-        /* 
+        /*
          *   link it in after the insertion point, or at the head of our
-         *   list if we didn't find any other insertion point 
+         *   list if we didn't find any other insertion point
          */
         if (prv != 0)
         {
@@ -559,9 +559,9 @@ public:
         return TRUE;
     }
 
-    /* 
+    /*
      *   Delete all entries matching a given object ID from our list.
-     *   Returns true if any entries were deleted, false if not. 
+     *   Returns true if any entries were deleted, false if not.
      */
     int del_entry(CVmHashTable *table, vm_obj_id_t obj, vm_prop_id_t prop)
     {
@@ -616,7 +616,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Registration table object 
+ *   Registration table object
  */
 class CVmMetaclassDict: public CVmMetaclass
 {
@@ -648,6 +648,6 @@ public:
 #endif /* VMDICT_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjDict)

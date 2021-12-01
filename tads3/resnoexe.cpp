@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 2001, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -14,7 +14,7 @@ Function
   in additional osifc routines that are superfluous when executable
   resource loading is not required.
 Notes
-  
+
 Modified
   11/03/01 MJRoberts  - Creation
 */
@@ -22,7 +22,7 @@ Modified
 #include "resload.h"
 
 /*
- *   Try loading a resource from the executable file 
+ *   Try loading a resource from the executable file
  */
 osfildef *CResLoader::open_exe_res(const char *respath,
                                    const char *restype)
@@ -32,7 +32,7 @@ osfildef *CResLoader::open_exe_res(const char *respath,
 }
 
 /*
- *   load a resource from a library 
+ *   load a resource from a library
  */
 osfildef *CResLoader::open_lib_res(const char *libfile,
                                    const char *respath)

@@ -5,9 +5,9 @@
 Name
   vmintcls.h - T3 metaclass - intrinsic class
 Function
-  
+
 Notes
-  
+
 Modified
   03/08/00 MJRoberts  - Creation
 */
@@ -27,18 +27,18 @@ Modified
  *   intrinsic class.  For example, if we create a BigNumber instance, then
  *   ask for its class, the result is the IntrinsicClass object associated
  *   with the BigNumber intrinsic class:
- *   
+ *
  *   Each metaclass in the metaclass dependency table will be associated with
  *   an IntrinsicClass object.
- *   
+ *
  *   The image file format for an IntrinsicClass object consists of the
  *   following:
- *   
+ *
  *     UINT2 byte_count (currently, this is always 8)
  *.    UINT2 metaclass_dependency_table_index
  *.    UINT4 modifier_object_id
  *.    DATAHOLDER class_state
- *   
+ *
  *   The 'class_state' entry is a generic data holder value for use by the
  *   intrinsic class for storing static class state.  We save and restore
  *   this value automatically and can keep undo information for it.  This can
@@ -63,7 +63,7 @@ struct vm_intcls_ext
 };
 
 /*
- *   intrinsic class object 
+ *   intrinsic class object
  */
 class CVmObjClass: public CVmObject
 {
@@ -86,18 +86,18 @@ public:
     static int is_intcls_obj(VMG_ vm_obj_id_t obj)
         { return vm_objp(vmg_ obj)->is_of_metaclass(metaclass_reg_); }
 
-    /* 
+    /*
      *   get my metaclass registration table index - this can be compared to
      *   the metaclass_reg_ element for a given C++ intrinsic class
      *   implementation to determine if this intrinsic class object is the
-     *   intrinsic class object for a given C++ intrinsic class 
+     *   intrinsic class object for a given C++ intrinsic class
      */
     uint get_meta_idx() const { return get_ext()->meta_idx; }
 
     /* get my metaclass table entry */
     struct vm_meta_entry_t *get_meta_entry(VMG0_) const;
 
-    /* 
+    /*
      *   Get the class state value.  This is for use by the class
      *   implementation to store static (class) state.
      */
@@ -132,9 +132,9 @@ public:
     /* create for a given dependency table index */
     static vm_obj_id_t create_dyn(VMG_ uint meta_idx);
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -149,7 +149,7 @@ public:
 
     /*
      *   Determine if this is a class object.  All intrinsic class objects
-     *   indicate true.  
+     *   indicate true.
      */
     virtual int is_class_object(VMG_ vm_obj_id_t /*self*/) const
         { return TRUE; }
@@ -158,9 +158,9 @@ public:
     virtual void reserve_const_data(VMG_ class CVmConstMapper *mapper,
                                     vm_obj_id_t self)
     {
-        /* 
+        /*
          *   we reference no other data and cannot be converted to constant
-         *   data ourselves, so there's nothing to do here 
+         *   data ourselves, so there's nothing to do here
          */
     }
 
@@ -168,9 +168,9 @@ public:
     virtual void convert_to_const_data(VMG_ class CVmConstMapper *mapper,
                                        vm_obj_id_t self)
     {
-        /* 
+        /*
          *   we reference no other data and cannot be converted to constant
-         *   data ourselves, so there's nothing to do here 
+         *   data ourselves, so there's nothing to do here
          */
     }
 
@@ -195,7 +195,7 @@ public:
     void notify_new_savept() { }
     void apply_undo(VMG_ struct CVmUndoRecord *) { }
     void mark_undo_ref(VMG_ struct CVmUndoRecord *) { }
-    void remove_stale_undo_weak_ref(VMG_ struct CVmUndoRecord *) { }    
+    void remove_stale_undo_weak_ref(VMG_ struct CVmUndoRecord *) { }
 
     /* mark references */
     void mark_refs(VMG_ uint state);
@@ -223,9 +223,9 @@ public:
     /* get the user modifier object for the intrinsic class */
     vm_obj_id_t get_mod_obj() const { return get_ext()->mod_obj; }
 
-    /* 
+    /*
      *   find the intrinsic class for the given modifier object, searching
-     *   myself and my intrinsic superclasses 
+     *   myself and my intrinsic superclasses
      */
     vm_obj_id_t find_mod_src_obj(VMG_ vm_obj_id_t self, vm_obj_id_t mod_obj);
 
@@ -255,13 +255,13 @@ protected:
                             class CVmObjList *lst, size_t starting_idx,
                             int static_only);
 
-    /* 
+    /*
      *   Find the intrinsic class for the given modifier object.  We override
      *   this because we want an intrinsic class's effective intrinsic class
      *   to be its intrinsic superclass, not its metaclass.  The metaclass of
      *   an intrinsic class object is always IntrinsicClass; instead, we want
      *   to see, for example, List->Collection->Object, which is the
-     *   intrinsic superclass hierarchy.  
+     *   intrinsic superclass hierarchy.
      */
     vm_obj_id_t find_intcls_for_mod(VMG_ vm_obj_id_t self,
                                     vm_obj_id_t mod_obj)
@@ -273,14 +273,14 @@ protected:
          *   CVmObject implementation is that the CVmObject implementation
          *   looks in the object's metaclass; we simply look in our intrinsic
          *   superclasses directly, since, for reflection purposes, we are
-         *   our own metaclass.  
+         *   our own metaclass.
          */
         return find_mod_src_obj(vmg_ self, mod_obj);
     }
 
-    /* 
+    /*
      *   search for a property among our modifiers, searching our own
-     *   modifier and modifiers for our superclasses 
+     *   modifier and modifiers for our superclasses
      */
     int get_prop_from_mod(VMG_ vm_prop_id_t prop, vm_val_t *val,
                           vm_obj_id_t self, vm_obj_id_t *source_obj,
@@ -292,7 +292,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Registration table object 
+ *   Registration table object
  */
 class CVmMetaclassClass: public CVmMetaclass
 {
@@ -330,6 +330,6 @@ public:
 #endif /* VMINTCLS_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjClass)

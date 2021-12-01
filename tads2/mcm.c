@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -96,10 +96,10 @@ mcmcxdef *mcmcini(mcmcx1def *globalctx, uint pages,
 {
     mcmcxdef *ret;
     ushort    siz;
-    
+
     siz = sizeof(mcmcxdef) + sizeof(mcmon *) * (pages - 1);
     IF_DEBUG(siz += sizeof(ulong));
-    
+
     ret = (mcmcxdef *)mchalo(globalctx->mcmcxerr, siz, "mcm client context");
     IF_DEBUG((*(ulong *)ret = 0x02020202,
               ret = (mcmcxdef *)((uchar *)ret + sizeof(ulong))));
@@ -132,22 +132,22 @@ mcmcx1def *mcmini(ulong max, uint pages, ulong swapsize,
     ushort     siz;                /* size of current thing being allocated */
     ushort     rem;                             /* bytes remaining in chunk */
     int        err;
-    
+
     NOREG((&chunk))
-    
+
     /* make sure 'max' is big enough - must be at least one chunk */
     if (max < (ulong)MCMCHUNK) max = (ulong)MCMCHUNK;
-    
+
     /* allocate space for control structures from low-level heap */
     rem = MCMCHUNK;
-    
+
     IF_DEBUG(rem += sizeof(long));
     chunk = mchalo(errctx, rem, "mcmini");
     IF_DEBUG((*(ulong *)chunk = 0x01010101, chunk += sizeof(ulong),
         rem -= sizeof(ulong)));
-    
+
     ctx = (mcmcx1def *)chunk;              /* put context at start of chunk */
-    
+
     /* initialize swapper; clean up if it fails */
     ERRBEGIN(errctx)
         mcsini(&ctx->mcmcxswc, ctx, swapsize, swapfp, swapfilename, errctx);
@@ -156,7 +156,7 @@ mcmcx1def *mcmini(ulong max, uint pages, ulong swapsize,
         mchfre(chunk);
         errsig(errctx, err);
     ERREND(errctx)
-    
+
     chunk += sizeof(mcmcx1def);           /* rest of chunk is after context */
     rem -= sizeof(mcmcx1def);         /* remove from remaining size counter */
 
@@ -173,7 +173,7 @@ mcmcx1def *mcmini(ulong max, uint pages, ulong swapsize,
     chunk += sizeof(mcmhdef);
     rem -= sizeof(mcmhdef);
     ctx->mcmcxhpch->mcmhnxt = (mcmhdef *)0;    /* no next heap in chain yet */
-    
+
     /* allocate the first page */
     *(mcmon *)chunk = 0;               /* set object number header in chunk */
     chunk += osrndsz(sizeof(mcmon));
@@ -183,13 +183,13 @@ mcmcx1def *mcmini(ulong max, uint pages, ulong swapsize,
     memset(ctx->mcmcxtab[0], 0, (size_t)MCMPAGESIZE);
     chunk += MCMPAGESIZE;                           /* reflect size of page */
     rem -= MCMPAGESIZE;                     /* take it out of the remainder */
-    
+
     /* set up the first page with an entry for itself */
     obj = mcmgobje(ctx, (mcmon)0);             /* point to first page entry */
     obj->mcmoflg = MCMOFPRES | MCMOFNODISC | MCMOFPAGE | MCMOFNOSWAP;
     obj->mcmoptr = (uchar *)ctx->mcmcxtab[0];
     obj->mcmosiz = MCMPAGESIZE;
-    
+
     /* set up the rest of the context */
     ctx->mcmcxlru = ctx->mcmcxmru = MCMONINV;        /* no mru/lru list yet */
     ctx->mcmcxmax = max - (ulong)MCMCHUNK;
@@ -197,7 +197,7 @@ mcmcx1def *mcmini(ulong max, uint pages, ulong swapsize,
     ctx->mcmcxpgmx = pages;          /* max number of pages we can allocate */
     ctx->mcmcxerr = errctx;
     ctx->mcmcxcsw = mcmcswf;
-    
+
     /* set up the free list with the remainder of the chunk */
     ctx->mcmcxfre = 1;     /* we've allocated object 0; obj 1 is free space */
     obj = mcmgobje(ctx, ctx->mcmcxfre);       /* point to free object entry */
@@ -213,28 +213,28 @@ mcmcx1def *mcmini(ulong max, uint pages, ulong swapsize,
 
     /* set flag for end of chunk (invalid object header) */
     *((mcmon *)(chunk + rem - osrndsz(sizeof(mcmon)))) = MCMONINV;
-    
+
     /* set up the unused entry list with the remaining headers in the page */
     mcmadpg(ctx, 0, 2);
-    
+
     return(ctx);
 }
 
 /*
  *   Uninitialize the cache manager.  Frees the memory allocated for the
- *   cache, including the context structure itself.  
+ *   cache, including the context structure itself.
  */
 void mcmterm(mcmcx1def *ctx)
 {
     mcmhdef *cur, *nxt;
-    
-    /* 
+
+    /*
      *   Free each chunk in the cache block list, *except* the last one.  The
      *   last one is special: it's actually the first chunk allocated, since
      *   we build the list in reverse order, and the first chunk pointer
      *   points into the middle of the actual allocation block, since we
      *   sub-allocated the context structure itself and the page table out of
-     *   that memory. 
+     *   that memory.
      */
     for (cur = ctx->mcmcxhpch ; cur != 0 && cur->mcmhnxt != 0 ; cur = nxt)
     {
@@ -243,13 +243,13 @@ void mcmterm(mcmcx1def *ctx)
         mchfre(cur);
     }
 
-    /* 
+    /*
      *   As described above, the last chunk in the list is the first
      *   allocated, and it points into the middle of the actual allocated
      *   memory block.  Luckily, we do have a handy pointer to the start of
      *   the memory block, namely the context pointer - it's the first thing
      *   allocated out of the block, so it's the same as the block pointer.
-     *   Freeing the context frees this last/first chunk. 
+     *   Freeing the context frees this last/first chunk.
      */
     mchfre(ctx);
 }
@@ -264,7 +264,7 @@ static uchar *mcmalo1(mcmcx1def *ctx, ushort siz, mcmon *nump)
     mcmon    n;
     mcmodef *o;
     uchar   *chunk;
-    
+
     MCMGLBCTX(ctx);
 
     /* round size to appropriate multiple */
@@ -285,7 +285,7 @@ startover:
         *nump = n;
         return(o->mcmoptr);
     }
-    
+
     /* nothing found; we must get space out of the heap if possible */
     chunk = mcmhalo(ctx);                            /* get space from heap */
     if (!chunk) goto error;           /* can't get any more space from heap */
@@ -297,7 +297,7 @@ startover:
         mchfre(chunk_hdr);
         goto error;         /* any error means we can't allocate the memory */
     }
-    
+
     *(mcmon *)chunk = n;                               /* set object header */
     chunk += osrndsz(sizeof(mcmon));
     o->mcmoptr = chunk;
@@ -305,7 +305,7 @@ startover:
     o->mcmoflg = MCMOFFREE;
     mcmlnkhd(ctx, &ctx->mcmcxfre, n);
     goto startover;              /* try again, now that we have some memory */
-    
+
 error:
     *nump = MCMONINV;
     return((uchar *)0);
@@ -319,7 +319,7 @@ static void mcmcliexp(mcmcxdef *cctx, mcmon clinum)
         mcmcx1def *ctx = cctx->mcmcxgl;
         int        i;
         mcmon     *p;
-        
+
         /* this page is not allocated - allocate it */
         p = (mcmon *)mchalo(ctx->mcmcxerr, (256 * sizeof(mcmon)),
                             "client mapping page");
@@ -335,17 +335,17 @@ uchar *mcmalo0(mcmcxdef *cctx, ushort siz, mcmon *nump,
     uchar     *ret;
     mcmcx1def *ctx = cctx->mcmcxgl;                       /* global context */
     mcmon      glb;                       /* global object number allocated */
-    
+
     MCMCLICTX(cctx);
     MCMGLBCTX(ctx);
-    
+
     /* try once */
     if ((ret = mcmalo1(ctx, siz, &glb)) != 0)
         goto done;
 
     /* collect some garbage */
     mcmgarb(ctx);
-    
+
     /* try swapping until we get the memory or have nothing left to swap */
     for ( ;; )
     {
@@ -361,25 +361,25 @@ uchar *mcmalo0(mcmcxdef *cctx, ushort siz, mcmon *nump,
         if ((ret = mcmalo1(ctx, siz, &glb)) != 0)
             goto done;
 
-        /* collect garbage once again */        
+        /* collect garbage once again */
         mcmgarb(ctx);
     }
-    
+
     /* try again */
     if ((ret = mcmalo1(ctx, siz, &glb)) != 0)
         goto done;
-    
+
     /* we have no other way of getting more memory, so signal an error */
     errsig(ctx->mcmcxerr, ERR_NOMEM1);
     NOTREACHEDV(uchar *);
-    
+
 done:
     if (noclitrans)
     {
         *nump = glb;
         return(ret);
     }
-    
+
     /* we have an object - generate client number */
     if (clinum == MCMONINV)
     {
@@ -390,7 +390,7 @@ done:
         mcmon  *q;
         int     found = FALSE;
         int     unused = -1;
-        
+
         for (i = 0, p = cctx->mcmcxmtb ; i < cctx->mcmcxmsz ; ++i, ++p)
         {
             if (*p)
@@ -409,7 +409,7 @@ done:
 
             if (found) break;
         }
-        
+
         if (found)
             clinum = (i << 8) + j;
         else if (unused != -1)
@@ -436,21 +436,21 @@ void mcmrsrv(mcmcxdef *cctx, ushort siz, mcmon clinum, mclhd loadhd)
     mcmcx1def *ctx = cctx->mcmcxgl;                       /* global context */
     mcmon      glb;                       /* global object number allocated */
     mcmodef   *o;
-    
+
     MCMCLICTX(cctx);
     MCMGLBCTX(ctx);
-    
+
     o = mcmoal(ctx, &glb);                       /* get a new object header */
     if (!o) errsig(ctx->mcmcxerr, ERR_NOHDR);     /* can't get a new header */
-    
+
     o->mcmoldh = loadhd;
     o->mcmoflg = 0;
     o->mcmosiz = siz;
-    
+
     mcmcliexp(cctx, clinum);
     if (mcmc2g(cctx, clinum) != MCMONINV)
         errsig(ctx->mcmcxerr, ERR_CLIUSE);
-    
+
     cctx->mcmcxmtb[clinum >> 8][clinum & 255] = glb;
 }
 
@@ -458,24 +458,24 @@ void mcmrsrv(mcmcxdef *cctx, ushort siz, mcmon clinum, mclhd loadhd)
 uchar *mcmrealo(mcmcxdef *cctx, mcmon cliobj, ushort newsize)
 {
     mcmcx1def *ctx = cctx->mcmcxgl;                       /* global context */
-    mcmon      obj = mcmc2g(cctx, cliobj); 
+    mcmon      obj = mcmc2g(cctx, cliobj);
     mcmodef   *o = mcmgobje(ctx, obj);
     mcmon      nxt;
     mcmodef   *nxto;
     uchar     *p;
     int        local_lock;
-    
+
     MCMCLICTX(cctx);
     MCMGLBCTX(ctx);
-    
+
     newsize = osrndsz(newsize);
-    
+
     /* make sure the object is locked, and note if we locked it */
     if ((local_lock = !(o->mcmoflg & MCMOFLOCK)) != 0)
         (void)mcmlck(cctx, cliobj);
-    
+
     ERRBEGIN(ctx->mcmcxerr)
-    
+
     if (newsize < o->mcmosiz)
         mcmsplt(ctx, obj, newsize);            /* smaller; just split block */
     else
@@ -484,7 +484,7 @@ uchar *mcmrealo(mcmcxdef *cctx, mcmon cliobj, ushort newsize)
         p = o->mcmoptr;
         nxt = *(mcmon *)(p + o->mcmosiz);
         nxto = (nxt == MCMONINV) ? (mcmodef *)0 : mcmgobje(ctx, nxt);
-        
+
         if (nxto && ((nxto->mcmoflg & MCMOFFREE)
                      && nxto->mcmosiz >= newsize - o->mcmosiz))
         {
@@ -497,21 +497,21 @@ uchar *mcmrealo(mcmcxdef *cctx, mcmon cliobj, ushort newsize)
             nxto->mcmonxt = ctx->mcmcxunu;
             ctx->mcmcxunu = nxt;
             nxto->mcmoflg = 0;
-            
+
             /* split the newly grown block if necessary */
             mcmsplt(ctx, obj, newsize);
         }
         else
         {
             /* can't annex; allocate new memory and copy */
-            
+
             if (o->mcmolcnt != 1)           /* if anyone else has a lock... */
                 errsig(ctx->mcmcxerr, ERR_REALCK);      /* we can't move it */
-    
+
             p = mcmalo0(cctx, newsize, &nxt, MCMONINV, TRUE);
             if (nxt == MCMONINV) errsig(ctx->mcmcxerr, ERR_NOMEM2);
             memcpy(p, o->mcmoptr, (size_t)o->mcmosiz);
-            
+
             /* adjust the object entries */
             nxto = mcmgobje(ctx, nxt);          /* get pointer to new entry */
             newsize = nxto->mcmosiz;        /* get actual size of new block */
@@ -519,7 +519,7 @@ uchar *mcmrealo(mcmcxdef *cctx, mcmon cliobj, ushort newsize)
             nxto->mcmosiz = o->mcmosiz;
             o->mcmoptr = p;        /* copy new block info to original entry */
             o->mcmosiz = newsize;
-            
+
             /* now fix up the heap pointers, and free the temp object */
             *(mcmon *)(p - osrndsz(sizeof(mcmon))) = obj;
             *(mcmon *)(nxto->mcmoptr - osrndsz(sizeof(mcmon))) = nxt;
@@ -527,12 +527,12 @@ uchar *mcmrealo(mcmcxdef *cctx, mcmon cliobj, ushort newsize)
             mcmgfre(ctx, nxt);
         }
     }
-    
+
     ERRCLEAN(ctx->mcmcxerr)
         /* release our lock, if we had to obtain one */
         if (local_lock) mcmunlck(cctx, cliobj);
     ERRENDCLN(ctx->mcmcxerr)
-    
+
     /* return the address of the object */
     return(o->mcmoptr);
 }
@@ -543,22 +543,22 @@ uchar *mcmrealo(mcmcxdef *cctx, mcmon cliobj, ushort newsize)
 void mcmgfre(mcmcx1def *ctx, mcmon obj)
 {
     mcmodef   *o = mcmgobje(ctx, obj);
-    
+
     MCMGLBCTX(ctx);
-    
+
     /* signal an error if the object is locked */
     if (o->mcmolcnt) errsig(ctx->mcmcxerr, ERR_LCKFRE);
 
     /* take out of LRU chain if it's in the chain */
     if (o->mcmoflg & MCMOFLRU) mcmunl(ctx, obj, &ctx->mcmcxlru);
-    
+
     /* put it in the free list */
     mcmlnkhd(ctx, &ctx->mcmcxfre, obj);
     o->mcmoflg = MCMOFFREE;
 }
 
 /*
- *   load and lock an object that has been swapped out or discarded 
+ *   load and lock an object that has been swapped out or discarded
  */
 uchar *mcmload(mcmcxdef *cctx, mcmon cnum)
 {
@@ -567,14 +567,14 @@ uchar *mcmload(mcmcxdef *cctx, mcmon cnum)
     mcmodef     *newdef;
     mcmon        newn;
     mcmon        num = mcmc2g(cctx, cnum);
-    
+
     MCMCLICTX(cctx);
     MCMGLBCTX(ctx);
 
     /* we first need to obtain some memory for this object */
     (void)mcmalo0(cctx, o->mcmosiz, &newn, MCMONINV, TRUE);
     newdef = mcmgobje(ctx, newn);
-    
+
     /* use memory block from our new object */
     o->mcmoptr = newdef->mcmoptr;
     o->mcmosiz = newdef->mcmosiz;
@@ -605,7 +605,7 @@ uchar *mcmload(mcmcxdef *cctx, mcmon cnum)
     o->mcmoflg &= ~MCMOFDIRTY;         /* not written since last swapped in */
     o->mcmoflg |= MCMOFNODISC; /* don't discard once it's been to swap file */
     o->mcmolcnt = 1;                                   /* one locker so far */
-    
+
     /* if the object is to be reverted upon loading, revert it now */
     if (o->mcmoflg & MCMOFREVRT)
     {
@@ -618,15 +618,15 @@ uchar *mcmload(mcmcxdef *cctx, mcmon cnum)
 
 /*
  *   Allocate a new object header.  This doesn't allocate an object, just
- *   the header for one. 
+ *   the header for one.
  */
 static mcmodef *mcmoal(mcmcx1def *ctx, mcmon *nump)
 {
     mcmodef  *ret;
     uint      pagenum;
-    
+
     MCMGLBCTX(ctx);
-    
+
     /* look first in list of unused headers */
 startover:
     if (ctx->mcmcxunu != MCMONINV)
@@ -638,7 +638,7 @@ startover:
         ret->mcmoswh = MCSSEGINV;
         return(ret);
     }
-    
+
     /*
      *   No unused entries: we must create a new page.  To do so, we
      *   simply allocate memory for a new page.  Allocate the memory
@@ -647,7 +647,7 @@ startover:
      */
     if (ctx->mcmcxpage == ctx->mcmcxpgmx) goto error;      /* no more pages */
     pagenum = ctx->mcmcxpage++;                      /* get a new page slot */
-    
+
     ctx->mcmcxtab[pagenum] =
          (mcmodef *)mchalo(ctx->mcmcxerr, MCMPAGESIZE, "mcmoal");
     mcmadpg(ctx, pagenum, MCMONINV);
@@ -666,7 +666,7 @@ static mcmodef *mcmffb(mcmcx1def *ctx, ushort siz, mcmon *nump)
     mcmon    minn;
     mcmodef *mino;
     ushort   min;
-    
+
     MCMGLBCTX(ctx);
 
     for (minn = MCMONINV, mino = 0, n = ctx->mcmcxfre ; n != MCMONINV ;
@@ -693,7 +693,7 @@ static mcmodef *mcmffb(mcmcx1def *ctx, ushort siz, mcmon *nump)
             }
         }
     }
-    
+
     /* if we found something, remove from the free list */
     if (minn != MCMONINV)
     {
@@ -701,20 +701,20 @@ static mcmodef *mcmffb(mcmcx1def *ctx, ushort siz, mcmon *nump)
         mino->mcmoflg &= ~MCMOFFREE;
         mino->mcmoswh = MCSSEGINV;
     }
-    
+
     *nump = minn;
     return mino;
 }
 
 /*
- *   unlink an object header from one of the doubly-linked lists 
+ *   unlink an object header from one of the doubly-linked lists
  */
 static void mcmunl(mcmcx1def *ctx, mcmon n, mcmon *lst)
 {
     mcmodef *o = mcmgobje(ctx, n);
     mcmodef *nxt;
     mcmodef *prv;
-    
+
     MCMGLBCTX(ctx);
 
     /* see if this is LRU chain - must deal with MRU pointer if so */
@@ -731,17 +731,17 @@ static void mcmunl(mcmcx1def *ctx, mcmon n, mcmon *lst)
         }
         o->mcmoflg &= ~MCMOFLRU;
     }
-    
+
     nxt = o->mcmonxt == MCMONINV ? (mcmodef *)0 : mcmgobje(ctx, o->mcmonxt);
     prv = o->mcmoprv == MCMONINV ? (mcmodef *)0 : mcmgobje(ctx, o->mcmoprv);
-    
+
     /* set back link for next object, if there is a next object */
     if (nxt) nxt->mcmoprv = o->mcmoprv;
-    
+
     /* set forward link for previous object, or head if no previous object */
     if (prv) prv->mcmonxt = o->mcmonxt;
     else *lst = o->mcmonxt;
-    
+
     o->mcmonxt = o->mcmoprv = MCMONINV;
 }
 
@@ -762,7 +762,7 @@ static void mcmadpg(mcmcx1def *ctx, uint pagenum, mcmon firstunu)
     mcmon    unu;
     mcmodef *obj;
     mcmon    lastunu;
-    
+
     MCMGLBCTX(ctx);
 
     unu = (firstunu == MCMONINV ? pagenum * MCMPAGECNT : firstunu);
@@ -775,14 +775,14 @@ static void mcmadpg(mcmcx1def *ctx, uint pagenum, mcmon firstunu)
 
 /*
  *   split a previously-free block into two chunks, adding the remainder
- *   back into the free list, if there's enough left over 
- */ 
+ *   back into the free list, if there's enough left over
+ */
 static void mcmsplt(mcmcx1def *ctx, mcmon n, ushort siz)
 {
     mcmodef *o = mcmgobje(ctx, n);
     mcmon    newn;
     mcmodef *newp;
-    
+
     MCMGLBCTX(ctx);
 
     if (o->mcmosiz < siz + MCMSPLIT) return;     /* don't split; we're done */
@@ -796,7 +796,7 @@ static void mcmsplt(mcmcx1def *ctx, mcmon n, ushort siz)
     newp->mcmosiz = o->mcmosiz - siz - osrndsz(sizeof(mcmon));
     newp->mcmoflg = MCMOFFREE;
     mcmlnkhd(ctx, &ctx->mcmcxfre, newn);
-    
+
     o->mcmosiz = siz;       /* size of new object is now exactly as request */
 }
 
@@ -821,7 +821,7 @@ static uchar *mcmhalo(mcmcx1def *ctx)
     ERREND(ctx->mcmcxerr)
 
     ctx->mcmcxmax -= MCMCHUNK;
-    
+
     /* link into heap chain */
     ((mcmhdef *)chunk)->mcmhnxt = ctx->mcmcxhpch;
     ctx->mcmcxhpch = (mcmhdef *)chunk;
@@ -836,22 +836,22 @@ static uchar *mcmhalo(mcmcx1def *ctx)
 void mcmuse(mcmcx1def *ctx, mcmon obj)
 {
     mcmodef   *o = mcmgobje(ctx, obj);
-    
+
     MCMGLBCTX(ctx);
 
     if (ctx->mcmcxmru == obj) return;         /* already MRU; nothing to do */
-    
+
     /* remove from LRU chain if it's in it */
     if (o->mcmoflg & MCMOFLRU) mcmunl(ctx, obj, &ctx->mcmcxlru);
 
     /* set forward pointer of last block, if there is one */
     if (ctx->mcmcxmru != MCMONINV)
         mcmgobje(ctx, ctx->mcmcxmru)->mcmonxt = obj;
-    
+
     o->mcmoprv = ctx->mcmcxmru;               /* point back to previous MRU */
     o->mcmonxt = MCMONINV;                /* nothing in list after this one */
     ctx->mcmcxmru = obj;                          /* point MRU to new block */
-    
+
     /* if there's nothing in the chain at all, set LRU to this block, too */
     if (ctx->mcmcxlru == MCMONINV) ctx->mcmcxlru = obj;
 
@@ -880,7 +880,7 @@ static uchar *mcmffh(mcmcx1def *ctx, uchar *p)
 static void mcmmove(mcmcx1def *ctx, mcmodef *o, uchar *newpage)
 {
     mcmodef **page;
-    
+
     MCMGLBCTX(ctx);
 
     /* see if we need to update page table (we do if moving a page) */
@@ -933,19 +933,19 @@ static void mcmconsol(mcmcx1def *ctx, uchar *p)
 {
     uchar   *q;
     mcmodef *obj1, *obj2;
-    
+
     MCMGLBCTX(ctx);
 
     q = mcmnxh(ctx, p);
     obj1 = mcmgobje(ctx, *(mcmon *)p);
     obj2 = mcmgobje(ctx, *(mcmon *)q);
-    
+
     assert(obj1->mcmoptr == p + osrndsz(sizeof(mcmon)));
     assert(obj2->mcmoptr == q + osrndsz(sizeof(mcmon)));
 
     obj1->mcmosiz += osrndsz(sizeof(mcmon)) + obj2->mcmosiz;
     mcmunl(ctx, *(mcmon *)q, &ctx->mcmcxfre);
-                    
+
     /* add second object entry to unused list */
     obj2->mcmonxt = ctx->mcmcxunu;
     ctx->mcmcxunu = *(mcmon *)q;
@@ -960,7 +960,7 @@ static void mcmgarb(mcmcx1def *ctx)
     uchar   *q;
     uchar   *nxt;
     ushort   flags;
-    
+
     MCMGLBCTX(ctx);
 
     for (h = ctx->mcmcxhpch ; h ; h = h->mcmhnxt)
@@ -969,7 +969,7 @@ static void mcmgarb(mcmcx1def *ctx)
         p = mcmffh(ctx, p);                 /* get first free block in heap */
         if (!p) continue;             /* can't do anything - no free blocks */
         nxt = mcmnxh(ctx, p);              /* remember immediate next block */
-        
+
         for (q=p ;; )
         {
             q = mcmnxh(ctx, q);                  /* find next chunk in heap */
@@ -992,7 +992,7 @@ static void mcmgarb(mcmcx1def *ctx)
             {
                 if (q != nxt) p = mcmreloc(ctx, p, q);          /* relocate */
                 mcmconsol(ctx, p);           /* consolidate two free blocks */
-                
+
                 /* resume looking, starting with consolidated block */
                 nxt = mcmnxh(ctx, p);
                 q = p;
@@ -1020,7 +1020,7 @@ static int mcmtoss(mcmcx1def *ctx, mcmon n)
     if (o->mcmoflg & (MCMOFNODISC | MCMOFDIRTY))
     {
         mcsseg old_swap_seg;
-        
+
         /*
          *   If this object was last loaded out of the load file, rather
          *   than the swap file, don't attempt to find it in the swap file
@@ -1030,11 +1030,11 @@ static int mcmtoss(mcmcx1def *ctx, mcmon n)
             old_swap_seg = o->mcmoswh;
         else
             old_swap_seg = MCSSEGINV;
-        
+
         o->mcmoswh = mcsout(&ctx->mcmcxswc, (uint)n, o->mcmoptr, o->mcmosiz,
                             old_swap_seg, o->mcmoflg & MCMOFDIRTY);
     }
-    
+
     /* give the object's space to the newly created block */
     newp->mcmoptr = o->mcmoptr;
     newp->mcmosiz = o->mcmosiz;
@@ -1042,7 +1042,7 @@ static int mcmtoss(mcmcx1def *ctx, mcmon n)
 /*@@@*/
     *(mcmon *)(o->mcmoptr - osrndsz(sizeof(mcmon))) = newn;
     mcmlnkhd(ctx, &ctx->mcmcxfre, newn);
-    
+
     o->mcmoflg &= ~MCMOFPRES;              /* object is no longer in memory */
     mcmunl(ctx, n, &ctx->mcmcxlru);                 /* remove from LRU list */
     return(TRUE);                             /* successful, so return TRUE */
@@ -1074,7 +1074,7 @@ static int mcmswap(mcmcx1def *ctx, ushort siz)
             }
         }
     }
-    
+
     /* if we managed to remove anything, return TRUE, otherwise FALSE */
     return(tot != 0);
 }
@@ -1085,14 +1085,14 @@ ulong mcmcsiz(mcmcxdef *cctx)
     mcmcx1def *ctx = cctx->mcmcxgl;
     mcmhdef   *p;
     ulong      tot;
-    
+
     MCMCLICTX(cctx);
     MCMGLBCTX(ctx);
-    
+
     /* count number of heaps, adding in chunk size for each */
     for (tot = 0, p = ctx->mcmcxhpch ; p ; p = p->mcmhnxt)
         tot += MCMCHUNK;
-    
+
     return(tot);
 }
 
@@ -1121,7 +1121,7 @@ uchar *mcmlck(mcmcxdef *ctx, mcmon objnum)
 void mcmunlck(mcmcxdef *ctx, mcmon obj)
 {
     mcmodef *o = mcmobje(ctx, obj);
-    
+
     if (o->mcmoflg & MCMOFLOCK)
     {
         if (!(--(o->mcmolcnt)))
@@ -1135,7 +1135,7 @@ void mcmunlck(mcmcxdef *ctx, mcmon obj)
 void mcmgunlck(mcmcx1def *ctx, mcmon obj)
 {
     mcmodef *o = mcmgobje(ctx, obj);
-    
+
     if (o->mcmoflg & MCMOFLOCK)
     {
         if (!(--(o->mcmolcnt)))
@@ -1151,19 +1151,19 @@ void mcmgunlck(mcmcx1def *ctx, mcmon obj)
 /*
  *   Change an object's swap file handle.  This routine will only be
  *   called for an object that is either present or swapped out (i.e., an
- *   object with a valid mcsseg number in its swap state).  
+ *   object with a valid mcsseg number in its swap state).
  */
 void mcmcswf(mcmcx1def *ctx, mcmon objn, mcsseg swapn, mcsseg oldswapn)
 {
     mcmodef *o = mcmgobje(ctx, objn);
-    
+
     MCMGLBCTX(ctx);
-    
+
     /*
      *   Reset the swap number only if the object is swapped out and its
      *   swap file number matches the old one, or the object is currently
      *   present (in which case the swap file number is irrelevant and can
-     *   be replaced).  
+     *   be replaced).
      */
     if (((o->mcmoflg & (MCMOFDIRTY | MCMOFNODISC)) && o->mcmoswh == oldswapn)
         || (o->mcmoflg & MCMOFPRES))

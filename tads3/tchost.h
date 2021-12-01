@@ -1,10 +1,10 @@
 /* $Header: d:/cvsroot/tads/tads3/TCHOST.H,v 1.2 1999/05/17 02:52:27 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -13,7 +13,7 @@ Function
   The host system interface is an abstract interface to services
   provided by the compiler host system.
 Notes
-  
+
 Modified
   04/22/99 MJRoberts  - Creation
 */
@@ -26,17 +26,17 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Abstract Host Interface 
+ *   Abstract Host Interface
  */
 class CTcHostIfc
 {
 public:
     virtual ~CTcHostIfc() { }
 
-    /* 
+    /*
      *   Display a message, taking varargs parameters.  The message is a
      *   UTF-8 string.  The message string is a printf-style format
-     *   string.  This is used to display informational messages.  
+     *   string.  This is used to display informational messages.
      */
     void print_msg(const char *msg, ...)
     {
@@ -57,7 +57,7 @@ public:
      *   want to display process step messages in a special manner; for
      *   example, a GUI implementation might put the message in a status
      *   bar or similar type of display rather than intermixed with other
-     *   messages.  
+     *   messages.
      */
     void print_step(const char *msg, ...)
     {
@@ -71,13 +71,13 @@ public:
     /* display a process step message with va_list-style varargs */
     virtual void v_print_step(const char *msg, va_list args) = 0;
 
-    /* 
+    /*
      *   Display an error message.  These work the same way as print_msg()
      *   and v_print_msg(), respectively, but display error messages
      *   instead of informational messages.  Some implementations might
      *   want to direct the different types of messages to different
      *   places; for example, a stdio implementation may want to send
-     *   print_msg messages to stdout, but print_err messages to stderr.  
+     *   print_msg messages to stdout, but print_err messages to stderr.
      */
     void print_err(const char *msg, ...)
     {

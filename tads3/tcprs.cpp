@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/TCPRS.CPP,v 1.5 1999/07/11 00:46:53 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -16,7 +16,7 @@ Function
   This parser module contains code required for any parser usage, both
   for a full compiler and for a debugger.
 Notes
-  
+
 Modified
   04/30/99 MJRoberts  - Creation
 */
@@ -44,11 +44,11 @@ Modified
  *   Expression Operator parser objects.  These objects are linked
  *   together in a network that defines the order of precedence for
  *   expression operators.
- *   
+ *
  *   These objects use static storage.  This is acceptable, even though
  *   these objects aren't all "const" qualified, because the compiler uses
  *   a single global parser object; since there's only the one parser,
- *   there only needs to be a single network of these objects.  
+ *   there only needs to be a single network of these objects.
  */
 
 /* unary operator parser */
@@ -89,7 +89,7 @@ static const CTcPrsOpBin *const
 static const CTcPrsOpBinGroup S_op_relcomp(&S_op_shift, &S_op_shift,
                                            S_grp_relcomp);
 
-/* 
+/*
  *   Equality/inequality comparison group.  Note that the equality operator
  *   is non-const because we want the option to change the operator on the
  *   fly based on syntax mode - '==' in C-mode, '=' in TADS traditional mode.
@@ -97,9 +97,9 @@ static const CTcPrsOpBinGroup S_op_relcomp(&S_op_shift, &S_op_shift,
  *   3, so this ability is actually just vestigial at this point.  No harm in
  *   keeping around the code internally for it, though, since it's pretty
  *   simple.)
- *   
+ *
  *   Note also that this is a special binary group - this one recognizes the
- *   non-keyword operators 'is in' and 'not in'.  
+ *   non-keyword operators 'is in' and 'not in'.
  */
 static CTcPrsOpEq S_op_eq;
 static const CTcPrsOpNe S_op_ne;
@@ -129,10 +129,10 @@ static const CTcPrsOpIfnil S_op_ifnil;
 /* conditional operator */
 static const CTcPrsOpIf S_op_if;
 
-/* 
+/*
  *   assignment operator - note that this is non-const, because we must be
  *   able to change the operator - '=' in C-mode, and ':=' in TADS
- *   traditional mode 
+ *   traditional mode
  */
 static CTcPrsOpAsi S_op_asi;
 
@@ -146,7 +146,7 @@ static const CTcPrsOpComma S_op_comma(&S_op_asi, &S_op_asi);
  *   expression in a private list for a first scan, to compare against the
  *   list of special embedding templates.  If we determine that the embedding
  *   is a simple expression, or that a portion of it is an expression, we'll
- *   push the captured tokens back into the token stream via 'unget'.  
+ *   push the captured tokens back into the token stream via 'unget'.
  */
 class CTcEmbedTokenList
 {
@@ -229,7 +229,7 @@ public:
 
     /*
      *   Unget the captured tokens, skipping the first n tokens and the last
-     *   m tokens.   
+     *   m tokens.
      */
     void unget(int n = 0, int m = 0)
     {
@@ -276,15 +276,15 @@ public:
             /* find the end of the argument */
             for ( ; *p != '\0' && !is_space(*p) ; ++p) ;
             size_t len = p - arg;
-            
+
             /* check for special arguments */
             if (arg[0] == '*')
             {
-                /* 
+                /*
                  *   '*' - this matches one or more tokens in the token list
                  *   up to the last remaining arguments after the '*'.  Skip
                  *   arguments until the token list and remaining argument
-                 *   list are the same length.  
+                 *   list are the same length.
                  */
                 for ( ; tokn > argn ; ele = ele->getnxt(), --tokn) ;
             }
@@ -317,11 +317,11 @@ public:
             /* check for special arguments */
             if (tele->text_matches("*", 1))
             {
-                /* 
+                /*
                  *   '*' - this matches one or more tokens in the token list
                  *   up to the last remaining arguments after the '*'.  Skip
                  *   arguments until the token list and remaining argument
-                 *   list are the same length.  
+                 *   list are the same length.
                  */
                 for ( ; tokn > tpln ; ele = ele->getnxt(), --tokn) ;
             }
@@ -332,14 +332,14 @@ public:
                     return FALSE;
             }
         }
-        
+
         /* if the lists ran out at the same time, it's a match */
         return (tokn == 0 && tpln == 0);
     }
 
     /*
      *   Reduce our token list to include only the tokens matching the '*' in
-     *   a template.  This presumes that the template actually does match.  
+     *   a template.  This presumes that the template actually does match.
      */
     void reduce(CTcStrTemplate *tpl)
     {
@@ -358,7 +358,7 @@ public:
         /* skip the '*' in the template */
         trem -= 1;
 
-        /* 
+        /*
          *   The number of tokens matching '*' is the number left in our
          *   list, minus the number left in the token list after the '*'.
          */
@@ -395,16 +395,16 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Main Parser 
+ *   Main Parser
  */
 
 /*
- *   initialize the parser 
+ *   initialize the parser
  */
 CTcParser::CTcParser()
 {
     size_t i;
-    
+
     /* we don't have any module information yet */
     module_name_ = 0;
     module_seqno_ = 0;
@@ -490,9 +490,9 @@ CTcParser::CTcParser()
     ctx_var_props_cnt_ = 0;
     ctx_var_props_used_ = 0;
 
-    /* 
+    /*
      *   no context variable indices assigned yet - start at one higher
-     *   than the index at which we always store 'self' 
+     *   than the index at which we always store 'self'
      */
     next_ctx_arr_idx_ = TCPRS_LOCAL_CTX_METHODCTX + 1;
 
@@ -531,14 +531,14 @@ CTcParser::CTcParser()
 }
 
 /*
- *   Add a special built-in property symbol 
+ *   Add a special built-in property symbol
  */
 CTcSymProp *CTcParser::def_special_prop(int def, const char *name,
                                         tc_prop_id *idp)
 {
     /* we haven't created or found the property yet */
     CTcSymProp *propsym = 0;
-    
+
     /* define or look up the property, as required */
     if (def)
     {
@@ -547,7 +547,7 @@ CTcSymProp *CTcParser::def_special_prop(int def, const char *name,
 
         /* create the symbol */
         propsym = new CTcSymProp(name, strlen(name), FALSE, id);
-        
+
         /* mark it as referenced, since the compiler itself uses it */
         propsym->mark_referenced();
 
@@ -582,7 +582,7 @@ CTcSymProp *CTcParser::def_special_prop(int def, const char *name,
 }
 
 /*
- *   Initialize.  This must be called after the code generator is set up.  
+ *   Initialize.  This must be called after the code generator is set up.
  */
 void CTcParser::init()
 {
@@ -595,7 +595,7 @@ void CTcParser::init()
  *   create definitions; otherwise we'll look up the definitions in the
  *   existing symbol table.  The former case is for normal initialization of
  *   a new compiler; the latter is for use in dynamic compilation, where the
- *   global symbol table is provided by the running program.  
+ *   global symbol table is provided by the running program.
  */
 void CTcParser::cache_special_props(int def)
 {
@@ -681,7 +681,7 @@ CTcParser::~CTcParser()
      *   allocated them out of the parser memory pool and will be
      *   automatically deleted when the pool is deleted.  For example, we
      *   don't have to delete any symbol tables, including the global
-     *   symbol table.  
+     *   symbol table.
      */
 
     /* delete the module name, if it's known */
@@ -703,10 +703,10 @@ CTcParser::~CTcParser()
     while (exp_head_ != 0)
     {
         CTcPrsExport *nxt;
-        
+
         /* remember the next entry, since we're deleting our pointer to it */
         nxt = exp_head_->get_next();
-        
+
         /* delete this entry */
         delete exp_head_;
 
@@ -723,7 +723,7 @@ CTcParser::~CTcParser()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Set the module information 
+ *   Set the module information
  */
 void CTcParser::set_module_info(const char *name, int seqno)
 {
@@ -739,9 +739,9 @@ void CTcParser::set_module_info(const char *name, int seqno)
  *   Change the #pragma C mode.  On changing this mode, we'll change the
  *   assignment operator and equality operator tokens.  If 'mode' is true,
  *   we're in C mode; otherwise, we're in traditional TADS mode.
- *   
+ *
  *   #pragma C+: assignment is '=', equality is '=='
- *.  #pragma C-: assignment is ':=', equality is '='.  
+ *.  #pragma C-: assignment is ':=', equality is '='.
  */
 void CTcParser::set_pragma_c(int mode)
 {
@@ -763,7 +763,7 @@ CTcPrsNode *CTcParser::parse_expr()
 
 /*
  *   Parse a condition expression.  Warns if the outermost operator is a
- *   simple assignment.  
+ *   simple assignment.
  */
 CTcPrsNode *CTcParser::parse_cond_expr()
 {
@@ -772,9 +772,9 @@ CTcPrsNode *CTcParser::parse_cond_expr()
     /* parse the expression */
     cond = parse_expr();
 
-    /* 
+    /*
      *   if the outermost operator is a simple assignment, display an
-     *   error 
+     *   error
      */
     if (cond != 0 && cond->is_simple_asi() && !G_prs->get_syntax_only())
         G_tok->log_warning(TCERR_ASI_IN_COND);
@@ -784,7 +784,7 @@ CTcPrsNode *CTcParser::parse_cond_expr()
 }
 
 /*
- *   Parse an assignment expression.  
+ *   Parse an assignment expression.
  */
 CTcPrsNode *CTcParser::parse_asi_expr()
 {
@@ -793,25 +793,25 @@ CTcPrsNode *CTcParser::parse_asi_expr()
 }
 
 /*
- *   Parse an expression or a double-quoted string expression 
+ *   Parse an expression or a double-quoted string expression
  */
 CTcPrsNode *CTcParser::parse_expr_or_dstr(int allow_comma_expr)
 {
-    /* 
+    /*
      *   parse the appropriate kind of expression - if a comma expression is
      *   allowed, parse that, otherwise parse an assignment expression (as
-     *   that's the next thing down the hierarchy from the comma operator) 
+     *   that's the next thing down the hierarchy from the comma operator)
      */
     return (allow_comma_expr ? S_op_comma.parse() : S_op_asi.parse());
 }
 
 /*
- *   Parse a required semicolon 
+ *   Parse a required semicolon
  */
 int CTcParser::parse_req_sem()
 {
     const char eof_str[] = "<end of file>";
-    
+
     /* check to see if we found the semicolon */
     if (G_tok->cur() == TOKT_SEM)
     {
@@ -820,9 +820,9 @@ int CTcParser::parse_req_sem()
         return 0;
     }
 
-    /* 
+    /*
      *   check what we have; the type of error we want to log depends on
-     *   what we find next 
+     *   what we find next
      */
     switch(G_tok->cur())
     {
@@ -830,13 +830,13 @@ int CTcParser::parse_req_sem()
         /* log the extra ')' error */
         G_tok->log_error(TCERR_EXTRA_RPAR);
 
-        /* 
+        /*
          *   we're probably in an expression that ended before the user
          *   thought it should; skip the extraneous material up to the
-         *   next semicolon 
+         *   next semicolon
          */
         return skip_to_sem();
-        
+
     case TOKT_RBRACK:
         /* log the error */
         G_tok->log_error(TCERR_EXTRA_RBRACK);
@@ -845,20 +845,20 @@ int CTcParser::parse_req_sem()
         return skip_to_sem();
 
     case TOKT_EOF:
-        /* 
+        /*
          *   missing semicolon at end of file - log the missing-semicolon
          *   error and tell the caller not to proceed, since there's
-         *   nothing left to parse 
+         *   nothing left to parse
          */
         G_tok->log_error(TCERR_EXPECTED_SEMI,
                          (int)sizeof(eof_str)-1, eof_str);
         return 1;
 
     default:
-        /* 
+        /*
          *   the source is probably just missing a semicolon; log the
          *   error, and tell the caller to proceed from the current
-         *   position 
+         *   position
          */
         G_tok->log_error_curtok(TCERR_EXPECTED_SEMI);
         return 0;
@@ -866,7 +866,7 @@ int CTcParser::parse_req_sem()
 }
 
 /*
- *   Skip to the next semicolon 
+ *   Skip to the next semicolon
  */
 int CTcParser::skip_to_sem()
 {
@@ -881,20 +881,20 @@ int CTcParser::skip_to_sem()
             return 1;
 
         case TOKT_SEM:
-            /* 
+            /*
              *   it's the semicolon at last - skip it and tell the caller
-             *   to proceed 
+             *   to proceed
              */
             G_tok->next();
             return 0;
 
         case TOKT_LBRACE:
         case TOKT_RBRACE:
-            /* 
+            /*
              *   Don't skip past braces - the caller probably simply left
              *   out a semicolon at the end of a statement, and we've now
              *   reached the next block start or end.  Stop here and tell
-             *   the caller to proceed.  
+             *   the caller to proceed.
              */
             return 0;
 
@@ -909,7 +909,7 @@ int CTcParser::skip_to_sem()
 /*
  *   Parse an operator name.  Call this when the current token is 'operator'
  *   and an operator name is expected.  We'll fill in 'tok' with the pseudo
- *   property name of the operator ("operator +", etc).  
+ *   property name of the operator ("operator +", etc).
  */
 int CTcParser::parse_op_name(CTcToken *tok, int *op_argp)
 {
@@ -935,42 +935,42 @@ int CTcParser::parse_op_name(CTcToken *tok, int *op_argp)
             propname = "unknown_operator";
         }
         break;
-        
+
     case TOKT_PLUS:
         propname = "operator +";
         op_args = 2;
         break;
-        
+
     case TOKT_MINUS:
         propname = "operator -";
         op_args = 2;
         break;
-        
+
     case TOKT_TIMES:
         propname = "operator *";
         op_args = 2;
         break;
-        
+
     case TOKT_DIV:
         propname = "operator /";
         op_args = 2;
         break;
-        
+
     case TOKT_MOD:
         propname = "operator %";
         op_args = 2;
         break;
-        
+
     case TOKT_XOR:
         propname = "operator ^";
         op_args = 2;
         break;
-        
+
     case TOKT_SHL:
         propname = "operator <<";
         op_args = 2;
         break;
-        
+
     case TOKT_ASHR:
         propname = "operator >>";
         op_args = 2;
@@ -980,12 +980,12 @@ int CTcParser::parse_op_name(CTcToken *tok, int *op_argp)
         propname = "operator >>>";
         op_args = 2;
         break;
-        
+
     case TOKT_BNOT:
         propname = "operator ~";
         op_args = 1;
         break;
-        
+
     case TOKT_OR:
         propname = "operator |";
         op_args = 2;
@@ -995,12 +995,12 @@ int CTcParser::parse_op_name(CTcToken *tok, int *op_argp)
         propname = "operator &";
         op_args = 2;
         break;
-        
+
     case TOKT_LBRACK:
         /* we need at least a ']', and a '=' can follow */
         if (G_tok->next() != TOKT_RBRACK)
             G_tok->log_error_curtok(TCERR_EXPECTED_RBRACK_IN_OP);
-        
+
         /* check what follows that */
         if (G_tok->next() == TOKT_EQ)
         {
@@ -1013,12 +1013,12 @@ int CTcParser::parse_op_name(CTcToken *tok, int *op_argp)
             /* it's just the regular index operator [] */
             propname = "operator []";
             op_args = 2;
-            
+
             /* put back our peek-ahead token */
             G_tok->unget();
         }
         break;
-        
+
     default:
         /* it's not an operator we can override */
         G_tok->log_error_curtok(TCERR_BAD_OP_OVERLOAD);
@@ -1026,7 +1026,7 @@ int CTcParser::parse_op_name(CTcToken *tok, int *op_argp)
         ok = FALSE;
         break;
     }
-    
+
     /* copy the property name to the token */
     tok->set_text(propname, strlen(propname));
 
@@ -1039,15 +1039,15 @@ int CTcParser::parse_op_name(CTcToken *tok, int *op_argp)
 }
 
 /*
- *   Create a symbol node 
+ *   Create a symbol node
  */
 CTcPrsNode *CTcParser::create_sym_node(const textchar_t *sym, size_t sym_len)
 {
-    /* 
+    /*
      *   First, look up the symbol in local scope.  Local scope symbols
      *   can always be resolved during parsing, because the language
      *   requires that local scope items be declared before their first
-     *   use. 
+     *   use.
      */
     CTcPrsSymtab *symtab;
     CTcSymbol *entry = local_symtab_->find(sym, sym_len, &symtab);
@@ -1068,18 +1068,18 @@ CTcPrsNode *CTcParser::create_sym_node(const textchar_t *sym, size_t sym_len)
         }
     }
 
-    /* 
+    /*
      *   We didn't find it in local scope, so the symbol cannot be resolved
      *   until code generation - return an unresolved symbol node.  Note a
      *   possible implicit self-reference, since this could be a property of
-     *   'self'.  
+     *   'self'.
      */
     set_self_referenced(TRUE);
     return new CTPNSym(sym, sym_len);
 }
 
 /*
- *   Add a nested top-level statement to our list 
+ *   Add a nested top-level statement to our list
  */
 void CTcParser::add_nested_stm(CTPNStmTop *stm)
 {
@@ -1092,7 +1092,7 @@ void CTcParser::add_nested_stm(CTPNStmTop *stm)
 }
 
 /*
- *   Add an anonymous object to our list 
+ *   Add an anonymous object to our list
  */
 void CTcParser::add_anon_obj(CTcSymObj *sym)
 {
@@ -1111,15 +1111,15 @@ void CTcParser::add_anon_obj(CTcSymObj *sym)
 }
 
 /*
- *   Add a non-symbolic object to our list 
+ *   Add a non-symbolic object to our list
  */
 void CTcParser::add_nonsym_obj(tctarg_obj_id_t id)
 {
     tcprs_nonsym_obj *obj;
-    
+
     /* allocate a link structure */
     obj = new (G_prsmem) tcprs_nonsym_obj(id);
-    
+
     /* link it into our list */
     if (nonsym_obj_tail_ != 0)
         nonsym_obj_tail_->nxt_ = obj;
@@ -1136,7 +1136,7 @@ void CTcParser::add_nonsym_obj(tctarg_obj_id_t id)
  *   return null.  The length return pointer can be null if the caller wants
  *   the results null-terminated rather than returned with a counted length.
  *   If the length pointer is given, the result will not be null-terminated.
- *   
+ *
  */
 const char *CTcParser::read_len_prefix_str
    (CVmFile *fp, char *tmp_buf, size_t tmp_buf_len, size_t *ret_len,
@@ -1144,7 +1144,7 @@ const char *CTcParser::read_len_prefix_str
 {
     size_t read_len;
     size_t alloc_len;
-    
+
     /* read the length to read from the file */
     read_len = (size_t)fp->read_uint2();
 
@@ -1174,7 +1174,7 @@ const char *CTcParser::read_len_prefix_str
 
 /*
  *   Read a length prefixed string into a given buffer.  Returns zero on
- *   success, non-zero on failure. 
+ *   success, non-zero on failure.
  */
 int CTcParser::read_len_prefix_str(CVmFile *fp, char *buf, size_t buf_len,
                                    int err_if_too_long)
@@ -1208,7 +1208,7 @@ int CTcParser::read_len_prefix_str(CVmFile *fp, char *buf, size_t buf_len,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Add a generated object 
+ *   Add a generated object
  */
 CTcSymObj *CTcParser::add_gen_obj(const char *clsname)
 {
@@ -1230,7 +1230,7 @@ CTcSymObj *CTcParser::add_gen_obj(const char *clsname)
 }
 
 /*
- *   Add a generated object.  
+ *   Add a generated object.
  */
 CTcSymObj *CTcParser::add_gen_obj(CTcSymObj *cls)
 {
@@ -1251,7 +1251,7 @@ CTcSymObj *CTcParser::add_gen_obj(CTcSymObj *cls)
 }
 
 /*
- *   Add a constant property value to a generated object 
+ *   Add a constant property value to a generated object
  */
 void CTcParser::add_gen_obj_prop(
     CTcSymObj *obj, const char *propn, const CTcConstVal *val)
@@ -1273,7 +1273,7 @@ void CTcParser::add_gen_obj_prop(
             G_vmifc->set_prop(obj->get_obj_id(), prop->get_prop(), val);
         }
         else
-        {            
+        {
             /* static compilation - add the value to the object statement */
             add_gen_obj_prop_stat(obj, prop, val);
         }
@@ -1281,7 +1281,7 @@ void CTcParser::add_gen_obj_prop(
 }
 
 /*
- *   add an integer property value to a generated object 
+ *   add an integer property value to a generated object
  */
 void CTcParser::add_gen_obj_prop(CTcSymObj *obj, const char *prop, int val)
 {
@@ -1294,7 +1294,7 @@ void CTcParser::add_gen_obj_prop(CTcSymObj *obj, const char *prop, int val)
 }
 
 /*
- *   add a string property value to a generated object 
+ *   add a string property value to a generated object
  */
 void CTcParser::add_gen_obj_prop(CTcSymObj *obj, const char *prop,
                                  const char *val)
@@ -1309,11 +1309,11 @@ void CTcParser::add_gen_obj_prop(CTcSymObj *obj, const char *prop,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Constant Value 
+ *   Constant Value
  */
 
 /*
- *   set a string value 
+ *   set a string value
  */
 void CTcConstVal::set_sstr(const char *val, size_t len)
 {
@@ -1346,7 +1346,7 @@ void CTcConstVal::set_sstr(uint32_t ofs)
 }
 
 /*
- *   Set a regex string value 
+ *   Set a regex string value
  */
 void CTcConstVal::set_restr(const CTcToken *tok)
 {
@@ -1356,9 +1356,9 @@ void CTcConstVal::set_restr(const CTcToken *tok)
     val_.strval_.pool_ofs_ = 0;
 }
 
-/* 
+/*
  *   BigNumber string formatter buffer allocator.  Allocates a buffer of the
- *   required size from the parser memory pool. 
+ *   required size from the parser memory pool.
  */
 class CBigNumStringBufPrsAlo: public IBigNumStringBuf
 {
@@ -1384,10 +1384,10 @@ void CTcConstVal::set_float(const vbignum_t *val, int promoted)
     CBigNumStringBufPrsAlo alo;
     const char *buf = val->format(&alo);
 
-    /* 
+    /*
      *   read the length from the buffer - vbignum_t::format() fills in the
      *   buffer using the TADS String format, with a two-byte little-endian
-     *   (VMB_LEN) length prefix 
+     *   (VMB_LEN) length prefix
      */
     size_t len = vmb_get_len(buf);
     buf += VMB_LEN;
@@ -1406,10 +1406,10 @@ void CTcConstVal::set_float(ulong i)
     set_float(&b, TRUE);
 }
 
-/* 
+/*
  *   Try demoting a float back to an int.  This can be used after a
  *   constant-folding operation to turn a previously promoted float back to
- *   an int if the result of the calculation now fits the int type. 
+ *   an int if the result of the calculation now fits the int type.
  */
 void CTcConstVal::demote_float()
 {
@@ -1431,7 +1431,7 @@ void CTcConstVal::demote_float()
 
 
 /*
- *   set a list value 
+ *   set a list value
  */
 void CTcConstVal::set_list(CTPNList *lst)
 {
@@ -1453,7 +1453,7 @@ void CTcConstVal::set_list(uint32_t ofs)
 }
 
 /*
- *   Convert a value to a string 
+ *   Convert a value to a string
  */
 const char *CTcConstVal::cvt_to_str(char *buf, size_t bufl,
                                     size_t *result_len)
@@ -1523,7 +1523,7 @@ int CTcConstVal::equals_zero() const
 }
 
 /*
- *   Compare for equality to another constant value 
+ *   Compare for equality to another constant value
  */
 int CTcConstVal::is_equal_to(const CTcConstVal *val) const
 {
@@ -1543,10 +1543,10 @@ int CTcConstVal::is_equal_to(const CTcConstVal *val) const
         vbignum_t b(val->get_val_int());
         return a.compare(b) == 0;
     }
-    
-    /* 
+
+    /*
      *   if the types aren't equal, the values are not equal; otherwise,
-     *   check the various types 
+     *   check the various types
      */
     if (typ_ != val->get_type())
     {
@@ -1563,7 +1563,7 @@ int CTcConstVal::is_equal_to(const CTcConstVal *val) const
 
     case TC_CVT_TRUE:
     case TC_CVT_NIL:
-        /* 
+        /*
          *   nil==nil and true==true; since we know the types are the
          *   same, the values are the same
          */
@@ -1585,18 +1585,18 @@ int CTcConstVal::is_equal_to(const CTcConstVal *val) const
         return (get_val_str_len() == val->get_val_str_len()
                 && memcmp(get_val_str(), val->get_val_str(),
                           get_val_str_len()) == 0);
-            
+
     case TC_CVT_LIST:
-        /* 
+        /*
          *   if the lists don't have the same number of elements, they're
-         *   not equal 
+         *   not equal
          */
         if (get_val_list()->get_count() != val->get_val_list()->get_count())
             return FALSE;
 
-        /* 
+        /*
          *   compare each element of each list; if they're all the same,
-         *   the values are the same 
+         *   the values are the same
          */
         ele1 = get_val_list()->get_head();
         ele2 = val->get_val_list()->get_head();
@@ -1621,9 +1621,9 @@ int CTcConstVal::is_equal_to(const CTcConstVal *val) const
         return (get_val_prop() == val->get_val_prop());
 
     case TC_CVT_FUNCPTR:
-        /* 
+        /*
          *   if both symbols are the same, the values match; otherwise,
-         *   they refer to different functions 
+         *   they refer to different functions
          */
         return (get_val_funcptr_sym() == val->get_val_funcptr_sym());
 
@@ -1636,12 +1636,12 @@ int CTcConstVal::is_equal_to(const CTcConstVal *val) const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Operator Parsers 
+ *   Operator Parsers
  */
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parse a left-associative binary operator 
+ *   Parse a left-associative binary operator
  */
 CTcPrsNode *CTcPrsOpBin::parse() const
 {
@@ -1658,7 +1658,7 @@ CTcPrsNode *CTcPrsOpBin::parse() const
         {
             /* skip the matching token */
             G_tok->next();
-            
+
             /* parse the right-hand side */
             CTcPrsNode *rhs = right_->parse();
             if (rhs == 0)
@@ -1667,17 +1667,17 @@ CTcPrsNode *CTcPrsOpBin::parse() const
             /* try folding our subnodes into a constant value, if possible */
             CTcPrsNode *const_tree = eval_constant(lhs, rhs);
 
-            /* 
+            /*
              *   if we couldn't calculate a constant value, build the tree
-             *   normally 
+             *   normally
              */
             if (const_tree == 0)
             {
-                /* 
+                /*
                  *   Build my tree, then proceed to parse any additional
                  *   occurrences of our operator, with the result of
                  *   applying this occurrence of the operator as the
-                 *   left-hand side of the new operator.  
+                 *   left-hand side of the new operator.
                  */
                 lhs = build_tree(lhs, rhs);
             }
@@ -1689,9 +1689,9 @@ CTcPrsNode *CTcPrsOpBin::parse() const
         }
         else
         {
-            /* 
+            /*
              *   it's not my operator - return what we thought might have
-             *   been our left-hand side 
+             *   been our left-hand side
              */
             return lhs;
         }
@@ -1701,7 +1701,7 @@ CTcPrsNode *CTcPrsOpBin::parse() const
 /* ------------------------------------------------------------------------ */
 /*
  *   Parse a group of left-associative binary operators at the same
- *   precedence level 
+ *   precedence level
  */
 CTcPrsNode *CTcPrsOpBinGroup::parse() const
 {
@@ -1719,7 +1719,7 @@ CTcPrsNode *CTcPrsOpBinGroup::parse() const
 
 /*
  *   Find an apply one of our operators to the already-parsed left-hand
- *   side.  Returns true if we found an operator, false if not.  
+ *   side.  Returns true if we found an operator, false if not.
  */
 int CTcPrsOpBinGroup::find_and_apply_op(CTcPrsNode **lhs) const
 {
@@ -1744,15 +1744,15 @@ int CTcPrsOpBinGroup::find_and_apply_op(CTcPrsNode **lhs) const
             /* try folding our subnodes into a constant value */
             CTcPrsNode *const_tree = (*op)->eval_constant(*lhs, rhs);
 
-            /* 
+            /*
              *   if we couldn't calculate a constant value, build the tree
-             *   normally 
+             *   normally
              */
             if (const_tree == 0)
             {
-                /* 
+                /*
                  *   build my tree, replacing the original left-hand side
-                 *   with the new expression 
+                 *   with the new expression
                  */
                 *lhs = (*op)->build_tree(*lhs, rhs);
             }
@@ -1766,13 +1766,13 @@ int CTcPrsOpBinGroup::find_and_apply_op(CTcPrsNode **lhs) const
              *   Tell the caller to proceed to parse any additional
              *   occurrences of our operator - this will apply the next
              *   occurrence of the operator as the left-hand side of the
-             *   new operator.  
+             *   new operator.
              */
             return TRUE;
         }
     }
 
-    /* 
+    /*
      *   if we got here, we didn't find an operator - tell the caller that
      *   we've reached the end of this operator's possible span
      */
@@ -1782,7 +1782,7 @@ int CTcPrsOpBinGroup::find_and_apply_op(CTcPrsNode **lhs) const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Comparison operator group 
+ *   Comparison operator group
  */
 CTcPrsNode *CTcPrsOpBinGroupCompare::parse() const
 {
@@ -1794,7 +1794,7 @@ CTcPrsNode *CTcPrsOpBinGroupCompare::parse() const
     /* keep going as long as we find one of our operators */
     for (;;)
     {
-        /* 
+        /*
          *   try one of our regular operators - if we find it, go back for
          *   another round to see if there's another operator following
          *   the next expression
@@ -1802,10 +1802,10 @@ CTcPrsNode *CTcPrsOpBinGroupCompare::parse() const
         if (find_and_apply_op(&lhs))
             continue;
 
-        /* 
+        /*
          *   check for the 'is in' operator - 'is' and 'in' aren't
          *   keywords, so we must check for symbol tokens with the text of
-         *   these context-sensitive keywords 
+         *   these context-sensitive keywords
          */
         if (G_tok->cur() == TOKT_SYM
             && G_tok->getcur()->text_matches("is", 2))
@@ -1822,9 +1822,9 @@ CTcPrsNode *CTcPrsOpBinGroupCompare::parse() const
                 /* build the node */
                 lhs = new CTPNIsIn(lhs, rhs);
 
-                /* 
+                /*
                  *   we've applied the 'is in' operator - go back for
-                 *   another operator from the comparison group 
+                 *   another operator from the comparison group
                  */
                 continue;
             }
@@ -1836,7 +1836,7 @@ CTcPrsNode *CTcPrsOpBinGroupCompare::parse() const
         }
 
         /*
-         *   Check for the 'not in' operator 
+         *   Check for the 'not in' operator
          */
         if (G_tok->cur() == TOKT_SYM
             && G_tok->getcur()->text_matches("not", 3))
@@ -1853,9 +1853,9 @@ CTcPrsNode *CTcPrsOpBinGroupCompare::parse() const
                 /* build the node */
                 lhs = new CTPNNotIn(lhs, rhs);
 
-                /* 
+                /*
                  *   we've applied the 'is in' operator - go back for
-                 *   another operator from the comparison group 
+                 *   another operator from the comparison group
                  */
                 continue;
             }
@@ -1876,7 +1876,7 @@ CTcPrsNode *CTcPrsOpBinGroupCompare::parse() const
 
 /*
  *   parse the list for the right-hand side of an 'is in' or 'not in'
- *   expression 
+ *   expression
  */
 CTPNArglist *CTcPrsOpBinGroupCompare::parse_inlist() const
 {
@@ -1892,9 +1892,9 @@ CTPNArglist *CTcPrsOpBinGroupCompare::parse_inlist() const
     }
     else
     {
-        /* 
+        /*
          *   log an error, and keep going on the assumption that it was
-         *   merely omitted and the rest of the list is well-formed 
+         *   merely omitted and the rest of the list is well-formed
          */
         G_tok->log_error_curtok(TCERR_IN_REQ_LPAR);
     }
@@ -1920,9 +1920,9 @@ CTPNArglist *CTcPrsOpBinGroupCompare::parse_inlist() const
         /* create a new argument node */
         arg_cur = new CTPNArg(expr);
 
-        /* 
+        /*
          *   link the new node at the end of our list (this preserves the
-         *   order of the original list) 
+         *   order of the original list)
          */
         if (arg_tail != 0)
             arg_tail->set_next_arg(arg_cur);
@@ -1943,14 +1943,14 @@ CTPNArglist *CTcPrsOpBinGroupCompare::parse_inlist() const
         }
         else
         {
-            /* 
+            /*
              *   If we're at the end of the file, there's no point
              *   proceding, so return failure.  If we've reached something
              *   that looks like a statement separator (semicolon, curly
              *   brace), also return failure, since the problem is clearly
              *   a missing right paren.  Otherwise, assume that a comma
              *   was missing and continue as though we have another
-             *   argument.  
+             *   argument.
              */
             switch(G_tok->cur())
             {
@@ -1958,10 +1958,10 @@ CTPNArglist *CTcPrsOpBinGroupCompare::parse_inlist() const
                 /* log an error */
                 G_tok->log_error_curtok(TCERR_EXPECTED_IN_COMMA);
 
-                /* 
+                /*
                  *   if we're at the end of file, return what we have so
                  *   far; otherwise continue, assuming that they merely
-                 *   left out a comma between two argument expressions 
+                 *   left out a comma between two argument expressions
                  */
                 if (G_tok->cur() == TOKT_EOF)
                     return new CTPNArglist(argc, arg_head);
@@ -1972,10 +1972,10 @@ CTPNArglist *CTcPrsOpBinGroupCompare::parse_inlist() const
             case TOKT_RBRACE:
             case TOKT_DSTR_MID:
             case TOKT_DSTR_END:
-                /* 
+                /*
                  *   we're apparently at the end of the statement; flag
                  *   the error as a missing right paren, and return what
-                 *   we have so far 
+                 *   we have so far
                  */
                 G_tok->log_error_curtok(TCERR_EXPECTED_IN_RPAR);
                 return new CTPNArglist(argc, arg_head);
@@ -1992,20 +1992,20 @@ CTPNArglist *CTcPrsOpBinGroupCompare::parse_inlist() const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Comma Operator 
+ *   Comma Operator
  */
 
 /*
- *   try to evaluate a constant expression 
+ *   try to evaluate a constant expression
  */
 CTcPrsNode *CTcPrsOpComma::eval_constant(CTcPrsNode *left,
                                          CTcPrsNode *right) const
 {
-    /* 
+    /*
      *   if both sides are constants, the result is the constant on the
      *   right side; we can't simply fold down to a right-side constant if
      *   the left side is not constant, though, because we must still
-     *   evaluate the left side at run-time for any possible side effects 
+     *   evaluate the left side at run-time for any possible side effects
      */
     if (left->is_const() && right->is_const())
     {
@@ -2014,16 +2014,16 @@ CTcPrsNode *CTcPrsOpComma::eval_constant(CTcPrsNode *left,
     }
     else
     {
-        /* 
+        /*
          *   one or the other is non-constant, so we can't fold the
-         *   expression - return null to so indicate 
+         *   expression - return null to so indicate
          */
         return 0;
     }
 }
 
 /*
- *   build a subtree for the comma operator 
+ *   build a subtree for the comma operator
  */
 CTcPrsNode *CTcPrsOpComma::build_tree(CTcPrsNode *left,
                                       CTcPrsNode *right) const
@@ -2033,11 +2033,11 @@ CTcPrsNode *CTcPrsOpComma::build_tree(CTcPrsNode *left,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   logical OR operator 
+ *   logical OR operator
  */
 
 /*
- *   try to evaluate a constant expression 
+ *   try to evaluate a constant expression
  */
 CTcPrsNode *CTcPrsOpOr::eval_constant(CTcPrsNode *left,
                                       CTcPrsNode *right) const
@@ -2046,14 +2046,14 @@ CTcPrsNode *CTcPrsOpOr::eval_constant(CTcPrsNode *left,
     if (left->is_const())
     {
         CTcPrsNode *ret;
-        
-        /* 
+
+        /*
          *   Check for constants.  If the first expression is constant,
          *   the result will always be either 'true' (if the first
          *   expression's constant value is true), or the value of the
          *   second expression (if the first expression's constant value
          *   is 'nil').
-         *   
+         *
          *   Note that it doesn't matter whether or not the right side is
          *   a constant.  If the left is true, the right will never be
          *   executed because of the short-circuit logic; if the left is
@@ -2061,9 +2061,9 @@ CTcPrsNode *CTcPrsOpOr::eval_constant(CTcPrsNode *left,
          */
         if (left->get_const_val()->get_val_bool())
         {
-            /* 
+            /*
              *   the left is true, so the result is always true, and the
-             *   right never gets executed 
+             *   right never gets executed
              */
             ret = left;
         }
@@ -2091,9 +2091,9 @@ CTcPrsNode *CTcPrsOpOr::eval_constant(CTcPrsNode *left,
     }
     else
     {
-        /* 
+        /*
          *   one or the other is non-constant, so we can't fold the
-         *   expression - return null to so indicate 
+         *   expression - return null to so indicate
          */
         return 0;
     }
@@ -2110,34 +2110,34 @@ CTcPrsNode *CTcPrsOpOr::build_tree(CTcPrsNode *left,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   logical AND operator 
+ *   logical AND operator
  */
 
 /*
- *   try to evaluate a constant expression 
+ *   try to evaluate a constant expression
  */
 CTcPrsNode *CTcPrsOpAnd::eval_constant(CTcPrsNode *left,
                                        CTcPrsNode *right) const
 {
-    /* 
+    /*
      *   Check for constants.  If the first expression is constant, the
      *   result will always be either 'nil' (if the first expression's
      *   constant value is nil), or the value of the second expression (if
      *   the first expression's constant value is 'true').
-     *   
+     *
      *   Note that it doesn't matter whether or not the right side is a
      *   constant.  If the left is nil, the right will never be executed
      *   because of the short-circuit logic; if the left is true, the
-     *   result will always be the result of the right value.  
+     *   result will always be the result of the right value.
      */
     if (left->is_const())
     {
         CTcPrsNode *ret;
-        
+
         /*
          *   The left value is a constant, so we can eliminate the &&.  If
          *   the left value is nil, the result is nil; otherwise, it's the
-         *   right half.  
+         *   right half.
          */
         if (left->get_const_val()->get_val_bool())
         {
@@ -2146,7 +2146,7 @@ CTcPrsNode *CTcPrsOpAnd::eval_constant(CTcPrsNode *left,
         }
         else
         {
-            /* 
+            /*
              *   The left side is nil - the result is nil, and the right
              *   side never gets executed.
              */
@@ -2171,16 +2171,16 @@ CTcPrsNode *CTcPrsOpAnd::eval_constant(CTcPrsNode *left,
     }
     else
     {
-        /* 
+        /*
          *   one or the other is non-constant, so we can't fold the
-         *   expression - return null to so indicate 
+         *   expression - return null to so indicate
          */
         return 0;
     }
 }
 
 /*
- *   build the subtree 
+ *   build the subtree
  */
 CTcPrsNode *CTcPrsOpAnd::build_tree(CTcPrsNode *left,
                                     CTcPrsNode *right) const
@@ -2190,11 +2190,11 @@ CTcPrsNode *CTcPrsOpAnd::build_tree(CTcPrsNode *left,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Generic Comparison Operator parser base class 
+ *   Generic Comparison Operator parser base class
  */
 
 /*
- *   evaluate a constant expression 
+ *   evaluate a constant expression
  */
 CTcPrsNode *CTcPrsOpRel::eval_constant(CTcPrsNode *left,
                                        CTcPrsNode *right) const
@@ -2260,9 +2260,9 @@ CTcPrsNode *CTcPrsOpRel::eval_constant(CTcPrsNode *left,
     }
     else
     {
-        /* 
+        /*
          *   one or the other is non-constant, so we can't fold the
-         *   expression - return null to so indicate 
+         *   expression - return null to so indicate
          */
         return 0;
     }
@@ -2271,11 +2271,11 @@ CTcPrsNode *CTcPrsOpRel::eval_constant(CTcPrsNode *left,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   greater-than operator 
+ *   greater-than operator
  */
 
 /*
- *   build the subtree 
+ *   build the subtree
  */
 CTcPrsNode *CTcPrsOpGt::build_tree(CTcPrsNode *left,
                                    CTcPrsNode *right) const
@@ -2285,11 +2285,11 @@ CTcPrsNode *CTcPrsOpGt::build_tree(CTcPrsNode *left,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   less-than operator 
+ *   less-than operator
  */
 
 /*
- *   build the subtree 
+ *   build the subtree
  */
 CTcPrsNode *CTcPrsOpLt::build_tree(CTcPrsNode *left,
                                    CTcPrsNode *right) const
@@ -2299,11 +2299,11 @@ CTcPrsNode *CTcPrsOpLt::build_tree(CTcPrsNode *left,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   greater-or-equal operator 
+ *   greater-or-equal operator
  */
 
 /*
- *   build the subtree 
+ *   build the subtree
  */
 CTcPrsNode *CTcPrsOpGe::build_tree(CTcPrsNode *left,
                                    CTcPrsNode *right) const
@@ -2313,11 +2313,11 @@ CTcPrsNode *CTcPrsOpGe::build_tree(CTcPrsNode *left,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   less-or-equal operator 
+ *   less-or-equal operator
  */
 
 /*
- *   build the subtree 
+ *   build the subtree
  */
 CTcPrsNode *CTcPrsOpLe::build_tree(CTcPrsNode *left,
                                    CTcPrsNode *right) const
@@ -2327,11 +2327,11 @@ CTcPrsNode *CTcPrsOpLe::build_tree(CTcPrsNode *left,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   General equality/inequality operators base class 
+ *   General equality/inequality operators base class
  */
 
 /*
- *   evaluate a constant expression 
+ *   evaluate a constant expression
  */
 CTcPrsNode *CTcPrsOpEqComp::eval_constant(CTcPrsNode *left,
                                           CTcPrsNode *right) const
@@ -2355,11 +2355,11 @@ CTcPrsNode *CTcPrsOpEqComp::eval_constant(CTcPrsNode *left,
     {
         CTcConstVal cval;
         int comparable;
-        
-        /* 
+
+        /*
          *   both sides are addresses - if they're both addresses of the
          *   same subexpression, then the values are comparable as
-         *   compile-time constants 
+         *   compile-time constants
          */
         ops_equal = ((CTPNAddr *)left)
                     ->is_addr_eq((CTPNAddr *)right, &comparable);
@@ -2376,9 +2376,9 @@ CTcPrsNode *CTcPrsOpEqComp::eval_constant(CTcPrsNode *left,
     }
     else
     {
-        /* 
+        /*
          *   one or the other is non-constant, so we can't fold the
-         *   expression - return null to so indicate 
+         *   expression - return null to so indicate
          */
         return 0;
     }
@@ -2387,11 +2387,11 @@ CTcPrsNode *CTcPrsOpEqComp::eval_constant(CTcPrsNode *left,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   equality operator 
+ *   equality operator
  */
 
 /*
- *   build the subtree 
+ *   build the subtree
  */
 CTcPrsNode *CTcPrsOpEq::build_tree(CTcPrsNode *left,
                                    CTcPrsNode *right) const
@@ -2401,7 +2401,7 @@ CTcPrsNode *CTcPrsOpEq::build_tree(CTcPrsNode *left,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   inequality operator 
+ *   inequality operator
  */
 
 /*
@@ -2415,11 +2415,11 @@ CTcPrsNode *CTcPrsOpNe::build_tree(CTcPrsNode *left,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'is in' operator 
+ *   'is in' operator
  */
 
 /*
- *   construct 
+ *   construct
  */
 CTPNIsInBase::CTPNIsInBase(CTcPrsNode *lhs, class CTPNArglist *rhs)
     : CTPNBin(lhs, rhs)
@@ -2429,7 +2429,7 @@ CTPNIsInBase::CTPNIsInBase(CTcPrsNode *lhs, class CTPNArglist *rhs)
 }
 
 /*
- *   fold constants 
+ *   fold constants
  */
 CTcPrsNode *CTPNIsInBase::fold_binop()
 {
@@ -2437,7 +2437,7 @@ CTcPrsNode *CTPNIsInBase::fold_binop()
     CTPNArg *arg;
     CTPNArg *prv;
     CTPNArg *nxt;
-    
+
     /* if the left-hand side isn't constant, there's nothing to do */
     if (!left_->is_const())
         return this;
@@ -2450,7 +2450,7 @@ CTcPrsNode *CTPNIsInBase::fold_binop()
     {
         /* remember the next argument, in case we eliminate this one */
         nxt = arg->get_next_arg();
-        
+
         /* check to see if this argument is a constant */
         if (arg->is_const())
         {
@@ -2463,7 +2463,7 @@ CTcPrsNode *CTPNIsInBase::fold_binop()
             {
                 /*
                  *   The values are equal, so the result of the expression
-                 *   is definitely 'true'.  
+                 *   is definitely 'true'.
                  */
                 const_true_ = TRUE;
 
@@ -2472,7 +2472,7 @@ CTcPrsNode *CTPNIsInBase::fold_binop()
                  *   from the 'in' list until it finds one that matches,
                  *   any remaining operands will simply never be
                  *   evaluated.  We can thus discard the rest of the
-                 *   argument list.  
+                 *   argument list.
                  */
                 nxt = 0;
             }
@@ -2482,7 +2482,7 @@ CTcPrsNode *CTPNIsInBase::fold_binop()
              *   list element.  This is never going to change because both
              *   values are constant, so there's no point in making this
              *   same comparison over and over again at run-time.  We can
-             *   thus eliminate this argument from the list.  
+             *   thus eliminate this argument from the list.
              */
             lst->set_argc(lst->get_argc() - 1);
             if (prv == 0)
@@ -2494,13 +2494,13 @@ CTcPrsNode *CTPNIsInBase::fold_binop()
 
     /*
      *   If the argument list is now completely empty, the result of the
-     *   expression is a constant.  
+     *   expression is a constant.
      */
     if (lst->get_arg_list_head() == 0)
     {
         /* set the left operand's value to our result */
         left_->get_const_val()->set_bool(const_true_);
-        
+
         /* return the constant value in place of the entire expression */
         return left_;
     }
@@ -2511,11 +2511,11 @@ CTcPrsNode *CTPNIsInBase::fold_binop()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'not in' operator 
+ *   'not in' operator
  */
 
 /*
- *   construct 
+ *   construct
  */
 CTPNNotInBase::CTPNNotInBase(CTcPrsNode *lhs, class CTPNArglist *rhs)
     : CTPNBin(lhs, rhs)
@@ -2525,7 +2525,7 @@ CTPNNotInBase::CTPNNotInBase(CTcPrsNode *lhs, class CTPNArglist *rhs)
 }
 
 /*
- *   fold constants for binary operator 
+ *   fold constants for binary operator
  */
 CTcPrsNode *CTPNNotInBase::fold_binop()
 {
@@ -2559,7 +2559,7 @@ CTcPrsNode *CTPNNotInBase::fold_binop()
             {
                 /*
                  *   The values are equal, so the result of the expression
-                 *   is definitely 'nil'.  
+                 *   is definitely 'nil'.
                  */
                 const_false_ = TRUE;
 
@@ -2568,7 +2568,7 @@ CTcPrsNode *CTPNNotInBase::fold_binop()
                  *   from the 'in' list until it finds one that matches,
                  *   any remaining operands will simply never be
                  *   evaluated.  We can thus discard the rest of the
-                 *   argument list.  
+                 *   argument list.
                  */
                 nxt = 0;
             }
@@ -2578,7 +2578,7 @@ CTcPrsNode *CTPNNotInBase::fold_binop()
              *   list element.  This is never going to change because both
              *   values are constant, so there's no point in making this
              *   same comparison over and over again at run-time.  We can
-             *   thus eliminate this argument from the list.  
+             *   thus eliminate this argument from the list.
              */
             lst->set_argc(lst->get_argc() - 1);
             if (prv == 0)
@@ -2590,13 +2590,13 @@ CTcPrsNode *CTPNNotInBase::fold_binop()
 
     /*
      *   If the argument list is now completely empty, the result of the
-     *   expression is a constant.  
+     *   expression is a constant.
      */
     if (lst->get_arg_list_head() == 0)
     {
         /* set the left operand's value to our result */
         left_->get_const_val()->set_bool(!const_false_);
-        
+
         /* return the constant value in place of the entire expression */
         return left_;
     }
@@ -2611,7 +2611,7 @@ CTcPrsNode *CTPNNotInBase::fold_binop()
  */
 
 /*
- *   evaluate constant value 
+ *   evaluate constant value
  */
 CTcPrsNode *CTcPrsOpArith::eval_constant(CTcPrsNode *left,
                                          CTcPrsNode *right) const
@@ -2719,9 +2719,9 @@ CTcPrsNode *CTcPrsOpArith::eval_constant(CTcPrsNode *left,
     }
     else
     {
-        /* 
+        /*
          *   one or the other is non-constant, so we can't fold the
-         *   expression - return null to so indicate 
+         *   expression - return null to so indicate
          */
         return 0;
     }
@@ -2729,11 +2729,11 @@ CTcPrsNode *CTcPrsOpArith::eval_constant(CTcPrsNode *left,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   bitwise OR operator 
+ *   bitwise OR operator
  */
 
 /*
- *   build the subtree 
+ *   build the subtree
  */
 CTcPrsNode *CTcPrsOpBOr::build_tree(CTcPrsNode *left,
                                     CTcPrsNode *right) const
@@ -2743,11 +2743,11 @@ CTcPrsNode *CTcPrsOpBOr::build_tree(CTcPrsNode *left,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   bitwise AND operator 
+ *   bitwise AND operator
  */
 
 /*
- *   build the subtree 
+ *   build the subtree
  */
 CTcPrsNode *CTcPrsOpBAnd::build_tree(CTcPrsNode *left,
                                      CTcPrsNode *right) const
@@ -2757,11 +2757,11 @@ CTcPrsNode *CTcPrsOpBAnd::build_tree(CTcPrsNode *left,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   bitwise XOR operator 
+ *   bitwise XOR operator
  */
 
 /*
- *   build the subtree 
+ *   build the subtree
  */
 CTcPrsNode *CTcPrsOpBXor::build_tree(CTcPrsNode *left,
                                      CTcPrsNode *right) const
@@ -2772,11 +2772,11 @@ CTcPrsNode *CTcPrsOpBXor::build_tree(CTcPrsNode *left,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   shift left operator 
+ *   shift left operator
  */
 
 /*
- *   build the subtree 
+ *   build the subtree
  */
 CTcPrsNode *CTcPrsOpShl::build_tree(CTcPrsNode *left,
                                     CTcPrsNode *right) const
@@ -2786,11 +2786,11 @@ CTcPrsNode *CTcPrsOpShl::build_tree(CTcPrsNode *left,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   arithmetic shift right operator 
+ *   arithmetic shift right operator
  */
 
 /*
- *   build the subtree 
+ *   build the subtree
  */
 CTcPrsNode *CTcPrsOpAShr::build_tree(CTcPrsNode *left,
                                      CTcPrsNode *right) const
@@ -2800,11 +2800,11 @@ CTcPrsNode *CTcPrsOpAShr::build_tree(CTcPrsNode *left,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   logical shift right operator 
+ *   logical shift right operator
  */
 
 /*
- *   build the subtree 
+ *   build the subtree
  */
 CTcPrsNode *CTcPrsOpLShr::build_tree(CTcPrsNode *left,
                                      CTcPrsNode *right) const
@@ -2814,11 +2814,11 @@ CTcPrsNode *CTcPrsOpLShr::build_tree(CTcPrsNode *left,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   multiplication operator 
+ *   multiplication operator
  */
 
 /*
- *   build the subtree 
+ *   build the subtree
  */
 CTcPrsNode *CTcPrsOpMul::build_tree(CTcPrsNode *left,
                                     CTcPrsNode *right) const
@@ -2827,7 +2827,7 @@ CTcPrsNode *CTcPrsOpMul::build_tree(CTcPrsNode *left,
 }
 
 /*
- *   calculate a constant float result 
+ *   calculate a constant float result
  */
 vbignum_t *CTcPrsOpMul::calc_result(
     const vbignum_t &a, const vbignum_t &b) const
@@ -2837,11 +2837,11 @@ vbignum_t *CTcPrsOpMul::calc_result(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   division operator 
+ *   division operator
  */
 
 /*
- *   build the subtree 
+ *   build the subtree
  */
 CTcPrsNode *CTcPrsOpDiv::build_tree(CTcPrsNode *left,
                                     CTcPrsNode *right) const
@@ -2850,7 +2850,7 @@ CTcPrsNode *CTcPrsOpDiv::build_tree(CTcPrsNode *left,
 }
 
 /*
- *   evaluate constant integer result 
+ *   evaluate constant integer result
  */
 long CTcPrsOpDiv::calc_result(long a, long b, int &ov) const
 {
@@ -2864,9 +2864,9 @@ long CTcPrsOpDiv::calc_result(long a, long b, int &ov) const
         return 1;
     }
 
-    /* 
+    /*
      *   check for overflow - there's only one way that integer division can
-     *   overflow, which is to divide INT32MINVAL by -1 
+     *   overflow, which is to divide INT32MINVAL by -1
      */
     ov = (a == INT32MINVAL && b == 1);
 
@@ -2875,7 +2875,7 @@ long CTcPrsOpDiv::calc_result(long a, long b, int &ov) const
 }
 
 /*
- *   calculate a constant float result 
+ *   calculate a constant float result
  */
 vbignum_t *CTcPrsOpDiv::calc_result(
     const vbignum_t &a, const vbignum_t &b) const
@@ -2896,11 +2896,11 @@ vbignum_t *CTcPrsOpDiv::calc_result(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   modulo operator 
+ *   modulo operator
  */
 
 /*
- *   build the subtree 
+ *   build the subtree
  */
 CTcPrsNode *CTcPrsOpMod::build_tree(CTcPrsNode *left,
                                     CTcPrsNode *right) const
@@ -2909,13 +2909,13 @@ CTcPrsNode *CTcPrsOpMod::build_tree(CTcPrsNode *left,
 }
 
 /*
- *   evaluate constant result 
+ *   evaluate constant result
  */
 long CTcPrsOpMod::calc_result(long a, long b, int &ov) const
 {
     /* there's no way for integer modulo to overflow */
     ov = FALSE;
-    
+
     /* check for divide-by-zero */
     if (b == 0)
     {
@@ -2933,7 +2933,7 @@ long CTcPrsOpMod::calc_result(long a, long b, int &ov) const
 }
 
 /*
- *   calculate a constant float result 
+ *   calculate a constant float result
  */
 vbignum_t *CTcPrsOpMod::calc_result(
     const vbignum_t &a, const vbignum_t &b) const
@@ -2955,11 +2955,11 @@ vbignum_t *CTcPrsOpMod::calc_result(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   subtraction operator 
+ *   subtraction operator
  */
 
 /*
- *   build the subtree 
+ *   build the subtree
  */
 CTcPrsNode *CTcPrsOpSub::build_tree(CTcPrsNode *left,
                                     CTcPrsNode *right) const
@@ -2968,7 +2968,7 @@ CTcPrsNode *CTcPrsOpSub::build_tree(CTcPrsNode *left,
 }
 
 /*
- *   evaluate a constant value 
+ *   evaluate a constant value
  */
 CTcPrsNode *CTcPrsOpSub::eval_constant(CTcPrsNode *left,
                                        CTcPrsNode *right) const
@@ -2993,10 +2993,10 @@ CTcPrsNode *CTcPrsOpSub::eval_constant(CTcPrsNode *left,
             /* get the original list */
             CTPNList *lst = left->get_const_val()->get_val_list();
 
-            /* 
+            /*
              *   if the right side is a list, remove each element of that
              *   list from the list on the left; otherwise, remove the
-             *   value on the right from the list on the left 
+             *   value on the right from the list on the left
              */
             if (typ2 == TC_CVT_LIST)
             {
@@ -3020,10 +3020,10 @@ CTcPrsNode *CTcPrsOpSub::eval_constant(CTcPrsNode *left,
         }
         else if (typ1 == TC_CVT_OBJ)
         {
-            /* 
+            /*
              *   assume it's an overloaded operator, in which case constant
              *   evaluation isn't possible, but it could still be a legal
-             *   expression 
+             *   expression
              */
             return 0;
         }
@@ -3045,7 +3045,7 @@ CTcPrsNode *CTcPrsOpSub::eval_constant(CTcPrsNode *left,
 }
 
 /*
- *   calculate a constant float result 
+ *   calculate a constant float result
  */
 vbignum_t *CTcPrsOpSub::calc_result(
     const vbignum_t &a, const vbignum_t &b) const
@@ -3055,11 +3055,11 @@ vbignum_t *CTcPrsOpSub::calc_result(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   addition operator 
+ *   addition operator
  */
 
 /*
- *   evaluate constant value 
+ *   evaluate constant value
  */
 CTcPrsNode *CTcPrsOpAdd::eval_constant(CTcPrsNode *left,
                                        CTcPrsNode *right) const
@@ -3072,7 +3072,7 @@ CTcPrsNode *CTcPrsOpAdd::eval_constant(CTcPrsNode *left,
         /* get the types */
         typ1 = left->get_const_val()->get_type();
         typ2 = right->get_const_val()->get_type();
-        
+
         /* check our types */
         if ((typ1 == TC_CVT_INT || typ1 == TC_CVT_FLOAT)
             && (typ2 == TC_CVT_INT || typ2 == TC_CVT_FLOAT))
@@ -3085,15 +3085,15 @@ CTcPrsNode *CTcPrsOpAdd::eval_constant(CTcPrsNode *left,
             /* get the original list */
             CTPNList *lst = left->get_const_val()->get_val_list();
 
-            /* 
+            /*
              *   if the right side is also a list, concatenate it onto the
              *   left list; otherwise, just add the right side as a new
-             *   element to the existing list 
+             *   element to the existing list
              */
             if (typ2 == TC_CVT_LIST)
             {
                 CTPNListEle *ele;
-                
+
                 /* scan the list, adding each element */
                 for (ele = right->get_const_val()
                            ->get_val_list()->get_head() ;
@@ -3109,9 +3109,9 @@ CTcPrsNode *CTcPrsOpAdd::eval_constant(CTcPrsNode *left,
                 lst->add_element(right);
             }
 
-            /* 
+            /*
              *   this list is longer than the original(s); tell the parser
-             *   about it in case it's the longest list yet 
+             *   about it in case it's the longest list yet
              */
             G_cg->note_list(lst->get_count());
         }
@@ -3126,7 +3126,7 @@ CTcPrsNode *CTcPrsOpAdd::eval_constant(CTcPrsNode *left,
             /* if the second value is a list, we can't make a constant */
             if (typ2 == TC_CVT_LIST)
                 return 0;
-            
+
             /* convert both values to strings if they're not already */
             str1 = left->get_const_val()
                    ->cvt_to_str(buf1, sizeof(buf1), &len1);
@@ -3137,17 +3137,17 @@ CTcPrsNode *CTcPrsOpAdd::eval_constant(CTcPrsNode *left,
             if (typ2 == TC_CVT_NIL)
                 str1 = "", len2 = 0;
 
-            /* 
+            /*
              *   if we couldn't convert one or the other, leave the result
-             *   non-constant 
+             *   non-constant
              */
             if (str1 == 0 || str2 == 0)
                 return 0;
-            
-            /* 
+
+            /*
              *   allocate space in the node pool for the concatenation of
              *   the two strings - if that fails, don't bother with the
-             *   concatenation 
+             *   concatenation
              */
             new_str = (char *)G_prsmem->alloc(len1 + len2 + 1);
             if (new_str == 0)
@@ -3163,10 +3163,10 @@ CTcPrsNode *CTcPrsOpAdd::eval_constant(CTcPrsNode *left,
         }
         else if (typ1 == TC_CVT_OBJ)
         {
-            /* 
+            /*
              *   assume it's an overloaded operator, in which case constant
              *   evaluation isn't possible, but it could still be a legal
-             *   expression 
+             *   expression
              */
             return 0;
         }
@@ -3188,7 +3188,7 @@ CTcPrsNode *CTcPrsOpAdd::eval_constant(CTcPrsNode *left,
 }
 
 /*
- *   calculate a constant float result 
+ *   calculate a constant float result
  */
 vbignum_t *CTcPrsOpAdd::calc_result(
     const vbignum_t &a, const vbignum_t &b) const
@@ -3197,7 +3197,7 @@ vbignum_t *CTcPrsOpAdd::calc_result(
 }
 
 /*
- *   build the subtree 
+ *   build the subtree
  */
 CTcPrsNode *CTcPrsOpAdd::build_tree(CTcPrsNode *left,
                                     CTcPrsNode *right) const
@@ -3207,11 +3207,11 @@ CTcPrsNode *CTcPrsOpAdd::build_tree(CTcPrsNode *left,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Assignment Operator Group 
+ *   Assignment Operator Group
  */
 
 /*
- *   parse an assignment expression 
+ *   parse an assignment expression
  */
 CTcPrsNode *CTcPrsOpAsi::parse() const
 {
@@ -3239,7 +3239,7 @@ CTcPrsNode *CTcPrsOpAsi::parse() const
     case TOKT_LSHREQ:
         /* it's an assignment operator - process it */
         break;
-        
+
     default:
         /* check against the current simple-assignment operator */
         if (curtyp == asi_op_)
@@ -3249,9 +3249,9 @@ CTcPrsNode *CTcPrsOpAsi::parse() const
         }
         else
         {
-            /* 
+            /*
              *   it's not an assignment - return the original
-             *   subexpression with no further elaboration 
+             *   subexpression with no further elaboration
              */
             return lhs;
         }
@@ -3267,13 +3267,13 @@ CTcPrsNode *CTcPrsOpAsi::parse() const
 
     /* skip the assignment operator */
     G_tok->next();
-    
-    /* 
+
+    /*
      *   Recursively parse an assignment subexpression.  Do this
      *   recursively rather than iteratively, because assignment operators
      *   group right-to-left.  By recursively parsing an assignment, our
      *   right-hand side will contain all remaining assignment expressions
-     *   incorporated into it.  
+     *   incorporated into it.
      */
     CTcPrsNode *rhs = parse();
     if (rhs == 0)
@@ -3285,11 +3285,11 @@ CTcPrsNode *CTcPrsOpAsi::parse() const
     case TOKT_PLUSEQ:
         lhs = new CTPNAddAsi(lhs, rhs);
         break;
-        
+
     case TOKT_MINEQ:
         lhs = new CTPNSubAsi(lhs, rhs);
         break;
-        
+
     case TOKT_TIMESEQ:
         lhs = new CTPNMulAsi(lhs, rhs);
         break;
@@ -3355,9 +3355,9 @@ CTcPrsNode *CTcPrsOpIfnil::parse() const
     /* skip the '??' operator */
     G_tok->next();
 
-    /* 
+    /*
      *   parse the second part, which can be any expression except ',', since
-     *   we have higher precedence than ',' 
+     *   we have higher precedence than ','
      */
     CTcPrsNode *second = G_prs->parse_expr_or_dstr(FALSE);
     if (second == 0)
@@ -3379,7 +3379,7 @@ CTcPrsNode *CTcPrsOpIfnil::parse() const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Tertiary Conditional Operator 
+ *   Tertiary Conditional Operator
  */
 
 CTcPrsNode *CTcPrsOpIf::parse() const
@@ -3396,24 +3396,24 @@ CTcPrsNode *CTcPrsOpIf::parse() const
     /* skip the '?' operator */
     G_tok->next();
 
-    /* 
+    /*
      *   parse the second part, which can be any expression, including a
      *   double-quoted string expression or a comma expression (even though
      *   the '?:' operator overall has higher precedence than ',', we can't
      *   steal away operands from a ',' before our ':' because that would
-     *   leave the ':' with nothing to go with) 
+     *   leave the ':' with nothing to go with)
      */
     CTcPrsNode *second = G_prs->parse_expr_or_dstr(TRUE);
     if (second == 0)
         return 0;
-    
+
     /* make sure we have the ':' after the second part */
     if (G_tok->cur() != TOKT_COLON)
     {
-        /* 
+        /*
          *   log the error, but continue parsing as though we found the
          *   ':' - if the ':' is simply missing, this will allow us to
-         *   recover and continue parsing the rest of the expression 
+         *   recover and continue parsing the rest of the expression
          */
         G_tok->log_error(TCERR_QUEST_WITHOUT_COLON);
 
@@ -3421,32 +3421,32 @@ CTcPrsNode *CTcPrsOpIf::parse() const
         if (G_tok->cur() == TOKT_EOF)
             return 0;
     }
-    
+
     /* skip the ':' */
     G_tok->next();
-    
-    /* 
+
+    /*
      *   parse the third part, which can be any other expression, including a
      *   double-quoted string expression - but not a comma expression, since
-     *   we have higher precedence than ',' 
+     *   we have higher precedence than ','
      */
     CTcPrsNode *third = G_prs->parse_expr_or_dstr(FALSE);
     if (third == 0)
         return 0;
-        
-    /* 
+
+    /*
      *   If the condition is constant, we can choose the second or third
      *   expression directly.  It doesn't matter whether or not the second
      *   and/or third parts are themselves constant, because a constant
      *   condition means that we'll always execute only one of the
-     *   alternatives.  
+     *   alternatives.
      */
     if (first->is_const())
     {
-        /* 
+        /*
          *   evaluate the conditional value as a true/false value, and
          *   return the second part's constant if the condition is true,
-         *   or the third part's constant if the condition is false 
+         *   or the third part's constant if the condition is false
          */
         return (first->get_const_val()->get_val_bool()
                 ? second : third);
@@ -3466,7 +3466,7 @@ CTcPrsNode *CTcPrsOpIf::parse() const
 /*
  *   Embedded string tree generator.  This abstracts the tree construction
  *   for an embedded string, so that the same parser can be used for single
- *   and double quoted strings.  
+ *   and double quoted strings.
  */
 struct CTcEmbedBuilder
 {
@@ -3476,21 +3476,21 @@ struct CTcEmbedBuilder
     /* create the initial node for the leading fixed part of the string */
     virtual CTcPrsNode *lead_node() = 0;
 
-    /* 
+    /*
      *   Finish the tree.  If we skipped creating a tree because we had an
      *   empty string in the lead position, and we haven't added anything to
      *   it, this should create a non-null node to represent the final tree,
-     *   so we know it's not an error.  
+     *   so we know it's not an error.
      */
     virtual CTcPrsNode *finish_tree(CTcPrsNode *cur) = 0;
 
     /* parse an embedded expression */
     virtual CTcPrsNode *parse_expr() = 0;
 
-    /* 
+    /*
      *   Add an embedding: create a node combining the tree before an
      *   expression, an embedded expression, and the current token
-     *   representing the continuation of the string after the expression.  
+     *   representing the continuation of the string after the expression.
      */
     virtual CTcPrsNode *add_embedding(CTcPrsNode *cur, CTcPrsNode *sub) = 0;
 
@@ -3502,19 +3502,19 @@ struct CTcEmbedBuilder
     virtual tc_toktyp_t end_tok() = 0;
 };
 
-/* 
+/*
  *   Embedded string tree generator for double-quoted strings.  Double-quoted
  *   strings with embeddings are converted to a series of comma expressions:
- *   
+ *
  *.      "one <<two>> three <<four>> five"
  *.   -> "one ", say(two), " three ", say(four), " five";
- *   
+ *
  *   Note that the embedded expressions are wrapped in "say()" calls, since
  *   we have to make sure they generate output.  Some embeddings will
  *   generate output as a side effect rather than as a value result, but
  *   that's fine; in that case they'll perform their side effect (i.e.,
  *   printing text) and then return nil, so the say() will add nothing to the
- *   output stream.  
+ *   output stream.
  */
 struct CTcEmbedBuilderDbl: CTcEmbedBuilder
 {
@@ -3528,11 +3528,11 @@ struct CTcEmbedBuilderDbl: CTcEmbedBuilder
     /* build the leading node */
     virtual CTcPrsNode *lead_node()
     {
-        /* 
+        /*
          *   Create a node for the initial part of the string.  This is just
          *   an ordinary double-quoted string node. If the initial part of
          *   the string is zero-length, don't create an initial node at all,
-         *   since this would just generate do-nothing code.  
+         *   since this would just generate do-nothing code.
          */
         if (G_tok->getcur()->get_text_len() != 0)
         {
@@ -3542,9 +3542,9 @@ struct CTcEmbedBuilderDbl: CTcEmbedBuilder
         }
         else
         {
-            /* 
+            /*
              *   the initial part of the string is empty, so we don't need a
-             *   node for this portion 
+             *   node for this portion
              */
             return 0;
         }
@@ -3559,9 +3559,9 @@ struct CTcEmbedBuilderDbl: CTcEmbedBuilder
     /* parse an embedded expression */
     virtual CTcPrsNode *parse_expr()
     {
-        /* 
+        /*
          *   an expression embedded in a dstring can be any value expression,
-         *   or another dstring expression 
+         *   or another dstring expression
          */
         return G_prs->parse_expr_or_dstr(TRUE);
     }
@@ -3571,13 +3571,13 @@ struct CTcEmbedBuilderDbl: CTcEmbedBuilder
     {
         /* wrap the expresion in a "say()" embedding node */
         sub = new CTPNDstrEmbed(sub);
-        
+
         /*
          *   Build a node representing everything so far: do this by
          *   combining the sub-expression with everything preceding, using a
          *   comma operator.  This isn't necessary if there's nothing
          *   preceding the sub-expression, since this means the
-         *   sub-expression itself is everything so far.  
+         *   sub-expression itself is everything so far.
          */
         if (cur != 0)
             return new CTPNComma(cur, sub);
@@ -3591,7 +3591,7 @@ struct CTcEmbedBuilderDbl: CTcEmbedBuilder
         /*
          *   Combine the part so far with the next string segment, using a
          *   comma operator.  If the next string segment is empty, there's no
-         *   need to add anything for it.  
+         *   need to add anything for it.
          */
         size_t len = G_tok->getcur()->get_text_len();
         if (len != 0)
@@ -3599,7 +3599,7 @@ struct CTcEmbedBuilderDbl: CTcEmbedBuilder
             /* create a node for the new string segment */
             CTcPrsNode *newstr = new CTPNDstr(
                 G_tok->getcur()->get_text(), len);
-            
+
             /* combine it into the part so far with a comma operator */
             cur = new CTPNComma(cur, newstr);
         }
@@ -3609,11 +3609,11 @@ struct CTcEmbedBuilderDbl: CTcEmbedBuilder
     }
 };
 
-/* 
- *   Embedded string tree generator for single-quoted strings.  
- *   
+/*
+ *   Embedded string tree generator for single-quoted strings.
+ *
  *   Single-quoted strings with embeddings are translated as follows:
- *   
+ *
  *.       local a = 'one <<two>> three <<four>> five';
  *.   ->  local a = ('one ' + (two) + ' three ' + (four) + ' five');
  */
@@ -3629,10 +3629,10 @@ struct CTcEmbedBuilderSgl: CTcEmbedBuilder
     /* build the leading node */
     virtual CTcPrsNode *lead_node()
     {
-        /* 
+        /*
          *   Create a string constant node for the first part of the string.
          *   Note that we need this even if the string is empty, to guarantee
-         *   that the overall expression is treated as a string.  
+         *   that the overall expression is treated as a string.
          */
         return string_node(G_tok->getcur());
     }
@@ -3663,17 +3663,17 @@ struct CTcEmbedBuilderSgl: CTcEmbedBuilder
         /*
          *   Combine the sub-expression with the preceding portion using an
          *   addition operator.  This will be interpreted as concatenation at
-         *   run-time since the left side is definitively a string.  
+         *   run-time since the left side is definitively a string.
          */
         return new CTPNAdd(cur, sub);
     }
 
     /* add a string segment */
     virtual CTcPrsNode *add_segment(CTcPrsNode *cur)
-    {        
-        /* 
+    {
+        /*
          *   Add the next string segment.  We can omit it if it's zero
-         *   length, as this will add nothing to the result.  
+         *   length, as this will add nothing to the result.
          */
         if (G_tok->getcur()->get_text_len() != 0)
         {
@@ -3681,7 +3681,7 @@ struct CTcEmbedBuilderSgl: CTcEmbedBuilder
             cval.set_sstr(G_tok->getcur());
             cur = new CTPNAdd(cur, new CTPNConst(&cval));
         }
-        
+
         /* return the new combined node */
         return cur;
     }
@@ -3689,7 +3689,7 @@ struct CTcEmbedBuilderSgl: CTcEmbedBuilder
 
 /*
  *   Embedding stack entry.  Each nesting level keeps one of these structures
- *   to track the enclosing constructs.  
+ *   to track the enclosing constructs.
  */
 struct CTcEmbedLevel
 {
@@ -3722,7 +3722,7 @@ struct CTcEmbedLevel
  *   Parse an embedded expression in a string.  This handles embedding for
  *   both single-quoted and double-quoted strings, using the tree builder
  *   object to handle the differences.  The two have the same parsing syntax,
- *   but they do generate different parse trees.  
+ *   but they do generate different parse trees.
  */
 CTcPrsNode *CTcPrsOpUnary::parse_embedding(CTcEmbedBuilder *b)
 {
@@ -3738,11 +3738,11 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedding(CTcEmbedBuilder *b)
         if (n == 0 || eos)
             return n;
 
-        /* 
+        /*
          *   We stopped parsing without reaching the end of the string, so we
          *   must have encountered a token that terminates a nested structure
          *   - <<end>>, <<else>>, <<case>>, etc.  Capture the current
-         *   embedding so we can check which type of end token it is.  
+         *   embedding so we can check which type of end token it is.
          */
         const char *open_kw;
         parse_embedded_end_tok(b, &level, &open_kw);
@@ -3753,7 +3753,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedding(CTcEmbedBuilder *b)
 }
 
 /*
- *   Parse a series of embeddings 
+ *   Parse a series of embeddings
  */
 CTcPrsNode *CTcPrsOpUnary::parse_embedding_list(
     CTcEmbedBuilder *b, int &eos, CTcEmbedLevel *parent)
@@ -3766,10 +3766,10 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedding_list(
     CTcPrsNode *cur = b->lead_node();
     G_tok->next();
 
-    /* 
+    /*
      *   If we're starting with the final segment of the string, there's no
      *   need to parse any further.  We can enter with the final segment when
-     *   parsing sub-constructs such as <<if>>.  
+     *   parsing sub-constructs such as <<if>>.
      */
     if (curtyp == b->end_tok())
     {
@@ -3786,7 +3786,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedding_list(
         /* note the current error count */
         int nerr = G_tcmain->get_error_count();
 
-        /* 
+        /*
          *   Capture tokens up to the next string segment, so that we can
          *   compare the tokens to the embedding templates.
          */
@@ -3795,7 +3795,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedding_list(
 
         /*
          *   First, check the special built-in syntax:
-         *   
+         *
          *.    <<if expr>>
          *.    <<unless expr>>
          *.    <<one of>>
@@ -3827,18 +3827,18 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedding_list(
         }
         else if (parse_embedded_end_tok(tl, parent, &open_kw))
         {
-            /* 
+            /*
              *   We're at a terminator for a multi-part embedding construct.
              *   Stop here and return what we have, with the token left at
              *   the terminator.  The caller is presumably parsing this
-             *   construct recursively, so it'll take it from here.  
+             *   construct recursively, so it'll take it from here.
              */
             tl->unget();
             return b->finish_tree(cur);
         }
         else if (tl->getcnt() == 0)
         {
-            /* 
+            /*
              *   empty embedding, or we got here via error recovery; proceed
              *   with the next segment without any embedding
              */
@@ -3846,7 +3846,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedding_list(
         }
         else
         {
-            /* 
+            /*
              *   No special syntax, so treat it as an expression.  First,
              *   check for a sprintf format spec - e.g., <<%2d x>>
              */
@@ -3858,19 +3858,19 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedding_list(
             sub = parse_embedded_expr(b, tl);
             if (sub == 0)
                 return 0;
-            
+
             /* we can't have an end token immediately after an expression */
             check_end = FALSE;
 
-            /* 
+            /*
              *   if we have a format spec, wrap the expression in a
-             *   sprintf node as sprintf(fmtspec, sub) 
+             *   sprintf node as sprintf(fmtspec, sub)
              */
             if (fmttok.gettyp() == TOKT_FMTSPEC)
             {
-                /* 
+                /*
                  *   set up the argument list - fmtspec string, sub (note
-                 *   that arg lists are built in reverse order) 
+                 *   that arg lists are built in reverse order)
                  */
                 CTcConstVal fmtcv;
                 fmtcv.set_sstr(&fmttok);
@@ -3887,33 +3887,33 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedding_list(
         if (sub != 0)
             cur = b->add_embedding(cur, sub);
 
-        /* 
+        /*
          *   after the expression, we must find either another string segment
          *   with another embedded expression following, or the final string
-         *   segment; anything else is an error 
+         *   segment; anything else is an error
          */
         if (eos)
         {
-            /* 
+            /*
              *   We reached the end of the string in a sub-construct; there's
              *   nothing more to add to the main string.  Just return what we
-             *   have to the caller.  
+             *   have to the caller.
              */
             return b->finish_tree(cur);
         }
         else if ((curtyp = G_tok->cur()) == b->mid_tok())
         {
-            /* 
+            /*
              *   It's a string with yet another embedded expression.  Add
              *   this segment to the expression and proceed to the next
-             *   embedding.  
+             *   embedding.
              */
             cur = b->add_segment(cur);
             G_tok->next();
         }
         else if (curtyp == b->end_tok())
         {
-            /* 
+            /*
              *   It's the last segment of the string.  Add the final segment
              *   to the string.
              */
@@ -3926,13 +3926,13 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedding_list(
         }
         else if (check_end && parse_embedded_end_tok(b, parent, &open_kw))
         {
-            /* 
+            /*
              *   We parsed a recursive list for <<if>>, <<one of>>, etc.  End
              *   tokens are implied when missing, so an end token at one
              *   level can implicitly end multiple levels.  We stopped at
              *   such a token without consuming it, so it's for our caller to
              *   digest.  Simply return what we have and let the caller take
-             *   it from here.  
+             *   it from here.
              */
             return b->finish_tree(cur);
         }
@@ -3943,7 +3943,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedding_list(
              *   surprising that we're not at a valid continuation token at
              *   this point.  Try syncing up with the source: look for a
              *   continuation token or something that probably ends the
-             *   statement, such as a semicolon or right brace.  
+             *   statement, such as a semicolon or right brace.
              */
             for (;;)
             {
@@ -3970,15 +3970,15 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedding_list(
 
             /*
              *   Skip ahead until we find the next string segment or
-             *   something that looks like the end of the statement. 
+             *   something that looks like the end of the statement.
              */
             tl->reset();
             capture_embedded(b, tl);
 
-            /* 
+            /*
              *   If we stopped at the next segment, carry on.  Otherwise,
              *   assume they simply left off the end of the string and return
-             *   what we have. 
+             *   what we have.
              */
             if (G_tok->cur() != b->mid_tok() && G_tok->cur() != b->end_tok())
                 return (cur != 0 ? cur : b->finish_tree(sub));
@@ -3987,7 +3987,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedding_list(
 }
 
 /*
- *   Parse a single embedded expression 
+ *   Parse a single embedded expression
  */
 CTcPrsNode *CTcPrsOpUnary::parse_embedded_expr(
     CTcEmbedBuilder *b, CTcEmbedTokenList *tl)
@@ -4005,19 +4005,19 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedded_expr(
              */
             CTPNSymResolved *func = new CTPNSymResolved(st->func);
 
-            /* 
+            /*
              *   If the template has a '*', the tokens matching the star are
              *   a sub-expression that we evaluate as the argument to the
-             *   function.  Otherwise we call it with no arguments. 
+             *   function.  Otherwise we call it with no arguments.
              */
             CTPNArglist *arglist;
             if (st->star)
             {
-                /* 
+                /*
                  *   If the template has any fixed tokens, reparse the
                  *   remaining tokens to see if they refer to a new template.
                  *   If the template was just '*', skip this, since we'd just
-                 *   find the same match again.  
+                 *   find the same match again.
                  */
                 CTcPrsNode *sub;
                 if (st->cnt > 1)
@@ -4038,7 +4038,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedded_expr(
                 /* if we failed to parse a sub-expression, return failure */
                 if (sub == 0)
                     return 0;
-                
+
                 /* create the argument list */
                 arglist = new CTPNArglist(1, new CTPNArg(sub));
             }
@@ -4053,10 +4053,10 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedded_expr(
         }
     }
 
-    /* 
+    /*
      *   There's no template, so process it as an ordinary expression.  Put
      *   the captured token list back into the token stream, and parse an
-     *   expression node.  
+     *   expression node.
      */
     tl->unget();
     return b->parse_expr();
@@ -4082,46 +4082,46 @@ void CTcPrsOpUnary::capture_embedded(CTcEmbedBuilder *b, CTcEmbedTokenList *tl)
         case TOKT_LBRACE:
             ++braces;
             break;
-            
+
         case TOKT_RBRACE:
-            /* 
+            /*
              *   if we find an unbalanced close brace, assume that we've
              *   reached the end of the statement without properly
-             *   terminating the string 
+             *   terminating the string
              */
             if (--braces < 0)
                 return;
             break;
-            
+
         case TOKT_LPAR:
             ++parens;
             break;
-            
+
         case TOKT_RPAR:
             --parens;
             break;
-            
+
         case TOKT_LBRACK:
             ++bracks;
             break;
-            
+
         case TOKT_RBRACK:
             --bracks;
             break;
-            
+
         case TOKT_SEM:
-            /* 
+            /*
              *   if we find a semicolon outside of braces, assume that we've
              *   reached the end of the statement without properly
-             *   terminating the string 
+             *   terminating the string
              */
             if (braces == 0)
                 return;
             break;
-            
+
         case TOKT_EOF:
             return;
-            
+
         default:
             /* stop if we've reached the next string segment */
             if (G_tok->cur() == b->end_tok()
@@ -4129,7 +4129,7 @@ void CTcPrsOpUnary::capture_embedded(CTcEmbedBuilder *b, CTcEmbedTokenList *tl)
                 return;
             break;
         }
-        
+
         /* add the token to the capture list and move on to the next */
         tl->add_tok(G_tok->getcur());
         G_tok->next();
@@ -4138,7 +4138,7 @@ void CTcPrsOpUnary::capture_embedded(CTcEmbedBuilder *b, CTcEmbedTokenList *tl)
 
 /*
  *   Parse an embedded "if" or "unless" construct.  The two are the same,
- *   except the "unless" inverts the condition.  
+ *   except the "unless" inverts the condition.
  */
 CTcPrsNode *CTcPrsOpUnary::parse_embedded_if(
     CTcEmbedBuilder *b, int unless, int &eos, CTcEmbedLevel *parent)
@@ -4154,21 +4154,21 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedded_if(
     /* if this is an "unless", invert the condition */
     if (unless)
         cond = new CTPNNot(cond);
-    
+
     /* parse the "then" list */
     CTcPrsNode *then = parse_embedding_list(b, eos, &level);
     if (then == 0)
         return 0;
 
-    /* 
+    /*
      *   create our top-level 'if' node - leave the 'else' branch empty for
-     *   now; we'll build this out if we find an 'else' 
+     *   now; we'll build this out if we find an 'else'
      */
     CTPNIf *top = new CTPNIf(cond, then, 0);
 
-    /* 
+    /*
      *   as we build out the 'else if' branches, we'll add elses to the tail
-     *   of the tree; this is currently the top node 
+     *   of the tree; this is currently the top node
      */
     CTPNIf *tail = top;
 
@@ -4181,7 +4181,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedded_if(
         /* skip the "else"/"otherwise", and check for another "if" */
         if (G_tok->next() == TOKT_IF || G_tok->cur_tok_matches("unless"))
         {
-            /* 
+            /*
              *   <<else if cond>> or <<else unless cond>>.  Note which sense
              *   of the test we're using.
              */
@@ -4225,17 +4225,17 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedded_if(
         }
     }
 
-    /* 
+    /*
      *   if we ended without an "else", add an implicit "nil" as the final
-     *   "else" branch 
+     *   "else" branch
      */
     if (!found_else)
         tail->set_else(b->finish_tree(0));
 
-    /* 
+    /*
      *   If we're at an "end" token, this is the explicit close of the "if".
      *   Otherwise, the "if" ended implicitly at the end of the string or at
-     *   a closing token for a containing structure. 
+     *   a closing token for a containing structure.
      */
     if (!eos && G_tok->cur_tok_matches("end"))
         G_tok->next();
@@ -4245,7 +4245,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedded_if(
 }
 
 /*
- *   "one of" enders 
+ *   "one of" enders
  */
 struct one_of_option
 {
@@ -4272,7 +4272,7 @@ static one_of_option one_of_list[] =
 };
 
 /*
- *   Parse an embedded "one of" construct 
+ *   Parse an embedded "one of" construct
  */
 CTcPrsNode *CTcPrsOpUnary::parse_embedded_oneof(
     CTcEmbedBuilder *b, int &eos, CTcEmbedLevel *parent)
@@ -4306,9 +4306,9 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedded_oneof(
             break;
     }
 
-    /* 
+    /*
      *   Search for a match to one of our endings.  If we don't find one, use
-     *   "purely at random" as the default. 
+     *   "purely at random" as the default.
      */
     const char *attrs = 0;
     for (size_t i = 0 ; i < countof(one_of_list) ; ++i)
@@ -4322,11 +4322,11 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedded_oneof(
         }
     }
 
-    /* 
+    /*
      *   if we didn't find a match for the ending tokens, we must have the
      *   ending for an enclosing structure; put the tokens back for the
      *   enclosing structure to parse, and use "purely at random" as the
-     *   default 
+     *   default
      */
     if (attrs == 0)
     {
@@ -4348,7 +4348,7 @@ CTcPrsNode *CTcPrsOpUnary::create_oneof_node(
      *   If we're actually compiling (not just doing a symbol extraction
      *   pass), create our list state object.  This is an anonymous
      *   TadsObject of class OneOfIndexGen, with the following properties:
-     *   
+     *
      *.    numItems = number of items in the list (integer)
      *.    listAttrs = our 'attrs' list attributes value (string)
      */
@@ -4397,9 +4397,9 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedded_firsttime(
     tl->reset();
     capture_embedded(b, tl);
 
-    /* 
+    /*
      *   check for our "only" list - if we don't match it, put the tokens
-     *   back, since they must be the ending list for an enclosing structure 
+     *   back, since they must be the ending list for an enclosing structure
      */
     if (!tl->match("only"))
         tl->unget();
@@ -4419,7 +4419,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_embedded_firsttime(
 
 /*
  *   Check for an end token in an embedded expression construct.  Reads from
- *   the token stream, but restores the tokens when done.  
+ *   the token stream, but restores the tokens when done.
  */
 int CTcPrsOpUnary::parse_embedded_end_tok(CTcEmbedBuilder *b,
                                           CTcEmbedLevel *parent,
@@ -4442,7 +4442,7 @@ int CTcPrsOpUnary::parse_embedded_end_tok(CTcEmbedBuilder *b,
 
 /*
  *   Check for an end token in an embedded expression construct.  Compares
- *   tokens in the given capture list.  
+ *   tokens in the given capture list.
  */
 int CTcPrsOpUnary::parse_embedded_end_tok(CTcEmbedTokenList *tl,
                                           CTcEmbedLevel *parent,
@@ -4451,9 +4451,9 @@ int CTcPrsOpUnary::parse_embedded_end_tok(CTcEmbedTokenList *tl,
     /* presume we won't find a closing keyword */
     *open_kw = "unknown";
 
-    /* 
+    /*
      *   consider ending keywords to always be significant, regardless of
-     *   context, since these are unambiguous with valid expressions 
+     *   context, since these are unambiguous with valid expressions
      */
     if (tl->match("else")
         || tl->match("else if *")
@@ -4540,7 +4540,7 @@ CTcPrsNode *CTcPrsOpUnary::parse() const
     case TOKT_AND:
         /* skip the '&' */
         G_tok->next();
-        
+
         /* parse the address expression */
         return parse_addr();
 
@@ -4554,48 +4554,48 @@ CTcPrsNode *CTcPrsOpUnary::parse() const
         {
             /* skip the operator */
             G_tok->next();
-            
-            /* 
+
+            /*
              *   recursively parse the unary expression to which to apply the
-             *   operator 
+             *   operator
              */
             CTcPrsNode *sub = parse();
             if (sub == 0)
                 return 0;
-            
+
             /* apply the operator */
             switch(op)
             {
             case TOKT_NOT:
                 /* apply the NOT operator */
                 return parse_not(sub);
-                
+
             case TOKT_BNOT:
                 /* apply the bitwise NOT operator */
                 return parse_bnot(sub);
-                
+
             case TOKT_PLUS:
                 /* apply the unary positive operator */
                 return parse_pos(sub);
-                
+
             case TOKT_MINUS:
                 /* apply the unary negation operator */
                 return parse_neg(sub);
-                
+
             case TOKT_INC:
                 /* apply the pre-increment operator */
                 return parse_inc(TRUE, sub);
-                
+
             case TOKT_DEC:
                 /* apply the pre-decrement operator */
                 return parse_dec(TRUE, sub);
-                
+
             case TOKT_DELETE:
                 /* apply the deletion operator */
                 return parse_delete(sub);
-                
+
             default:
-                /* 
+                /*
                  *   we shouldn't ever get here, since this switch should
                  *   contain every case that brought us into it in the first
                  *   place
@@ -4611,16 +4611,16 @@ CTcPrsNode *CTcPrsOpUnary::parse() const
 }
 
 /*
- *   parse a unary NOT expression 
+ *   parse a unary NOT expression
  */
 CTcPrsNode *CTcPrsOpUnary::parse_not(CTcPrsNode *subexpr)
 {
     /* try folding a constant value */
     CTcPrsNode *ret = eval_const_not(subexpr);
 
-    /* 
+    /*
      *   if we got a constant result, return it; otherwise, create a NOT
-     *   node for code generation 
+     *   node for code generation
      */
     if (ret != 0)
         return ret;
@@ -4629,13 +4629,13 @@ CTcPrsNode *CTcPrsOpUnary::parse_not(CTcPrsNode *subexpr)
 }
 
 /*
- *   evaluate a constant NOT expression 
+ *   evaluate a constant NOT expression
  */
 CTcPrsNode *CTcPrsOpUnary::eval_const_not(CTcPrsNode *subexpr)
 {
-    /* 
+    /*
      *   if the underlying expression is a constant value, apply the
-     *   operator 
+     *   operator
      */
     if (subexpr->is_const())
     {
@@ -4652,13 +4652,13 @@ CTcPrsNode *CTcPrsOpUnary::eval_const_not(CTcPrsNode *subexpr)
 }
 
 /*
- *   parse a unary bitwise NOT expression 
+ *   parse a unary bitwise NOT expression
  */
 CTcPrsNode *CTcPrsOpUnary::parse_bnot(CTcPrsNode *subexpr)
 {
-    /* 
+    /*
      *   if the underlying expression is a constant value, apply the
-     *   operator 
+     *   operator
      */
     if (subexpr->is_const())
     {
@@ -4673,26 +4673,26 @@ CTcPrsNode *CTcPrsOpUnary::parse_bnot(CTcPrsNode *subexpr)
         /* return the updated value */
         return subexpr;
     }
-    
+
     /* create the bitwise NOT node */
     return new CTPNBNot(subexpr);
 }
 
 /*
- *   parse a unary address expression 
+ *   parse a unary address expression
  */
 CTcPrsNode *CTcPrsOpUnary::parse_addr() const
 {
-    /* 
+    /*
      *   if it's a simple symbol, create an unresolved symbol node for it;
-     *   otherwise parse the entire expression 
+     *   otherwise parse the entire expression
      */
     CTcPrsNode *subexpr;
     if (G_tok->cur() == TOKT_SYM)
     {
-        /* 
+        /*
          *   create an unresolved symbol node - we'll resolve this during
-         *   code generation 
+         *   code generation
          */
         const CTcToken *tok = G_tok->getcur();
         subexpr = new CTPNSym(tok->get_text(), tok->get_text_len());
@@ -4705,7 +4705,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_addr() const
          *   symbol used in any other context, we'll assume it's a property,
          *   but mark it as "weak" if it's not already defined.  This will
          *   allow any conflicting definition to override the property
-         *   assumption without complaint.  
+         *   assumption without complaint.
          */
         G_prs->get_global_symtab()->find_or_def_prop_weak(
             tok->get_text(), tok->get_text_len(), FALSE);
@@ -4736,29 +4736,29 @@ CTcPrsNode *CTcPrsOpUnary::parse_addr() const
 
     /*
      *   The underlying expression must be something that has an address;
-     *   if it's not, it's an error.  
+     *   if it's not, it's an error.
      */
     if (!subexpr->has_addr())
     {
-        /* 
+        /*
          *   can't take the address of the subexpression - log an error,
-         *   but continue parsing the expression anyway 
+         *   but continue parsing the expression anyway
          */
         G_tok->log_error(TCERR_NO_ADDRESS);
     }
-    
+
     /* create the address node */
     return new CTPNAddr(subexpr);
 }
 
 /*
- *   parse a unary arithmetic positive expression 
+ *   parse a unary arithmetic positive expression
  */
 CTcPrsNode *CTcPrsOpUnary::parse_pos(CTcPrsNode *subexpr)
 {
-    /* 
+    /*
      *   if the underlying expression is a constant value, apply the
-     *   operator 
+     *   operator
      */
     if (subexpr->is_const())
     {
@@ -4771,25 +4771,25 @@ CTcPrsNode *CTcPrsOpUnary::parse_pos(CTcPrsNode *subexpr)
             G_tok->log_error(TCERR_CONST_UNARY_REQ_NUM,
                              G_tok->get_op_text(TOKT_PLUS));
 
-        /* 
+        /*
          *   positive-ing a value doesn't change the value, so return the
-         *   original constant 
+         *   original constant
          */
         return subexpr;
     }
-    
+
     /* create the unary positive node */
     return new CTPNPos(subexpr);
 }
 
 /*
- *   parse a unary arithmetic negation expression 
+ *   parse a unary arithmetic negation expression
  */
 CTcPrsNode *CTcPrsOpUnary::parse_neg(CTcPrsNode *subexpr)
 {
-    /* 
+    /*
      *   if the underlying expression is a constant value, apply the
-     *   operator 
+     *   operator
      */
     if (subexpr->is_const())
     {
@@ -4797,10 +4797,10 @@ CTcPrsNode *CTcPrsOpUnary::parse_neg(CTcPrsNode *subexpr)
         CTcConstVal *cval = subexpr->get_const_val();
         if (cval->get_type() == TC_CVT_INT)
         {
-            /* 
+            /*
              *   Negating an integer.  There's a special overflow case to
              *   check for: if we're negating INT32MINVAL, the result doesn't
-             *   fit in a signed integer, so we need to promote it to float. 
+             *   fit in a signed integer, so we need to promote it to float.
              */
             long l = cval->get_val_int();
             if (l <= INT32MINVAL)
@@ -4862,7 +4862,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_neg(CTcPrsNode *subexpr)
 
 
 /*
- *   parse a pre-increment expression 
+ *   parse a pre-increment expression
  */
 CTcPrsNode *CTcPrsOpUnary::parse_inc(int pre, CTcPrsNode *subexpr)
 {
@@ -4882,7 +4882,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_inc(int pre, CTcPrsNode *subexpr)
 }
 
 /*
- *   parse a pre-decrement expression 
+ *   parse a pre-decrement expression
  */
 CTcPrsNode *CTcPrsOpUnary::parse_dec(int pre, CTcPrsNode *subexpr)
 {
@@ -4902,7 +4902,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_dec(int pre, CTcPrsNode *subexpr)
 }
 
 /*
- *   parse a unary allocation expression 
+ *   parse a unary allocation expression
  */
 CTcPrsNode *CTcPrsOpUnary::parse_new(CTcPrsNode *subexpr, int is_transient)
 {
@@ -4911,7 +4911,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_new(CTcPrsNode *subexpr, int is_transient)
 }
 
 /*
- *   parse a unary deletion expression 
+ *   parse a unary deletion expression
  */
 CTcPrsNode *CTcPrsOpUnary::parse_delete(CTcPrsNode *subexpr)
 {
@@ -4924,7 +4924,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_delete(CTcPrsNode *subexpr)
 }
 
 /*
- *   parse a postfix expression 
+ *   parse a postfix expression
  */
 CTcPrsNode *CTcPrsOpUnary::parse_postfix(int allow_member_expr,
                                          int allow_call_expr)
@@ -4961,24 +4961,24 @@ CTcPrsNode *CTcPrsOpUnary::parse_postfix(int allow_member_expr,
             break;
 
         case TOKT_DOT:
-            /* 
+            /*
              *   Dot - member selection.  If a member expression is allowed
              *   by the caller, parse it; otherwise, just return the
-             *   expression up to this point.  
+             *   expression up to this point.
              */
             if (allow_member_expr)
             {
-                /* 
+                /*
                  *   it's allowed - parse it and continue to look for other
-                 *   postfix expressions following the member expression 
+                 *   postfix expressions following the member expression
                  */
                 sub = parse_member(sub);
             }
             else
             {
-                /* 
+                /*
                  *   member expressions aren't allowed - stop here,
-                 *   returning the expression up to this point 
+                 *   returning the expression up to this point
                  */
                 return sub;
             }
@@ -4995,7 +4995,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_postfix(int allow_member_expr,
             G_tok->next();
             sub = parse_dec(FALSE, sub);
             break;
-            
+
         default:
             /* it's not a postfix operator - return the result */
             return sub;
@@ -5033,34 +5033,34 @@ CTPNArglist *CTcPrsOpUnary::parse_arg_list()
         {
             /* remember the symbol, in case it is in fact a named argument */
             param_name = *G_tok->getcur();
-            
+
             /* peek ahead - if a colon follows, it's a named argument */
             if (G_tok->next() == TOKT_COLON)
             {
-                /* 
+                /*
                  *   it's a named argument - we already have the name stashed
                  *   away for when we create the argument node, so simply
                  *   skip the colon so we can parse the argument value
-                 *   expression 
+                 *   expression
                  */
                 G_tok->next();
             }
             else
             {
-                /* 
+                /*
                  *   No colon - it's a regular parameter expression.  Put
                  *   back the token we peeked at, clear out the name token,
-                 *   and keep parsing as normal.  
+                 *   and keep parsing as normal.
                  */
                 G_tok->unget();
                 param_name.settyp(TOKT_INVALID);
             }
         }
 
-        /* 
+        /*
          *   parse this argument expression - this is an 'assignment'
          *   expression, since a comma is an argument separator in this
-         *   context rather than an operator 
+         *   context rather than an operator
          */
         CTcPrsNode *expr = S_op_asi.parse();
         if (expr == 0)
@@ -5090,7 +5090,7 @@ CTPNArglist *CTcPrsOpUnary::parse_arg_list()
             arg_cur->set_varargs(TRUE);
         }
 
-        /* 
+        /*
          *   Link the new node in at the beginning of our list - this will
          *   ensure that the list is built in reverse order, which is the
          *   order in which we push the arguments onto the stack.
@@ -5111,7 +5111,7 @@ CTPNArglist *CTcPrsOpUnary::parse_arg_list()
         }
         else
         {
-            /* 
+            /*
              *   If we're at the end of the file, there's no point
              *   proceding, so return failure.  If we've reached something
              *   that looks like a statement separator (semicolon, curly
@@ -5126,10 +5126,10 @@ CTPNArglist *CTcPrsOpUnary::parse_arg_list()
                 /* log an error */
                 G_tok->log_error_curtok(TCERR_EXPECTED_ARG_COMMA);
 
-                /* 
+                /*
                  *   if we're at the end of file, return what we have so
                  *   far; otherwise continue, assuming that they merely
-                 *   left out a comma between two argument expressions 
+                 *   left out a comma between two argument expressions
                  */
                 if (G_tok->cur() == TOKT_EOF)
                     return new CTPNArglist(argc, arg_head);
@@ -5140,10 +5140,10 @@ CTPNArglist *CTcPrsOpUnary::parse_arg_list()
             case TOKT_RBRACE:
             case TOKT_DSTR_MID:
             case TOKT_DSTR_END:
-                /* 
+                /*
                  *   we're apparently at the end of the statement; flag
                  *   the error as a missing right paren, and return what
-                 *   we have so far 
+                 *   we have so far
                  */
                 G_tok->log_error_curtok(TCERR_EXPECTED_ARG_RPAR);
                 return new CTPNArglist(argc, arg_head);
@@ -5181,7 +5181,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_call(CTcPrsNode *lhs)
             CTcSymbol *sym = G_prs->get_global_symtab()->find(
                 arg->get_sym_text(), arg->get_sym_text_len());
 
-            /* 
+            /*
              *   The result is a constant 'true' or 'nil' node, depending on
              *   whether the symbol is defined.  Note that this is a "compile
              *   time constant" expression, not a true constant - flag it as
@@ -5246,8 +5246,8 @@ CTcPrsNode *CTcPrsOpUnary::parse_call(CTcPrsNode *lhs)
             /* look up the symbol */
             CTcSymbol *sym = G_prs->get_global_symtab()->find(
                 arg->get_sym_text(), arg->get_sym_text_len());
-            
-            /* 
+
+            /*
              *   The result is the object reference value if the symbol is
              *   defined as an object, or nil if it's undefined or something
              *   other than an object.
@@ -5277,7 +5277,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_call(CTcPrsNode *lhs)
                             errcode, (int)arg->get_sym_text_len(),
                             arg->get_sym_text());
                 }
-                
+
                 /* not defined or non-object - the result is nil */
                 cval.set_bool(FALSE);
                 cval.set_ctc(TRUE);
@@ -5296,7 +5296,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_call(CTcPrsNode *lhs)
 }
 
 /*
- *   Parse a subscript expression 
+ *   Parse a subscript expression
  */
 CTcPrsNode *CTcPrsOpUnary::parse_subscript(CTcPrsNode *lhs)
 {
@@ -5323,7 +5323,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_subscript(CTcPrsNode *lhs)
     /* try folding constants */
     CTcPrsNode *cval = eval_const_subscript(lhs, subscript);
 
-    /* 
+    /*
      *   if that worked, use the result; otherwise, build an expression
      *   node to generate code for the subscript operator
      */
@@ -5334,7 +5334,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_subscript(CTcPrsNode *lhs)
 }
 
 /*
- *   Evaluate a constant subscript value 
+ *   Evaluate a constant subscript value
  */
 CTcPrsNode *CTcPrsOpUnary::eval_const_subscript(
     CTcPrsNode *lhs, CTcPrsNode *subscript)
@@ -5342,9 +5342,9 @@ CTcPrsNode *CTcPrsOpUnary::eval_const_subscript(
     /* assume we won't be able to evaluate this as a constant */
     CTcPrsNode *c = 0;
 
-    /* 
+    /*
      *   if we're subscripting a constant list by a constant index value,
-     *   we can evaluate a constant result 
+     *   we can evaluate a constant result
      */
     if (lhs->is_const() && subscript->is_const())
     {
@@ -5352,13 +5352,13 @@ CTcPrsNode *CTcPrsOpUnary::eval_const_subscript(
         switch (lhs->get_const_val()->get_type())
         {
         case TC_CVT_LIST:
-            /* 
+            /*
              *   It's a constant list.  Lists can only be indexed by integer
-             *   values. 
+             *   values.
              */
             if (subscript->get_const_val()->get_type() == TC_CVT_INT)
             {
-                /* 
+                /*
                  *   it's an integer - index the constant list by the
                  *   constant subscript to get the element value, which
                  *   replaces the entire list-and-index expression
@@ -5378,29 +5378,29 @@ CTcPrsNode *CTcPrsOpUnary::eval_const_subscript(
         case TC_CVT_FUNCPTR:
         case TC_CVT_ANONFUNCPTR:
         case TC_CVT_FLOAT:
-            /* 
+            /*
              *   these types don't define indexing as a native operator, but
              *   it's possible for this to be meaningful at run-time via
              *   operator overloading; simply leave the constant expression
              *   unevaluated so that we generate code to perform the index
-             *   operation at run-time 
+             *   operation at run-time
              */
             break;
-            
+
         default:
             /* other types definitely cannot be indexed */
             G_tok->log_error(TCERR_CONST_IDX_INV_TYPE);
             break;
         }
     }
-    
+
     /* return the constant result, if any */
     return c;
 }
 
 /*
  *   Parse a member selection ('.') expression.  If no '.' is actually
- *   present, then '.targetprop' is implied.  
+ *   present, then '.targetprop' is implied.
  */
 CTcPrsNode *CTcPrsOpUnary::parse_member(CTcPrsNode *lhs)
 {
@@ -5408,7 +5408,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_member(CTcPrsNode *lhs)
     int rhs_is_expr;
 
     /*
-     *   If a '.' is present, skip it; otherwise, '.targetprop' is implied. 
+     *   If a '.' is present, skip it; otherwise, '.targetprop' is implied.
      */
     if (G_tok->cur() == TOKT_DOT)
     {
@@ -5422,25 +5422,25 @@ CTcPrsNode *CTcPrsOpUnary::parse_member(CTcPrsNode *lhs)
         switch(G_tok->cur())
         {
         case TOKT_SYM:
-            /* 
+            /*
              *   It's a simple property name - create a symbol node.  Note
              *   that we must explicitly create an unresolved symbol node,
              *   since we want to ignore any local variable with the same
              *   name and look only in the global symbol table for a
              *   property; we must hence defer resolving the symbol until
-             *   code generation.  
+             *   code generation.
              */
             rhs = new CTPNSym(G_tok->getcur()->get_text(),
                               G_tok->getcur()->get_text_len());
-            
+
             /* skip the symbol token */
             G_tok->next();
-            
+
             /* proceed to check for an argument list */
             break;
-            
+
         case TOKT_LPAR:
-            /* 
+            /*
              *   It's a parenthesized expression - parse it.  First, skip
              *   the open paren - we don't want the sub-expression to go
              *   beyond the close paren (if we didn't skip the open paren,
@@ -5448,18 +5448,18 @@ CTcPrsNode *CTcPrsOpUnary::parse_member(CTcPrsNode *lhs)
              *   any postfix expression after the close paren would be
              *   considered part of the sub-expression; this would be
              *   invalid, since we might want to find a postfix actual
-             *   parameter list).  
+             *   parameter list).
              */
             G_tok->next();
-            
+
             /* remember that it's an expression */
             rhs_is_expr = TRUE;
-            
+
             /* parse the sub-expression */
             rhs = S_op_comma.parse();
             if (rhs == 0)
                 return 0;
-            
+
             /* require the close paren */
             if (G_tok->cur() == TOKT_RPAR)
             {
@@ -5470,29 +5470,29 @@ CTcPrsNode *CTcPrsOpUnary::parse_member(CTcPrsNode *lhs)
             {
                 /* log the error */
                 G_tok->log_error_curtok(TCERR_EXPR_MISSING_RPAR);
-                
-                /* 
+
+                /*
                  *   if we're at a semicolon or end of file, we must be on
                  *   to the next statement - stop trying to parse this one
                  *   if so; otherwise, continue on the assumption that they
                  *   merely left out the close paren and what follows is
-                 *   more expression for us to process 
+                 *   more expression for us to process
                  */
                 if (G_tok->cur() == TOKT_SEM || G_tok->cur() == TOKT_EOF)
                     return lhs;
             }
             break;
-            
+
         case TOKT_TARGETPROP:
-            /* 
+            /*
              *   it's an unparenthesized "targetprop" expression - skip the
-             *   keyword 
+             *   keyword
              */
             G_tok->next();
-            
-            /* 
+
+            /*
              *   the property value is the result of evaluating
-             *   "targetprop", which is an expression 
+             *   "targetprop", which is an expression
              */
             rhs = new CTPNTargetprop();
             rhs_is_expr = TRUE;
@@ -5502,14 +5502,14 @@ CTcPrsNode *CTcPrsOpUnary::parse_member(CTcPrsNode *lhs)
 
             /* go parse the rest */
             break;
-            
+
         default:
             /* anything else is invalid - log an error */
             G_tok->log_error_curtok(TCERR_INVALID_PROP_EXPR);
-            
+
             /* skip the errant token so we don't loop on it */
             G_tok->next();
-            
+
             /* return what we have so far */
             return lhs;
         }
@@ -5520,19 +5520,19 @@ CTcPrsNode *CTcPrsOpUnary::parse_member(CTcPrsNode *lhs)
         rhs = new CTPNTargetprop();
         rhs_is_expr = TRUE;
 
-        /* 
+        /*
          *   note the reference to the full method context (since
          *   'targetprop' is part of the extended method context beyond
-         *   'self') 
+         *   'self')
          */
         G_prs->set_full_method_ctx_referenced(TRUE);
     }
-        
+
     /* check for an argument list */
     if (G_tok->cur() == TOKT_LPAR)
     {
         CTPNArglist *arglist;
-        
+
         /* parse the argument list */
         arglist = parse_arg_list();
         if (arglist == 0)
@@ -5543,16 +5543,16 @@ CTcPrsNode *CTcPrsOpUnary::parse_member(CTcPrsNode *lhs)
     }
     else
     {
-        /* 
+        /*
          *   there's no argument list - create and return a simple member
-         *   node 
+         *   node
          */
         return new CTPNMember(lhs, rhs, rhs_is_expr);
     }
 }
 
 /*
- *   Parse a primary expression 
+ *   Parse a primary expression
  */
 CTcPrsNode *CTcPrsOpUnary::parse_primary()
 {
@@ -5560,7 +5560,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_primary()
     CTcConstVal cval;
     tc_toktyp_t t;
     CTcToken tok, tok2;
-    
+
     /* keep going until we find something interesting */
     for (;;)
     {
@@ -5574,7 +5574,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_primary()
         case TOKT_METHOD:
             /* parse an anonymous method */
             return parse_anon_func(FALSE, TRUE);
-            
+
         case TOKT_FUNCTION:
             /* parse an anonymous function */
             return parse_anon_func(FALSE, FALSE);
@@ -5601,10 +5601,10 @@ CTcPrsNode *CTcPrsOpUnary::parse_primary()
                 int trans = (G_tok->cur() == TOKT_TRANSIENT);
                 if (trans)
                     G_tok->next();
-                
-                /* 
+
+                /*
                  *   it's an ordinary 'new' expression - parse the primary
-                 *   making up the name 
+                 *   making up the name
                  */
                 sub = parse_primary();
 
@@ -5620,12 +5620,12 @@ CTcPrsNode *CTcPrsOpUnary::parse_primary()
         case TOKT_LPAR:
             /* left parenthesis - skip it */
             G_tok->next();
-            
+
             /* parse the expression */
             sub = S_op_comma.parse();
             if (sub == 0)
                 return 0;
-            
+
             /* require the matching right parenthesis */
             if (G_tok->cur() == TOKT_RPAR)
             {
@@ -5634,9 +5634,9 @@ CTcPrsNode *CTcPrsOpUnary::parse_primary()
             }
             else
             {
-                /* 
+                /*
                  *   log an error; assume that the paren is simply
-                 *   missing, so continue with our work 
+                 *   missing, so continue with our work
                  */
                 G_tok->log_error_curtok(TCERR_EXPR_MISSING_RPAR);
             }
@@ -5647,19 +5647,19 @@ CTcPrsNode *CTcPrsOpUnary::parse_primary()
         case TOKT_NIL:
             /* nil - the result is the constant value nil */
             cval.set_nil();
-            
+
         return_constant:
             /* skip the token */
             G_tok->next();
-            
+
             /* return a constant node */
             return new CTPNConst(&cval);
-            
+
         case TOKT_TRUE:
             /* true - the result is the constant value true */
             cval.set_true();
             goto return_constant;
-            
+
         case TOKT_INT:
             /* integer constant value */
             cval.set_int(G_tok->getcur()->get_int_val());
@@ -5678,37 +5678,37 @@ CTcPrsNode *CTcPrsOpUnary::parse_primary()
                            G_tok->getcur()->get_text_len(),
                            TRUE);
             goto return_constant;
-            
+
         case TOKT_SSTR:
         handle_sstring:
             /* single-quoted string - the result is a constant string value */
             cval.set_sstr(G_tok->getcur());
             goto return_constant;
-            
+
         case TOKT_DSTR:
-            /* 
+            /*
              *   if we're in preprocessor expression mode, treat this the
-             *   same as a single-quoted string 
+             *   same as a single-quoted string
              */
             if (G_prs->get_pp_expr_mode())
                 goto handle_sstring;
 
-            /* 
+            /*
              *   a string implicitly references 'self', because we could run
-             *   through the default output method on the current object 
+             *   through the default output method on the current object
              */
             G_prs->set_self_referenced(TRUE);
-            
+
             /* build a double-quoted string node */
             sub = new CTPNDstr(G_tok->getcur()->get_text(),
                                G_tok->getcur()->get_text_len());
-            
+
             /* skip the string */
             G_tok->next();
-            
+
             /* return the new node */
             return sub;
-            
+
         case TOKT_RESTR:
             /* regular expression string */
             cval.set_restr(G_tok->getcur());
@@ -5723,7 +5723,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_primary()
                 CTcEmbedBuilderDbl builder;
                 return parse_embedding(&builder);
             }
-            
+
         case TOKT_SSTR_START:
             /* parse the embedded expression */
             {
@@ -5734,18 +5734,18 @@ CTcPrsNode *CTcPrsOpUnary::parse_primary()
         case TOKT_LBRACK:
             /* parse the list */
             return parse_list();
-            
+
         case TOKT_SYM:
-            /* 
+            /*
              *   symbol - the meaning of the symbol is not yet known, so
-             *   create an unresolved symbol node 
+             *   create an unresolved symbol node
              */
             sub = G_prs->create_sym_node(G_tok->getcur()->get_text(),
                                          G_tok->getcur()->get_text_len());
-            
+
             /* skip the symbol token */
             G_tok->next();
-            
+
             /* return the new node */
             return sub;
 
@@ -5803,7 +5803,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_primary()
         case TOKT_DELEGATED:
             /* parse the "delegated" operation */
             return parse_delegated();
-            
+
         case TOKT_RPAR:
             /* extra right paren - log an error */
             G_tok->log_error(TCERR_EXTRA_RPAR);
@@ -5824,17 +5824,17 @@ CTcPrsNode *CTcPrsOpUnary::parse_primary()
         case TOKT_DSTR_END:
         case TOKT_SEM:
         case TOKT_RBRACE:
-            /* 
+            /*
              *   this looks like the end of the statement, but we expected
-             *   an operand - note the error and end the statement 
+             *   an operand - note the error and end the statement
              */
             G_tok->log_error_curtok(TCERR_EXPECTED_OPERAND);
 
-            /* 
+            /*
              *   Synthesize a constant zero as the operand value.  Do not
              *   skip the current token, because it's almost certainly not
              *   meant to be part of the expression; we want to stay put
-             *   so that the caller can resynchronize on this token. 
+             *   so that the caller can resynchronize on this token.
              */
             cval.set_int(G_tok->getcur()->get_int_val());
             return new CTPNConst(&cval);
@@ -5844,7 +5844,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_primary()
              *   When evaluating a debugger expression, we accept a special
              *   notation for certain types that can't always be represented
              *   in ordinary source code:
-             *   
+             *
              *.     #__obj n - object number n (n is in decimal)
              *.     #__prop n - property number n
              *.     #__sstr ofs - s-string at offset ofs (in decimal)
@@ -5946,9 +5946,9 @@ CTcPrsNode *CTcPrsOpUnary::parse_primary()
                 G_tok->unget(&tok);
             }
 
-            /* 
+            /*
              *   if we got this far, we didn't get a valid special debugger
-             *   value - complain about the '#' 
+             *   value - complain about the '#'
              */
             goto bad_primary;
 
@@ -5956,12 +5956,12 @@ CTcPrsNode *CTcPrsOpUnary::parse_primary()
         bad_primary:
             /* invalid primary expression - log the error */
             G_tok->log_error_curtok(TCERR_BAD_PRIMARY_EXPR);
-            
-            /* 
+
+            /*
              *   Skip the token that's causing the problem; this will
              *   ensure that we don't loop indefinitely trying to figure
              *   out what this token is about, and return a constant zero
-             *   value as the primary.  
+             *   value as the primary.
              */
             G_tok->next();
 
@@ -5973,19 +5973,19 @@ CTcPrsNode *CTcPrsOpUnary::parse_primary()
 }
 
 /*
- *   Parse an "inherited" expression 
+ *   Parse an "inherited" expression
  */
 CTcPrsNode *CTcPrsOpUnary::parse_inherited()
 {
     CTcPrsNode *lhs;
-    
+
     /* skip the "inherited" keyword and check what follows */
     switch(G_tok->next())
     {
     case TOKT_SYM:
-        /* 
+        /*
          *   it's an "inherited superclass..." expression - set up the
-         *   "inherited superclass" node 
+         *   "inherited superclass" node
          */
         lhs = new CTPNInhClass(G_tok->getcur()->get_text(),
                                G_tok->getcur()->get_text_len());
@@ -6000,10 +6000,10 @@ CTcPrsNode *CTcPrsOpUnary::parse_inherited()
         break;
 
     case TOKT_LT:
-        /* 
+        /*
          *   '<' - this is the start of a multi-method type list.  Parse the
          *   list: type1 ',' type2 ',' ... '>', then the argument list to the
-         *   'inherited' call.  
+         *   'inherited' call.
          */
         {
             /* create the formal type list */
@@ -6115,18 +6115,18 @@ CTcPrsNode *CTcPrsOpUnary::parse_inherited()
             }
         }
         break;
-        
+
     default:
         /*
          *   There's no explicit superclass name listed, so the left-hand
-         *   side of the '.' expression is the simple "inherited" node. 
+         *   side of the '.' expression is the simple "inherited" node.
          */
         lhs = new CTPNInh();
 
         /*
          *   Since we don't have an explicit superclass, we'll need the
          *   method context at run-time to establish the next class in
-         *   inheritance order.  Flag the need for the full method context.  
+         *   inheritance order.  Flag the need for the full method context.
          */
         G_prs->set_full_method_ctx_referenced(TRUE);
 
@@ -6139,7 +6139,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_inherited()
 }
 
 /*
- *   Parse a "delegated" expression 
+ *   Parse a "delegated" expression
  */
 CTcPrsNode *CTcPrsOpUnary::parse_delegated()
 {
@@ -6149,14 +6149,14 @@ CTcPrsNode *CTcPrsOpUnary::parse_delegated()
     /* skip the "delegated" keyword */
     G_tok->next();
 
-    /* 
+    /*
      *   Parse a postfix expression giving the delegatee.  Don't allow
      *   nested member subexpressions (unless they're enclosed in
      *   parentheses, of course) - our implicit '.' postfix takes
      *   precedence.  Also, don't allow call subexpressions (unless enclosed
      *   in parens), since a postfix argument list binds to the 'delegated'
      *   expression, not to a subexpression involving a function/method
-     *   call.  
+     *   call.
      */
     CTcPrsNode *target = parse_postfix(FALSE, FALSE);
 
@@ -6168,7 +6168,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_delegated()
 }
 
 /*
- *   Parse a list 
+ *   Parse a list
  */
 CTcPrsNode *CTcPrsOpUnary::parse_list()
 {
@@ -6181,11 +6181,11 @@ CTcPrsNode *CTcPrsOpUnary::parse_list()
     /* set up a nil value for adding placeholders (for error recovery) */
     CTcConstVal nilval;
     nilval.set_nil();
-    
+
     /* skip the opening '[' */
     G_tok->next();
 
-    /* 
+    /*
      *   create the list expression -- we'll add elements to the list as
      *   we parse the elements
      */
@@ -6198,28 +6198,28 @@ CTcPrsNode *CTcPrsOpUnary::parse_list()
         switch(G_tok->cur())
         {
         case TOKT_RBRACK:
-            /* 
+            /*
              *   that's the end of the list - skip the closing bracket and
-             *   return the finished list 
+             *   return the finished list
              */
             G_tok->next();
             goto done;
-            
+
         case TOKT_EOF:
         case TOKT_RBRACE:
         case TOKT_SEM:
         case TOKT_DSTR_MID:
         case TOKT_DSTR_END:
-            /* 
+            /*
              *   these would all seem to imply that the closing ']' was
              *   missing from the list; flag the error and end the list
-             *   now 
+             *   now
              */
             G_tok->log_error_curtok(TCERR_LIST_MISSING_RBRACK);
             goto done;
 
         case TOKT_RPAR:
-            /* 
+            /*
              *   extra right paren - log an error, but then skip the paren
              *   and try to keep parsing
              */
@@ -6230,16 +6230,16 @@ CTcPrsNode *CTcPrsOpUnary::parse_list()
         case TOKT_TIMES:
             /*
              *   If a -> follows, this is the default value for a lookup
-             *   table list. 
+             *   table list.
              */
             if (G_tok->next() == TOKT_ARROW)
             {
                 /* skip the arrow and get to the value */
                 G_tok->next();
 
-                /* 
+                /*
                  *   if this is a non-lookup table list with other entries,
-                 *   this is an error 
+                 *   this is an error
                  */
                 if (!is_lookup_table && lst->get_count() != 0)
                 {
@@ -6266,15 +6266,15 @@ CTcPrsNode *CTcPrsOpUnary::parse_list()
             break;
         }
 
-        /* 
+        /*
          *   Attempt to parse another list element expression.  Parse just
          *   below a comma expression, because commas can be used to
-         *   separate list elements.  
+         *   separate list elements.
          */
         CTcPrsNode *ele = S_op_asi.parse();
         if (ele == 0)
             return 0;
-        
+
         /* add the element to the list */
         lst->add_element(ele);
 
@@ -6287,9 +6287,9 @@ CTcPrsNode *CTcPrsOpUnary::parse_list()
             /* we've left the default value */
             at_def_val = FALSE;
 
-            /* 
+            /*
              *   if we're at a comma, add a nil value to the list to
-             *   resynchronize - they must want to add more Key->Value pairs 
+             *   resynchronize - they must want to add more Key->Value pairs
              */
             if (G_tok->cur() == TOKT_COMMA)
                 lst->add_element(new CTPNConst(&nilval));
@@ -6312,12 +6312,12 @@ CTcPrsNode *CTcPrsOpUnary::parse_list()
                 G_tok->log_error(TCERR_LOOKUP_LIST_EXPECTED_ARROW,
                                  (lst->get_count()+1)/2);
 
-                /* 
+                /*
                  *   Add an implied nil element as the value.  This will help
                  *   resynchronize with the source code in the most likely
                  *   case that they simply left out a ->value item, so that
                  *   we don't log alternating "expected comma" and "expected
-                 *   arrow" messages on every subsequent delimiter.  
+                 *   arrow" messages on every subsequent delimiter.
                  */
                 lst->add_element(new CTPNConst(&nilval));
             }
@@ -6325,9 +6325,9 @@ CTcPrsNode *CTcPrsOpUnary::parse_list()
             /* if a close bracket follows, we seem to have an extra comma */
             if (G_tok->cur() == TOKT_RBRACK)
             {
-                /* 
+                /*
                  *   log an error about the missing element, then end the
-                 *   list here 
+                 *   list here
                  */
                 G_tok->log_error_curtok(TCERR_LIST_EXPECT_ELEMENT);
                 goto done;
@@ -6338,7 +6338,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_list()
             /* skip the arrow */
             G_tok->next();
 
-            /* 
+            /*
              *   '->' indicates a lookup table key->value list.  This is an
              *   all-or-nothing proposition: it has to be on every pair of
              *   elements, or on none of them.
@@ -6350,9 +6350,9 @@ CTcPrsNode *CTcPrsOpUnary::parse_list()
             }
             else if (!is_lookup_table)
             {
-                /* 
+                /*
                  *   it's not the first element, and we haven't seen arrows
-                 *   before, so this list shouldn't have arrows at all 
+                 *   before, so this list shouldn't have arrows at all
                  */
                 G_tok->log_error(TCERR_ARROW_IN_LIST, lst->get_count());
             }
@@ -6360,33 +6360,33 @@ CTcPrsNode *CTcPrsOpUnary::parse_list()
             {
                 /*
                  *   We have an even number of elements, so an arrow is not
-                 *   allowed here under any circumstances. 
+                 *   allowed here under any circumstances.
                  */
                 G_tok->log_error(TCERR_MISPLACED_ARROW_IN_LIST,
                                  lst->get_count()/2);
 
-                /* 
+                /*
                  *   They probably just left out the key value accidentally,
                  *   so add a nil value as the key.  This will avoid a
                  *   cascade of errors for subsequent delimiters if they did
-                 *   just leave out one item. 
+                 *   just leave out one item.
                  */
                 lst->add_element(new CTPNConst(&nilval));
             }
             break;
 
         case TOKT_RBRACK:
-            /* 
+            /*
              *   we're done with the list - skip the bracket and return
-             *   the finished list 
+             *   the finished list
              */
             G_tok->next();
 
-            /* 
+            /*
              *   If this is a lookup table list, make sure we ended on an
              *   even number - if not, we're missing a ->Value entry.  The
              *   exception is that if the last value was a default, we end on
-             *   an odd item.  
+             *   an odd item.
              */
             if (is_lookup_table
                 && (lst->get_count() & 1) != 0
@@ -6404,22 +6404,22 @@ CTcPrsNode *CTcPrsOpUnary::parse_list()
         case TOKT_SEM:
         case TOKT_DSTR_MID:
         case TOKT_DSTR_END:
-            /* 
+            /*
              *   these would all seem to imply that the closing ']' was
              *   missing from the list; flag the error and end the list
-             *   now 
+             *   now
              */
             G_tok->log_error_curtok(TCERR_LIST_MISSING_RBRACK);
             goto done;
 
         default:
-            /* 
+            /*
              *   Anything else is an error - note that we expected a
              *   comma, then proceed with parsing from the current token
              *   as though we had found the comma (in all likelihood, the
              *   comma was accidentally omitted).  If we've reached the
              *   end of the file, return what we have so far, since it's
-             *   pointless to keep looping.  
+             *   pointless to keep looping.
              */
             G_tok->log_error_curtok(TCERR_LIST_EXPECT_COMMA);
 
@@ -6445,7 +6445,7 @@ done:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parse Allocation Object 
+ *   Parse Allocation Object
  */
 
 /*
@@ -6460,11 +6460,11 @@ void *CTcPrsAllocObj::operator new(size_t siz)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parse Tree space manager 
+ *   Parse Tree space manager
  */
 
 /*
- *   create 
+ *   create
  */
 CTcPrsMem::CTcPrsMem()
 {
@@ -6482,7 +6482,7 @@ CTcPrsMem::~CTcPrsMem()
 }
 
 /*
- *   Save state, for later resetting 
+ *   Save state, for later resetting
  */
 void CTcPrsMem::save_state(tcprsmem_state_t *state)
 {
@@ -6493,7 +6493,7 @@ void CTcPrsMem::save_state(tcprsmem_state_t *state)
 }
 
 /*
- *   Reset to initial state 
+ *   Reset to initial state
  */
 void CTcPrsMem::reset()
 {
@@ -6511,15 +6511,15 @@ void CTcPrsMem::reset()
 
 /*
  *   Reset.  This deletes all objects allocated out of the parser pool
- *   since the state was saved.  
+ *   since the state was saved.
  */
 void CTcPrsMem::reset(const tcprsmem_state_t *state)
 {
     tcprsmem_blk_t *cur;
-    
-    /* 
+
+    /*
      *   delete all of the blocks that were allocated after the last block
-     *   that existed when the state was saved 
+     *   that existed when the state was saved
      */
     for (cur = state->tail->next_ ; cur != 0 ; )
     {
@@ -6549,7 +6549,7 @@ void CTcPrsMem::reset(const tcprsmem_state_t *state)
 /*
  *   Delete all parser memory.  This deletes all objects allocated out of
  *   parser memory, so the caller must be sure that all of these objects
- *   are unreferenced.  
+ *   are unreferenced.
  */
 void CTcPrsMem::delete_all()
 {
@@ -6573,16 +6573,16 @@ void CTcPrsMem::delete_all()
 }
 
 /*
- *   allocate a block 
+ *   allocate a block
  */
 void CTcPrsMem::alloc_block()
 {
     tcprsmem_blk_t *blk;
 
-    /* 
+    /*
      *   block size - pick a size that's large enough that we won't be
      *   unduly inefficient (in terms of having tons of blocks), but still
-     *   friendly to 16-bit platforms (i.e., under 64k) 
+     *   friendly to 16-bit platforms (i.e., under 64k)
      */
     const size_t BLOCK_SIZE = 65000;
 
@@ -6603,27 +6603,27 @@ void CTcPrsMem::alloc_block()
     /* the block is now the last block in the list */
     tail_ = blk;
 
-    /* 
+    /*
      *   Set up to allocate out of our block.  Make sure the free pointer
      *   starts out on a worst-case alignment boundary; normally, the C++
      *   compiler will properly align our "buf_" structure member on a
      *   worst-case boundary, so this calculation won't actually change
      *   anything, but this will help ensure portability even to weird
-     *   compilers.  
+     *   compilers.
      */
     free_ptr_ = (char *)osrndpt((unsigned char *)blk->buf_);
 
-    /* 
+    /*
      *   get the amount of space remaining in the block (in the unlikely
      *   event that worst-case alignment actually moved the free pointer
      *   above the start of the buffer, we'll have lost a little space in
-     *   the buffer for the alignment offset) 
+     *   the buffer for the alignment offset)
      */
     rem_ = BLOCK_SIZE - (free_ptr_ - blk->buf_);
 }
 
 /*
- *   Allocate space 
+ *   Allocate space
  */
 void *CTcPrsMem::alloc(size_t siz)
 {
@@ -6636,9 +6636,9 @@ void *CTcPrsMem::alloc(size_t siz)
         /* allocate a new block */
         alloc_block();
 
-        /* 
+        /*
          *   if there's still not enough room, the request must exceed the
-         *   largest block we can allocate 
+         *   largest block we can allocate
          */
         if (siz > rem_)
             G_tok->throw_internal_error(TCERR_PRS_BLK_TOO_BIG, (ulong)siz);
@@ -6663,7 +6663,7 @@ void *CTcPrsMem::alloc(size_t siz)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   parse node base class 
+ *   parse node base class
  */
 
 /*
@@ -6679,11 +6679,11 @@ CTcPrsNode *CTcPrsNodeBase::adjust_for_dyn(const tcpn_dyncomp_info *info)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   constant node 
+ *   constant node
  */
 
 /*
- *   adjust for debugger use 
+ *   adjust for debugger use
  */
 CTcPrsNode *CTPNConstBase::adjust_for_dyn(const tcpn_dyncomp_info *info)
 {
@@ -6694,16 +6694,16 @@ CTcPrsNode *CTPNConstBase::adjust_for_dyn(const tcpn_dyncomp_info *info)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   List parse node 
+ *   List parse node
  */
 
 /*
- *   add an element to a list 
+ *   add an element to a list
  */
 void CTPNListBase::add_element(CTcPrsNode *expr)
 {
     CTPNListEle *ele;
-    
+
     /* create a list element object for the new element */
     ele = new CTPNListEle(expr);
 
@@ -6718,9 +6718,9 @@ void CTPNListBase::add_element(CTcPrsNode *expr)
         head_ = ele;
     tail_ = ele;
 
-    /* 
+    /*
      *   if the new element does not have a constant value, the list no
-     *   longer has a constant value (if it did before) 
+     *   longer has a constant value (if it did before)
      */
     if (!expr->is_const())
         is_const_ = FALSE;
@@ -6732,13 +6732,13 @@ void CTPNListBase::add_element(CTcPrsNode *expr)
 void CTPNListBase::remove_element(const CTcConstVal *val)
 {
     CTPNListEle *cur;
-    
+
     /* scan the list */
     for (cur = head_ ; cur != 0 ; cur = cur->get_next())
     {
-        /* 
+        /*
          *   if this element is constant, compare it to the value to be
-         *   removed; if it matches, remove it 
+         *   removed; if it matches, remove it
          */
         if (cur->get_expr()->is_const()
             && cur->get_expr()->get_const_val()->is_equal_to(val))
@@ -6763,12 +6763,12 @@ void CTPNListBase::remove_element(const CTcConstVal *val)
 
 /*
  *   Get the constant value of the element at the given index.  Logs an
- *   error and returns null if there's no such element. 
+ *   error and returns null if there's no such element.
  */
 CTcPrsNode *CTPNListBase::get_const_ele(int index)
 {
     CTPNListEle *ele;
-    
+
     /* if the index is negative, it's out of range */
     if (index < 1)
     {
@@ -6793,32 +6793,32 @@ CTcPrsNode *CTPNListBase::get_const_ele(int index)
 }
 
 /*
- *   Fold constants 
+ *   Fold constants
  */
 CTcPrsNode *CTPNListBase::fold_constants(CTcPrsSymtab *symtab)
 {
     CTPNListEle *cur;
     int all_const;
 
-    /* 
+    /*
      *   if the list is already constant, there's nothing extra we need to
-     *   do 
+     *   do
      */
     if (is_const_)
         return this;
 
     /* presume the result will be all constants */
     all_const = TRUE;
-    
+
     /* run through my list and fold each element */
     for (cur = head_ ; cur != 0 ; cur = cur->get_next())
     {
         /* fold this element */
         cur->fold_constants(symtab);
 
-        /* 
+        /*
          *   if this element is not a constant, the whole list cannot be
-         *   constant 
+         *   constant
          */
         if (!cur->get_expr()->is_const())
             all_const = FALSE;
@@ -6846,11 +6846,11 @@ CTcPrsNode *CTPNListBase::adjust_for_dyn(const tcpn_dyncomp_info *info)
         cur->adjust_for_dyn(info);
     }
 
-    /* 
+    /*
      *   force the list to be non-constant - in debugger mode, we have to
      *   build the value we push as a dynamic object, never as an actual
      *   constant, to ensure that the generated code can be deleted
-     *   immediately after being executed 
+     *   immediately after being executed
      */
     is_const_ = FALSE;
 
@@ -6860,11 +6860,11 @@ CTcPrsNode *CTPNListBase::adjust_for_dyn(const tcpn_dyncomp_info *info)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   If-nil operator ?? node base class 
+ *   If-nil operator ?? node base class
  */
 
 /*
- *   fold constants 
+ *   fold constants
  */
 CTcPrsNode *CTPNIfnilBase::fold_constants(CTcPrsSymtab *symtab)
 {
@@ -6872,16 +6872,16 @@ CTcPrsNode *CTPNIfnilBase::fold_constants(CTcPrsSymtab *symtab)
     first_ = first_->fold_constants(symtab);
     second_ = second_->fold_constants(symtab);
 
-    /* 
+    /*
      *   if the first is now a constant, we can fold this entire expression
      *   node by choosing the first or second node.  Otherwise return myself
-     *   unchanged.  
+     *   unchanged.
      */
     if (first_->is_const())
     {
-        /* 
+        /*
          *   if the first expression is nil, return the second, otherwise
-         *   return the first 
+         *   return the first
          */
         return (first_->get_const_val()->get_type() == TC_CVT_NIL
                 ? second_ : first_);
@@ -6895,11 +6895,11 @@ CTcPrsNode *CTPNIfnilBase::fold_constants(CTcPrsSymtab *symtab)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   conditional operator node base class 
+ *   conditional operator node base class
  */
 
 /*
- *   fold constants 
+ *   fold constants
  */
 CTcPrsNode *CTPNIfBase::fold_constants(CTcPrsSymtab *symtab)
 {
@@ -6908,16 +6908,16 @@ CTcPrsNode *CTPNIfBase::fold_constants(CTcPrsSymtab *symtab)
     second_ = second_->fold_constants(symtab);
     third_ = third_->fold_constants(symtab);
 
-    /* 
+    /*
      *   if the first is now a constant, we can fold this entire
      *   expression node by choosing the second or third based on its
-     *   value; otherwise, return myself unchanged 
+     *   value; otherwise, return myself unchanged
      */
     if (first_->is_const())
     {
-        /* 
+        /*
          *   The condition is a constant - the result is the 'then' or 'else'
-         *   part, based on the condition's value.  
+         *   part, based on the condition's value.
          */
         return (first_->get_const_val()->get_val_bool()
                 ? second_ : third_);
@@ -6932,11 +6932,11 @@ CTcPrsNode *CTPNIfBase::fold_constants(CTcPrsSymtab *symtab)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Double-quoted string node - base class 
+ *   Double-quoted string node - base class
  */
 
-/* 
- *   create a double-quoted string node 
+/*
+ *   create a double-quoted string node
  */
 CTPNDstrBase::CTPNDstrBase(const char *str, size_t len)
 {
@@ -6944,9 +6944,9 @@ CTPNDstrBase::CTPNDstrBase(const char *str, size_t len)
     str_ = str;
     len_ = len;
 
-    /* 
+    /*
      *   note the length in the parser, in case it's the longest string
-     *   we've seen so far 
+     *   we've seen so far
      */
     G_cg->note_str(len);
 }
@@ -6956,9 +6956,9 @@ CTPNDstrBase::CTPNDstrBase(const char *str, size_t len)
  */
 CTcPrsNode *CTPNDstrBase::adjust_for_dyn(const tcpn_dyncomp_info *info)
 {
-    /* 
+    /*
      *   don't allow dstring evaluation in speculative mode, since we
-     *   can't execute anything with side effects in this mode 
+     *   can't execute anything with side effects in this mode
      */
     if (info->speculative)
         err_throw(VMERR_BAD_SPEC_EVAL);
@@ -6969,11 +6969,11 @@ CTcPrsNode *CTPNDstrBase::adjust_for_dyn(const tcpn_dyncomp_info *info)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Address-of parse node 
+ *   Address-of parse node
  */
 
 /*
- *   fold constants 
+ *   fold constants
  */
 CTcPrsNode *CTPNAddrBase::fold_constants(CTcPrsSymtab *symtab)
 {
@@ -6982,25 +6982,25 @@ CTcPrsNode *CTPNAddrBase::fold_constants(CTcPrsSymtab *symtab)
     /* ask the symbol to generate a constant expression for its address */
     ret = get_sub_expr()->fold_addr_const(symtab);
 
-    /* 
+    /*
      *   if we got a constant value, return it; otherwise, return myself
-     *   unchanged 
+     *   unchanged
      */
     return (ret != 0 ? ret : this);
 }
 
 /*
- *   determine if my address equals that of another node 
+ *   determine if my address equals that of another node
  */
 int CTPNAddrBase::is_addr_eq(const CTPNAddr *node, int *comparable) const
 {
-    /* 
+    /*
      *   If both sides are symbols, the addresses are equal if and only if
      *   the symbols are identical.  One symbol has exactly one meaning in
      *   a given context, and no two symbols can have the same meaning.
      *   (It's important that we be able to state this for all symbols,
      *   because we can't necessarily know during parsing the meaning of a
-     *   given symbol, since the symbol could be a forward reference.)  
+     *   given symbol, since the symbol could be a forward reference.)
      */
     if (get_sub_expr()->get_sym_text() != 0
         && node->get_sub_expr()->get_sym_text() != 0)
@@ -7026,11 +7026,11 @@ int CTPNAddrBase::is_addr_eq(const CTPNAddr *node, int *comparable) const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Symbol parse node base class 
+ *   Symbol parse node base class
  */
 
 /*
- *   fold constants 
+ *   fold constants
  */
 CTcPrsNode *CTPNSymBase::fold_constants(CTcPrsSymtab *symtab)
 {
@@ -7042,7 +7042,7 @@ CTcPrsNode *CTPNSymBase::fold_constants(CTcPrsSymtab *symtab)
      *   merely look to see if it's already known.  We don't have enough
      *   information to determine how we should define the symbol, so
      *   leave it undefined until code generation if it's not already
-     *   known.  
+     *   known.
      */
     sym = symtab->find(get_sym_text(), get_sym_text_len());
     if (sym != 0)
@@ -7064,7 +7064,7 @@ CTcPrsNode *CTPNSymBase::fold_constants(CTcPrsSymtab *symtab)
  *   Fold my address to a constant node.  If I have no address value, I'll
  *   simply return myself unchanged.  Note that it's an error if I have no
  *   constant value, but we'll count on the code generator to report the
- *   error, and simply ignore it for now.  
+ *   error, and simply ignore it for now.
  */
 CTcPrsNode *CTPNSymBase::fold_addr_const(CTcPrsSymtab *symtab)
 {
@@ -7085,18 +7085,18 @@ CTcPrsNode *CTPNSymBase::fold_addr_const(CTcPrsSymtab *symtab)
 }
 
 /*
- *   Determine if I have a return value when called 
+ *   Determine if I have a return value when called
  */
 int CTPNSymBase::has_return_value_on_call() const
 {
     CTcSymbol *sym;
-    
+
     /* try resolving my symbol */
     sym = G_prs->get_global_symtab()->find(sym_, len_);
 
-    /* 
+    /*
      *   if we found a symbol, let it resolve the call; otherwise, assume
-     *   that we do have a return value 
+     *   that we do have a return value
      */
     if (sym != 0)
         return sym->has_return_value_on_call();
@@ -7105,7 +7105,7 @@ int CTPNSymBase::has_return_value_on_call() const
 }
 
 /*
- *   Determine if I am a valid lvalue 
+ *   Determine if I am a valid lvalue
  */
 int CTPNSymBase::check_lvalue_resolved(class CTcPrsSymtab *symtab) const
 {
@@ -7126,28 +7126,28 @@ int CTPNSymBase::check_lvalue_resolved(class CTcPrsSymtab *symtab) const
 }
 
 /*
- *   adjust for dynamic (run-time) compilation 
+ *   adjust for dynamic (run-time) compilation
  */
 CTcPrsNode *CTPNSymBase::adjust_for_dyn(const tcpn_dyncomp_info *)
 {
-    /* 
+    /*
      *   If this symbol isn't defined in the global symbol table, we can't
      *   evaluate this expression in the debugger - new symbols can never
      *   be defined in the debugger, so there's no point in trying to hold
      *   a forward reference as we normally would for an undefined symbol.
      *   We need look only in the global symbol table because local
-     *   symbols will already have been resolved.  
+     *   symbols will already have been resolved.
      */
     if (G_prs->get_global_symtab()->find(sym_, len_) == 0)
     {
         /* log the error, to generate an appropriate message */
         G_tok->log_error(TCERR_UNDEF_SYM, (int)len_, sym_);
-        
+
         /* throw the error as well */
         err_throw_a(TCERR_UNDEF_SYM, 2,
                     ERR_TYPE_INT, (int)len_, ERR_TYPE_TEXTCHAR, sym_);
     }
-    
+
     /* return myself unchanged */
     return this;
 }
@@ -7155,11 +7155,11 @@ CTcPrsNode *CTPNSymBase::adjust_for_dyn(const tcpn_dyncomp_info *)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Resolved Symbol parse node base class 
+ *   Resolved Symbol parse node base class
  */
 
 /*
- *   fold constants 
+ *   fold constants
  */
 CTcPrsNode *CTPNSymResolvedBase::fold_constants(CTcPrsSymtab *symtab)
 {
@@ -7176,7 +7176,7 @@ CTcPrsNode *CTPNSymResolvedBase::fold_constants(CTcPrsSymtab *symtab)
  *   Fold my address to a constant node.  If I have no address value, I'll
  *   simply return myself unchanged.  Note that it's an error if I have no
  *   constant value, but we'll count on the code generator to report the
- *   error, and simply ignore it for now.  
+ *   error, and simply ignore it for now.
  */
 CTcPrsNode *CTPNSymResolvedBase::fold_addr_const(CTcPrsSymtab *symtab)
 {
@@ -7187,11 +7187,11 @@ CTcPrsNode *CTPNSymResolvedBase::fold_addr_const(CTcPrsSymtab *symtab)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Debugger local variable resolved symbol 
+ *   Debugger local variable resolved symbol
  */
 
 /*
- *   construction 
+ *   construction
  */
 CTPNSymDebugLocalBase::CTPNSymDebugLocalBase(const tcprsdbg_sym_info *info)
 {
@@ -7221,11 +7221,11 @@ CTPNSymDebugLocalBase::CTPNSymDebugLocalBase(const tcprsdbg_sym_info *info)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Argument List parse node base class 
+ *   Argument List parse node base class
  */
 
 /*
- *   fold constants 
+ *   fold constants
  */
 CTcPrsNode *CTPNArglistBase::fold_constants(CTcPrsSymtab *symtab)
 {
@@ -7239,7 +7239,7 @@ CTcPrsNode *CTPNArglistBase::fold_constants(CTcPrsSymtab *symtab)
 }
 
 /*
- *   adjust for dynamic (run-time) compilation 
+ *   adjust for dynamic (run-time) compilation
  */
 CTcPrsNode *CTPNArglistBase::adjust_for_dyn(const tcpn_dyncomp_info *info)
 {
@@ -7247,9 +7247,9 @@ CTcPrsNode *CTPNArglistBase::adjust_for_dyn(const tcpn_dyncomp_info *info)
     CTPNArg *arg;
     for (arg = list_ ; arg != 0 ; arg = arg->get_next_arg())
     {
-        /* 
+        /*
          *   adjust this argument; assume the argument node itself isn't
-         *   affected 
+         *   affected
          */
         arg->adjust_for_dyn(info);
     }
@@ -7260,11 +7260,11 @@ CTcPrsNode *CTPNArglistBase::adjust_for_dyn(const tcpn_dyncomp_info *info)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Argument List Entry parse node base class 
+ *   Argument List Entry parse node base class
  */
 
 /*
- *   fold constants 
+ *   fold constants
  */
 CTcPrsNode *CTPNArgBase::fold_constants(CTcPrsSymtab *symtab)
 {
@@ -7276,7 +7276,7 @@ CTcPrsNode *CTPNArgBase::fold_constants(CTcPrsSymtab *symtab)
 }
 
 /*
- *   Set the parameter name 
+ *   Set the parameter name
  */
 void CTPNArgBase::set_name(const CTcToken *tok)
 {
@@ -7286,11 +7286,11 @@ void CTPNArgBase::set_name(const CTcToken *tok)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Member with no arguments 
+ *   Member with no arguments
  */
 
 /*
- *   adjust for dynamic (run-time) compilation 
+ *   adjust for dynamic (run-time) compilation
  */
 CTcPrsNode *CTPNMemberBase::adjust_for_dyn(const tcpn_dyncomp_info *info)
 {
@@ -7304,11 +7304,11 @@ CTcPrsNode *CTPNMemberBase::adjust_for_dyn(const tcpn_dyncomp_info *info)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Member with Arguments parse node base class 
+ *   Member with Arguments parse node base class
  */
 
 /*
- *   fold constants 
+ *   fold constants
  */
 CTcPrsNode *CTPNMemArgBase::fold_constants(CTcPrsSymtab *symtab)
 {
@@ -7316,10 +7316,10 @@ CTcPrsNode *CTPNMemArgBase::fold_constants(CTcPrsSymtab *symtab)
     obj_expr_ = obj_expr_->fold_constants(symtab);
     prop_expr_ = prop_expr_->fold_constants(symtab);
 
-    /* 
+    /*
      *   fold constants in the argument list; an argument list node never
      *   changes to a new node type during constant folding, so we don't
-     *   need to update the member 
+     *   need to update the member
      */
     arglist_->fold_constants(symtab);
 
@@ -7328,7 +7328,7 @@ CTcPrsNode *CTPNMemArgBase::fold_constants(CTcPrsSymtab *symtab)
 }
 
 /*
- *   adjust for dynamic (run-time) compilation 
+ *   adjust for dynamic (run-time) compilation
  */
 CTcPrsNode *CTPNMemArgBase::adjust_for_dyn(const tcpn_dyncomp_info *info)
 {
@@ -7336,9 +7336,9 @@ CTcPrsNode *CTPNMemArgBase::adjust_for_dyn(const tcpn_dyncomp_info *info)
     if (info->speculative)
         err_throw(VMERR_BAD_SPEC_EVAL);
 
-    /* 
+    /*
      *   adjust my object expression, property expression, and argument
-     *   list 
+     *   list
      */
     obj_expr_ = obj_expr_->adjust_for_dyn(info);
     prop_expr_ = prop_expr_->adjust_for_dyn(info);
@@ -7351,11 +7351,11 @@ CTcPrsNode *CTPNMemArgBase::adjust_for_dyn(const tcpn_dyncomp_info *info)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Function/Method Call parse node base class 
+ *   Function/Method Call parse node base class
  */
 
 /*
- *   fold constants 
+ *   fold constants
  */
 CTcPrsNode *CTPNCallBase::fold_constants(CTcPrsSymtab *symtab)
 {
@@ -7370,7 +7370,7 @@ CTcPrsNode *CTPNCallBase::fold_constants(CTcPrsSymtab *symtab)
 }
 
 /*
- *   adjust for dynamic (run-time) compilation 
+ *   adjust for dynamic (run-time) compilation
  */
 CTcPrsNode *CTPNCallBase::adjust_for_dyn(const tcpn_dyncomp_info *info)
 {
@@ -7380,24 +7380,24 @@ CTcPrsNode *CTPNCallBase::adjust_for_dyn(const tcpn_dyncomp_info *info)
 
     /* adjust the function expression */
     func_ = func_->adjust_for_dyn(info);
-    
+
     /* adjust the argument list (assume it doesn't change) */
     arglist_->adjust_for_dyn(info);
-    
+
     /* return myself otherwise unchanged */
     return this;
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parser Symbol Table implementation 
+ *   Parser Symbol Table implementation
  */
 
 /* static hash function */
 CVmHashFunc *CTcPrsSymtab::hash_func_ = 0;
 
 /*
- *   allocate parser symbol tables out of the parser memory pool 
+ *   allocate parser symbol tables out of the parser memory pool
  */
 void *CTcPrsSymtab::operator new(size_t siz)
 {
@@ -7405,7 +7405,7 @@ void *CTcPrsSymtab::operator new(size_t siz)
 }
 
 /*
- *   static initialization 
+ *   static initialization
  */
 void CTcPrsSymtab::s_init()
 {
@@ -7415,7 +7415,7 @@ void CTcPrsSymtab::s_init()
 }
 
 /*
- *   static termination 
+ *   static termination
  */
 void CTcPrsSymtab::s_terminate()
 {
@@ -7428,20 +7428,20 @@ void CTcPrsSymtab::s_terminate()
 }
 
 /*
- *   initialize 
+ *   initialize
  */
 CTcPrsSymtab::CTcPrsSymtab(CTcPrsSymtab *parent_scope)
 {
     size_t hash_table_size;
-    
-    /* 
+
+    /*
      *   Create the hash table.  If we're at global scope (parent_scope ==
      *   0), create a large hash table, since we'll probably add lots of
      *   symbols; otherwise, it's just a local table, which probably won't
      *   have many entries, so create a small table.
-     *   
+     *
      *   Note that we always use the static hash function object, hence
-     *   the table doesn't own the object.  
+     *   the table doesn't own the object.
      */
     hash_table_size = (parent_scope == 0 ? 512 : 32);
     hashtab_ = new (G_prsmem)
@@ -7460,7 +7460,7 @@ CTcPrsSymtab::CTcPrsSymtab(CTcPrsSymtab *parent_scope)
 }
 
 /*
- *   delete 
+ *   delete
  */
 CTcPrsSymtab::~CTcPrsSymtab()
 {
@@ -7469,7 +7469,7 @@ CTcPrsSymtab::~CTcPrsSymtab()
 }
 
 /*
- *   Find a symbol, marking it as referenced if we find it.   
+ *   Find a symbol, marking it as referenced if we find it.
  */
 CTcSymbol *CTcPrsSymtab::find(const textchar_t *sym, size_t len,
                               CTcPrsSymtab **symtab)
@@ -7489,14 +7489,14 @@ CTcSymbol *CTcPrsSymtab::find(const textchar_t *sym, size_t len,
 
 /*
  *   Find a symbol.  This base version does not affect the 'referenced'
- *   status of the symbol we look up.  
+ *   status of the symbol we look up.
  */
 CTcSymbol *CTcPrsSymtab::find_noref(const textchar_t *sym, size_t len,
                                     CTcPrsSymtab **symtab)
 {
     /*
      *   Look for the symbol.  Start in the current symbol table, and work
-     *   outwards to the outermost enclosing table.  
+     *   outwards to the outermost enclosing table.
      */
     for (CTcPrsSymtab *curtab = this ; curtab != 0 ;
          curtab = curtab->get_parent())
@@ -7505,10 +7505,10 @@ CTcSymbol *CTcPrsSymtab::find_noref(const textchar_t *sym, size_t len,
         CTcSymbol *entry = curtab->find_direct(sym, len);
         if (entry != 0)
         {
-            /* 
+            /*
              *   found it - if the caller wants to know about the symbol
              *   table in which we actually found the symbol, return that
-             *   information 
+             *   information
              */
             if (symtab != 0)
                 *symtab = curtab;
@@ -7523,7 +7523,7 @@ CTcSymbol *CTcPrsSymtab::find_noref(const textchar_t *sym, size_t len,
 }
 
 /*
- *   Find a symbol directly in this table 
+ *   Find a symbol directly in this table
  */
 CTcSymbol *CTcPrsSymtab::find_direct(const textchar_t *sym, size_t len)
 {
@@ -7532,7 +7532,7 @@ CTcSymbol *CTcPrsSymtab::find_direct(const textchar_t *sym, size_t len)
 }
 
 /*
- *   Add a symbol to the table 
+ *   Add a symbol to the table
  */
 void CTcPrsSymtab::add_entry(CTcSymbol *sym)
 {
@@ -7541,7 +7541,7 @@ void CTcPrsSymtab::add_entry(CTcSymbol *sym)
 }
 
 /*
- *   remove a symbol from the table 
+ *   remove a symbol from the table
  */
 void CTcPrsSymtab::remove_entry(CTcSymbol *sym)
 {
@@ -7550,18 +7550,18 @@ void CTcPrsSymtab::remove_entry(CTcSymbol *sym)
 }
 
 /*
- *   Add a formal parameter symbol 
+ *   Add a formal parameter symbol
  */
 CTcSymLocal *CTcPrsSymtab::add_formal(const textchar_t *sym, size_t len,
                                       int formal_num, int copy_str)
 {
     CTcSymLocal *lcl;
-    
-    /* 
+
+    /*
      *   Make sure it's not already defined in our own symbol table - if
      *   it is, log an error and ignore the redundant definition.  (We
      *   only care about our own scope, not enclosing scopes, since it's
-     *   perfectly fine to hide variables in enclosing scopes.)  
+     *   perfectly fine to hide variables in enclosing scopes.)
      */
     if (find_direct(sym, len) != 0)
     {
@@ -7584,7 +7584,7 @@ CTcSymLocal *CTcPrsSymtab::add_formal(const textchar_t *sym, size_t len,
 
 /*
  *   Add the current token as a local variable symbol, initially unreferenced
- *   and uninitialized 
+ *   and uninitialized
  */
 CTcSymLocal *CTcPrsSymtab::add_local(int local_num)
 {
@@ -7594,7 +7594,7 @@ CTcSymLocal *CTcPrsSymtab::add_local(int local_num)
 }
 
 /*
- *   Add a local variable symbol 
+ *   Add a local variable symbol
  */
 CTcSymLocal *CTcPrsSymtab::add_local(const textchar_t *sym, size_t len,
                                      int local_num, int copy_str,
@@ -7602,9 +7602,9 @@ CTcSymLocal *CTcPrsSymtab::add_local(const textchar_t *sym, size_t len,
 {
     CTcSymLocal *lcl;
 
-    /* 
+    /*
      *   make sure the symbol isn't already defined in this scope; if it
-     *   is, log an error 
+     *   is, log an error
      */
     if (find_direct(sym, len) != 0)
     {
@@ -7618,15 +7618,15 @@ CTcSymLocal *CTcPrsSymtab::add_local(const textchar_t *sym, size_t len,
     /* create the symbol entry */
     lcl = new CTcSymLocal(sym, len, copy_str, FALSE, local_num);
 
-    /* 
+    /*
      *   if the symbol is initially to be marked as referenced or
-     *   assigned, mark it now 
+     *   assigned, mark it now
      */
     if (init_assigned)
         lcl->set_val_assigned(TRUE);
     if (init_referenced)
         lcl->set_val_used(TRUE);
-    
+
     /* add it to the table */
     add_entry(lcl);
 
@@ -7642,9 +7642,9 @@ CTcSymLabel *CTcPrsSymtab::add_code_label(const textchar_t *sym, size_t len,
 {
     CTcSymLabel *lbl;
 
-    /* 
+    /*
      *   make sure the symbol isn't already defined in this scope; if it
-     *   is, log an error 
+     *   is, log an error
      */
     if (find_direct(sym, len) != 0)
     {
@@ -7666,17 +7666,17 @@ CTcSymLabel *CTcPrsSymtab::add_code_label(const textchar_t *sym, size_t len,
 }
 
 
-/* 
+/*
  *   Find a symbol; if the symbol isn't defined, add a new entry according
  *   to the action flag.  Because we add a symbol entry if the symbol
- *   isn't defined, this *always* returns a valid symbol object.  
+ *   isn't defined, this *always* returns a valid symbol object.
  */
 CTcSymbol *CTcPrsSymtab::find_or_def(const textchar_t *sym, size_t len,
                                      int copy_str, tcprs_undef_action action)
 {
     /*
      *   Look for the symbol.  Start in the current symbol table, and work
-     *   outwards to the outermost enclosing table. 
+     *   outwards to the outermost enclosing table.
      */
     for (CTcPrsSymtab *curtab = this ; ; curtab = curtab->get_parent())
     {
@@ -7687,10 +7687,10 @@ CTcSymbol *CTcPrsSymtab::find_or_def(const textchar_t *sym, size_t len,
             /* mark the entry as referenced */
             entry->mark_referenced();
 
-            /* 
+            /*
              *   if this is a non-weak property definition, and this is a
              *   property symbol, remove any existing weak flag from the
-             *   property symbol 
+             *   property symbol
              */
             if (entry->get_type() == TC_SYM_PROP
                 && (action == TCPRS_UNDEF_ADD_PROP
@@ -7701,11 +7701,11 @@ CTcSymbol *CTcPrsSymtab::find_or_def(const textchar_t *sym, size_t len,
             return entry;
         }
 
-        /* 
+        /*
          *   If there's no parent symbol table, the symbol is undefined.
          *   Add a new symbol according to the action parameter.  Note
          *   that we always add the new symbol at global scope, hence we
-         *   add it to 'curtab', not 'this'.  
+         *   add it to 'curtab', not 'this'.
          */
         if (curtab->get_parent() == 0)
         {
@@ -7737,7 +7737,7 @@ CTcSymbol *CTcPrsSymtab::find_or_def(const textchar_t *sym, size_t len,
                     /* use it as the new table entry */
                     entry = prop;
                 }
-                
+
                 /* show a warning if desired */
                 if (action == TCPRS_UNDEF_ADD_PROP)
                     G_tok->log_warning(TCERR_ASSUME_SYM_PROP, (int)len, sym);
@@ -7759,7 +7759,7 @@ CTcSymbol *CTcPrsSymtab::find_or_def(const textchar_t *sym, size_t len,
 /*
  *   Find a symbol.  If the symbol is already defined as a "weak" property,
  *   delete the existing symbol to make way for the overriding strong
- *   definition. 
+ *   definition.
  */
 CTcSymbol *CTcPrsSymtab::find_delete_weak(const char *name, size_t len)
 {
@@ -7782,22 +7782,22 @@ CTcSymbol *CTcPrsSymtab::find_delete_weak(const char *name, size_t len)
 
 
 /*
- *   Enumerate the entries in a symbol table 
+ *   Enumerate the entries in a symbol table
  */
 void CTcPrsSymtab::enum_entries(void (*func)(void *, CTcSymbol *),
                                 void *ctx)
 {
-    /* 
+    /*
      *   Ask the hash table to perform the enumeration.  We know that all
      *   of our entries in the symbol table are CTcSymbol objects, so we
      *   can coerce the callback function to the appropriate type without
-     *   danger. 
+     *   danger.
      */
     get_hashtab()->enum_entries((void (*)(void *, CVmHashEntry *))func, ctx);
 }
 
 /*
- *   Scan the symbol table for unreferenced local variables 
+ *   Scan the symbol table for unreferenced local variables
  */
 void CTcPrsSymtab::check_unreferenced_locals()
 {
@@ -7810,7 +7810,7 @@ void CTcPrsSymtab::check_unreferenced_locals()
 }
 
 /*
- *   Enumeration callback to check for unreferenced locals 
+ *   Enumeration callback to check for unreferenced locals
  */
 void CTcPrsSymtab::unref_local_cb(void *, CTcSymbol *sym)
 {
@@ -7820,11 +7820,11 @@ void CTcPrsSymtab::unref_local_cb(void *, CTcSymbol *sym)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Comma node 
+ *   Comma node
  */
 
 /*
- *   fold constants 
+ *   fold constants
  */
 CTcPrsNode *CTPNCommaBase::fold_binop()
 {
@@ -7835,15 +7835,15 @@ CTcPrsNode *CTPNCommaBase::fold_binop()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Addition parse node 
+ *   Addition parse node
  */
 
-/* 
+/*
  *   Fold constants.  We override the default fold_constants() for
  *   addition nodes because addition constancy can be affected by symbol
  *   resolution.  In particular, if we resolve symbols in a list, the list
  *   could turn constant, which could in turn make the result of an
- *   addition operator with the list as an operand turn constant.  
+ *   addition operator with the list as an operand turn constant.
  */
 CTcPrsNode *CTPNAddBase::fold_binop()
 {
@@ -7853,15 +7853,15 @@ CTcPrsNode *CTPNAddBase::fold_binop()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Subtraction parse node 
+ *   Subtraction parse node
  */
 
-/* 
+/*
  *   Fold constants.  We override the default fold_constants() for the
  *   subtraction node because subtraction constancy can be affected by
  *   symbol resolution.  In particular, if we resolve symbols in a list,
  *   the list could turn constant, which could in turn make the result of
- *   a subtraction operator with the list as an operand turn constant.  
+ *   a subtraction operator with the list as an operand turn constant.
  */
 CTcPrsNode *CTPNSubBase::fold_binop()
 {
@@ -7871,11 +7871,11 @@ CTcPrsNode *CTPNSubBase::fold_binop()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Equality Comparison parse node 
+ *   Equality Comparison parse node
  */
 
 /*
- *   fold constants 
+ *   fold constants
  */
 CTcPrsNode *CTPNEqBase::fold_binop()
 {
@@ -7885,11 +7885,11 @@ CTcPrsNode *CTPNEqBase::fold_binop()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Inequality Comparison parse node 
+ *   Inequality Comparison parse node
  */
 
 /*
- *   fold constants 
+ *   fold constants
  */
 CTcPrsNode *CTPNNeBase::fold_binop()
 {
@@ -7899,11 +7899,11 @@ CTcPrsNode *CTPNNeBase::fold_binop()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Logical AND parse node 
+ *   Logical AND parse node
  */
 
 /*
- *   fold constants 
+ *   fold constants
  */
 CTcPrsNode *CTPNAndBase::fold_binop()
 {
@@ -7913,11 +7913,11 @@ CTcPrsNode *CTPNAndBase::fold_binop()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Logical OR parse node 
+ *   Logical OR parse node
  */
 
 /*
- *   fold constants 
+ *   fold constants
  */
 CTcPrsNode *CTPNOrBase::fold_binop()
 {
@@ -7927,11 +7927,11 @@ CTcPrsNode *CTPNOrBase::fold_binop()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   NOT parse node 
+ *   NOT parse node
  */
 
 /*
- *   fold constants 
+ *   fold constants
  */
 CTcPrsNode *CTPNNotBase::fold_unop()
 {
@@ -7945,20 +7945,20 @@ CTcPrsNode *CTPNNotBase::fold_unop()
  *   Subscript parse node
  */
 
-/* 
+/*
  *   Fold constants.  We override the default fold_constants() for
  *   subscript nodes because subscript constancy can be affected by symbol
  *   resolution.  In particular, if we resolve symbols in a list, the list
  *   could turn constant, which could in turn make the result of a
- *   subscript operator with the list as an operand turn constant.  
+ *   subscript operator with the list as an operand turn constant.
  */
 /* ------------------------------------------------------------------------ */
 /*
- *   Equality Comparison parse node 
+ *   Equality Comparison parse node
  */
 
 /*
- *   fold constants 
+ *   fold constants
  */
 CTcPrsNode *CTPNSubscriptBase::fold_binop()
 {
@@ -7969,12 +7969,12 @@ CTcPrsNode *CTPNSubscriptBase::fold_binop()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parser Symbol Table Entry base class 
+ *   Parser Symbol Table Entry base class
  */
 
 /*
  *   Allocate symbol objects from the parse pool, since these objects have
- *   all of the lifespan characteristics of pool objects.  
+ *   all of the lifespan characteristics of pool objects.
  */
 void *CTcSymbolBase::operator new(size_t siz)
 {
@@ -7983,7 +7983,7 @@ void *CTcSymbolBase::operator new(size_t siz)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   function symbol entry base 
+ *   function symbol entry base
  */
 
 /*
@@ -8001,7 +8001,7 @@ CTcPrsNode *CTcSymFuncBase::fold_constant()
 }
 
 /*
- *   add an absolute fixup to my list 
+ *   add an absolute fixup to my list
  */
 void CTcSymFuncBase::add_abs_fixup(CTcDataStream *ds, ulong ofs)
 {
@@ -8010,7 +8010,7 @@ void CTcSymFuncBase::add_abs_fixup(CTcDataStream *ds, ulong ofs)
 }
 
 /*
- *   add an absolute fixup at the current stream offset 
+ *   add an absolute fixup at the current stream offset
  */
 void CTcSymFuncBase::add_abs_fixup(CTcDataStream *ds)
 {
@@ -8020,11 +8020,11 @@ void CTcSymFuncBase::add_abs_fixup(CTcDataStream *ds)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   local variable symbol entry base 
+ *   local variable symbol entry base
  */
 
 /*
- *   initialize 
+ *   initialize
  */
 CTcSymLocalBase::CTcSymLocalBase(const char *str, size_t len, int copy,
                                  int is_param, int var_num)
@@ -8060,7 +8060,7 @@ CTcSymLocalBase::CTcSymLocalBase(const char *str, size_t len, int copy,
 }
 
 /*
- *   Mark the value of the variable as used 
+ *   Mark the value of the variable as used
  */
 void CTcSymLocalBase::set_val_used(int f)
 {
@@ -8086,36 +8086,36 @@ void CTcSymLocalBase::set_val_assigned(int f)
 }
 
 /*
- *   Check for references to this local 
+ *   Check for references to this local
  */
 void CTcSymLocalBase::check_local_references()
 {
     int err;
     tc_severity_t sev = TC_SEV_WARNING;
-    
-    /* 
+
+    /*
      *   if this isn't an original, but is simply a copy of a variable
      *   inherited from an enclosing scope (such as into an anonymous
      *   function), don't bother even checking for errors - we'll let the
-     *   original symbol take care of reporting its own errors 
+     *   original symbol take care of reporting its own errors
      */
     if (ctx_orig_ != 0)
         return;
 
-    /* 
+    /*
      *   Note if this is some kind of parameter.  Some parameters are
      *   represented as locals: varargs-list parameters, optional parameters,
      *   and named parameters.  We need to check for those kinds of
      *   parameters specifically because they otherwise look like regular
-     *   local variables.  
+     *   local variables.
      */
     int param = (is_param() || is_list_param()
                  || is_opt_param() || is_named_param());
 
-    /* 
+    /*
      *   If it's unreferenced or unassigned (or both), log an error; note
      *   that a formal parameter is always assigned, since the value is
-     *   assigned by the caller.  
+     *   assigned by the caller.
      */
     if (!get_val_used() && !get_val_assigned() && !param)
     {
@@ -8132,9 +8132,9 @@ void CTcSymLocalBase::check_local_references()
         }
         else
         {
-            /* 
+            /*
              *   this is a regular local with a value that was assigned and
-             *   never used 
+             *   never used
              */
             err = TCERR_UNUSED_LOCAL_ASSIGNMENT;
         }
@@ -8150,16 +8150,16 @@ void CTcSymLocalBase::check_local_references()
         return;
     }
 
-    /* 
+    /*
      *   display the warning message, showing the error location as the
-     *   source line where the local was defined 
+     *   source line where the local was defined
      */
     G_tcmain->log_error(get_src_desc(), get_src_linenum(),
                         sev, err, (int)get_sym_len(), get_sym());
 }
 
 /*
- *   create a new context variable copy of this symbol 
+ *   create a new context variable copy of this symbol
  */
 CTcSymbol *CTcSymLocalBase::new_ctx_var() const
 {
@@ -8173,20 +8173,20 @@ CTcSymbol *CTcSymLocalBase::new_ctx_var() const
     /* set up the context variable information */
     if (!is_ctx_local_)
     {
-        /* 
+        /*
          *   The original is a true local - we're at the first context
          *   level, and we don't yet have a property assigned, since we
          *   don't know if this variable is actually going to be
-         *   referenced. 
+         *   referenced.
          */
         lcl->set_ctx_level(1);
     }
     else
     {
-        /* 
+        /*
          *   The original was already a context variable - we're at one
          *   higher context level in this function, and we use the same
-         *   context property as the original did.  
+         *   context property as the original did.
          */
         lcl->set_ctx_level(ctx_level_ + 1);
     }
@@ -8196,16 +8196,16 @@ CTcSymbol *CTcSymLocalBase::new_ctx_var() const
 }
 
 /*
- *   Apply context variable conversion 
+ *   Apply context variable conversion
  */
 int CTcSymLocalBase::apply_ctx_var_conv(
     CTcPrsSymtab *symtab, CTPNCodeBody *code_body)
 {
-    /* 
+    /*
      *   if this symbol isn't referenced, simply delete it from the table,
      *   so that it doesn't get entered in the debug records; and there's
      *   no need to propagate it back to the enclosing scope as a context
-     *   variable, since it's not referenced from this enclosed scope 
+     *   variable, since it's not referenced from this enclosed scope
      */
     if (!referenced_)
     {
@@ -8216,18 +8216,18 @@ int CTcSymLocalBase::apply_ctx_var_conv(
         return FALSE;
     }
 
-    /* 
+    /*
      *   convert the symbol in the enclosing scope to a context local, if
-     *   it's not already 
+     *   it's not already
      */
     if (ctx_orig_ != 0)
     {
         /* convert the original to a context symbol */
         ctx_orig_->convert_to_ctx_var(get_val_used(), get_val_assigned());
 
-        /* 
+        /*
          *   ask the code body for the context object's local variable for
-         *   our recursion level 
+         *   our recursion level
          */
         ctx_var_num_ = code_body->get_or_add_ctx_var_for_level(ctx_level_);
 
@@ -8243,7 +8243,7 @@ int CTcSymLocalBase::apply_ctx_var_conv(
 }
 
 /*
- *   convert this variable to a context variable 
+ *   convert this variable to a context variable
  */
 void CTcSymLocalBase::convert_to_ctx_var(int val_used, int val_assigned)
 {
@@ -8253,11 +8253,11 @@ void CTcSymLocalBase::convert_to_ctx_var(int val_used, int val_assigned)
         /* mark myself as a context local */
         is_ctx_local_ = TRUE;
 
-        /* 
+        /*
          *   we haven't yet assigned our local context variable, since
          *   we're still processing the inner scope at this point; just
          *   store placeholders for now so we know to come back and fix
-         *   this up 
+         *   this up
          */
         ctx_var_num_ = 0;
         ctx_arr_idx_ = 0;
@@ -8271,22 +8271,22 @@ void CTcSymLocalBase::convert_to_ctx_var(int val_used, int val_assigned)
         set_val_used(TRUE);
     if (val_assigned)
         set_val_assigned(TRUE);
-        
+
     /* propagate the conversion to the original symbol */
     if (ctx_orig_ != 0)
         ctx_orig_->convert_to_ctx_var(val_used, val_assigned);
 }
 
 /*
- *   finish the context variable conversion 
+ *   finish the context variable conversion
  */
 void CTcSymLocalBase::finish_ctx_var_conv()
 {
-    /* 
+    /*
      *   If this isn't already marked as a context variable, there's
      *   nothing to do - this variable must not have been referenced from
      *   an anonymous function yet, and hence can be kept in the stack.
-     *   
+     *
      *   Similarly, if my context local variable number has been assigned
      *   already, there's nothing to do - we must have been set to refer
      *   back to a context variable in an enclosing scope (this can happen
@@ -8295,9 +8295,9 @@ void CTcSymLocalBase::finish_ctx_var_conv()
     if (!is_ctx_local_ || ctx_var_num_set_)
         return;
 
-    /* 
+    /*
      *   tell the parser to create a local context for this scope, if it
-     *   hasn't already 
+     *   hasn't already
      */
     G_prs->init_local_ctx();
 
@@ -8311,13 +8311,13 @@ void CTcSymLocalBase::finish_ctx_var_conv()
 }
 
 /*
- *   Get my context variable array index 
+ *   Get my context variable array index
  */
 int CTcSymLocalBase::get_ctx_arr_idx() const
 {
-    /* 
+    /*
      *   if I'm based on an original symbol from another scope, use the
-     *   same property ID as the original symbol 
+     *   same property ID as the original symbol
      */
     if (ctx_orig_ != 0)
         return ctx_orig_->get_ctx_arr_idx();
@@ -8328,11 +8328,11 @@ int CTcSymLocalBase::get_ctx_arr_idx() const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   object symbol entry base 
+ *   object symbol entry base
  */
 
 /*
- *   fold the symbol as a constant 
+ *   fold the symbol as a constant
  */
 CTcPrsNode *CTcSymObjBase::fold_constant()
 {
@@ -8349,7 +8349,7 @@ CTcPrsNode *CTcSymObjBase::fold_constant()
 }
 
 /*
- *   Add a superclass name entry.  
+ *   Add a superclass name entry.
  */
 void CTcSymObjBase::add_sc_name_entry(const char *txt, size_t len)
 {
@@ -8365,14 +8365,14 @@ void CTcSymObjBase::add_sc_name_entry(const char *txt, size_t len)
 }
 
 /*
- *   Check to see if I have a given superclass.  
+ *   Check to see if I have a given superclass.
  */
 int CTcSymObjBase::has_superclass(class CTcSymObj *sc_sym) const
 {
-    /* 
+    /*
      *   Scan my direct superclasses.  For each one, check to see if my
      *   superclass matches the given superclass, or if my superclass
-     *   inherits from the given superclass.  
+     *   inherits from the given superclass.
      */
     for (CTPNSuperclass *entry = sc_name_head_ ; entry != 0 ;
          entry = entry->nxt_)
@@ -8381,39 +8381,39 @@ int CTcSymObjBase::has_superclass(class CTcSymObj *sc_sym) const
         CTcSymObj *entry_sym = (CTcSymObj *)G_prs->get_global_symtab()->find(
             entry->get_sym_txt(), entry->get_sym_len());
 
-        /* 
+        /*
          *   if the entry's symbol doesn't exist or isn't an object symbol,
-         *   skip it 
+         *   skip it
          */
         if (entry_sym == 0 || entry_sym->get_type() != TC_SYM_OBJ)
             continue;
 
-        /* 
+        /*
          *   if it matches the given superclass, we've found the given
          *   superclass among our direct superclasses, so we definitely have
-         *   the given superclass 
+         *   the given superclass
          */
         if (entry_sym == sc_sym)
             return TRUE;
 
-        /* 
+        /*
          *   ask the symbol if the given class is among its direct or
          *   indirect superclasses - if it's a superclass of my superclass,
-         *   it's also my superclass 
+         *   it's also my superclass
          */
         if (entry_sym->has_superclass(sc_sym))
             return TRUE;
     }
 
-    /* 
+    /*
      *   we didn't find the given class anywhere among our superclasses or
-     *   their superclasses, so it must not be a superclass of ours 
+     *   their superclasses, so it must not be a superclass of ours
      */
     return FALSE;
 }
 
 /*
- *   Add a deleted property entry 
+ *   Add a deleted property entry
  */
 void CTcSymObjBase::add_del_prop_to_list(CTcObjPropDel **list_head,
                                          CTcSymProp *prop_sym)
@@ -8427,7 +8427,7 @@ void CTcSymObjBase::add_del_prop_to_list(CTcObjPropDel **list_head,
 }
 
 /*
- *   Add a self-reference fixup 
+ *   Add a self-reference fixup
  */
 void CTcSymObjBase::add_self_ref_fixup(CTcDataStream *stream, ulong ofs)
 {
@@ -8436,7 +8436,7 @@ void CTcSymObjBase::add_self_ref_fixup(CTcDataStream *stream, ulong ofs)
 }
 
 /*
- *   Add a word to my vocabulary 
+ *   Add a word to my vocabulary
  */
 void CTcSymObjBase::add_vocab_word(const char *txt, size_t len,
                                    tctarg_prop_id_t prop)
@@ -8450,7 +8450,7 @@ void CTcSymObjBase::add_vocab_word(const char *txt, size_t len,
 }
 
 /*
- *   Delete a vocabulary property from my list (for 'replace') 
+ *   Delete a vocabulary property from my list (for 'replace')
  */
 void CTcSymObjBase::delete_vocab_prop(tctarg_prop_id_t prop)
 {
@@ -8460,35 +8460,35 @@ void CTcSymObjBase::delete_vocab_prop(tctarg_prop_id_t prop)
     {
         /* remember the next entry */
         nxt = entry->nxt_;
-        
+
         /* if this entry is for the given property, unlink it */
         if (entry->prop_ == prop)
         {
-            /* 
+            /*
              *   it matches - unlink it from the list (note that we don't
              *   have to delete the entry, because it's allocated in
              *   parser memory and thus will be deleted when the parser is
-             *   deleted) 
+             *   deleted)
              */
             if (prv != 0)
                 prv->nxt_ = nxt;
             else
                 vocab_ = nxt;
 
-            /* 
+            /*
              *   this entry is no longer in any list (we don't really have
              *   to clear the 'next' pointer here, since nothing points to
              *   'entry' any more, but doing so will make it obvious that
              *   the entry was removed from the list, which could be handy
-             *   during debugging from time to time) 
+             *   during debugging from time to time)
              */
             entry->nxt_ = 0;
         }
         else
         {
-            /* 
+            /*
              *   this entry is still in the list, so it's now the previous
-             *   entry for our scan 
+             *   entry for our scan
              */
             prv = entry;
         }
@@ -8498,13 +8498,13 @@ void CTcSymObjBase::delete_vocab_prop(tctarg_prop_id_t prop)
 /*
  *   Add my words to the dictionary, associating the words with the given
  *   object.  This can be used to add my own words to the dictionary or to
- *   add my words to a subclass's dictionary.  
+ *   add my words to a subclass's dictionary.
  */
 void CTcSymObjBase::inherit_vocab()
 {
-    /* 
+    /*
      *   if I've already inherited my superclass vocabulary, there's
-     *   nothing more we need to do 
+     *   nothing more we need to do
      */
     if (vocab_inherited_)
         return;
@@ -8517,14 +8517,14 @@ void CTcSymObjBase::inherit_vocab()
     {
         /* make sure this superclass has built its inherited list */
         sc->sym_->inherit_vocab();
-        
+
         /* add this superclass's words to my list */
         sc->sym_->add_vocab_to_subclass((CTcSymObj *)this);
     }
 }
 
 /*
- *   Add my vocabulary words to the given subclass's vocabulary list 
+ *   Add my vocabulary words to the given subclass's vocabulary list
  */
 void CTcSymObjBase::add_vocab_to_subclass(CTcSymObj *sub)
 {
@@ -8538,23 +8538,23 @@ void CTcSymObjBase::add_vocab_to_subclass(CTcSymObj *sub)
 
 /*
  *   Set my base 'modify' object.  This tells us the object that we're
- *   modifying. 
+ *   modifying.
  */
 void CTcSymObjBase::set_mod_base_sym(CTcSymObj *sym)
 {
     /* remember the object I'm modifying */
     mod_base_sym_ = sym;
 
-    /* 
+    /*
      *   set the other object's link back to me, so it knows that I'm the
-     *   object that's modifying it 
+     *   object that's modifying it
      */
     if (sym != 0)
         sym->set_modifying_sym((CTcSymObj *)this);
 }
 
 /*
- *   Get the appropriate stream for a given metaclass 
+ *   Get the appropriate stream for a given metaclass
  */
 CTcDataStream *CTcSymObjBase::get_stream_from_meta(tc_metaclass_t meta)
 {
@@ -8575,7 +8575,7 @@ CTcDataStream *CTcSymObjBase::get_stream_from_meta(tc_metaclass_t meta)
 }
 
 /*
- *   Add a class-specific template 
+ *   Add a class-specific template
  */
 void CTcSymObjBase::add_template(CTcObjTemplate *tpl)
 {
@@ -8589,11 +8589,11 @@ void CTcSymObjBase::add_template(CTcObjTemplate *tpl)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   metaclass symbol   
+ *   metaclass symbol
  */
 
 /*
- *   add a property 
+ *   add a property
  */
 void CTcSymMetaclassBase::add_prop(
     const char *txt, size_t len, const char *obj_fname, int is_static)
@@ -8606,10 +8606,10 @@ void CTcSymMetaclassBase::add_prop(
         /* it's already defined - make sure it's a property */
         if (prop_sym->get_type() != TC_SYM_PROP)
         {
-            /* 
+            /*
              *   it's something other than a property - log the
              *   appropriate type of error, depending on whether we're
-             *   loading this from an object file or from source code 
+             *   loading this from an object file or from source code
              */
             if (obj_fname == 0)
             {
@@ -8635,31 +8635,31 @@ void CTcSymMetaclassBase::add_prop(
         G_prs->get_global_symtab()->add_entry(prop_sym);
     }
 
-    /* 
+    /*
      *   if we found a valid property symbol, add it to the metaclass
-     *   property list 
+     *   property list
      */
     if (prop_sym != 0)
     {
-        /* 
+        /*
          *   mark the symbol as referenced - even if we don't directly
-         *   make use of it, the metaclass table references this symbol 
+         *   make use of it, the metaclass table references this symbol
          */
         prop_sym->mark_referenced();
-        
+
         /* add the property to the metaclass list */
         add_prop(prop_sym, is_static);
     }
 }
 
 /*
- *   add a property 
+ *   add a property
  */
 void CTcSymMetaclassBase::add_prop(class CTcSymProp *prop, int is_static)
 {
     /* create a new list entry for the property */
     CTcSymMetaProp *entry = new (G_prsmem) CTcSymMetaProp(prop, is_static);
-    
+
     /* link it at the end of our list */
     if (prop_tail_ != 0)
         prop_tail_->nxt_ = entry;
@@ -8687,11 +8687,11 @@ CTcSymMetaProp *CTcSymMetaclassBase::get_nth_prop(int n) const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   property symbol entry base 
+ *   property symbol entry base
  */
 
 /*
- *   fold an address constant 
+ *   fold an address constant
  */
 CTcPrsNode *CTcSymPropBase::fold_addr_const()
 {
@@ -8709,7 +8709,7 @@ CTcPrsNode *CTcSymPropBase::fold_addr_const()
  */
 
 /*
- *   fold the symbol as a constant 
+ *   fold the symbol as a constant
  */
 CTcPrsNode *CTcSymEnumBase::fold_constant()
 {
@@ -8724,7 +8724,7 @@ CTcPrsNode *CTcSymEnumBase::fold_constant()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parser dictionary hash table entry 
+ *   Parser dictionary hash table entry
  */
 
 /*
@@ -8743,7 +8743,7 @@ void CVmHashEntryPrsDict::add_item(tc_obj_id obj, tc_prop_id prop)
 
     /* not found - create a new item */
     item = new (G_prsmem) CTcPrsDictItem(obj, prop);
-    
+
     /* link it into my list */
     item->nxt_ = list_;
     list_ = item;
@@ -8752,11 +8752,11 @@ void CVmHashEntryPrsDict::add_item(tc_obj_id obj, tc_prop_id prop)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Code Body Parse Node 
+ *   Code Body Parse Node
  */
 
 /*
- *   instantiate 
+ *   instantiate
  */
 CTPNCodeBodyBase::CTPNCodeBodyBase(
     CTcPrsSymtab *lcltab, CTcPrsSymtab *gototab, CTPNStm *stm,
@@ -8806,9 +8806,9 @@ CTPNCodeBodyBase::CTPNCodeBodyBase(
     start_desc_ = 0;
     start_linenum_ = 0;
 
-    /* 
+    /*
      *   remember the source location of the closing brace, which should
-     *   be the current location when we're instantiated 
+     *   be the current location when we're instantiated
      */
     end_desc_ = G_tok->get_last_desc();
     end_linenum_ = G_tok->get_last_linenum();
@@ -8816,13 +8816,13 @@ CTPNCodeBodyBase::CTPNCodeBodyBase(
 
 
 /*
- *   fold constants 
+ *   fold constants
  */
 CTcPrsNode *CTPNCodeBodyBase::fold_constants(class CTcPrsSymtab *)
 {
-    /* 
+    /*
      *   fold constants in our compound statement, in the scope of our
-     *   local symbol table 
+     *   local symbol table
      */
     if (stm_ != 0)
         stm_->fold_constants(lcltab_);
@@ -8832,20 +8832,20 @@ CTcPrsNode *CTPNCodeBodyBase::fold_constants(class CTcPrsSymtab *)
 }
 
 /*
- *   Check for unreferenced labels 
+ *   Check for unreferenced labels
  */
 void CTPNCodeBodyBase::check_unreferenced_labels()
 {
-    /* 
+    /*
      *   enumerate our labels - skip this check if we're only parsing the
-     *   program for syntax 
+     *   program for syntax
      */
     if (gototab_ != 0 && !G_prs->get_syntax_only())
         gototab_->enum_entries(&unref_label_cb, this);
 }
 
 /*
- *   Callback for enumerating labels for checking for unreferenced labels 
+ *   Callback for enumerating labels for checking for unreferenced labels
  */
 void CTPNCodeBodyBase::unref_label_cb(void *, CTcSymbol *sym)
 {
@@ -8854,24 +8854,24 @@ void CTPNCodeBodyBase::unref_label_cb(void *, CTcSymbol *sym)
     {
         CTcSymLabel *lbl = (CTcSymLabel *)sym;
 
-        /* 
+        /*
          *   get its underlying statement, and make sure it has a
-         *   control-flow flag for goto, continue, or break 
+         *   control-flow flag for goto, continue, or break
          */
         if (lbl->get_stm() != 0)
         {
             ulong flags;
 
-            /* 
+            /*
              *   get the explicit control flow flags for this statement --
              *   these flags indicate the use of the label in a goto,
-             *   break, or continue statement 
+             *   break, or continue statement
              */
             flags = lbl->get_stm()->get_explicit_control_flow_flags();
 
-            /* 
+            /*
              *   if the flags aren't set for at least one of the explicit
-             *   label uses, the label is unreferenced 
+             *   label uses, the label is unreferenced
              */
             if ((flags & (TCPRS_FLOW_GOTO | TCPRS_FLOW_BREAK
                           | TCPRS_FLOW_CONT)) == 0)
@@ -8883,7 +8883,7 @@ void CTPNCodeBodyBase::unref_label_cb(void *, CTcSymbol *sym)
 }
 
 /*
- *   add an absolute fixup to my list 
+ *   add an absolute fixup to my list
  */
 void CTPNCodeBodyBase::add_abs_fixup(CTcDataStream *ds, ulong ofs)
 {
@@ -8892,7 +8892,7 @@ void CTPNCodeBodyBase::add_abs_fixup(CTcDataStream *ds, ulong ofs)
 }
 
 /*
- *   add an absolute fixup at the current stream offset 
+ *   add an absolute fixup at the current stream offset
  */
 void CTPNCodeBodyBase::add_abs_fixup(CTcDataStream *ds)
 {
@@ -8901,7 +8901,7 @@ void CTPNCodeBodyBase::add_abs_fixup(CTcDataStream *ds)
 }
 
 /*
- *   Get the context variable for a given level 
+ *   Get the context variable for a given level
  */
 int CTPNCodeBodyBase::get_or_add_ctx_var_for_level(int level)
 {
@@ -8916,14 +8916,14 @@ int CTPNCodeBodyBase::get_or_add_ctx_var_for_level(int level)
 
     /* we didn't find it - allocate a new level structure */
     ctx = new (G_prsmem) CTcCodeBodyCtx();
-    
+
     /* set up its level and allocate a new variable and property for it */
     ctx->level_ = level;
     ctx->var_num_ = G_prs->alloc_ctx_holder_var();
 
-    /* 
+    /*
      *   allocating a new variable probably increased the maximum local
-     *   variable count - update our information from the parser 
+     *   variable count - update our information from the parser
      */
     local_cnt_ = G_prs->get_max_local_cnt();
 
@@ -8941,7 +8941,7 @@ int CTPNCodeBodyBase::get_or_add_ctx_var_for_level(int level)
 }
 
 /*
- *   Find a local context for a given level 
+ *   Find a local context for a given level
  */
 int CTPNCodeBodyBase::get_ctx_var_for_level(int level, int *varnum)
 {
@@ -8974,13 +8974,13 @@ int CTPNCodeBodyBase::get_ctx_var_for_level(int level, int *varnum)
 }
 
 /*
- *   Get the immediately enclosing code body 
+ *   Get the immediately enclosing code body
  */
 CTPNCodeBody *CTPNCodeBodyBase::get_enclosing() const
 {
-    /* 
+    /*
      *   if we have no enclosing code body reference, we have no enclosing
-     *   code body 
+     *   code body
      */
     if (enclosing_code_body_ == 0)
         return 0;
@@ -8990,16 +8990,16 @@ CTPNCodeBody *CTPNCodeBodyBase::get_enclosing() const
 }
 
 /*
- *   Get the outermost enclosing code body 
+ *   Get the outermost enclosing code body
  */
 CTPNCodeBody *CTPNCodeBodyBase::get_outermost_enclosing() const
 {
     CTPNCodeBody *cur;
     CTPNCodeBody *nxt;
 
-    /* 
+    /*
      *   scan each enclosing code body until we find one without an enclosing
-     *   code body 
+     *   code body
      */
     for (cur = 0, nxt = get_enclosing() ; nxt != 0 ;
          cur = nxt, nxt = nxt->get_enclosing()) ;
@@ -9011,7 +9011,7 @@ CTPNCodeBody *CTPNCodeBodyBase::get_outermost_enclosing() const
 /*
  *   Get the base function symbol for a code body defining a modified
  *   function (i.e., 'modify <funcname>...').  This is the function to which
- *   'replaced' refers within this code body and within nested code bodies.  
+ *   'replaced' refers within this code body and within nested code bodies.
  */
 class CTcSymFunc *CTPNCodeBodyBase::get_replaced_func() const
 {
@@ -9022,10 +9022,10 @@ class CTcSymFunc *CTPNCodeBodyBase::get_replaced_func() const
     if ((b = get_func_sym()) != 0)
         return b->get_mod_base();
 
-    /* 
+    /*
      *   if we have an enclosing code body, then 'replaced' here means the
      *   same thing it does there, since we don't explicitly replace anything
-     *   here 
+     *   here
      */
     if ((enc = get_enclosing()) != 0)
         return enc->get_replaced_func();
@@ -9036,11 +9036,11 @@ class CTcSymFunc *CTPNCodeBodyBase::get_replaced_func() const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Anonymous function 
+ *   Anonymous function
  */
 
 /*
- *   mark as replaced/obsolete 
+ *   mark as replaced/obsolete
  */
 void CTPNAnonFuncBase::set_replaced(int flag)
 {
@@ -9050,11 +9050,11 @@ void CTPNAnonFuncBase::set_replaced(int flag)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Generic statement node 
+ *   Generic statement node
  */
 
-/* 
- *   initialize at the tokenizer's current source file position 
+/*
+ *   initialize at the tokenizer's current source file position
  */
 CTPNStmBase::CTPNStmBase()
 {
@@ -9062,8 +9062,8 @@ CTPNStmBase::CTPNStmBase()
     init(G_prs->get_cur_desc(), G_prs->get_cur_linenum());
 }
 
-/* 
- *   log an error at this statement's source file position 
+/*
+ *   log an error at this statement's source file position
  */
 void CTPNStmBase::log_error(int errnum, ...) const
 {
@@ -9075,8 +9075,8 @@ void CTPNStmBase::log_error(int errnum, ...) const
     va_end(marker);
 }
 
-/* 
- *   log a warning at this statement's source file position 
+/*
+ *   log a warning at this statement's source file position
  */
 void CTPNStmBase::log_warning(int errnum, ...) const
 {
@@ -9089,7 +9089,7 @@ void CTPNStmBase::log_warning(int errnum, ...) const
 }
 
 /*
- *   Generate code for a sub-statement 
+ *   Generate code for a sub-statement
  */
 void CTPNStmBase::gen_code_substm(CTPNStm *substm)
 {
@@ -9109,8 +9109,8 @@ void CTPNStmBase::gen_code_substm(CTPNStm *substm)
  *   superclass record
  */
 
-/* 
- *   get my symbol 
+/*
+ *   get my symbol
  */
 CTcSymbol *CTPNSuperclass::get_sym() const
 {
@@ -9123,23 +9123,23 @@ CTcSymbol *CTPNSuperclass::get_sym() const
 }
 
 /*
- *   am I a subclass of the given class?  
+ *   am I a subclass of the given class?
  */
 int CTPNSuperclass::is_subclass_of(const CTPNSuperclass *other) const
 {
-    /* 
+    /*
      *   if my name matches, we're a subclass (we are a subclass of
-     *   ourselves) 
+     *   ourselves)
      */
     if (other->sym_len_ == sym_len_
         && memcmp(other->sym_txt_, sym_txt_, sym_len_) == 0)
         return TRUE;
 
-    /* 
+    /*
      *   We're a subclass if any of our superclasses are subclasses of the
      *   given object.  Get my object symbol, and make sure it's really a
      *   tads-object - if it's not, we're definitely not a subclass of
-     *   anything.  
+     *   anything.
      */
     CTcSymObj *sym = (CTcSymObj *)get_sym();
     if (sym == 0
@@ -9151,17 +9151,17 @@ int CTPNSuperclass::is_subclass_of(const CTPNSuperclass *other) const
     for (CTPNSuperclass *sc = sym->get_sc_name_head() ;
          sc != 0 ; sc = sc->nxt_)
     {
-        /* 
+        /*
          *   if this one's a subclass of the given class, we're a subclass
-         *   as well, since we're a subclass of this superclass 
+         *   as well, since we're a subclass of this superclass
          */
         if (sc->is_subclass_of(other))
             return TRUE;
     }
 
-    /* 
+    /*
      *   we didn't find any superclass that's a subclass of the given
-     *   class, so we're not a subclass of the given class 
+     *   class, so we're not a subclass of the given class
      */
     return FALSE;
 }
@@ -9169,11 +9169,11 @@ int CTPNSuperclass::is_subclass_of(const CTPNSuperclass *other) const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   'return' statement 
+ *   'return' statement
  */
 
 /*
- *   fold constants 
+ *   fold constants
  */
 CTcPrsNode *CTPNStmReturnBase::fold_constants(CTcPrsSymtab *symtab)
 {
@@ -9190,12 +9190,12 @@ CTcPrsNode *CTPNStmReturnBase::fold_constants(CTcPrsSymtab *symtab)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Formal type list 
+ *   Formal type list
  */
 
-/* 
+/*
  *   add a typed parameter to the list - 'tok' is the symbol giving the type
- *   name 
+ *   name
  */
 void CTcFormalTypeList::add_typed_param(const CTcToken *tok)
 {
@@ -9220,9 +9220,9 @@ void CTcFormalTypeList::add(CTcFormalTypeEle *ele)
     ele->nxt_ = 0;
 }
 
-/* 
+/*
  *   create a decorated name token for the multi-method defined by the given
- *   function name and our type list 
+ *   function name and our type list
  */
 void CTcFormalTypeList::decorate_name(CTcToken *decorated_name,
                                       const CTcToken *func_base_name)
@@ -9230,7 +9230,7 @@ void CTcFormalTypeList::decorate_name(CTcToken *decorated_name,
     CTcFormalTypeEle *ele;
     size_t len;
     const char *p;
-    
+
     /* figure out how much space we need for the decorated name */
     for (len = func_base_name->get_text_len() + 1, ele = head_ ;
          ele != 0 ; ele = ele->nxt_)

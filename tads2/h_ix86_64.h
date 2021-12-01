@@ -1,10 +1,10 @@
 /* $Header: d:/cvsroot/tads/TADS2/H_IX86.H,v 1.2 1999/05/17 02:52:12 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1998, 2008 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -26,9 +26,9 @@ Modified
 #endif
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   Define local covers for the 32-bit and 16-bit integer types.
- *   
+ *
  *   For some of our operations, we need to translate between the local
  *   native types and the portable types.  The portable types are explicitly
  *   defined with exact byte sizes and byte orderings.  One way to do these
@@ -38,15 +38,15 @@ Modified
  *   have native types that match our portable types in size and byte order,
  *   so the efficient way to do the translations is simply to use the correct
  *   native type that corresponds to each portable type.
- *   
+ *
  *   That's the purpose of these definitions - since the portable types are
  *   of specific sizes, we need to map the native type that exactly matches
  *   each portable type.
- *   
+ *
  *   This is complicated by a *second* level of mapping, which is from C
  *   types (short, int, long) to native types (WORD, DWORD, QWORD): this
  *   mapping can vary by compiler.
- *   
+ *
  *   So, our typedefs here are designed to give us the correct mapping from C
  *   types to portable types, by taking into account the way our compiler
  *   maps from C to native.

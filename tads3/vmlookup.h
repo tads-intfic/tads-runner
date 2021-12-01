@@ -1,18 +1,18 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 2001, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmlookup.h - LookupTable metaclass
 Function
-  
+
 Notes
-  
+
 Modified
   02/06/01 MJRoberts  - Creation
 */
@@ -32,7 +32,7 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   The image file data block is arranged as follows:
- *   
+ *
  *.  UINT2 bucket_count
  *.  UINT2 value_count
  *.  UINT2 first_free_index
@@ -46,35 +46,35 @@ Modified
  *.  value[N]
  *.  --- the following are only used in version 030003 and later ---
  *.  DATAHOLDER default_value
- *   
+ *
  *   value_count gives the number of value slots allocated.  Free value slots
  *   are kept in a linked list, the head of which is at the 1-based index
  *   given by first_free_index.  If first_free_index is zero, there are no
  *   free value slots.
- *   
+ *
  *   Each bucket_index[i] is the 1-based index of the first value in the
  *   chain for that hash bucket.  If the value in a bucket_index[i] is zero,
  *   there are values for that bucket.
- *   
+ *
  *   Each free entry has a VM_EMPTY value stored in its key to indicate that
  *   it's empty.
- *   
+ *
  *   Each value[i] looks like this:
- *   
+ *
  *.  DATAHOLDER key
  *.  DATAHOLDER value
  *.  UINT2 next_index
- *   
+ *
  *   next_index gives the 1-based index of the next value in the chain for
  *   that bucket; a value of zero indicates that this is the last value in
  *   the chain.
- *   
+ *
  *   For version 030003 and later, additional data MAY be supplied.  This can
  *   be detected by checking the data block size: if more bytes follow the
  *   last value slot, the extended version 030003 elements are present.
- *   
+ *
  *   default_value is the default value to return when the table is indexed
- *   by a key that doesn't exist in the table.  This is nil by default.  
+ *   by a key that doesn't exist in the table.  This is nil by default.
  */
 
 /* value entry size */
@@ -82,7 +82,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   in-memory value entry structure 
+ *   in-memory value entry structure
  */
 struct vm_lookup_val
 {
@@ -98,7 +98,7 @@ struct vm_lookup_val
 
 /*
  *   Our in-memory extension data structure, which mimics the image file
- *   structure but uses native types.  
+ *   structure but uses native types.
  */
 struct vm_lookup_ext
 {
@@ -106,31 +106,31 @@ struct vm_lookup_ext
     static vm_lookup_ext *alloc_ext(VMG_ class CVmObjLookupTable *self,
                                     uint bucket_cnt, uint value_cnt);
 
-    /* 
+    /*
      *   Initialize the extension - puts all values into the free list and
      *   clears all buckets.  We don't do this automatically as part of
      *   allocation, because some types of allocation set up the buckets and
      *   free list from a known data set and thus are more efficient if they
-     *   skip the initialization step. 
+     *   skip the initialization step.
      */
     void init_ext();
 
-    /* 
+    /*
      *   Reallocate the structure with a larger number of values.  Copies
      *   all of the data from the original hash table into the new hash
-     *   table, and deletes the old structure.  
+     *   table, and deletes the old structure.
      */
     static vm_lookup_ext *expand_ext(VMG_ class CVmObjLookupTable *self,
                                      vm_lookup_ext *old_ext,
                                      uint new_value_cnt);
 
-    /* 
+    /*
      *   Copy the given extension's data into myself.  This can only be used
      *   when we have the same bucket count as the original (the entry count
      *   need not be the same, but it must be large enough to hold all of
      *   the data from the original).
-     *   
-     *   This loses any data previously in the table.  
+     *
+     *   This loses any data previously in the table.
      */
     void copy_ext_from(vm_lookup_ext *old_ext);
 
@@ -151,9 +151,9 @@ struct vm_lookup_ext
         return entry;
     }
 
-    /* 
+    /*
      *   Add a value into the given hash bucket.  The caller is responsible
-     *   for ensuring there's enough room. 
+     *   for ensuring there's enough room.
      */
     void add_val(uint hash, const vm_val_t *key, const vm_val_t *val)
     {
@@ -169,11 +169,11 @@ struct vm_lookup_ext
         buckets[hash] = entry;
     }
 
-    /* 
+    /*
      *   Given a pool index, retrieve a value entry from our pool of value
      *   entries.  This has nothing to do with the hash bucket lists or the
      *   free list - this is simply the nth entry in the master pool of all
-     *   values.  
+     *   values.
      */
     vm_lookup_val *idx_to_val(uint idx) const
     {
@@ -192,10 +192,10 @@ struct vm_lookup_ext
         return (val - idx_to_val(0));
     }
 
-    /* 
+    /*
      *   Convert an image-file or save-file index to a value pointer.  These
      *   are given as 1-based pointers, with the special value zero used to
-     *   indicate a null pointer. 
+     *   indicate a null pointer.
      */
     vm_lookup_val *img_idx_to_val(uint idx) const
     {
@@ -208,9 +208,9 @@ struct vm_lookup_ext
     /* convert a value pointer to an image file index */
     uint val_to_img_idx(vm_lookup_val *val)
     {
-        /* 
+        /*
          *   use zero for a null pointer; otherwise, use a 1-based index in
-         *   our master value pool 
+         *   our master value pool
          */
         if (val == 0)
             return 0;
@@ -225,29 +225,29 @@ struct vm_lookup_ext
     /* pointer to the first free value */
     vm_lookup_val *first_free;
 
-    /* 
+    /*
      *   default value - this is returned when we index the table by a key
-     *   that doesn't exist in the table 
+     *   that doesn't exist in the table
      */
     vm_val_t default_value;
 
-    /* 
+    /*
      *   buckets (we overallocate the structure to make room): each bucket
-     *   points to the first entry in the list of entries at this hash value 
+     *   points to the first entry in the list of entries at this hash value
      */
     vm_lookup_val *buckets[1];
 };
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   undo action codes 
+/*
+ *   undo action codes
  */
 enum lookuptab_undo_action
 {
-    /* 
+    /*
      *   null record - we use this to mark a record that has become
-     *   irrelevant because of a stale weak reference 
+     *   irrelevant because of a stale weak reference
      */
     LOOKUPTAB_UNDO_NULL,
 
@@ -267,7 +267,7 @@ enum lookuptab_undo_action
 
 /* ------------------------------------------------------------------------ */
 /*
- *   LookupTable metaclass 
+ *   LookupTable metaclass
  */
 
 class CVmObjLookupTable: public CVmObjCollection
@@ -275,7 +275,7 @@ class CVmObjLookupTable: public CVmObjCollection
     friend class CVmObjIterLookupTable;
     friend class CVmMetaclassLookupTable;
     friend class CVmObjWeakRefLookupTable;
-    
+
 public:
     /* metaclass registration object */
     static class CVmMetaclass *metaclass_reg_;
@@ -301,9 +301,9 @@ public:
     static vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr,
                                          uint argc);
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -335,9 +335,9 @@ public:
     int get_prop(VMG_ vm_prop_id_t prop, vm_val_t *val,
                  vm_obj_id_t self, vm_obj_id_t *source_obj, uint *argc);
 
-    /* 
+    /*
      *   receive savepoint notification - we don't keep any
-     *   savepoint-relative records, so we don't need to do anything here 
+     *   savepoint-relative records, so we don't need to do anything here
      */
     void notify_new_savept() { }
 
@@ -374,10 +374,10 @@ public:
     void restore_from_file(VMG_ vm_obj_id_t self,
                            class CVmFile *fp, class CVmObjFixup *fixups);
 
-    /* 
+    /*
      *   determine if we've been changed since loading - assume we have (if
      *   we haven't, the only harm is the cost of unnecessarily reloading or
-     *   saving) 
+     *   saving)
      */
     int is_changed_since_load() const { return TRUE; }
 
@@ -394,7 +394,7 @@ public:
                         vm_obj_id_t self,
                         const vm_val_t *index_val,
                         const vm_val_t *new_val);
-    
+
     /* add an entry - does not generate undo */
     void add_entry(VMG_ const vm_val_t *key, const vm_val_t *val);
 
@@ -433,7 +433,7 @@ protected:
 
     /* create a new object as a copy of this object */
     vm_obj_id_t create_copy(VMG0_);
-    
+
     /* add an entry, generating undo */
     void add_entry_undo(VMG_ vm_obj_id_t self,
                         const vm_val_t *key, const vm_val_t *val);
@@ -441,29 +441,29 @@ protected:
     /* delete an entry - does not generate undo */
     void del_entry(VMG_ const vm_val_t *key);
 
-    /* 
+    /*
      *   Unlink an entry - does not generate undo.  'prv_entry' is the
      *   previous entry in the hash chain containing this entry, and
      *   'hashval' is the bucket containing the entry.  Pass null for
      *   'prv_entry' when the entry to unlink is the first entry in its hash
-     *   chain.  
+     *   chain.
      */
     void unlink_entry(VMG_ vm_lookup_val *entry, uint hashval,
                       vm_lookup_val *prv_entry);
-    
-    /* 
+
+    /*
      *   modify an entry - changes the value associated with the given key;
-     *   does not generate undo 
+     *   does not generate undo
      */
     void mod_entry(VMG_ const vm_val_t *key, const vm_val_t *val);
 
     /* find an entry */
     vm_lookup_val *find_entry(VMG_ const vm_val_t *key,
                               uint *hashval_p, vm_lookup_val **prv_entry_p);
-    
+
     /*
      *   Check the table to make sure there's enough free space to add one
-     *   new item, and expand the table if necessary.  
+     *   new item, and expand the table if necessary.
      */
     void expand_if_needed(VMG0_);
 
@@ -509,12 +509,12 @@ protected:
     /* create a lookup table with no initial contents */
     CVmObjLookupTable() { ext_ = 0; }
 
-    /* 
+    /*
      *   Create a lookup table with a given number of hash table buckets,
      *   and the given number of entry slots.  The hash table bucket count
      *   is fixed for the life of the object.  The entry slot count is
      *   merely advisory: the table size will be increased as necessary to
-     *   accommodate new elements.  
+     *   accommodate new elements.
      */
     CVmObjLookupTable(VMG_ size_t hash_count, size_t entry_count);
 
@@ -551,7 +551,7 @@ protected:
 
     /* make a list of all of the values in the table */
     int getp_vals_to_list(VMG_ vm_obj_id_t self, vm_val_t *val, uint *argc);
-    
+
     /* get the default value */
     int getp_get_def_val(VMG_ vm_obj_id_t self, vm_val_t *val, uint *argc);
 
@@ -568,10 +568,10 @@ protected:
     /* get the nth value */
     int getp_nthVal(VMG_ vm_obj_id_t self, vm_val_t *val, uint *argc);
 
-    /* 
+    /*
      *   Get the nth element's key and/or value.  This only counts in-use
      *   buckets.  If idx is zero, we return the default value.  If idx is
-     *   out of range, we throw an error. 
+     *   out of range, we throw an error.
      */
     void get_nth_ele(VMG_ vm_val_t *key, vm_val_t *val,
                      vm_obj_id_t self, long idx);
@@ -594,7 +594,7 @@ protected:
 /* ------------------------------------------------------------------------ */
 /*
  *   WeakRefLookupTable - a subclass of LookupTable that places weak
- *   references on its values.  The keys are still strong references. 
+ *   references on its values.  The keys are still strong references.
  */
 class CVmObjWeakRefLookupTable: public CVmObjLookupTable
 {
@@ -621,9 +621,9 @@ public:
     static vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr,
                                          uint argc);
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -656,7 +656,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   LookupTable Registration table object 
+ *   LookupTable Registration table object
  */
 class CVmMetaclassLookupTable: public CVmMetaclass
 {
@@ -736,36 +736,36 @@ public:
 /*
  *   LookupTable Iterator subclass.  This iterator is tightly coupled with
  *   the LookupTable class, since we must look into the internal
- *   implementation of the LookupTable to implement an iterator on it.  
+ *   implementation of the LookupTable to implement an iterator on it.
  */
 
 /*
  *   The extension data for an lookup table iterator consists of a reference
  *   to the associated LookupTable object, the current bucket index, and the
  *   index of the current entry.
- *   
+ *
  *   DATAHOLDER lookuptable_value
  *.  UINT2 cur_entry_index (1-based; zero is invalid)
  *.  UINT2 flags
- *   
+ *
  *   The flag values are:
- *   
+ *
  *   VMOBJITERLOOKUPTABLE_UNDO - we've saved undo for this savepoint.  If
- *   this is set, we won't save additional undo for the same savepoint.  
+ *   this is set, we won't save additional undo for the same savepoint.
  */
 
 /* total extension size */
 #define VMOBJITERLOOKUPTABLE_EXT_SIZE  (VMB_DATAHOLDER + 2 + 2)
 
-/* 
- *   flag bits 
+/*
+ *   flag bits
  */
 
 /* we've saved undo for the current savepoint */
 #define VMOBJITERLOOKUPTABLE_UNDO   0x0001
 
 /*
- *   LookupTable iterator class 
+ *   LookupTable iterator class
  */
 class CVmObjIterLookupTable: public CVmObjIter
 {
@@ -784,9 +784,9 @@ public:
                 || CVmObjIter::is_of_metaclass(meta));
     }
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -797,16 +797,16 @@ public:
 
     /*
      *   Create a lookup table iterator.  This method is to be called by the
-     *   lookup table to create an iterator for its value.  
+     *   lookup table to create an iterator for its value.
      */
     static vm_obj_id_t create_for_coll(VMG_ const vm_val_t *coll);
 
     /* notify of deletion */
     void notify_delete(VMG_ int in_root_set);
 
-    /* 
+    /*
      *   notify of a new savepoint - clear the 'undo' flag, since we cannot
-     *   have created any undo information yet for the new savepoint 
+     *   have created any undo information yet for the new savepoint
      */
     void notify_new_savept()
         { set_flags(get_flags() & ~VMOBJITERLOOKUPTABLE_UNDO); }
@@ -831,9 +831,9 @@ public:
     void reload_from_image(VMG_ vm_obj_id_t self,
                            const char *ptr, size_t siz);
 
-    /* 
+    /*
      *   determine if the object has been changed since it was loaded -
-     *   assume we have 
+     *   assume we have
      */
     int is_changed_since_load() const { return TRUE; }
 

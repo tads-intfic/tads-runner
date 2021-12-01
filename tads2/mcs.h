@@ -2,11 +2,11 @@
 $Header: d:/cvsroot/tads/TADS2/MCS.H,v 1.2 1999/05/17 02:52:12 MJRoberts Exp $
 */
 
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -47,7 +47,7 @@ struct mcsdsdef
 
 /*
  *   mcsseg - swap segment handle.  All swap-file segments are addressed
- *   through this handle type.  
+ *   through this handle type.
  */
 typedef ushort mcsseg;
 
@@ -89,7 +89,7 @@ void mcsclose(struct mcscxdef *ctx);
  */
 mcsseg mcsout(struct mcscxdef *ctx, uint objid, uchar *objptr,
               ushort objsize, mcsseg oldswapseg, int dirty);
-            
+
 /* Swap an object in */
 void mcsin(struct mcscxdef *ctx, mcsseg swapseg, uchar *objptr, ushort size);
 

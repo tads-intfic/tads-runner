@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/MCS.C,v 1.2 1999/05/17 02:52:12 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -36,17 +36,17 @@ void mcsini(mcscxdef *ctx, mcmcx1def *gmemctx, ulong maxsiz,
     uchar  *p;
 
     ctx->mcscxtab = (mcsdsdef **)0;                   /* anticipate failure */
-    
+
     /* allocate space from the low-level heap for page table and one page */
     p = mchalo(errctx, ((MCSPAGETAB * sizeof(mcsdsdef *))
                         + (MCSPAGECNT * sizeof(mcsdsdef))), "mcsini");
-    
+
     /* set up the context with pointers to this chunk */
     ctx->mcscxtab = (mcsdsdef **)p;
     memset(p, 0, (size_t)(MCSPAGETAB * sizeof(mcsdsdef *)));
     p += MCSPAGETAB * sizeof(mcsdsdef *);
     ctx->mcscxtab[0] = (mcsdsdef *)p;
-    
+
     /* set up the rest of the context */
     ctx->mcscxtop = (ulong)0;
     ctx->mcscxmax = maxsiz;
@@ -55,9 +55,9 @@ void mcsini(mcscxdef *ctx, mcmcx1def *gmemctx, ulong maxsiz,
     ctx->mcscxerr = errctx;
     ctx->mcscxmem = gmemctx;
 
-    /* 
+    /*
      *   store the swap filename - make a copy so that the caller doesn't
-     *   have to retain the original copy (in case it's on the stack) 
+     *   have to retain the original copy (in case it's on the stack)
      */
     if (swapfilename != 0)
     {
@@ -95,17 +95,17 @@ static void mcscompact(mcscxdef *ctx)
     uint      rdsiz;
     ulong     ptr_in;
     ulong     ptr_out;
-    
+
     max = 0;                            /* start at offset zero within file */
     for (cur_in = cur_out = 0 ; cur_in < ctx->mcscxmsg ; ++cur_in)
     {
         desc_in = mcsdsc(ctx, cur_in);
-        
+
         /*
          *   If the present descriptor's address is wrong, and the swap
          *   segment is in use, move the swap segment.  If it's not in
          *   use, we don't need to move it, because we're going to throw
-         *   away the segment entirely.  
+         *   away the segment entirely.
          */
         if (desc_in->mcsdsptr != max
             && (desc_in->mcsdsflg & MCSDSFINUSE))
@@ -113,7 +113,7 @@ static void mcscompact(mcscxdef *ctx)
             /* ptr_in is the old location, ptr_out is the new location */
             ptr_in = desc_in->mcsdsptr;
             ptr_out = max;
-            
+
             /* copy through our buffer */
             for (siz = desc_in->mcsdsosz ; siz ; siz -= rdsiz)
             {
@@ -123,20 +123,20 @@ static void mcscompact(mcscxdef *ctx)
                 /* seek to old location and get the piece */
                 osfseek(ctx->mcscxfp, ptr_in, OSFSK_SET);
                 (void)osfrb(ctx->mcscxfp, buf, (size_t)rdsiz);
-                
+
                 /* seek to new location and write the piece */
                 osfseek(ctx->mcscxfp, ptr_out, OSFSK_SET);
                 (void)osfwb(ctx->mcscxfp, buf, (size_t)rdsiz);
-                
+
                 /* adjust the pointers by the size copied */
                 ptr_in += rdsiz;
                 ptr_out += rdsiz;
             }
         }
-        
+
         /* adjust object descriptor to reflect new location */
         desc_in->mcsdsptr = max;
-        
+
         /*
          *   Make current object's size exact if it's in use.  If it's
          *   not in use, delete the segment altogether.
@@ -145,18 +145,18 @@ static void mcscompact(mcscxdef *ctx)
         {
             desc_in->mcsdssiz = desc_in->mcsdsosz;
             max += desc_in->mcsdssiz;
-            
+
             /* copy descriptor to correct position to close any holes */
             if (cur_out != cur_in)
             {
                 desc_out = mcsdsc(ctx, cur_out);
                 OSCPYSTRUCT(*desc_out, *desc_in);
-                
+
                 /* we need to renumber the corresponding object as well */
                 mcmcsw(ctx->mcscxmem, (mcmon)desc_in->mcsdsobj,
                        cur_out, cur_in);
             }
-            
+
             /* we actually wrote this one, so move output pointer */
             ++cur_out;
         }
@@ -164,13 +164,13 @@ static void mcscompact(mcscxdef *ctx)
         {
             /*
              *   We need to renumber the corresponding object so that it
-             *   knows there is no swap segment for it any more.  
+             *   knows there is no swap segment for it any more.
              */
             mcmcsw(ctx->mcscxmem, (mcmon)desc_in->mcsdsobj,
                    MCSSEGINV, cur_in);
         }
     }
-    
+
     /*
      *   Adjust the top of the file for our new size, and add the savings
      *   into the available space counter.  Also, adjust the total handle
@@ -192,10 +192,10 @@ mcsseg mcsout(mcscxdef *ctx, uint objid, uchar *ptr, ushort siz,
     mcsseg     min;
     mcsseg     cur;
     ushort     minsiz;
-    
+
     IF_DEBUG(printf("<< mcsout: objid=%d, ptr=%lx, siz=%u, oldseg=%u >>\n",
                     objid, (unsigned long)ptr, siz, oldseg));
-    
+
     /* see if old segment can be reused */
     if (oldseg != MCSSEGINV)
     {
@@ -210,7 +210,7 @@ mcsseg mcsout(mcscxdef *ctx, uint objid, uchar *ptr, ushort siz,
             return(oldseg);
         }
     }
-    
+
     /* look for the smallest unused segment big enough for this object */
     for (cur = 0, min = MCSSEGINV, i = 0, pagep = ctx->mcscxtab
          ; cur < ctx->mcscxmsg && i < MCSPAGETAB && *pagep ; ++pagep, ++i)
@@ -230,7 +230,7 @@ mcsseg mcsout(mcscxdef *ctx, uint objid, uchar *ptr, ushort siz,
         /* quit if we found an exact match */
         if (min != MCSSEGINV && minsiz == siz) break;
     }
-    
+
     /* if we found nothing, allocate a new segment if possible */
     if (min == MCSSEGINV)
     {
@@ -241,14 +241,14 @@ mcsseg mcsout(mcscxdef *ctx, uint objid, uchar *ptr, ushort siz,
             if (siz > ctx->mcscxmax)
                 errsig(ctx->mcscxerr, ERR_SWAPBIG);
         }
-            
+
         min = ctx->mcscxmsg;
         if ((min >> 8) >= MCSPAGETAB)      /* exceeded pages in page table? */
             errsig(ctx->mcscxerr, ERR_SWAPPG);
-        
+
         if (!ctx->mcscxtab[min >> 8])         /* haven't allocate page yet? */
         {
-            ctx->mcscxtab[min >> 8] = 
+            ctx->mcscxtab[min >> 8] =
                 (mcsdsdef *)mchalo(ctx->mcscxerr,
                                    (MCSPAGECNT * sizeof(mcsdsdef)),
                                    "mcsout");
@@ -268,7 +268,7 @@ mcsseg mcsout(mcscxdef *ctx, uint objid, uchar *ptr, ushort siz,
         ctx->mcscxtop += siz;             /* add to top seek offset in file */
         ctx->mcscxmax -= siz;                     /* take size out of quota */
         ctx->mcscxmsg++;                /* increment last segment allocated */
-        
+
         return(min);
     }
     else
@@ -299,16 +299,16 @@ void mcsin(mcscxdef *ctx, mcsseg seg, uchar *ptr, ushort siz)
         errsig(ctx->mcscxerr, ERR_FSEEK);
     if (osfrb(ctx->mcscxfp, ptr, (size_t)siz))
         errsig(ctx->mcscxerr, ERR_FREAD);
-    
+
     desc->mcsdsflg &= ~MCSDSFINUSE;             /* segment no longer in use */
 }
 
 void mcswrt(mcscxdef *ctx, mcsdsdef *desc, uchar *buf, ushort bufl)
 {
     int tries;
-    
+
     desc->mcsdsosz = bufl;
-    
+
     for (tries = 0 ; tries < 2 ; ++tries)
     {
         /* attempt to write the object to the swap file */
@@ -316,11 +316,11 @@ void mcswrt(mcscxdef *ctx, mcsdsdef *desc, uchar *buf, ushort bufl)
             errsig(ctx->mcscxerr, ERR_FSEEK);
         if (!osfwb(ctx->mcscxfp, buf, (size_t)bufl))
             return;
-        
+
         /* couldn't write it; compact the swap file */
         mcscompact(ctx);
     }
-    
+
     /* couldn't write to swap file, even after compacting it */
     errsig(ctx->mcscxerr, ERR_FWRITE);
 }

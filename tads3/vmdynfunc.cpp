@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2010 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmdynfunc.cpp - DynamicFunc implementation
 Function
-  
+
 Notes
-  
+
 Modified
   12/13/09 MJRoberts  - Creation
 */
@@ -68,25 +68,25 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Allocate an extension structure 
+ *   Allocate an extension structure
  */
 vm_dynfunc_ext *vm_dynfunc_ext::alloc_ext(
     VMG_ CVmDynamicFunc *self, size_t bytecode_len, int obj_ref_cnt)
 {
-    /* 
+    /*
      *   Calculate how much space we need: we need the base structure, plus
      *   space for the object references, plus the dynamic object header, and
-     *   the byte code array.  
+     *   the byte code array.
      */
     size_t siz = sizeof(vm_dynfunc_ext)
                  + (obj_ref_cnt - 1)*sizeof_field(vm_dynfunc_ext, obj_refs[0])
                  + VMCO_PREFIX_LENGTH
                  + bytecode_len;
-    
+
     /* allocate the memory */
     vm_dynfunc_ext *ext = (vm_dynfunc_ext *)G_mem->get_var_heap()->alloc_mem(
         siz, self);
-    
+
     /* remember the sizes */
     ext->obj_ref_cnt = obj_ref_cnt;
     ext->bytecode_len = bytecode_len;
@@ -103,7 +103,7 @@ vm_dynfunc_ext *vm_dynfunc_ext::alloc_ext(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   DynamicFunc statics 
+ *   DynamicFunc statics
  */
 
 /* metaclass registration object */
@@ -120,7 +120,7 @@ int (CVmDynamicFunc::*CVmDynamicFunc::func_table_[])(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   DynamicFunc metaclass implementation 
+ *   DynamicFunc metaclass implementation
  */
 
 /*
@@ -135,7 +135,7 @@ CVmDynamicFunc::CVmDynamicFunc(VMG_ vm_obj_id_t self, const vm_val_t *src,
 
     /* store it in the object */
     ext_ = (char *)ext;
-    
+
     /* save the source value */
     if (src != 0)
         ext->src = *src;
@@ -145,7 +145,7 @@ CVmDynamicFunc::CVmDynamicFunc(VMG_ vm_obj_id_t self, const vm_val_t *src,
 }
 
 /*
- *   create 
+ *   create
  */
 vm_obj_id_t CVmDynamicFunc::create(VMG_ int in_root_set,
                                    vm_obj_id_t globals,
@@ -173,7 +173,7 @@ vm_obj_id_t CVmDynamicFunc::create(VMG_ int in_root_set,
 
 
 /*
- *   create 
+ *   create
  */
 vm_obj_id_t CVmDynamicFunc::create(VMG_ int in_root_set,
                                    vm_obj_id_t globals, vm_obj_id_t locals,
@@ -195,7 +195,7 @@ vm_obj_id_t CVmDynamicFunc::create(VMG_ int in_root_set,
 /*
  *   Create dynamically using stack arguments.  This takes the source code as
  *   a string, compiles it, and creates a DynamicFunc encapsulating the byte
- *   code.  
+ *   code.
  */
 vm_obj_id_t CVmDynamicFunc::create_from_stack(
     VMG_ const uchar **pc_ptr, uint argc)
@@ -250,8 +250,8 @@ vm_obj_id_t CVmDynamicFunc::create_from_stack(
     return id;
 }
 
-/* 
- *   notify of deletion 
+/*
+ *   notify of deletion
  */
 void CVmDynamicFunc::notify_delete(VMG_ int /*in_root_set*/)
 {
@@ -261,15 +261,15 @@ void CVmDynamicFunc::notify_delete(VMG_ int /*in_root_set*/)
 }
 
 /*
- *   Retrieve a DynamicFunc ID from a bytecode method prefix 
+ *   Retrieve a DynamicFunc ID from a bytecode method prefix
  */
 vm_obj_id_t CVmDynamicFunc::get_obj_from_prefix(VMG_ const uchar *p)
 {
-    /* 
+    /*
      *   A DynamicFunc stores a method header prefix just before the start of
      *   the header, and the prefix stores the associated DynamicFunc ID.
      *   Read the prefix header.
-     *   
+     *
      *   (Technically, this has some risk of reading outside the bounds of
      *   valid program memory, because we don't know the origin of 'p'.
      *   Callers should never attempt calling this routine with arbitrary
@@ -277,7 +277,7 @@ vm_obj_id_t CVmDynamicFunc::get_obj_from_prefix(VMG_ const uchar *p)
      *   method headers, AND that aren't part of the static Code Pool.  The
      *   only other kind of valid method header pointer is a DynamicFunc, so
      *   as long as callers obey these rules this dereference should be
-     *   safe.)  
+     *   safe.)
      */
     vm_obj_id_t id = vmb_get_objid((const char *)p - VMCO_PREFIX_LENGTH);
 
@@ -289,9 +289,9 @@ vm_obj_id_t CVmDynamicFunc::get_obj_from_prefix(VMG_ const uchar *p)
     if (!is_dynfunc_obj(vmg_ id))
         return VM_INVALID_OBJ;
 
-    /* 
+    /*
      *   It's a valid DynamicFunc: verify that it's really the one it claims
-     *   to be.  If it is, the object's bytecode pointer should match 'p'.  
+     *   to be.  If it is, the object's bytecode pointer should match 'p'.
      */
     CVmDynamicFunc *co = (CVmDynamicFunc *)vm_objp(vmg_ id);
     if (co->get_ext()->get_bytecode_ptr() == (const char *)p)
@@ -304,38 +304,38 @@ vm_obj_id_t CVmDynamicFunc::get_obj_from_prefix(VMG_ const uchar *p)
     return VM_INVALID_OBJ;
 }
 
-/* 
- *   get a property 
+/*
+ *   get a property
  */
 int CVmDynamicFunc::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                              vm_obj_id_t self, vm_obj_id_t *source_obj,
                              uint *argc)
 {
     uint func_idx;
-    
+
     /* translate the property into a function vector index */
     func_idx = G_meta_table
                ->prop_to_vector_idx(metaclass_reg_->get_reg_idx(), prop);
-    
+
     /* call the appropriate function */
     if ((this->*func_table_[func_idx])(vmg_ self, retval, argc))
     {
         *source_obj = metaclass_reg_->get_class_obj(vmg0_);
         return TRUE;
     }
-    
+
     /* inherit default handling from our base class */
     return CVmObject::get_prop(vmg_ prop, retval, self, source_obj, argc);
 }
 
 /*
- *   Invoke 
+ *   Invoke
  */
 int CVmDynamicFunc::get_invoker(VMG_ vm_val_t *val)
 {
-    /* 
+    /*
      *   Return a pointer to the start of our byte code.  The actual method
-     *   header starts after our prefix.  
+     *   header starts after our prefix.
      */
     if (val != 0)
         val->set_codeptr(get_ext()->get_bytecode_ptr());
@@ -344,18 +344,18 @@ int CVmDynamicFunc::get_invoker(VMG_ vm_val_t *val)
     return TRUE;
 }
 
-/* 
+/*
  *   Index the object.
- *   
+ *
  *   A DynamicFunc is an invokee, and as such it can be referenced by
  *   generated code for special internal operations.  We use indexing to
  *   retrieve special information:
- *   
+ *
  *   [1] is the 'self' object or method context object for the enclosing
  *   stack frame.  The compiler uses this to establish the method context for
  *   a dynamic method that's compiled in the context of an enclosing frame,
  *   in analogy to an anonymous function that accesses its enclosing lexical
- *   scope's method context.  
+ *   scope's method context.
  */
 int CVmDynamicFunc::index_val_q(VMG_ vm_val_t *result,
                                 vm_obj_id_t self,
@@ -383,8 +383,8 @@ int CVmDynamicFunc::index_val_q(VMG_ vm_val_t *result,
     AFTER_ERR_THROW(return TRUE;)
 }
 
-/* 
- *   load from an image file 
+/*
+ *   load from an image file
  */
 void CVmDynamicFunc::load_from_image(VMG_ vm_obj_id_t self,
                                      const char *ptr, size_t siz)
@@ -392,15 +392,15 @@ void CVmDynamicFunc::load_from_image(VMG_ vm_obj_id_t self,
     /* load our image data */
     load_image_data(vmg_ self, ptr, siz);
 
-    /* 
+    /*
      *   save our image data pointer in the object table, so that we can
-     *   access it (without storing it ourselves) during a reload 
+     *   access it (without storing it ourselves) during a reload
      */
     G_obj_table->save_image_pointer(self, ptr, siz);
 }
 
 /*
- *   reload from the image file 
+ *   reload from the image file
  */
 void CVmDynamicFunc::reload_from_image(VMG_ vm_obj_id_t self,
                                        const char *ptr, size_t siz)
@@ -410,7 +410,7 @@ void CVmDynamicFunc::reload_from_image(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   load or reload data from the image 
+ *   load or reload data from the image
  */
 void CVmDynamicFunc::load_image_data(VMG_ vm_obj_id_t self,
                                      const char *ptr, size_t siz)
@@ -453,8 +453,8 @@ void CVmDynamicFunc::load_image_data(VMG_ vm_obj_id_t self,
 }
 
 
-/* 
- *   save to a file 
+/*
+ *   save to a file
  */
 void CVmDynamicFunc::save_to_file(VMG_ class CVmFile *fp)
 {
@@ -483,14 +483,14 @@ void CVmDynamicFunc::save_to_file(VMG_ class CVmFile *fp)
         fp->write_uint2(ext->obj_refs[i]);
 }
 
-/* 
- *   restore from a file 
+/*
+ *   restore from a file
  */
 void CVmDynamicFunc::restore_from_file(VMG_ vm_obj_id_t self,
                                        CVmFile *fp, CVmObjFixup *fixups)
 {
     char buf[VMB_DATAHOLDER];
-    
+
     /* free our existing extension, if we have one */
     if (ext_ != 0)
         G_mem->get_var_heap()->free_mem(ext_);
@@ -533,17 +533,17 @@ void CVmDynamicFunc::restore_from_file(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   mark references 
+ *   mark references
  */
 void CVmDynamicFunc::mark_refs(VMG_ uint state)
 {
-    /* 
+    /*
      *   Get my extension, and only proceed if it's non-empty.  For most
      *   object types this isn't an issue, because the only time we create
      *   empty objects of most types is during loading, when gc is disabled.
      *   But we do create long-lived empty code objects in the course of
      *   compilation, because we need a placeholder for the object ID ahead
-     *   of the compilation.  
+     *   of the compilation.
      */
     vm_dynfunc_ext *ext = get_ext();
     if (ext != 0)
@@ -560,11 +560,11 @@ void CVmDynamicFunc::mark_refs(VMG_ uint state)
         char *bc = ext->get_bytecode_ptr();
         for (int i = 0 ; i < ext->obj_ref_cnt ; ++i)
         {
-            /* 
+            /*
              *   Read the object ID from the bytecode.  The obj_refs[] array
              *   entry isn't the actual reference, but rather the offset of
              *   the reference in the bytecode stream.  The reference itself
-             *   is a portable OBJECT_ID field.  
+             *   is a portable OBJECT_ID field.
              */
             vm_obj_id_t ref = vmb_get_objid(bc + ext->obj_refs[i]);
             G_obj_table->mark_all_refs(ref, state);
@@ -573,7 +573,7 @@ void CVmDynamicFunc::mark_refs(VMG_ uint state)
 }
 
 
-/* 
+/*
  *   property evaluator - get the source code string
  */
 int CVmDynamicFunc::getp_get_source(VMG_ vm_obj_id_t self,
@@ -626,7 +626,7 @@ public:
     const char *get_error_msg() const { return errmsg_; }
 
     /*
-     *   CTcHostIfc interface 
+     *   CTcHostIfc interface
      */
 
     /* display an informational message */
@@ -648,10 +648,10 @@ public:
         char *f = t3vsprintf_alloc(msg, args);
         if (f == 0)
             return;
-        
+
         /* get the length */
         size_t len = strlen(f);
-        
+
         /* expand our buffer if necessary */
         size_t curlen = p_ - errmsg_;
         size_t need = curlen + len + 1;
@@ -661,15 +661,15 @@ public:
             char *newbuf = (char *)t3realloc(errmsg_, erralo_);
             if (newbuf == 0)
                 return;
-            
+
             /* switch to the new buffer */
             errmsg_ = newbuf;
             p_ = errmsg_ + curlen;
         }
-        
+
         /* append the message */
         memcpy(p_, f, len + 1);
-        
+
         /* bump the write pointer */
         p_ += len;
 
@@ -697,12 +697,12 @@ private:
  *   will work.  The actual compiler symbols retrieved from
  *   t3GetGlobalSymbols() can be used, or the program can provide its own
  *   custom symbol table.
- *   
+ *
  *   We implement the symbol table as a view of the user-code object, with
  *   caching in our own hash table.  To match the interface, we have to
  *   create a CTcSymbol object for each symbol we successfully look up.
  *   Rather than creating redundant copies of these objects, we cache them in
- *   our own hash table.  
+ *   our own hash table.
  */
 class CVmDynFuncSymtab: public CTcPrsSymtab
 {
@@ -727,7 +727,7 @@ public:
         if (ret != 0)
             return ret;
 
-        /* 
+        /*
          *   Didn't find it - check the user-code tables.
          */
 
@@ -753,7 +753,7 @@ public:
         G_tok->log_error(TCERR_RT_CANNOT_DEFINE_GLOBALS,
                          (int)sym->get_sym_len(), sym->get_sym());
     }
-    
+
 private:
     /* look up a symbol in our local symbol table */
     CTcSymbol *find_local(const textchar_t *sym, size_t len)
@@ -765,10 +765,10 @@ private:
         /* establish access to globals */
         VMGLOB_PTR(gptr_);
 
-        /* 
+        /*
          *   if it's a StackFrameDesc object, look up the symbol; otherwise
          *   try to treat it as a list-like object, and check each element of
-         *   the list 
+         *   the list
          */
         if (CVmObjFrameDesc::is_framedesc_obj(vmg_ locals_))
         {
@@ -780,7 +780,7 @@ private:
             /* assume it's a list - set up an object value */
             vm_val_t lt;
             lt.set_obj(locals_);
-            
+
             /* check each list element */
             int n = lt.ll_length(vmg0_);
             for (int i = 1 ; i <= n ; ++i)
@@ -840,7 +840,7 @@ private:
 
         /* presume we won't find a symbol */
         CTcSymbol *ret = 0;
-        
+
         /* establish access to globals */
         VMGLOB_PTR(gptr_);
 
@@ -861,9 +861,9 @@ private:
             /* it's an object - map it to CTcSymObj or CTcSymMetaclass */
             if (CVmObjClass::is_intcls_obj(vmg_ symval.val.obj))
             {
-                /* 
+                /*
                  *   it's an IntrinsicClass object - this represents a
-                 *   metaclass, so map it to a CTcSymMetaclass symbol 
+                 *   metaclass, so map it to a CTcSymMetaclass symbol
                  */
                 CVmObjClass *cl = (CVmObjClass *)vm_objp(vmg_ symval.val.obj);
                 ret = new CTcSymMetaclass(sym, len, FALSE,
@@ -872,19 +872,19 @@ private:
             }
             else if (vm_objp(vmg_ symval.val.obj)->get_invoker(vmg_ 0))
             {
-                /* 
+                /*
                  *   it's an invokable object - create a function-like object
-                 *   symbol for it 
+                 *   symbol for it
                  */
                 ret = new CTcSymFuncObj(sym, len, FALSE, symval.val.obj,
                                         FALSE, TC_META_UNKNOWN, 0);
             }
             else
             {
-                /* 
+                /*
                  *   It's not an IntrinsicClass object, so it's a regular
                  *   CTcSymObj symbol.  Check for special metaclasses that
-                 *   the compiler is aware of.  
+                 *   the compiler is aware of.
                  */
                 tc_metaclass_t meta = TC_META_UNKNOWN;
 
@@ -939,7 +939,7 @@ private:
                 /* decode the function pointer */
                 ushort set_idx = symval.val.bifptr.set_idx;
                 ushort func_idx = symval.val.bifptr.func_idx;
-                
+
                 /* get the function descriptor */
                 const vm_bif_desc *desc =
                     G_bif_table->get_desc(set_idx, func_idx);
@@ -958,9 +958,9 @@ private:
             break;
 
         default:
-            /* 
+            /*
              *   it's either not in the table or it's not a type we can map
-             *   to a compiler symbol - return 'not found' 
+             *   to a compiler symbol - return 'not found'
              */
             ret = 0;
             break;
@@ -986,7 +986,7 @@ private:
 /*
  *   Dynamic compiler macro table.  This works a lot like our global symbol
  *   table, to provide program-defined macros to the tokenizer during dynamic
- *   compilation.  
+ *   compilation.
  */
 class CVmDynFuncMacros:  public CTcMacroTable
 {
@@ -1005,7 +1005,7 @@ public:
     CVmHashEntry *find(const char *sym, size_t len)
     {
         CVmHashEntry *entry;
-        
+
         /* first, check to see if it's our underlying table */
         entry = hash_.find(sym, len);
         if (entry != 0)
@@ -1039,7 +1039,7 @@ public:
             const char **argv = 0;
             size_t *argvlen = 0;
             int i;
-            
+
             /* the first element is the expansion string */
             CVmObjList::index_list(vmg_ &ele, lst, 1);
             if ((exp = ele.get_as_string(vmg0_)) == 0)
@@ -1131,7 +1131,7 @@ private:
 /* ------------------------------------------------------------------------ */
 /*
  *   Grammar production alternative parser - compiler interface for dynamic
- *   compilation 
+ *   compilation
  */
 class CTcGramAltFuncsDyn: public CTcGramAltFuncs
 {
@@ -1166,9 +1166,9 @@ public:
         }
         else
         {
-            /* 
+            /*
              *   undefined - we can't add it for dynamic compilation, so log
-             *   an error 
+             *   an error
              */
             if (show_err)
             {
@@ -1185,26 +1185,26 @@ public:
     /* declare a grammar production symbol */
     CTcGramProdEntry *declare_gramprod(const char *txt, size_t len)
     {
-        /* 
+        /*
          *   we can't create symbols in the dynamic compiler - log an error
-         *   and return failure 
+         *   and return failure
          */
         G_tok->log_error(TCERR_UNDEF_SYM, (int)len, txt);
         return 0;
     }
 
-    /* 
+    /*
      *   Check an enum for use as a production token.  For dynamic
      *   compilation, we don't enforce the 'enum token' requirement that the
      *   static compiler applies, because we don't have any information on
-     *   the 'enum token' attribute in the basic run-time symbol table. 
+     *   the 'enum token' attribute in the basic run-time symbol table.
      */
     void check_enum_tok(class CTcSymEnum *) { }
 
-    /* 
+    /*
      *   EOF in the middle of an alternative - when we're parsing a
      *   stand-alone grammar rule list, the rule list is the whole input
-     *   text, so EOF just means we've reached the end 
+     *   text, so EOF just means we've reached the end
      */
     void on_eof(int * /*err*/) { }
 
@@ -1215,7 +1215,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Dynamic compiler interface to the VM. 
+ *   Dynamic compiler interface to the VM.
  */
 class CVmDynFuncVMIfc: public CTcVMIfc
 {
@@ -1299,7 +1299,7 @@ public:
             val.set_obj(CVmObjBigNum::create(
                 vmg_ FALSE, c->get_val_float(), c->get_val_float_len()));
             break;
-                
+
         case TC_CVT_LIST:
         case TC_CVT_FUNCPTR:
         case TC_CVT_ANONFUNCPTR:
@@ -1396,7 +1396,7 @@ public:
 protected:
     /* number of objects we've pushed for gc protection */
     int gc_cnt;
-    
+
     /* VM globals */
     vm_globals *vmg;
 };
@@ -1404,7 +1404,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Dynamic compiler results object 
+ *   Dynamic compiler results object
  */
 
 /* throw an error based on the results */
@@ -1425,7 +1425,7 @@ void CVmDynCompResults::throw_error(VMG0_)
         /* no message - push a nil argument */
         G_stk->push()->set_nil();
     }
-    
+
     /* throw the error */
     G_interpreter->throw_new_class(vmg_ G_predef->compiler_exc, 1,
                                    "code compilation failed");
@@ -1434,12 +1434,12 @@ void CVmDynCompResults::throw_error(VMG0_)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Dynamic Compiler Interface 
+ *   Dynamic Compiler Interface
  */
 
 
 /*
- *   Construction 
+ *   Construction
  */
 CVmDynamicCompiler::CVmDynamicCompiler(VMG0_)
 {
@@ -1449,10 +1449,10 @@ CVmDynamicCompiler::CVmDynamicCompiler(VMG0_)
     /* initialize the compiler */
     CTcMain::init(hostifc_, G_host_ifc->get_sys_res_loader(), "utf8");
 
-    /* 
+    /*
      *   set up the compiler size globals from the corresponding load image
      *   size records, so that dynamically generated byte code conforms to
-     *   the image file settings 
+     *   the image file settings
      */
     G_sizes.mhdr = G_interpreter->get_funchdr_size();
     G_sizes.exc_entry = G_exc_entry_size;
@@ -1467,7 +1467,7 @@ CVmDynamicCompiler::CVmDynamicCompiler(VMG0_)
 }
 
 /*
- *   Destruction 
+ *   Destruction
  */
 CVmDynamicCompiler::~CVmDynamicCompiler()
 {
@@ -1479,7 +1479,7 @@ CVmDynamicCompiler::~CVmDynamicCompiler()
 }
 
 /*
- *   Get or create the global singleton instance. 
+ *   Get or create the global singleton instance.
  */
 CVmDynamicCompiler *CVmDynamicCompiler::get(VMG0_)
 {
@@ -1492,7 +1492,7 @@ CVmDynamicCompiler *CVmDynamicCompiler::get(VMG0_)
 }
 
 /*
- *   Compile source code 
+ *   Compile source code
  */
 vm_obj_id_t CVmDynamicCompiler::compile(
     VMG_ int in_root_set,
@@ -1509,20 +1509,20 @@ vm_obj_id_t CVmDynamicCompiler::compile(
     int frame_has_self = FALSE;
     CVmObjFrameDesc *framedesc = 0;
     CVmObjFrameRef *frameref = 0;
-    
-    /* 
+
+    /*
      *   save the parser memory pool state, so we can reset it when we're
      *   done (this allows us to discard any parser memory we allocate while
      *   we're working - we only need it while compiling, and can discard it
-     *   when we're done) 
+     *   when we're done)
      */
     tcprsmem_state_t prsmem_state;
     G_prsmem->save_state(&prsmem_state);
 
-    /* 
+    /*
      *   Set the local symbol table context.  If the caller provided a
      *   debugger context, use the debugger symbol table; otherwise there's
-     *   no local symbol context. 
+     *   no local symbol context.
      */
     CTcPrsDbgSymtab *old_symtab = G_prs->set_debug_symtab(
         dbg != 0 ? dbg->symtab : 0);
@@ -1537,7 +1537,7 @@ vm_obj_id_t CVmDynamicCompiler::compile(
     CVmDynFuncVMIfc vmifc Pvmg0_P;
     G_vmifc = &vmifc;
 
-    /* 
+    /*
      *   If there's no debugger context, set up the global symbol table and
      *   the new macro table.
      */
@@ -1551,7 +1551,7 @@ vm_obj_id_t CVmDynamicCompiler::compile(
         old_macros = G_tok->set_defines_table(
             new_macros = new CVmDynFuncMacros(vmg_ macros));
     }
-    
+
     /* presume no error will occur */
     int errcode = 0, errflag = FALSE;
     results->err = 0;
@@ -1563,33 +1563,33 @@ vm_obj_id_t CVmDynamicCompiler::compile(
     /* catch any errors that occur during parsing or code generation */
     err_try
     {
-        /* 
+        /*
          *   If there's a local stack frame object, note if it has a method
          *   context ('self', etc - it's sufficient to check that 'self' is
          *   not nil).  If so, code defined with 'function()' uses the method
          *   context of the enclosing stack frame, in analogy to an anonymous
          *   function using its enclosing lexical scope's method context.  If
-         *   we have multiple stack frames, consider only the innermost.  
+         *   we have multiple stack frames, consider only the innermost.
          */
         if (locals != VM_INVALID_OBJ)
         {
             /* presume we have just a single frame object */
             vm_obj_id_t frame = locals;
 
-            /* 
+            /*
              *   if it's not in fact a stack frame object, and it's
              *   list-like, it's a collection of frames ordered from
              *   innermost to outermost: so retrieve the first element to get
-             *   the innermost frame 
+             *   the innermost frame
              */
             CVmObject *localp = vm_objp(vmg_ locals);
             if (!CVmObjFrameDesc::is_framedesc_obj(vmg_ locals)
                 && localp->is_listlike(vmg_ locals)
                 && localp->ll_length(vmg_ locals) > 0)
             {
-                /* 
+                /*
                  *   it's a list - retrieve its first element; if that's an
-                 *   object, use it as the frame object 
+                 *   object, use it as the frame object
                  */
                 vm_val_t ele, v1;
                 v1.set_int(1);
@@ -1642,7 +1642,7 @@ vm_obj_id_t CVmDynamicCompiler::compile(
                     dbg->is_lval = node->check_lvalue_resolved(
                         G_prs->get_global_symtab());
                 }
-                
+
                 /* wrap it in a 'return' and a code body */
                 cb = new CTPNCodeBody(G_prs->get_global_symtab(), 0,
                                       new CTPNStmReturn(node),
@@ -1655,21 +1655,21 @@ vm_obj_id_t CVmDynamicCompiler::compile(
             break;
 
         case DCModeAuto:
-            /* 
+            /*
              *   Auto-sensing mode - parse a function or expression based on
              *   what the string looks like.
-             *   
+             *
              *   If the first token is 'function', we have a function
              *   definition of the form "function(args) { body }".  This is
              *   compiled as an ordinary function with no name.
-             *   
+             *
              *   If the first token is 'method', we have a method definition
              *   of the form "method(args) { body }".  This is compiled as a
              *   floating method definition with no name.
-             *   
+             *
              *   Otherwise, we have an expression.  We compile this as an
              *   expression, then wrap it in a "return" statement and a
-             *   function code body with zero arguments.  
+             *   function code body with zero arguments.
              */
             if (G_tok->cur() == TOKT_FUNCTION)
             {
@@ -1733,9 +1733,9 @@ vm_obj_id_t CVmDynamicCompiler::compile(
                 G_prs->parse_gram_alts(
                     &errflag, gram_obj, prod, &arrows, &funcs);
 
-                /* 
+                /*
                  *   if the parse was successful, send the parsed data back
-                 *   to the caller 
+                 *   to the caller
                  */
                 if (!errflag && G_tcmain->get_error_count() == 0)
                     results->save_grammar(vmg_ prod->get_alt_head(), &arrows);
@@ -1743,9 +1743,9 @@ vm_obj_id_t CVmDynamicCompiler::compile(
             break;
         }
 
-        /* 
+        /*
          *   if we didn't get a parse node out of the deal, or any compiler
-         *   errors occurred, fail 
+         *   errors occurred, fail
          */
         if (cb == 0 || errflag || G_tcmain->get_error_count() != 0)
             goto compilation_done;
@@ -1754,9 +1754,9 @@ vm_obj_id_t CVmDynamicCompiler::compile(
         coid = vm_new_id(vmg_ in_root_set, TRUE, FALSE);
         cb->set_dyn_obj_id(coid);
 
-        /* 
+        /*
          *   create a dummy object for it - we'll replace it with a real
-         *   object when actually generating the code 
+         *   object when actually generating the code
          */
         new (vmg_ coid) CVmDynamicFunc();
 
@@ -1794,17 +1794,17 @@ vm_obj_id_t CVmDynamicCompiler::compile(
          *   required if this is defined with 'function' rather than
          *   'method', and it references 'self' or other method context
          *   variables, and there's a local frame to use for the method
-         *   context. 
+         *   context.
          */
         if (frame_has_self
             && cb->is_dyn_func()
             && (cb->self_referenced() || cb->full_method_ctx_referenced()))
         {
-            /* 
+            /*
              *   We need the method context.  The context is simply the
              *   'self' object if the rest of the context wasn't referenced,
              *   otherwise it's the context object suitable for the LOADCTX
-             *   opcode.  
+             *   opcode.
              */
             vm_val_t mctx;
             if (cb->full_method_ctx_referenced())
@@ -1836,7 +1836,7 @@ vm_obj_id_t CVmDynamicCompiler::compile(
     {
         /* note the error code */
         errcode = exc->get_error_code();
-        
+
         /* if there were no logged errors, use the error from the exception */
         if (G_tcmain->get_error_count() == 0)
         {
@@ -1895,10 +1895,10 @@ done:
     /* we're done with the compiler's working state */
     G_prsmem->reset(&prsmem_state);
 
-    /* 
+    /*
      *   if there were logged compiler errors, and we haven't already
      *   returned an exception message, return the captured compiler error
-     *   messages from the host interface 
+     *   messages from the host interface
      */
     if (G_tcmain->get_error_count() != 0 && results->msgbuf == 0)
         results->msgbuf = lib_copy_str(hostifc_->get_error_msg());
@@ -1918,7 +1918,7 @@ done:
  *   Generate code for a parsed code body.  Parsing a single block of source
  *   code might yield multiple parsed code bodies, because anonymous
  *   functions and other nested structures require separate top-level code
- *   bodies.  
+ *   bodies.
  */
 int CVmDynamicCompiler::gen_code_body(
     VMG_ CTPNStmTop *node, const vm_val_t *srcval, CVmDynCompDebug *dbg)
@@ -1936,18 +1936,18 @@ int CVmDynamicCompiler::gen_code_body(
     if (node->fold_constants(G_prs->get_global_symtab()) == 0)
         return FALSE;
 
-    /* 
+    /*
      *   Make adjustments for dynamic compilation.  If the caller provided
      *   debugger evaluation options, use the dynamic adjustment options
-     *   specified there; otherwise use defaults.  
+     *   specified there; otherwise use defaults.
      */
     tcpn_dyncomp_info di;
     if (node->adjust_for_dyn(dbg != 0 ? &dbg->di : &di) == 0)
         return FALSE;
 
-    /* 
+    /*
      *   Set the code generation mode.  If we have debugger options, set
-     *   debug mode; otherwise set dynamic compilation mode.  
+     *   debug mode; otherwise set dynamic compilation mode.
      */
     if (dbg != 0)
         G_cg->set_debug_eval(dbg->di.speculative,
@@ -1955,17 +1955,17 @@ int CVmDynamicCompiler::gen_code_body(
     else
         G_cg->set_dyn_eval();
 
-    /* 
+    /*
      *   Keep object fixups - we need these to find object references in the
      *   generated bytecode.  We don't need property or enum fixups, since
      *   we're building against a loaded image file with all of those types
-     *   already resolved.  
+     *   already resolved.
      */
     G_keep_objfixups = TRUE;
-    
+
     /* make the global symbol table active for code generation */
     G_cs->set_symtab(G_prs->get_global_symtab());
-    
+
     /* generate the code */
     node->gen_code(FALSE, FALSE);
 
@@ -1979,7 +1979,7 @@ int CVmDynamicCompiler::gen_code_body(
      *   references in the generated code object, because the code object
      *   needs to manage them like any other object manages its live
      *   references: mark them during garbage collection, fix them up during
-     *   save/restore, etc.  
+     *   save/restore, etc.
      */
     int refcnt = 0;
     for (fixup = G_objfixup ; fixup != 0 ; fixup = fixup->nxt_)
@@ -1991,7 +1991,7 @@ int CVmDynamicCompiler::gen_code_body(
 
     /* figure the bytecode length for allocating the DynamicFunc instance */
     size_t bytecode_rem = (size_t)(G_cs->get_ofs() - start_ofs);
-    
+
     /* the caller already allocated our object ID - retrieve it */
     vm_obj_id_t coid = node->get_dyn_obj_id();
 

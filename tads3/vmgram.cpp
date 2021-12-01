@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmgram.cpp - T3 Grammar Production metaclass
 Function
-  
+
 Notes
-  
+
 Modified
   02/15/00 MJRoberts  - Creation
 */
@@ -48,7 +48,7 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   Grammar production object - undo record.  This records a deleted or
- *   replaced alternative at a given index.  
+ *   replaced alternative at a given index.
  */
 #define VMGRAM_UNDO_DELETED    1                 /* alternative was deleted */
 #define VMGRAM_UNDO_REPLACED   2                /* alternative was replaced */
@@ -87,14 +87,14 @@ struct vmgram_undo_rec
  *   then hands out pieces of those blocks.  Allocating is very cheap
  *   (just a pointer increment in most cases), and we don't track
  *   individual allocations and deletions but just throw away all
- *   suballocated memory at once.  
+ *   suballocated memory at once.
  */
 
 /* size of each memory block */
 const size_t VMGRAMPROD_MEM_BLOCK_SIZE = 16*1024;
 
 /*
- *   memory pool block 
+ *   memory pool block
  */
 struct CVmGramProdMemBlock
 {
@@ -106,7 +106,7 @@ struct CVmGramProdMemBlock
 };
 
 /*
- *   memory pool object 
+ *   memory pool object
  */
 class CVmGramProdMem
 {
@@ -128,10 +128,10 @@ public:
         while (block_head_ != 0)
         {
             CVmGramProdMemBlock *nxt;
-            
+
             /* remember the next block */
             nxt = block_head_->nxt_;
-            
+
             /* delete this block */
             t3free(block_head_);
 
@@ -167,7 +167,7 @@ public:
     void *alloc(size_t siz)
     {
         void *ret;
-        
+
         /* round the size to the local hardware boundary */
         siz = osrndsz(siz);
 
@@ -243,7 +243,7 @@ private:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Alternative object 
+ *   Alternative object
  */
 
 vmgram_alt_info::vmgram_alt_info(size_t ntoks)
@@ -264,7 +264,7 @@ vmgram_alt_info::~vmgram_alt_info()
 /*
  *   Input token array entry.  We make a private copy of the input token list
  *   (i.e., the token list we're trying to match to our grammar rules) during
- *   parsing using one of these structures for each token.  
+ *   parsing using one of these structures for each token.
  */
 struct vmgramprod_tok
 {
@@ -282,7 +282,7 @@ struct vmgramprod_tok
 
     /* hash value of the token */
     unsigned int hash_;
-    
+
     /* number of vocabulary matches associated with the word */
     size_t match_cnt_;
 
@@ -295,7 +295,7 @@ struct vmgramprod_tok
 /*
  *   Parsing state match object.  A match can be terminal, in which case
  *   it refers to a single token of input, or it can be a production, in
- *   which case it refers to a subtree of match objects.  
+ *   which case it refers to a subtree of match objects.
  */
 struct CVmGramProdMatch
 {
@@ -309,7 +309,7 @@ struct CVmGramProdMatch
                                    size_t sub_match_cnt)
     {
         CVmGramProdMatch *match;
-        
+
         /* allocate space */
         match = (CVmGramProdMatch *)mem->alloc(sizeof(CVmGramProdMatch));
 
@@ -333,10 +333,10 @@ struct CVmGramProdMatch
 
     /* property ID with which this match is associated */
     vm_prop_id_t target_prop_;
-    
-    /* 
+
+    /*
      *   token position of the matching token; ignored if the production
-     *   subtree information is valid 
+     *   subtree information is valid
      */
     size_t tok_pos_;
 
@@ -344,21 +344,21 @@ struct CVmGramProdMatch
      *   The token match value.  This is the result code from the Dictionary
      *   comparator's matchValues() function, which typically encodes
      *   information about how the value matched (truncation, case folding,
-     *   accent approximation, etc) in bitwise flags.  
+     *   accent approximation, etc) in bitwise flags.
      */
     vm_val_t tok_match_result_;
 
-    /* 
+    /*
      *   flag: this is a '*' token in the rule; these don't really match any
      *   tokens at all, since they merely serve to stop parsing regardless
-     *   of whether or not more input tokens are present 
+     *   of whether or not more input tokens are present
      */
     int matched_star_;
 
-    /* 
+    /*
      *   object ID of match processor - if this is valid, this match
      *   refers to a production; otherwise, the match refers to a single
-     *   token 
+     *   token
      */
     vm_obj_id_t proc_obj_;
 
@@ -370,7 +370,7 @@ struct CVmGramProdMatch
 };
 
 /*
- *   Top-level match list holder 
+ *   Top-level match list holder
  */
 struct CVmGramProdMatchEntry
 {
@@ -391,7 +391,7 @@ struct CVmGramProdMatchEntry
  *   match list so far for the alternative (i.e., the match for each item
  *   in the alternative up to but not including the current position), and
  *   the enclosing parsing state object (i.e., the parsing state that
- *   "recursed" into this alternative).  
+ *   "recursed" into this alternative).
  */
 struct CVmGramProdState
 {
@@ -421,7 +421,7 @@ struct CVmGramProdState
         /* return the new item */
         return state;
     }
-    
+
     /* initialize */
     void init(int tok_pos, int alt_pos, CVmGramProdState *enclosing,
               const vmgram_alt_info *altp, vm_obj_id_t prod_obj,
@@ -461,7 +461,7 @@ struct CVmGramProdState
 
         /* clone our enclosing state */
         new_enclosing = (enclosing_ != 0 ? enclosing_->clone(mem) : 0);
-        
+
         /* create a new state object */
         new_state = alloc(mem, tok_pos_, alt_pos_, new_enclosing,
                           altp_, prod_obj_, circular_alt_);
@@ -487,24 +487,24 @@ struct CVmGramProdState
     /* current token position, as an index into the token list */
     size_t tok_pos_;
 
-    /* 
+    /*
      *   flag: we've matched a '*' token in a production or subproduction,
      *   so we should consider all remaining tokens to have been consumed
      *   (we don't advance tok_pos_ past all of the tokens, because we
      *   separately want to keep track of the number of tokens we matched
-     *   for everything up to the '*') 
+     *   for everything up to the '*')
      */
     int matched_star_;
 
-    /* 
+    /*
      *   current alternative position, as an index into the alternative's
-     *   list of items 
+     *   list of items
      */
     size_t alt_pos_;
 
-    /* 
+    /*
      *   the enclosing state object - this is the state object that
-     *   "recursed" to our position 
+     *   "recursed" to our position
      */
     CVmGramProdState *enclosing_;
 
@@ -523,11 +523,11 @@ struct CVmGramProdState
     /* the production contains circular alternatives */
     int circular_alt_;
 
-    /* 
+    /*
      *   Match list.  This list is allocated with enough space for one
      *   match for each of our items (the number of items is given by
      *   vmgram_alt_tokcnt(altp_)).  At any given time, these will be
-     *   valid up to but not including the current alt_pos_ index.  
+     *   valid up to but not including the current alt_pos_ index.
      */
     const struct CVmGramProdMatch *match_list_[1];
 };
@@ -538,7 +538,7 @@ struct CVmGramProdState
  *   the success queue, which contains a list of match trees for
  *   successfully completed matches; and the badness queue, which contains
  *   a list of parsing states that we can try as fallbacks if we fail to
- *   find a match in any of the work queue items.  
+ *   find a match in any of the work queue items.
  */
 struct CVmGramProdQueue
 {
@@ -562,7 +562,7 @@ struct CVmGramProdQueue
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Grammar-Production object statics 
+ *   Grammar-Production object statics
  */
 
 /* metaclass registration object */
@@ -588,11 +588,11 @@ const int PROPIDX_deleteAlt = 4;
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Grammar-Production metaclass implementation 
+ *   Grammar-Production metaclass implementation
  */
 
-/* 
- *   create dynamically using stack arguments 
+/*
+ *   create dynamically using stack arguments
  */
 vm_obj_id_t CVmObjGramProd::create_from_stack(VMG_ const uchar **pc_ptr,
                                               uint argc)
@@ -602,9 +602,9 @@ vm_obj_id_t CVmObjGramProd::create_from_stack(VMG_ const uchar **pc_ptr,
     new (vmg_ id) CVmObjGramProd(vmg0_);
     CVmObjGramProd *prod = (CVmObjGramProd *)vm_objp(vmg_ id);
 
-    /* 
+    /*
      *   mark the object as modified-since-load, since it was never part of
-     *   the image file 
+     *   the image file
      */
     prod->get_ext()->modified_ = TRUE;
 
@@ -627,7 +627,7 @@ vm_obj_id_t CVmObjGramProd::create_from_stack(VMG_ const uchar **pc_ptr,
 }
 
 /*
- *   constructor 
+ *   constructor
  */
 CVmObjGramProd::CVmObjGramProd(VMG0_)
 {
@@ -657,9 +657,9 @@ CVmObjGramProd::CVmObjGramProd(VMG0_)
     /* create our memory pool */
     get_ext()->mem_ = new CVmGramProdMem();
 
-    /* 
+    /*
      *   allocate initial property enumeration space (we'll expand this as
-     *   needed, so the initial size is just a guess) 
+     *   needed, so the initial size is just a guess)
      */
     get_ext()->prop_enum_max_ = 64;
     get_ext()->prop_enum_arr_ = (vmgram_match_info *)
@@ -667,8 +667,8 @@ CVmObjGramProd::CVmObjGramProd(VMG0_)
                                          * sizeof(vmgram_match_info));
 }
 
-/* 
- *   notify of deletion 
+/*
+ *   notify of deletion
  */
 void CVmObjGramProd::notify_delete(VMG_ int /*in_root_set*/)
 {
@@ -691,7 +691,7 @@ void CVmObjGramProd::notify_delete(VMG_ int /*in_root_set*/)
 
         /* delete our property enumeration space */
         t3free(get_ext()->prop_enum_arr_);
-        
+
         /* free the extension */
         G_mem->get_var_heap()->free_mem(ext_);
     }
@@ -699,7 +699,7 @@ void CVmObjGramProd::notify_delete(VMG_ int /*in_root_set*/)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   clear the alternative list 
+ *   clear the alternative list
  */
 void CVmObjGramProd::clear_alts()
 {
@@ -712,7 +712,7 @@ void CVmObjGramProd::clear_alts()
 }
 
 /*
- *   ensure there's room for the given number of alternatives 
+ *   ensure there's room for the given number of alternatives
  */
 void CVmObjGramProd::ensure_alts(size_t cnt, size_t margin)
 {
@@ -738,7 +738,7 @@ void CVmObjGramProd::ensure_alts(size_t cnt, size_t margin)
 }
 
 /*
- *   insert an alternative at the given index (no undo) 
+ *   insert an alternative at the given index (no undo)
  */
 void CVmObjGramProd::insert_alt(
     vm_obj_id_t self, size_t idx, vmgram_alt_info *alt)
@@ -770,7 +770,7 @@ void CVmObjGramProd::insert_alt(
 }
 
 /*
- *   delete the alternative at the given index (no undo) 
+ *   delete the alternative at the given index (no undo)
  */
 void CVmObjGramProd::delete_alt(size_t idx)
 {
@@ -787,15 +787,15 @@ void CVmObjGramProd::delete_alt(size_t idx)
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   get a property 
+/*
+ *   get a property
  */
 int CVmObjGramProd::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                              vm_obj_id_t self, vm_obj_id_t *source_obj,
                              uint *argc)
 {
     uint func_idx;
-    
+
     /* translate the property index to an index into our function table */
     func_idx = G_meta_table
                ->prop_to_vector_idx(metaclass_reg_->get_reg_idx(), prop);
@@ -811,8 +811,8 @@ int CVmObjGramProd::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
     return CVmObject::get_prop(vmg_ prop, retval, self, source_obj, argc);
 }
 
-/* 
- *   set a property 
+/*
+ *   set a property
  */
 void CVmObjGramProd::set_prop(VMG_ class CVmUndo *undo,
                               vm_obj_id_t self, vm_prop_id_t prop,
@@ -823,8 +823,8 @@ void CVmObjGramProd::set_prop(VMG_ class CVmUndo *undo,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   load from an image file 
+/*
+ *   load from an image file
  */
 void CVmObjGramProd::load_from_image(VMG_ vm_obj_id_t self,
                                      const char *ptr, size_t siz)
@@ -833,10 +833,10 @@ void CVmObjGramProd::load_from_image(VMG_ vm_obj_id_t self,
     get_ext()->image_data_ = ptr;
     get_ext()->image_data_size_ = siz;
 
-    /* 
+    /*
      *   Rebuild the list from the image file data.  Note that an image file
      *   doesn't have a fixup table, since it defines the object numbering
-     *   space in the first place. 
+     *   space in the first place.
      */
     CVmReadOnlyMemoryStream src(ptr, siz);
     load_alts(vmg_ self, &src, 0);
@@ -846,7 +846,7 @@ void CVmObjGramProd::load_from_image(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   reset to the image file 
+ *   reset to the image file
  */
 void CVmObjGramProd::reset_to_image(VMG_ vm_obj_id_t self)
 {
@@ -868,7 +868,7 @@ void CVmObjGramProd::reset_to_image(VMG_ vm_obj_id_t self)
 }
 
 /*
- *   save to a file 
+ *   save to a file
  */
 void CVmObjGramProd::save_to_file(VMG_ CVmFile *fp)
 {
@@ -882,7 +882,7 @@ void CVmObjGramProd::save_to_file(VMG_ CVmFile *fp)
 }
 
 /*
- *   Save to a data stream 
+ *   Save to a data stream
  */
 void CVmObjGramProd::save_to_stream(VMG_ CVmStream *fp)
 {
@@ -895,13 +895,13 @@ void CVmObjGramProd::save_to_stream(VMG_ CVmStream *fp)
     {
         /* get the alternative pointer */
         vmgram_alt_info *alt = *altp;
-        
+
         /* write the alternative header */
         fp->write_int2(alt->score);
         fp->write_int2(alt->badness);
         fp->write_uint4((ulong)alt->proc_obj);
         fp->write_uint2(alt->tok_cnt);
-        
+
         /* write the token list */
         vmgram_tok_info *tok = alt->toks;
         for (size_t j = 0 ; j < alt->tok_cnt ; ++j, ++tok)
@@ -909,7 +909,7 @@ void CVmObjGramProd::save_to_stream(VMG_ CVmStream *fp)
             /* write the fixed part of the token */
             fp->write_uint2((uint)tok->prop);
             fp->write_byte((uchar)tok->typ);
-            
+
             /* write the extra data according to the token type */
             switch (tok->typ)
             {
@@ -917,34 +917,34 @@ void CVmObjGramProd::save_to_stream(VMG_ CVmStream *fp)
                 /* write the object ID */
                 fp->write_uint4((ulong)tok->typinfo.prod_obj);
                 break;
-                
+
             case VMGRAM_MATCH_SPEECH:
                 /* write the part-of-speech property */
                 fp->write_uint2((uint)tok->typinfo.speech_prop);
                 break;
-                
+
             case VMGRAM_MATCH_NSPEECH:
                 /* array of part-of-speech properties - write the count */
                 fp->write_uint2(tok->typinfo.nspeech.cnt);
-                
+
                 /* write the array elements */
                 for (size_t k = 0 ; k < tok->typinfo.nspeech.cnt ; ++k)
                     fp->write_uint2((uint)tok->typinfo.nspeech.props[k]);
-                
+
                 /* done */
                 break;
-                
+
             case VMGRAM_MATCH_LITERAL:
                 /* literal string - write the length, then the bytes */
                 fp->write_uint2(tok->typinfo.lit.len);
                 fp->write_bytes(tok->typinfo.lit.str, tok->typinfo.lit.len);
                 break;
-                
+
             case VMGRAM_MATCH_TOKTYPE:
                 /* token type */
                 fp->write_uint4((ulong)tok->typinfo.toktyp_enum);
                 break;
-                
+
             case VMGRAM_MATCH_STAR:
                 /* star - no additional data */
                 break;
@@ -954,7 +954,7 @@ void CVmObjGramProd::save_to_stream(VMG_ CVmStream *fp)
 }
 
 /*
- *   restore from a file 
+ *   restore from a file
  */
 void CVmObjGramProd::restore_from_file(VMG_ vm_obj_id_t self,
                                        CVmFile *fp, CVmObjFixup *fixups)
@@ -966,7 +966,7 @@ void CVmObjGramProd::restore_from_file(VMG_ vm_obj_id_t self,
 
 /*
  *   Load alternative data from a data source.  This is our common handler
- *   for loading from the image file and restoring from a saved game file.  
+ *   for loading from the image file and restoring from a saved game file.
  */
 void CVmObjGramProd::load_alts(VMG_ vm_obj_id_t self,
                                CVmStream *src, CVmObjFixup *fixups)
@@ -1076,11 +1076,11 @@ void CVmObjGramProd::load_alts(VMG_ vm_obj_id_t self,
                 break;
             }
         }
-        
-        /* 
+
+        /*
          *   If the first token of the alternative is a recursive reference
          *   to this production itself, we have a circular reference.  Note
-         *   this, since we have to handle it specially when parsing. 
+         *   this, since we have to handle it specially when parsing.
          */
         tok = alt->toks;
         if (tokcnt != 0
@@ -1095,7 +1095,7 @@ void CVmObjGramProd::load_alts(VMG_ vm_obj_id_t self,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   apply undo 
+ *   apply undo
  */
 void CVmObjGramProd::apply_undo(VMG_ CVmUndoRecord *undo_rec)
 {
@@ -1114,7 +1114,7 @@ void CVmObjGramProd::apply_undo(VMG_ CVmUndoRecord *undo_rec)
 
         /* get our alternative list and count */
         vmgram_alt_info **alts = get_ext()->alts_;
-        
+
         /* apply undo based on the event type */
         switch (rec->op)
         {
@@ -1160,7 +1160,7 @@ void CVmObjGramProd::discard_undo(VMG_ CVmUndoRecord *undo_rec)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   mark object references in an undo record 
+ *   mark object references in an undo record
  */
 void CVmObjGramProd::mark_undo_ref(VMG_ CVmUndoRecord *undo_rec)
 {
@@ -1177,7 +1177,7 @@ void CVmObjGramProd::mark_undo_ref(VMG_ CVmUndoRecord *undo_rec)
 }
 
 /*
- *   mark references 
+ *   mark references
  */
 void CVmObjGramProd::mark_refs(VMG_ uint state)
 {
@@ -1192,7 +1192,7 @@ void CVmObjGramProd::mark_refs(VMG_ uint state)
 }
 
 /*
- *   mark references in an alternative 
+ *   mark references in an alternative
  */
 void CVmObjGramProd::mark_alt_refs(VMG_ const vmgram_alt_info *alt, uint state)
 {
@@ -1215,15 +1215,15 @@ void CVmObjGramProd::mark_alt_refs(VMG_ const vmgram_alt_info *alt, uint state)
 }
 
 /*
- *   Remove stale weak references. 
+ *   Remove stale weak references.
  */
 void CVmObjGramProd::remove_stale_weak_refs(VMG0_)
 {
-    /* 
+    /*
      *   Our reference to the dictionary comparator object is weak (we're
      *   only caching it - we don't want to prevent the object from being
      *   collected if no one else wants it).  So, forget it if the comparator
-     *   is being deleted.  
+     *   is being deleted.
      */
     if (get_ext()->comparator_ != VM_INVALID_OBJ
         && G_obj_table->is_obj_deletable(get_ext()->comparator_))
@@ -1231,9 +1231,9 @@ void CVmObjGramProd::remove_stale_weak_refs(VMG0_)
         /* forget the comparator */
         get_ext()->comparator_ = VM_INVALID_OBJ;
 
-        /* 
+        /*
          *   our cached hash values depend on the comparator, so they're now
-         *   invalid - forget about them 
+         *   invalid - forget about them
          */
         get_ext()->hashes_cached_ = FALSE;
     }
@@ -1242,19 +1242,19 @@ void CVmObjGramProd::remove_stale_weak_refs(VMG0_)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Context for enum_props_cb 
+ *   Context for enum_props_cb
  */
 struct enum_props_ctx
 {
     /* object extension */
     vm_gram_ext *ext;
-    
+
     /* number of properties in our list so far */
     size_t cnt;
 };
 
 /*
- *   Callback for enumerating word properties 
+ *   Callback for enumerating word properties
  */
 void CVmObjGramProd::enum_props_cb(VMG_ void *ctx0, vm_prop_id_t prop,
                                    const vm_val_t * /*match_val*/)
@@ -1270,7 +1270,7 @@ void CVmObjGramProd::enum_props_cb(VMG_ void *ctx0, vm_prop_id_t prop,
         if (ep->prop == prop)
             return;
     }
-    
+
     /* we need to add it - if the array is full, expand it */
     if (ctx->cnt == ctx->ext->prop_enum_max_)
     {
@@ -1292,7 +1292,7 @@ void CVmObjGramProd::enum_props_cb(VMG_ void *ctx0, vm_prop_id_t prop,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Execute the parseTokens method 
+ *   Execute the parseTokens method
  */
 int CVmObjGramProd::getp_parse(VMG_ vm_obj_id_t self,
                                vm_val_t *retval, uint *argc)
@@ -1309,7 +1309,7 @@ int CVmObjGramProd::getp_parse(VMG_ vm_obj_id_t self,
     int succ_cnt;
     CVmGramProdMatchEntry *match;
     static CVmNativeCodeDesc desc(2);
-    
+
     /* check arguments */
     if (get_prop_check_argc(retval, argc, &desc))
         return TRUE;
@@ -1320,10 +1320,10 @@ int CVmObjGramProd::getp_parse(VMG_ vm_obj_id_t self,
     /* clear the work queues */
     queues.clear();
 
-    /* 
+    /*
      *   get the tokenList argument and make sure it's a list; leave it on
      *   the stack for now so it remains reachable for the garbage
-     *   collector 
+     *   collector
      */
     tokval = G_stk->get(0);
     if (!tokval->is_listlike(vmg0_)
@@ -1365,9 +1365,9 @@ int CVmObjGramProd::getp_parse(VMG_ vm_obj_id_t self,
         dict = 0;
     }
 
-    /* 
+    /*
      *   For quick and easy access, make our own private copy of the token
-     *   and type lists.  First, allocate an array of token structures.  
+     *   and type lists.  First, allocate an array of token structures.
      */
     tok = (vmgramprod_tok *)get_ext()->mem_
           ->alloc(tok_cnt * sizeof(vmgramprod_tok));
@@ -1393,9 +1393,9 @@ int CVmObjGramProd::getp_parse(VMG_ vm_obj_id_t self,
             || (subcnt = ele_val.ll_length(vmg0_)) < 0)
             err_throw(VMERR_BAD_TYPE_BIF);
 
-        /* 
+        /*
          *   parse the token sublist: the first element is the token value,
-         *   and the second element is the token type 
+         *   and the second element is the token type
          */
         ele_val.ll_index(vmg_ &tok_str_val, 1);
         ele_val.ll_index(vmg_ &tok_typ_val, 2);
@@ -1423,26 +1423,26 @@ int CVmObjGramProd::getp_parse(VMG_ vm_obj_id_t self,
             tok[i].hash_ = calc_str_hash(
                 vmg_ dict, &tok_str_val,
                 tokstrp + VMB_LEN, vmb_get_len(tokstrp));
-            
-            /* 
+
+            /*
              *   if we have a dictionary, enumerate the properties
-             *   associated with the word 
+             *   associated with the word
              */
             if (dict != 0)
             {
                 enum_props_ctx ctx;
-                
+
                 /* set up our callback context */
                 ctx.ext = get_ext();
                 ctx.cnt = 0;
-                
+
                 /* enumerate the properties */
                 dict->enum_word_props(vmg_ &enum_props_cb, &ctx,
                                       &tok_str_val, tok[i].txt_, tok[i].len_);
-                
-                /* 
+
+                /*
                  *   if we found any properties for the word, make a copy
-                 *   for the token list 
+                 *   for the token list
                  */
                 if (ctx.cnt != 0)
                 {
@@ -1451,7 +1451,7 @@ int CVmObjGramProd::getp_parse(VMG_ vm_obj_id_t self,
                     tok[i].matches_ =
                         (vmgram_match_info *)get_ext()->mem_
                         ->alloc(ctx.cnt * sizeof(vmgram_match_info));
-                    
+
                     /* copy the list */
                     memcpy(tok[i].matches_, get_ext()->prop_enum_arr_,
                            ctx.cnt * sizeof(tok[i].matches_[0]));
@@ -1496,16 +1496,16 @@ int CVmObjGramProd::getp_parse(VMG_ vm_obj_id_t self,
         vm_val_t tok_match_val;
         size_t first_tok;
         size_t last_tok;
-        
-        /* 
+
+        /*
          *   Create a list to hold the token match list - this is a list of
          *   the dictionary's comparator's matchValue() results for the
          *   tokens that matched literals in the grammar rule.  We need a
          *   list with one element per token that we matched.
-         *   
+         *
          *   We can't actually populate this list yet, but all we need for
          *   the moment are references to it.  So, create the list; we'll
-         *   fill it in as we traverse the match to build the result tree.  
+         *   fill it in as we traverse the match to build the result tree.
          */
         tok_match_val.set_obj(
             CVmObjList::create(vmg_ FALSE, match->tok_pos_));
@@ -1523,10 +1523,10 @@ int CVmObjGramProd::getp_parse(VMG_ vm_obj_id_t self,
         /* discard our token match list's gc protection stack entry */
         G_stk->discard();
 
-        /* 
+        /*
          *   add the match tree's root object to the main return list (note
          *   that this protects it from garbage collection by virtue of the
-         *   main return list being protected from garbage collection) 
+         *   main return list being protected from garbage collection)
          */
         lst->cons_set_element(succ_cnt, &tree_val);
     }
@@ -1542,7 +1542,7 @@ int CVmObjGramProd::getp_parse(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   Build an object tree for a match 
+ *   Build an object tree for a match
  */
 void CVmObjGramProd::build_match_tree(VMG_ const CVmGramProdMatch *match,
                                       const vm_val_t *toklist,
@@ -1557,10 +1557,10 @@ void CVmObjGramProd::build_match_tree(VMG_ const CVmGramProdMatch *match,
         CVmObjTads *objp;
         size_t i;
 
-        /* 
+        /*
          *   Create the object to hold the current tree level.  The only
          *   constructor argument is the superclass, which is the match's
-         *   processor object. 
+         *   processor object.
          */
         G_stk->push()->set_obj(match->proc_obj_);
         obj_id = CVmObjTads::create_from_stack(vmg_ 0, 1);
@@ -1571,7 +1571,7 @@ void CVmObjGramProd::build_match_tree(VMG_ const CVmGramProdMatch *match,
         /* push this object to protect it from gc for a moment */
         G_stk->push()->set_obj(obj_id);
 
-        /* 
+        /*
          *   Initialize the caller's first/last token indices to an invalid
          *   range, in case we have no subproductions.  A production with no
          *   tokens and no subproductions matches no tokens at all; we
@@ -1579,7 +1579,7 @@ void CVmObjGramProd::build_match_tree(VMG_ const CVmGramProdMatch *match,
          *   index higher than the last token index.  Note that it's still
          *   important that we accurately reflect the end of our range for a
          *   zero-token match, since our enclosing nodes will need our
-         *   position to figure out where they go.  
+         *   position to figure out where they go.
          */
         *first_tok = match->tok_pos_ + 1;
         *last_tok = match->tok_pos_;
@@ -1596,15 +1596,15 @@ void CVmObjGramProd::build_match_tree(VMG_ const CVmGramProdMatch *match,
                              toklist, tokmatchlist,
                              &val, &first_sub_tok, &last_sub_tok);
 
-            /* 
+            /*
              *   If this is the first subtree, use it as the tentative
              *   limits for our overall match so far; otherwise, expand our
              *   limits if they are outside our range so far.
-             *   
+             *
              *   If the submatch doesn't include any tokens, it obviously
              *   has no effect on our range.  The submatch range will
              *   indicate that the first token index is greater than the
-             *   last token index if the submatch includes no tokens.  
+             *   last token index if the submatch includes no tokens.
              */
             if (i == 0)
             {
@@ -1621,20 +1621,20 @@ void CVmObjGramProd::build_match_tree(VMG_ const CVmGramProdMatch *match,
                     *last_tok = last_sub_tok;
             }
 
-            /* 
+            /*
              *   save the subtree with the current match object if there's a
-             *   property in which to save it 
+             *   property in which to save it
              */
             if (match->sub_match_list_[i]->target_prop_ != VM_INVALID_PROP)
             {
-                /* 
+                /*
                  *   Set the processor object property for the value.  Note
                  *   that we don't have to keep undo for this change, since
                  *   we just created the tree object ourselves, and we don't
                  *   create any undo savepoints - an object created after
                  *   the most recent undo savepoint doesn't need to keep
                  *   undo information, since the entire object will be
-                 *   deleted if we undo to the savepoint. 
+                 *   deleted if we undo to the savepoint.
                  */
                 objp->set_prop(vmg_ 0, obj_id,
                                match->sub_match_list_[i]->target_prop_,
@@ -1642,9 +1642,9 @@ void CVmObjGramProd::build_match_tree(VMG_ const CVmGramProdMatch *match,
             }
         }
 
-        /* 
+        /*
          *   if we have exported properties for recording the token index
-         *   range, save them with the object 
+         *   range, save them with the object
          */
         if (G_predef->gramprod_first_tok != VM_INVALID_PROP
             && G_predef->gramprod_last_tok != VM_INVALID_PROP)
@@ -1662,9 +1662,9 @@ void CVmObjGramProd::build_match_tree(VMG_ const CVmGramProdMatch *match,
                            G_predef->gramprod_last_tok, &val);
         }
 
-        /* 
+        /*
          *   if we have the token list property exported, set it to the
-         *   original token list reference 
+         *   original token list reference
          */
         if (G_predef->gramprod_token_list != VM_INVALID_PROP)
         {
@@ -1697,30 +1697,30 @@ void CVmObjGramProd::build_match_tree(VMG_ const CVmGramProdMatch *match,
         {
             vm_val_t ele_val;
             CVmObjList *match_lst;
-            
+
             /* get the token from the list */
             toklist->ll_index(vmg_ &ele_val, match->tok_pos_ + 1);
 
-            /* 
+            /*
              *   the token is itself a list, whose first element is the
-             *   token's value - retrieve the value 
+             *   token's value - retrieve the value
              */
             ele_val.ll_index(vmg_ retval, 1);
 
-            /* 
+            /*
              *   Store the token match result in the result list.  If this is
              *   a '*' match, it doesn't have a result list contribution,
              *   because '*' doesn't actually match any tokens (it merely
-             *   stops parsing). 
+             *   stops parsing).
              */
             if (!match->matched_star_)
             {
                 /* get the match list */
                 match_lst = (CVmObjList *)vm_objp(vmg_ tokmatchlist->val.obj);
 
-                /* 
+                /*
                  *   set the element at this token position in the match list
-                 *   to the token match result 
+                 *   to the token match result
                  */
                 match_lst->cons_set_element(
                     match->tok_pos_, &match->tok_match_result_);
@@ -1728,18 +1728,18 @@ void CVmObjGramProd::build_match_tree(VMG_ const CVmGramProdMatch *match,
         }
         else
         {
-            /* 
+            /*
              *   the index is past the end of the list - this must be a
              *   '*' token that matched nothing (i.e., the token list was
              *   fully consumed before we reached the '*'), so just return
-             *   nil for the match value 
+             *   nil for the match value
              */
             retval->set_nil();
         }
 
-        /* 
+        /*
          *   We match one token, so it's the first and last index.  Note
-         *   that if this is a '*' match, we don't match any tokens.  
+         *   that if this is a '*' match, we don't match any tokens.
          */
         if (!match->matched_star_)
             *first_tok = *last_tok = match->tok_pos_;
@@ -1747,7 +1747,7 @@ void CVmObjGramProd::build_match_tree(VMG_ const CVmGramProdMatch *match,
 }
 
 /*
- *   Process the work queue 
+ *   Process the work queue
  */
 void CVmObjGramProd::process_work_queue(VMG_ CVmGramProdMem *mem,
                                         const vmgramprod_tok *tok,
@@ -1758,11 +1758,11 @@ void CVmObjGramProd::process_work_queue(VMG_ CVmGramProdMem *mem,
     /* keep going until the work queue and badness queue are empty */
     for (;;)
     {
-        /* 
+        /*
          *   If the work queue is empty, fall back on the badness queue.
          *   Ignore the badness queue if we have any successful matches,
          *   since non-badness matches always take precedence over badness
-         *   items. 
+         *   items.
          */
         if (queues->work_queue_ == 0 && queues->success_list_ == 0)
         {
@@ -1771,31 +1771,31 @@ void CVmObjGramProd::process_work_queue(VMG_ CVmGramProdMem *mem,
             CVmGramProdState *cur;
             CVmGramProdState *prv;
             CVmGramProdState *nxt;
-            
+
             /* find the lowest badness rating in the queue */
             for (first = TRUE, min_badness = 0, cur = queues->badness_queue_ ;
                  cur != 0 ; cur = cur->nxt_, first = FALSE)
             {
-                /* 
+                /*
                  *   if we're on the first item, note its badness as the
                  *   tentative minimum; otherwise, note the current item's
                  *   badness if it's lower than the lowest we've seen so
-                 *   far 
+                 *   far
                  */
                 if (first || cur->altp_->badness < min_badness)
                     min_badness = cur->altp_->badness;
             }
 
-            /* 
+            /*
              *   move each of the items whose badness matches the minimum
-             *   badness out of the badness queue and into the work queue 
+             *   badness out of the badness queue and into the work queue
              */
             for (cur = queues->badness_queue_, prv = 0 ; cur != 0 ;
                  cur = nxt)
             {
                 /* remember the next item, in case we remove this one */
                 nxt = cur->nxt_;
-                
+
                 /* if this item has minimum badness, move it */
                 if (cur->altp_->badness == min_badness)
                 {
@@ -1811,9 +1811,9 @@ void CVmObjGramProd::process_work_queue(VMG_ CVmGramProdMem *mem,
                 }
                 else
                 {
-                    /* 
+                    /*
                      *   this item is staying in the list - note it as the
-                     *   item preceding the next item 
+                     *   item preceding the next item
                      */
                     prv = cur;
                 }
@@ -1823,14 +1823,14 @@ void CVmObjGramProd::process_work_queue(VMG_ CVmGramProdMem *mem,
         /* if the work queue is still empty, we're out of work to do */
         if (queues->work_queue_ == 0)
             break;
-        
+
         /* process the head of the work queue */
         process_work_queue_head(vmg_ mem, tok, tok_cnt, queues, dict);
     }
 }
 
 /*
- *   Process a work queue entry 
+ *   Process a work queue entry
  */
 void CVmObjGramProd::process_work_queue_head(VMG_ CVmGramProdMem *mem,
                                              const vmgramprod_tok *tok,
@@ -1843,7 +1843,7 @@ void CVmObjGramProd::process_work_queue_head(VMG_ CVmGramProdMem *mem,
     const vmgram_tok_info *tokp;
     int tok_matched_star;
     vm_prop_id_t enclosing_target_prop;
-    
+
     /* get the first entry from the queue */
     state = queues->work_queue_;
 
@@ -1876,7 +1876,7 @@ void CVmObjGramProd::process_work_queue_head(VMG_ CVmGramProdMem *mem,
 
                 /*
                  *   This is a sub-production node.  Get the
-                 *   sub-production object.  
+                 *   sub-production object.
                  */
                 sub_obj_id = tokp->typinfo.prod_obj;
 
@@ -1890,28 +1890,28 @@ void CVmObjGramProd::process_work_queue_head(VMG_ CVmGramProdMem *mem,
                 /* get the sub-production object */
                 sub_objp = (CVmObjGramProd *)vm_objp(vmg_ sub_obj_id);
 
-                /* 
+                /*
                  *   set my subproduction target property, so that the
-                 *   sub-production can set the target property correctly 
+                 *   sub-production can set the target property correctly
                  */
                 state->sub_target_prop_ = tokp->prop;
-                
+
                 /* enqueue the alternatives for the sub-production */
                 sub_objp->enqueue_alts(vmg_ mem, tok, tok_cnt,
                                        state->tok_pos_, state, queues,
                                        sub_obj_id, FALSE, 0, dict);
             }
 
-            /* 
+            /*
              *   Do not process the current state any further for now -
              *   we'll get back to it when (and if) we finish processing
              *   the sub-production.  Note that we don't even put the
              *   current state back in the queue - it's stacked behind the
              *   sub-production, and will be re-enqueued when we
-             *   successfully finish with the sub-production.  
+             *   successfully finish with the sub-production.
              */
             return;
-            
+
         case VMGRAM_MATCH_SPEECH:
             /* part of speech - check to see if the current token matches */
             match = (state->tok_pos_ < tok_cnt
@@ -1920,9 +1920,9 @@ void CVmObjGramProd::process_work_queue_head(VMG_ CVmGramProdMem *mem,
             break;
 
         case VMGRAM_MATCH_NSPEECH:
-            /* 
+            /*
              *   multiple parts of speech - check to see if the current token
-             *   matches any of the parts of the speech 
+             *   matches any of the parts of the speech
              */
             if (state->tok_pos_ < tok_cnt)
             {
@@ -1950,22 +1950,22 @@ void CVmObjGramProd::process_work_queue_head(VMG_ CVmGramProdMem *mem,
             }
             else
             {
-                /* 
+                /*
                  *   we're out of tokens, so we definitely don't have a
                  *   match, since we must match at least one of the possible
-                 *   parts of speech of this item 
+                 *   parts of speech of this item
                  */
                 match = FALSE;
             }
             break;
-            
+
         case VMGRAM_MATCH_LITERAL:
-            /* 
+            /*
              *   Literal - check for a match to the string.  Test the hash
              *   values first, as this is much faster than comparing the
              *   strings, and at least tells us if the strings fail to match
              *   (and failing to match being by far the most common case,
-             *   this saves us doing a full comparison most of the time).  
+             *   this saves us doing a full comparison most of the time).
              */
             match = (state->tok_pos_ < tok_cnt
                      && tokp->typinfo.lit.hash == tok[state->tok_pos_].hash_
@@ -1974,7 +1974,7 @@ void CVmObjGramProd::process_work_queue_head(VMG_ CVmGramProdMem *mem,
                                        tokp->typinfo.lit.len,
                                        dict, &match_result));
             break;
-            
+
         case VMGRAM_MATCH_TOKTYPE:
             /* token type */
             match = (state->tok_pos_ < tok_cnt
@@ -1983,9 +1983,9 @@ void CVmObjGramProd::process_work_queue_head(VMG_ CVmGramProdMem *mem,
             break;
 
         case VMGRAM_MATCH_STAR:
-            /* 
+            /*
              *   this matches anything remaining (it also matches if
-             *   there's nothing remaining) 
+             *   there's nothing remaining)
              */
             match = TRUE;
 
@@ -2000,9 +2000,9 @@ void CVmObjGramProd::process_work_queue_head(VMG_ CVmGramProdMem *mem,
         /* check for a match */
         if (match)
         {
-            /* 
+            /*
              *   we matched this token - add a token match to our state's
-             *   match list for the current position 
+             *   match list for the current position
              */
             state->match_list_[state->alt_pos_] =
                 CVmGramProdMatch::alloc(mem, state->tok_pos_, &match_result,
@@ -2012,35 +2012,35 @@ void CVmObjGramProd::process_work_queue_head(VMG_ CVmGramProdMem *mem,
             /* we're done with this alternative item - move on */
             state->alt_pos_++;
 
-            /* 
+            /*
              *   If we matched a real token, consume the matched input
              *   token.  For a '*', we don't want to consume anything, since
              *   a '*' merely stops parsing and doesn't actually match
-             *   anything.  
+             *   anything.
              */
             if (!state->matched_star_)
                 state->tok_pos_++;
-            
+
             /* move on to the next alternative token item */
             ++tokp;
         }
         else
         {
-            /* 
+            /*
              *   This is not a match - reject this alternative.  We do not
              *   need to process this item further, so we can stop now,
              *   without returning this state to the work queue.  Simply
-             *   abandon this work queue item.  
+             *   abandon this work queue item.
              */
             return;
         }
     }
 
-    /* 
+    /*
      *   If we make it here, we've reached the end of this alternative and
      *   have matched everything in it.  This means that the alternative
      *   was successful, so we can perform a 'reduce' operation to replace
-     *   the matched tokens with this production.  
+     *   the matched tokens with this production.
      */
 
     /* if we have an enclosing state, get its target property */
@@ -2068,19 +2068,19 @@ void CVmObjGramProd::process_work_queue_head(VMG_ CVmGramProdMem *mem,
         vm_obj_id_t prod_obj_id;
         CVmObjGramProd *prod_objp;
 
-        /* 
+        /*
          *   Get the production from which this alternative came (there
          *   should be no need to check the metaclass, since we could only
          *   have created the state object from a valid production in the
          *   first place).
-         *   
+         *
          *   First, make sure it's of the correct class.  (It almost
          *   certainly is, since the compiler should have generated this
          *   reference automatically, so there should be no possibility of a
          *   user error.  However, if it's not a production object, we'll
          *   probably crash by blindly casting it to one; so we'll check
          *   here, just to be sure that the compiler didn't do something
-         *   wrong and the image file didn't become corrupted.)  
+         *   wrong and the image file didn't become corrupted.)
          */
         if (!CVmObjGramProd::is_gramprod_obj(vmg_ state->prod_obj_))
         {
@@ -2092,11 +2092,11 @@ void CVmObjGramProd::process_work_queue_head(VMG_ CVmGramProdMem *mem,
         prod_obj_id = state->prod_obj_;
         prod_objp = (CVmObjGramProd *)vm_objp(vmg_ prod_obj_id);
 
-        /* 
+        /*
          *   Enqueue the matching circular alternatives from the original
          *   production.  Our match becomes the first token match in the
          *   circular alternative (i.e., it matches the leading circular
-         *   reference element).  
+         *   reference element).
          */
         prod_objp->enqueue_alts(vmg_ mem, tok, tok_cnt, state->tok_pos_,
                                 state->enclosing_, queues, prod_obj_id,
@@ -2110,11 +2110,11 @@ void CVmObjGramProd::process_work_queue_head(VMG_ CVmGramProdMem *mem,
         state->enclosing_->match_list_[state->enclosing_->alt_pos_] = match;
         state->enclosing_->alt_pos_++;
 
-        /* 
+        /*
          *   Move the enclosing state's token position to our token position
          *   - since it now encompasses our match, it has consumed all of
          *   the tokens therein.  Likewise, set the '*' flag in the parent
-         *   to our own setting.  
+         *   to our own setting.
          */
         state->enclosing_->tok_pos_ = state->tok_pos_;
         state->enclosing_->matched_star_ = state->matched_star_;
@@ -2125,12 +2125,12 @@ void CVmObjGramProd::process_work_queue_head(VMG_ CVmGramProdMem *mem,
     else
     {
         CVmGramProdMatchEntry *entry;
-        
-        /* 
+
+        /*
          *   This is a top-level state, so we've completed parsing.  If
          *   we've consumed all input, or we matched a '*' token, we were
          *   successful.  If there's more input remaining, this is not a
-         *   match.  
+         *   match.
          */
         if (state->tok_pos_ < tok_cnt && !state->matched_star_)
         {
@@ -2138,7 +2138,7 @@ void CVmObjGramProd::process_work_queue_head(VMG_ CVmGramProdMem *mem,
              *   There's more input remaining, so this isn't a match.
              *   Reject this alternative.  We do not need to process this
              *   item further, so stop now without returning this state
-             *   object to the work queue. 
+             *   object to the work queue.
              */
 
             /* abandon this work queue item */
@@ -2158,7 +2158,7 @@ void CVmObjGramProd::process_work_queue_head(VMG_ CVmGramProdMem *mem,
 
 /*
  *   Visit my alternatives and enqueue each one that is a possible match
- *   for a given token list.  
+ *   for a given token list.
  */
 void CVmObjGramProd::enqueue_alts(VMG_ CVmGramProdMem *mem,
                                   const vmgramprod_tok *tok,
@@ -2175,30 +2175,30 @@ void CVmObjGramProd::enqueue_alts(VMG_ CVmGramProdMem *mem,
     int has_circ;
     vm_obj_id_t comparator;
 
-    /* 
+    /*
      *   We don't need to clone the enclosing state until we've set up one
      *   new state referring back to it.  However, if we're doing circular
      *   alternatives, the enclosing state could also be enqueued
      *   separately as its own state, so do clone all required copies in
-     *   this case.  
+     *   this case.
      */
     need_to_clone = circ_only;
 
     /* note whether or not we have any circular alternatives */
     has_circ = get_ext()->has_circular_alt;
 
-    /* 
+    /*
      *   Cache hash values for all of our literals.  We need to do this if we
      *   haven't done it before, or if the comparator associated with the
-     *   dictionary is different than it was last time we cached the values. 
+     *   dictionary is different than it was last time we cached the values.
      */
     comparator = (dict != 0 ? dict->get_comparator() : VM_INVALID_OBJ);
     if (!get_ext()->hashes_cached_ || get_ext()->comparator_ != comparator)
         cache_hashes(vmg_ dict);
 
-    /* 
+    /*
      *   run through our alternatives and enqueue each one that looks
-     *   plausible 
+     *   plausible
      */
     for (altp = get_ext()->alts_, i = get_ext()->alt_cnt_ ; i != 0 ;
          --i, ++altp)
@@ -2214,24 +2214,24 @@ void CVmObjGramProd::enqueue_alts(VMG_ CVmGramProdMem *mem,
 
         /* get the number of tokens in the alternative */
         size_t alt_tok_cnt = (*altp)->tok_cnt;
-        
+
         /* presume we will find no mismatches in this check */
         int found_mismatch = FALSE;
 
-        /* 
+        /*
          *   note whether this alternative is a direct circular reference
          *   or not (it is directly circular if the first token points
-         *   back to this same production) 
+         *   back to this same production)
          */
         int is_circ = (alt_tok_cnt != 0
                        && tokp->typ == VMGRAM_MATCH_PROD
                        && tokp->typinfo.prod_obj == self);
-        
-        /* 
+
+        /*
          *   we don't have a production before the current item (this is
          *   important because it determines whether we must consider the
          *   current token or any following token when trying to match a
-         *   literal, part of speech, or token type) 
+         *   literal, part of speech, or token type)
          */
         int prod_before = FALSE;
 
@@ -2251,12 +2251,12 @@ void CVmObjGramProd::enqueue_alts(VMG_ CVmGramProdMem *mem,
             /* presume we won't be able to ignore the item */
             ignore_item = FALSE;
 
-            /* 
+            /*
              *   Try to find a match to the current alternative item.  If
              *   we've already found a mismatch, don't bother, since we need
              *   no further evidence to skip this alternative; in this case
              *   we're still looping over the alternative items simply to
-             *   find the beginning of the next alternative.  
+             *   find the beginning of the next alternative.
              */
             for ( ; !found_mismatch ; ++tok_idx)
             {
@@ -2264,7 +2264,7 @@ void CVmObjGramProd::enqueue_alts(VMG_ CVmGramProdMem *mem,
                 switch(tokp->typ)
                 {
                 case VMGRAM_MATCH_PROD:
-                    /* 
+                    /*
                      *   We can't rule out a production without checking
                      *   it fully, which we're not doing on this pass;
                      *   however, note that we found a production, because
@@ -2272,20 +2272,20 @@ void CVmObjGramProd::enqueue_alts(VMG_ CVmGramProdMem *mem,
                      *   any number of tokens before ruling out a match on
                      *   other grounds, since the production could
                      *   potentially match any number of tokens.
-                     *   
+                     *
                      *   If we're doing circular matches only, and this is
                      *   a circular production, and we're on the first
                      *   token in our list, we already know it matches, so
                      *   don't even count it as a production before the
-                     *   item.  
+                     *   item.
                      */
                     if (is_circ && circ_only && cur_alt_tok == 0)
                     {
-                        /* 
+                        /*
                          *   ignore the fact that it's a production, since
                          *   we already know it matches - we don't want to
                          *   be flexible about tokens following this item
-                         *   since we know the exact number that match it 
+                         *   since we know the exact number that match it
                          */
                     }
                     else
@@ -2294,14 +2294,14 @@ void CVmObjGramProd::enqueue_alts(VMG_ CVmGramProdMem *mem,
                         prod_before = TRUE;
                     }
 
-                    /* 
+                    /*
                      *   we can ignore this item for the purposes of
                      *   detecting a mismatch, because we can't tell
-                     *   during this superficial scan whether it matches 
+                     *   during this superficial scan whether it matches
                      */
                     ignore_item = TRUE;
                     break;
-                
+
                 case VMGRAM_MATCH_SPEECH:
                     /* we must match a part of speech */
                     if (tok_idx < tok_cnt
@@ -2345,15 +2345,15 @@ void CVmObjGramProd::enqueue_alts(VMG_ CVmGramProdMem *mem,
                         match = FALSE;
                     }
                     break;
-                    
+
                 case VMGRAM_MATCH_LITERAL:
-                    /* 
+                    /*
                      *   Match a literal.  Compare the hash values first,
                      *   since a negative match on the hash values will tell
                      *   us for sure that the text won't match; since not
                      *   matching is by far the most common case, this saves
                      *   us the work of doing full string comparisons most of
-                     *   the time. 
+                     *   the time.
                      */
                     if (tok_idx < tok_cnt
                         && tok[tok_idx].txt_ != 0
@@ -2367,7 +2367,7 @@ void CVmObjGramProd::enqueue_alts(VMG_ CVmGramProdMem *mem,
                         match = TRUE;
                     }
                     break;
-                
+
                 case VMGRAM_MATCH_TOKTYPE:
                     /* we must match a token type */
                     if (tok_idx < tok_cnt
@@ -2389,29 +2389,29 @@ void CVmObjGramProd::enqueue_alts(VMG_ CVmGramProdMem *mem,
                 if (match)
                     break;
 
-                /* 
+                /*
                  *   we didn't match this token - if we have a production
                  *   before this point, we must keep scanning token, since
                  *   the production could end up matching any number of
                  *   tokens; if we don't have a production item, though,
                  *   we don't need to look any further, and we can rule
-                 *   out this alternative immediately 
+                 *   out this alternative immediately
                  */
                 if (!prod_before)
                     break;
 
-                /* 
+                /*
                  *   if we're ignoring this item (because we can't decide
                  *   now whether it's a match or not, and hence can't rule
-                 *   it out), don't scan any tokens for the item 
+                 *   it out), don't scan any tokens for the item
                  */
                 if (ignore_item)
                     break;
 
-                /* 
+                /*
                  *   if we didn't find a match, and we're out of tokens,
                  *   stop looking - we have no more tokens to look at to
-                 *   find a match 
+                 *   find a match
                  */
                 if (!match && tok_idx >= tok_cnt)
                     break;
@@ -2420,19 +2420,19 @@ void CVmObjGramProd::enqueue_alts(VMG_ CVmGramProdMem *mem,
             /* check to see if we found a match */
             if (match)
             {
-                /* 
+                /*
                  *   we found a match - skip the current token (unless we
                  *   matched a '*' item, in which case we've already
-                 *   consumed all remaining tokens) 
+                 *   consumed all remaining tokens)
                  */
                 if (!match_star && tok_idx < tok_cnt)
                     ++tok_idx;
             }
             else if (!ignore_item)
             {
-                /* 
+                /*
                  *   we didn't match, and we can't ignore this item - note
-                 *   that the alternative does not match 
+                 *   that the alternative does not match
                  */
                 found_mismatch = TRUE;
 
@@ -2441,7 +2441,7 @@ void CVmObjGramProd::enqueue_alts(VMG_ CVmGramProdMem *mem,
             }
         }
 
-        /* 
+        /*
          *   If we didn't find a reason to rule out this alternative,
          *   enqueue the alternative.  Never enqueue circular references,
          *   unless we're ONLY enqueuing circular references.
@@ -2451,20 +2451,20 @@ void CVmObjGramProd::enqueue_alts(VMG_ CVmGramProdMem *mem,
                 || (circ_only && is_circ)))
         {
             CVmGramProdState *state;
-            
+
             /* create and enqueue the new state */
             state = enqueue_new_state(mem, start_tok_pos, enclosing_state,
                                       *altp, self, &need_to_clone, queues,
                                       has_circ);
 
-            /* 
+            /*
              *   if we are enqueuing circular references, we already have
-             *   a match for the first (circular) token, so fill it in 
+             *   a match for the first (circular) token, so fill it in
              */
             if (circ_only)
             {
                 CVmGramProdMatch *match;
-                
+
                 /* create a match for the alternative */
                 match = CVmGramProdMatch::
                         alloc(mem, 0, 0, FALSE, first_tokp->prop,
@@ -2520,7 +2520,7 @@ void CVmObjGramProd::cache_hashes(VMG_ CVmObjDict *dict)
 }
 
 /*
- *   Create and enqueue a new state 
+ *   Create and enqueue a new state
  */
 CVmGramProdState *CVmObjGramProd::
    enqueue_new_state(CVmGramProdMem *mem,
@@ -2535,18 +2535,18 @@ CVmGramProdState *CVmObjGramProd::
     /* create the new state */
     state = create_new_state(mem, start_tok_pos, enclosing_state,
                              altp, self, need_to_clone, circular_alt);
-    
-    /* 
+
+    /*
      *   Add the item to the appropriate queue.  If the item has an
      *   associated badness, add it to the badness queue.  Otherwise, add
-     *   it to the work queue.  
+     *   it to the work queue.
      */
     if (altp->badness != 0)
     {
-        /* 
+        /*
          *   we have a badness rating - add it to the badness queue, since
          *   we don't want to process it until we entirely exhaust better
-         *   possibilities 
+         *   possibilities
          */
         state->nxt_ = queues->badness_queue_;
         queues->badness_queue_ = state;
@@ -2562,7 +2562,7 @@ CVmGramProdState *CVmObjGramProd::
 }
 
 /*
- *   Create a new state 
+ *   Create a new state
  */
 CVmGramProdState *CVmObjGramProd::
    create_new_state(CVmGramProdMem *mem, size_t start_tok_pos,
@@ -2570,18 +2570,18 @@ CVmGramProdState *CVmObjGramProd::
                     const vmgram_alt_info *altp, vm_obj_id_t self,
                     int *need_to_clone, int circular_alt)
 {
-    /* 
+    /*
      *   if necessary, clone the enclosing state; we need to do this if we
      *   enqueue more than one nested alternative, since each nested
      *   alternative could parse the rest of the token list differently
-     *   and thus provide a different result to the enclosing state 
+     *   and thus provide a different result to the enclosing state
      */
     if (*need_to_clone && enclosing_state != 0)
         enclosing_state = enclosing_state->clone(mem);
 
-    /* 
+    /*
      *   we will need to clone the enclosing state if we create another
-     *   alternative after this one 
+     *   alternative after this one
      */
     *need_to_clone = TRUE;
 
@@ -2605,15 +2605,15 @@ void CVmObjGramProd::enqueue_state(CVmGramProdState *state,
 /*
  *   Determine if a token from the input matches a literal token, allowing
  *   the input token to be a truncated version of the literal token if the
- *   given truncation length is non-zero. 
+ *   given truncation length is non-zero.
  */
 int CVmObjGramProd::tok_equals_lit(VMG_ const struct vmgramprod_tok *tok,
                                    const char *lit, size_t lit_len,
                                    CVmObjDict *dict, vm_val_t *result_val)
 {
-    /* 
+    /*
      *   if there's a dictionary, ask it to do the comparison; otherwise,
-     *   use an exact literal match 
+     *   use an exact literal match
      */
     if (dict != 0)
     {
@@ -2632,23 +2632,23 @@ int CVmObjGramProd::tok_equals_lit(VMG_ const struct vmgramprod_tok *tok,
 
 /*
  *   Calculate the hash value for a literal token, using our dictionary's
- *   comparator.  
+ *   comparator.
  */
 unsigned int CVmObjGramProd::calc_str_hash(VMG_ CVmObjDict *dict,
                                            const vm_val_t *strval,
                                            const char *str, size_t len)
 {
-    /* 
+    /*
      *   if we have a dictionary, ask it to ask it for the hash value, as the
      *   dictionary will ask its comparator to do the work; otherwise,
-     *   calculate our own hash value 
+     *   calculate our own hash value
      */
     if (dict != 0)
     {
-        /* 
+        /*
          *   We're doing comparisons through the dictionary's comparator, so
          *   we must calculate hash values using the comparator as well to
-         *   keep the hash and match operations consistent.  
+         *   keep the hash and match operations consistent.
          */
         return dict->calc_str_hash(vmg_ strval, str, len);
     }
@@ -2659,7 +2659,7 @@ unsigned int CVmObjGramProd::calc_str_hash(VMG_ CVmObjDict *dict,
         /*
          *   We don't have a dictionary, so we're doing our own string
          *   comparisons, which we do as exact byte-for-byte matches.  We can
-         *   thus calculate an arbitrary hash value of our own devising.  
+         *   thus calculate an arbitrary hash value of our own devising.
          */
         for (hash = 0 ; len != 0 ; ++str, --len)
             hash += (unsigned char)*str;
@@ -2672,7 +2672,7 @@ unsigned int CVmObjGramProd::calc_str_hash(VMG_ CVmObjDict *dict,
 
 /*
  *   Find a property in a token's list.  Returns true if the property is
- *   there, false if not. 
+ *   there, false if not.
  */
 int CVmObjGramProd::find_prop_in_tok(const vmgramprod_tok *tok,
                                      vm_prop_id_t prop)
@@ -2695,7 +2695,7 @@ int CVmObjGramProd::find_prop_in_tok(const vmgramprod_tok *tok,
 /* ------------------------------------------------------------------------ */
 /*
  *   Execute the getGrammarInfo() method - builds and returns an information
- *   structure describing this grammar production object.  
+ *   structure describing this grammar production object.
  */
 int CVmObjGramProd::getp_get_gram_info(VMG_ vm_obj_id_t self,
                                        vm_val_t *retval, uint *argc)
@@ -2712,7 +2712,7 @@ int CVmObjGramProd::getp_get_gram_info(VMG_ vm_obj_id_t self,
 
     /*
      *   This routine uses considerable extra stack in the course of its
-     *   work, so check in advance that we have enough space to run.  
+     *   work, so check in advance that we have enough space to run.
      */
     if (!G_stk->check_space(8))
         err_throw(VMERR_STACK_OVERFLOW);
@@ -2735,10 +2735,10 @@ int CVmObjGramProd::getp_get_gram_info(VMG_ vm_obj_id_t self,
         vm_obj_id_t tok_lst_id;
         CVmObjList *tok_lst;
 
-        /* 
+        /*
          *   if our imported GrammarAltInfo class isn't defined, we can't
          *   provide rule-alternative information, so just fill in the list
-         *   with a nil 
+         *   with a nil
          */
         if (G_predef->gramprod_gram_alt_info == VM_INVALID_OBJ)
         {
@@ -2760,16 +2760,16 @@ int CVmObjGramProd::getp_get_gram_info(VMG_ vm_obj_id_t self,
 
         /*
          *   Run through the tokens in the rule alternative, and build a list
-         *   of token descriptor structures. 
+         *   of token descriptor structures.
          */
         for (j = 0, tokp = (*altp)->toks ; j < (*altp)->tok_cnt ; ++j, ++tokp)
         {
             vm_val_t tok_obj_val;
 
-            /* 
+            /*
              *   if our imported GrammarAltTokInfo class isn't defined, we
              *   can't provide token information, so just fill in the list
-             *   with a nil 
+             *   with a nil
              */
             if (G_predef->gramprod_gram_alt_tok_info == VM_INVALID_OBJ)
             {
@@ -2780,12 +2780,12 @@ int CVmObjGramProd::getp_get_gram_info(VMG_ vm_obj_id_t self,
                 /* done with this slot */
                 continue;
             }
-            
-            /* 
+
+            /*
              *   The constructor arguments are the target property ID, the
              *   token type code, and extra information that depends on the
              *   type code.  We have to push the arguments backwards per the
-             *   normal protocol, so start with the variant part.  
+             *   normal protocol, so start with the variant part.
              */
             switch (tokp->typ)
             {
@@ -2821,7 +2821,7 @@ int CVmObjGramProd::getp_get_gram_info(VMG_ vm_obj_id_t self,
                          ++k, ++pp)
                     {
                         vm_val_t val;
-                        
+
                         /* fill in this element */
                         val.set_propid(*pp);
                         pos_lst->cons_set_element(k, &val);
@@ -2842,9 +2842,9 @@ int CVmObjGramProd::getp_get_gram_info(VMG_ vm_obj_id_t self,
                 break;
 
             case VMGRAM_MATCH_STAR:
-                /* 
+                /*
                  *   for a 'star' type, there is no extra information, but
-                 *   push nil to keep the argument list uniform 
+                 *   push nil to keep the argument list uniform
                  */
                 G_stk->push()->set_nil();
                 break;
@@ -2861,9 +2861,9 @@ int CVmObjGramProd::getp_get_gram_info(VMG_ vm_obj_id_t self,
             else
                 G_stk->push()->set_nil();
 
-            /* 
+            /*
              *   the first argument to the constructor is the base class,
-             *   which is the imported GrammarAltTokInfo class object 
+             *   which is the imported GrammarAltTokInfo class object
              */
             G_stk->push()->set_obj(G_predef->gramprod_gram_alt_tok_info);
 
@@ -2874,14 +2874,14 @@ int CVmObjGramProd::getp_get_gram_info(VMG_ vm_obj_id_t self,
             tok_lst->cons_set_element(j, &tok_obj_val);
         }
 
-        /* 
+        /*
          *   Create the GrammarAltInfo object to desribe the alternative.
          *   Pass in the score, badness, match object, and token list as
          *   arguments to the constructor, which we'll count on to stash the
          *   information away in the new object.
-         *   
+         *
          *   Note that the first constructor argument is the superclass,
-         *   which is the imported GrammarAltInfo class object.  
+         *   which is the imported GrammarAltInfo class object.
          */
         G_stk->push()->set_obj(tok_lst_id);
         G_stk->push()->set_obj((*altp)->proc_obj);
@@ -2893,11 +2893,11 @@ int CVmObjGramProd::getp_get_gram_info(VMG_ vm_obj_id_t self,
         /* add the new GrammarAltInfo to the main alternative list */
         alt_lst->cons_set_element(i, &alt_obj_val);
 
-        /* 
+        /*
          *   It's safe to discard the gc protection for the token list now,
          *   since a reference to is now stashed away in the GrammarAltInfo
          *   object, which in turn is referenced from our main alternative
-         *   list, which we stashed on the stack earlier for gc protection.  
+         *   list, which we stashed on the stack earlier for gc protection.
          */
         G_stk->discard();
     }
@@ -2914,13 +2914,13 @@ int CVmObjGramProd::getp_get_gram_info(VMG_ vm_obj_id_t self,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   deleteAlt() method - remove an alternative from our rule list 
+ *   deleteAlt() method - remove an alternative from our rule list
  */
 int CVmObjGramProd::getp_deleteAlt(VMG_ vm_obj_id_t self,
                                    vm_val_t *retval, uint *oargc)
 {
     const vm_val_t *v;
-    
+
     /* check arguments */
     uint argc = (oargc != 0 ? *oargc : 0);
     static CVmNativeCodeDesc desc(1, 1);
@@ -2960,19 +2960,19 @@ int CVmObjGramProd::getp_deleteAlt(VMG_ vm_obj_id_t self,
         /* get the length and buffer pointer for the tag */
         size_t idlen = vmb_get_len(idstr);
         idstr += VMB_LEN;
-        
+
         /* get the garmmarTag property import */
         vm_prop_id_t grammarTag = G_predef->gramprod_tag;
 
         /* set up a recursive invoker for grammarTag */
         vm_rcdesc rc(vmg_ "GrammarProd.deleteAlt", self,
                      PROPIDX_deleteAlt, id, argc);
-        
+
         /*
          *   Delete by tag name.  Run through the alternatives and delete
          *   each one whose match object's grammarTag property matches the
          *   given tag name.  Work backwards through the array to avoid the
-         *   overhead of closing gaps when we delete items.  
+         *   overhead of closing gaps when we delete items.
          */
         for (int idx = get_ext()->alt_cnt_ ; idx != 0 ; )
         {
@@ -2982,9 +2982,9 @@ int CVmObjGramProd::getp_deleteAlt(VMG_ vm_obj_id_t self,
             /* get this item's match object */
             vm_obj_id_t m = get_ext()->alts_[idx]->proc_obj;
 
-            /* 
+            /*
              *   if there's a match object, and the 'grammarTag' import is
-             *   defined, check the match object's grammarTag value 
+             *   defined, check the match object's grammarTag value
              */
             if (m != VM_INVALID_OBJ && grammarTag != VM_INVALID_PROP)
             {
@@ -3008,17 +3008,17 @@ int CVmObjGramProd::getp_deleteAlt(VMG_ vm_obj_id_t self,
     }
     else if (id->typ == VM_OBJ)
     {
-        /* 
+        /*
          *   Delete each alternative whose match object equals or is a
          *   subclass of the given object.  Work backwards from the end of
          *   the list to avoid the overhead of closing the gap when we delete
-         *   an item earlier in the array.  
+         *   an item earlier in the array.
          */
         for (int idx = get_ext()->alt_cnt_ ; idx != 0 ; )
         {
             /* on to the next index */
             --idx;
-            
+
             /* check for a match to the match object */
             vm_obj_id_t m = get_ext()->alts_[idx]->proc_obj;
             if (m != VM_INVALID_OBJ
@@ -3054,7 +3054,7 @@ int CVmObjGramProd::getp_deleteAlt(VMG_ vm_obj_id_t self,
  *   and deletes each alternative marked with the 'del' flag.  We save undo
  *   for the deletions and update the dictionary (if provided) to remove
  *   literals associated with this production that are no longer used in any
- *   alternative after the deletions.  
+ *   alternative after the deletions.
  */
 void CVmObjGramProd::delete_marked_alts(
     VMG_ vm_obj_id_t self, vm_obj_id_t dict)
@@ -3083,9 +3083,9 @@ void CVmObjGramProd::delete_marked_alts(
             vmgram_tok_info *tok = alt->toks;
             for (size_t j = 0 ; j < alt->tok_cnt ; ++j, ++tok)
             {
-                /* 
+                /*
                  *   if it's a literal, and it's not defined in a surviving
-                 *   alternative, delete it from the dictionary 
+                 *   alternative, delete it from the dictionary
                  */
                 if (tok->typ == VMGRAM_MATCH_LITERAL
                     && !find_literal_in_alts(
@@ -3100,9 +3100,9 @@ void CVmObjGramProd::delete_marked_alts(
         }
     }
 
-    /* 
+    /*
      *   Perform the deletions.  Work backwards from the end of the array to
-     *   avoid overhead closing gaps in the array. 
+     *   avoid overhead closing gaps in the array.
      */
     for (size_t i = get_ext()->alt_cnt_ ; i > 0 ; )
     {
@@ -3115,22 +3115,22 @@ void CVmObjGramProd::delete_marked_alts(
             /* unmark it, in case we later restore it via undo */
             alt->del = FALSE;
 
-            /* 
+            /*
              *   If this is the only remaining alternative with the same
              *   match object that's being deleted, rebuild the match
              *   object's grammarAltProps list.  If there's another
              *   alternative yet to be deleted that uses the same match
              *   object, don't bother doing the rebuild now, since we'll do
              *   it again when the loop reaches the earlier alternative, and
-             *   we only need to do it once for the whole batch.  
+             *   we only need to do it once for the whole batch.
              */
             int rebuild = TRUE;
             for (size_t j = 0 ; j < i ; ++j)
             {
-                /* 
+                /*
                  *   if this one's being deleted, and it has the same match
                  *   object, skip the rebuild now since we'll do it when we
-                 *   get to 'j' in the main loop 
+                 *   get to 'j' in the main loop
                  */
                 if (alts[j]->del && alts[j]->proc_obj == alt->proc_obj)
                 {
@@ -3153,20 +3153,20 @@ void CVmObjGramProd::delete_marked_alts(
 }
 
 /*
- *   Scan surviving alternatives (not marked with 'del') for a given literal 
+ *   Scan surviving alternatives (not marked with 'del') for a given literal
  */
 int CVmObjGramProd::find_literal_in_alts(const char *str, size_t len)
 {
-    /* 
+    /*
      *   Scan the surviving alternatives to see if this same literal token
      *   appears in any of them.  If not, it's no longer in use in the
-     *   production, so delete it from the dictionary.  
+     *   production, so delete it from the dictionary.
      */
     for (size_t i = 0 ; i < get_ext()->alt_cnt_ ; ++i)
     {
         /* get this item */
         vmgram_alt_info *alt = get_ext()->alts_[i];
-        
+
         /* if it's being deleted, skip it */
         if (alt->del)
             continue;
@@ -3188,7 +3188,7 @@ int CVmObjGramProd::find_literal_in_alts(const char *str, size_t len)
 }
 
 /*
- *   delete an alternative, keeping undo 
+ *   delete an alternative, keeping undo
  */
 void CVmObjGramProd::delete_alt_undo(VMG_ vm_obj_id_t self, int idx)
 
@@ -3200,7 +3200,7 @@ void CVmObjGramProd::delete_alt_undo(VMG_ vm_obj_id_t self, int idx)
     /* save the record */
     if (!G_undo->add_new_record_ptr_key(vmg_ self, rec))
         delete rec;
-    
+
     /* remove the alternative from the array */
     delete_alt(idx);
 }
@@ -3209,7 +3209,7 @@ void CVmObjGramProd::delete_alt_undo(VMG_ vm_obj_id_t self, int idx)
  *   Check for circular references.  After deleting one or more alternatives,
  *   call this to see if we can clear the circular reference flag.  This
  *   scans the surviging alternatives, and clears the flag if none of them
- *   are circular.  
+ *   are circular.
  */
 void CVmObjGramProd::check_circular_refs(vm_obj_id_t self)
 {
@@ -3222,7 +3222,7 @@ void CVmObjGramProd::check_circular_refs(vm_obj_id_t self)
     {
         /* get the alternative */
         vmgram_alt_info *alt = *altp;
-        
+
         /* check for a circular reference */
         if (alt->tok_cnt != 0
             && alt->toks->typ == VMGRAM_MATCH_PROD
@@ -3240,7 +3240,7 @@ void CVmObjGramProd::check_circular_refs(vm_obj_id_t self)
 /*
  *   Rebuild the grammarAltProps list for a given match object.  This creates
  *   a list of all of the properties used in "->" expressions in all of the
- *   alternatives associated with the match object. 
+ *   alternatives associated with the match object.
  */
 void CVmObjGramProd::build_alt_props(VMG_ vm_obj_id_t match_obj)
 {
@@ -3276,14 +3276,14 @@ size_t CVmObjGramProd::build_alt_props_list(
 {
     /* we haven't stored any properties yet */
     size_t n = 0;
-    
+
     /* run through the surviving alternatives */
     vmgram_alt_info **alts = get_ext()->alts_;
     for (size_t i = 0 ; i < get_ext()->alt_cnt_ ; ++i, ++alts)
     {
-        /* 
+        /*
          *   if this alternative isn't being deleted, and it's associated
-         *   with the given match object, add its properties to the list 
+         *   with the given match object, add its properties to the list
          */
         vmgram_alt_info *alt = *alts;
         if (!alt->del && alt->proc_obj == match_obj)
@@ -3302,7 +3302,7 @@ size_t CVmObjGramProd::build_alt_props_list(
                         v.set_propid(tok->prop);
                         lst->cons_set_element(n, &v);
                     }
-                    
+
                     /* count it */
                     ++n;
                 }
@@ -3317,7 +3317,7 @@ size_t CVmObjGramProd::build_alt_props_list(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   clearAlts() method - removes all alternatives 
+ *   clearAlts() method - removes all alternatives
  */
 int CVmObjGramProd::getp_clearAlts(VMG_ vm_obj_id_t self,
                                    vm_val_t *retval, uint *oargc)
@@ -3486,7 +3486,7 @@ int CVmObjGramProd::getp_addAlt(VMG_ vm_obj_id_t self,
                                 vm_val_t *retval, uint *oargc)
 {
     const vm_val_t *v;
-    
+
     /* check arguments */
     uint argc = (oargc != 0 ? *oargc : 0);
     static CVmNativeCodeDesc desc(2, 2);

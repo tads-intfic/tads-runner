@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/VMINIT.CPP,v 1.3 1999/07/11 00:46:58 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -16,7 +16,7 @@ Function
   Provides functions to create and destroy global objects for a VM
   session.
 Notes
-  
+
 Modified
   04/06/99 MJRoberts  - Creation
 */
@@ -61,15 +61,15 @@ Modified
  */
 void vm_init_base(vm_globals **vmg, const vm_init_options *opts)
 {
-    /* 
+    /*
      *   Allocate globals according to build-time configuration, then
      *   assign the global pointer to a local named vmg__.  This will
      *   ensure that the globals are accessible for all of the different
-     *   build-time configurations.  
+     *   build-time configurations.
      */
     vm_globals *vmg__ = *vmg = vmglob_alloc();
 
-    /* 
+    /*
      *   in configurations where globals aren't passed as parameters, vmg__
      *   will never be referenced; explicitly reference it so that the
      *   compiler knows the assignment above is intentional even if it's not
@@ -91,13 +91,13 @@ void vm_init_base(vm_globals **vmg, const vm_init_options *opts)
             VM_ERR_MSG_FNAME, 0, VM_ERR_MSG_RESTYPE);
         if (fp != 0)
         {
-            /* 
+            /*
              *   try loading it - if that fails, we'll just be left with
              *   the built-in messages, so we won't have lost anything for
-             *   trying 
+             *   trying
              */
             err_load_vm_message_file(fp);
-            
+
             /* we're done with the file */
             osfcls(fp);
         }
@@ -116,10 +116,10 @@ void vm_init_base(vm_globals **vmg, const vm_init_options *opts)
     VM_IF_ALLOC_PRE_GLOBAL(G_obj_table = new CVmObjTable());
     G_obj_table->init(vmg0_);
 
-    /* 
+    /*
      *   Create the memory manager.  Empirically, our hybrid heap allocator
      *   is faster than the standard C++ run-time library's allocator on many
-     *   platforms, so use it instead of hte basic 'malloc' allocator. 
+     *   platforms, so use it instead of hte basic 'malloc' allocator.
      */
     G_varheap = new CVmVarHeapHybrid(G_obj_table);
     // G_varheap = new CVmVarHeapMalloc(); to use the system 'malloc' instead
@@ -177,7 +177,7 @@ void vm_init_base(vm_globals **vmg, const vm_init_options *opts)
     /*
      *   If the caller explicitly specified a character set, use it.
      *   Otherwise, ask the OS layer for the default character set we
-     *   should use. 
+     *   should use.
      */
     char disp_mapname[32];
     const char *charset = opts->charset;
@@ -214,7 +214,7 @@ void vm_init_base(vm_globals **vmg, const vm_init_options *opts)
     G_cmap_from_file = CCharmapToUni::load(map_loader, filecont_mapname);
     G_cmap_to_file = CCharmapToLocal::load(map_loader, filecont_mapname);
 
-    /* 
+    /*
      *   If the caller specified a separate log-file character set, create
      *   the mapping.  Otherwise, just use the to-file mapper for log files.
      */
@@ -252,9 +252,9 @@ void vm_init_base(vm_globals **vmg, const vm_init_options *opts)
     /* create the primary console */
     G_console = opts->clientifc->create_console(VMGLOB_ADDR);
 
-    /* 
+    /*
      *   if we had any trouble opening the display character mapping file,
-     *   make a note that we are using a default mapping 
+     *   make a note that we are using a default mapping
      */
     if (disp_map_err)
     {
@@ -275,13 +275,13 @@ void vm_init_base(vm_globals **vmg, const vm_init_options *opts)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Terminate the VM 
+ *   Terminate the VM
  */
 void vm_terminate(vm_globals *vmg__, CVmMainClientIfc *clientifc)
 {
     /* tell the debugger to shut down, if necessary */
     vm_terminate_debug_shutdown(vmg0_);
-    
+
     /* drop all undo information */
     G_undo->drop_undo(vmg0_);
 
@@ -335,7 +335,7 @@ void vm_terminate(vm_globals *vmg__, CVmMainClientIfc *clientifc)
     VM_IFELSE_ALLOC_PRE_GLOBAL(delete G_const_pool,
                                G_const_pool->terminate());
 
-    /* 
+    /*
      *   Clear the object table.  This deletes garbage-collected objects but
      *   doesn't delete the object table itself; we'll do that after we've
      *   cleared out the metaclass and function-set tables.  We need to

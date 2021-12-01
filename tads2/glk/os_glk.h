@@ -81,7 +81,7 @@ void *our_memcpy(void *dst, const void *src, size_t size);
 */
 #define os_csr_busy(show_as_busy)
 
-/* 
+/*
 ** If long cache-manager macros are NOT allowed, define
 ** OS_MCM_NO_MACRO.  This forces certain cache manager operations to
 ** be functions, which results in substantial memory savings.
@@ -254,12 +254,12 @@ int os_yield(void);
 /* We don't worry about setting a time zone, so zero this function */
 #define os_tzset()
 
-/* 
+/*
 ** Update progress display with linfdef info, if appropriate.  This can
 ** be used to provide a status display during compilation.  Most
 ** command-line implementations will just ignore this notification; this
 ** can be used for GUI compiler implementations to provide regular
-** display updates during compilation to show the progress so far.  
+** display updates during compilation to show the progress so far.
 */
 #define os_progress(linf)
 
@@ -287,7 +287,7 @@ int os_yield(void);
 /* ------------------------------------------------------------------------ */
 /*
 **   If the system "long description" (for the banner) isn't defined,
-**   make it the same as the platform ID string.  
+**   make it the same as the platform ID string.
 */
 #ifndef OS_SYSTEM_LDESC
 # define OS_SYSTEM_LDESC  OS_SYSTEM_NAME
@@ -308,7 +308,7 @@ int os_yield(void);
 /*
 **   Ports can define a special TDB startup message, which is displayed
 **   after the copyright/version banner.  If it's not defined at this
-**   point, define it to an empty string. 
+**   point, define it to an empty string.
 */
 #ifndef OS_TDB_STARTUP_MSG
 # define OS_TDB_STARTUP_MSG ""

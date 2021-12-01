@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 2001, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -27,7 +27,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Resource loader interface implementation 
+ *   Resource loader interface implementation
  */
 class CVmImageLoaderMres_resload: public CVmImageLoaderMres
 {
@@ -52,9 +52,9 @@ public:
     void add_resource(uint32_t seek_ofs, uint32_t siz,
                       const char *res_name, size_t res_name_len)
     {
-        /* 
+        /*
          *   if we've already found a match, there's no need to consider
-         *   anything else 
+         *   anything else
          */
         if (found_)
             return;
@@ -76,9 +76,9 @@ public:
     void add_resource(const char *fname, size_t fnamelen,
                       const char *res_name, size_t res_name_len)
     {
-        /* 
+        /*
          *   if we've already found a match, there's no need to consider
-         *   anything else 
+         *   anything else
          */
         if (found_)
             return;
@@ -123,20 +123,20 @@ private:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Try loading a resource from the executable file 
+ *   Try loading a resource from the executable file
  */
 osfildef *CResLoader::open_exe_res(const char *respath,
                                    const char *restype)
 {
     osfildef *exe_fp;
 
-    /* 
+    /*
      *   if we don't have an executable filename stored, or we don't have an
-     *   executable resource type ID, we can't load the resource 
+     *   executable resource type ID, we can't load the resource
      */
     if (exe_filename_ == 0 || restype == 0)
         return 0;
-    
+
     /* find the executable file's resources */
     exe_fp = os_exeseek(exe_filename_, restype);
 
@@ -144,20 +144,20 @@ osfildef *CResLoader::open_exe_res(const char *respath,
     if (exe_fp != 0)
     {
         CVmImageLoaderMres_resload res_ifc(respath);
-        
+
         /* try loading the resources */
         CVmImageLoader::
             load_resources_from_fp(exe_fp, exe_filename_, &res_ifc);
-        
+
         /* check to see if we found it */
         if (res_ifc.found_resource())
         {
             /* check the type */
             if (res_ifc.get_link_fname() != 0)
             {
-                /* 
+                /*
                  *   it's a linked local file - close the exe file and open
-                 *   the local file instead 
+                 *   the local file instead
                  */
                 osfcls(exe_fp);
                 exe_fp = osfoprb(res_ifc.get_link_fname(), OSFOPRB);
@@ -191,26 +191,26 @@ osfildef *CResLoader::open_lib_res(const char *libfile,
 
     /* try opening the file */
     fp = osfoprb(libfile, OSFTT3IMG);
-    
+
     /* if we couldn't open the file, we can't load the resource */
     if (fp == 0)
         return 0;
 
     /* set up a resource finder for our resource */
     CVmImageLoaderMres_resload res_ifc(respath);
-    
+
     /* load the file, so that we can try finding the resource */
     CVmImageLoader::load_resources_from_fp(fp, libfile, &res_ifc);
-    
+
     /* check to see if we found it */
     if (res_ifc.found_resource())
     {
         /* we got it - check the type */
         if (res_ifc.get_link_fname() != 0)
         {
-            /* 
+            /*
              *   linked local file - close the library file and open the
-             *   local file instead 
+             *   local file instead
              */
             osfcls(fp);
             fp = osfoprb(res_ifc.get_link_fname(), OSFOPRB);

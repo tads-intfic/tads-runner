@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -17,7 +17,7 @@ Function
   module should be linked into non-debug builds of the interpreter,
   so that debugger-related files are omitted from the executable.
 Notes
-  
+
 Modified
   12/03/99 MJRoberts  - Creation
 */
@@ -27,7 +27,7 @@ Modified
 #include "vmparam.h"
 
 /*
- *   Initialize the debugger 
+ *   Initialize the debugger
  */
 void vm_init_debugger(VMG0_)
 {
@@ -35,7 +35,7 @@ void vm_init_debugger(VMG0_)
 }
 
 /*
- *   Initialization, phase 2: just before loading image file 
+ *   Initialization, phase 2: just before loading image file
  */
 void vm_init_before_load(VMG_ const char *image_filename)
 {
@@ -43,7 +43,7 @@ void vm_init_before_load(VMG_ const char *image_filename)
 }
 
 /*
- *   Initialization, phase 3: just after loading the image file 
+ *   Initialization, phase 3: just after loading the image file
  */
 void vm_init_after_load(VMG0_)
 {
@@ -52,7 +52,7 @@ void vm_init_after_load(VMG0_)
 
 
 /*
- *   Termination - shut down the debugger 
+ *   Termination - shut down the debugger
  */
 void vm_terminate_debug_shutdown(VMG0_)
 {
@@ -60,7 +60,7 @@ void vm_terminate_debug_shutdown(VMG0_)
 }
 
 /*
- *   Termination - delete debugger objects 
+ *   Termination - delete debugger objects
  */
 void vm_terminate_debug_delete(VMG0_)
 {
@@ -68,7 +68,7 @@ void vm_terminate_debug_delete(VMG0_)
 }
 
 /*
- *   In the non-debug version, use the basic stack reserve parameter.  
+ *   In the non-debug version, use the basic stack reserve parameter.
  */
 size_t vm_init_stack_reserve()
 {

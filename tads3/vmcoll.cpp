@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmcoll.cpp - collection metaclass
 Function
-  
+
 Notes
-  
+
 Modified
   04/22/00 MJRoberts  - Creation
 */
@@ -56,7 +56,7 @@ int (CVmObjCollection::
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Get a property 
+ *   Get a property
  */
 int CVmObjCollection::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                                vm_obj_id_t self, vm_obj_id_t *source_obj,
@@ -105,7 +105,7 @@ int CVmObjCollection::const_get_coll_prop(VMG_ vm_prop_id_t prop,
 }
 
 /*
- *   Create an iterator 
+ *   Create an iterator
  */
 int CVmObjCollection::getp_create_iter(VMG_ vm_val_t *retval,
                                        const vm_val_t *self_val, uint *argc)
@@ -130,7 +130,7 @@ int CVmObjCollection::getp_create_iter(VMG_ vm_val_t *retval,
 }
 
 /*
- *   Create a live iterator 
+ *   Create a live iterator
  */
 int CVmObjCollection::getp_create_live_iter(VMG_ vm_val_t *retval,
                                             const vm_val_t *self_val,

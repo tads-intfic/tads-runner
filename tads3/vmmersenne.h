@@ -5,9 +5,9 @@
 Name
   vmmersenne.h - Mersenne twister random number generator definitions
 Function
-  
+
 Notes
-  
+
 Modified
   02/28/12 MJRoberts  - Creation
 */
@@ -19,7 +19,7 @@ Modified
 
 
 /*
- *   Mersenne Twister MT19937 algorithm 
+ *   Mersenne Twister MT19937 algorithm
  */
 class CVmMT19937
 {
@@ -36,7 +36,7 @@ public:
         os_gen_rand_bytes((unsigned char *)mt, sizeof(mt));
     }
 
-    /* 
+    /*
      *   Seed from an integer value.  This uses an LCG to extend the integer
      *   to fill the array.  This follows the reference implementation's
      *   seeding mechanism, which lets us test against reference output.
@@ -46,7 +46,7 @@ public:
         /* do a pass through the mt array with LCG values from the seed */
         base_seed(s);
 
-        /* 
+        /*
          *   discard a few initial values to prime the pump - the MT
          *   algorithm is considered slow at getting started (i.e., it needs
          *   to run through a few iterations before it starts generating good
@@ -56,7 +56,7 @@ public:
             rand();
     }
 
-    /* 
+    /*
      *   Seed the generator from bytes.  The seed can be any size; we'll use
      *   a combination of hashing and LCG generation to populate the internal
      *   state vector.
@@ -66,7 +66,7 @@ public:
         /*
          *   Use the mechanism from the reference implementation for seeding
          *   from multiple values.  First do a fixed seeding of the mt array
-         *   to fill it with nonzero bits. 
+         *   to fill it with nonzero bits.
          */
         base_seed(19650218);
 
@@ -82,7 +82,7 @@ public:
                 partial += buf[i]*mul;
         }
 
-        /* 
+        /*
          *   do a pass over the mt array, doing the sort of LCG
          *   initialization we do with a single int seed, but folding each
          *   seed value into the running LCG feedback register
@@ -92,7 +92,7 @@ public:
         {
             /* get the current seed (the last one might be partial) */
             uint32_t seed = (j+1)*4 <= (int)len ? osrp4(buf + j*4) : partial;
-           
+
             /* generate an LCG value mixing in this seed value */
             mt[i] = (mt[i] ^ ((mt[i-1] ^ (mt[i-1] >> 30)) * 0x19660D))
                     + seed + j;
@@ -192,7 +192,7 @@ protected:
                 mt[i] ^= 0x9908b0df;
         }
     }
-    
+
     /* internal state vector */
     static const int NMT = 624;
     uint32_t mt[NMT];

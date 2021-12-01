@@ -2,11 +2,11 @@
 $Header: d:/cvsroot/tads/TADS2/LIN.H,v 1.2 1999/05/17 02:52:12 MJRoberts Exp $
 */
 
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -92,7 +92,7 @@ struct lindef
 /*
  *   Maximum allowed value for linlln, in bytes.  This allows subsystems
  *   that need to maintain local copies of seek locations to know how big
- *   an area to allocate for them.  
+ *   an area to allocate for them.
  */
 #define LINLLNMAX   20
 

@@ -2,11 +2,11 @@
 $Header: d:/cvsroot/tads/TADS2/CMD.H,v 1.2 1999/05/17 02:52:11 MJRoberts Exp $
 */
 
-/* 
+/*
  *   Copyright (c) 1992, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -32,7 +32,7 @@ Modified
  *   including the '-') in this option flag; most options will have ofs==1
  *   since they are of the form '-x'.  usagefn is a function to call if
  *   the parsing fails; it is not expected to return, but should signal an
- *   error instead.  
+ *   error instead.
  */
 char *cmdarg(struct errcxdef *ec, char ***argpp, int *ip, int argc,
              int ofs, void (*usagefn)(struct errcxdef*));
@@ -47,7 +47,7 @@ char *cmdarg(struct errcxdef *ec, char ***argpp, int *ip, int argc,
  *   TRUE; if it's followed by '-', the value is FALSE; if followed by
  *   nothing, the option is the logical inverse of the previous value.  If
  *   it's followed by any other character, we call the usage callback,
- *   which is not expected to return, but should signal an error. 
+ *   which is not expected to return, but should signal an error.
  */
 int cmdtog(struct errcxdef *ec, int prv, char *argp, int ofs,
            void (*usagefn)(struct errcxdef*));

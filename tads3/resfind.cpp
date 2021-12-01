@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 2001, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -17,7 +17,7 @@ Function
   except osifc, which it uses for portable file I/O and portable byte
   format conversions.
 Notes
-  
+
 Modified
   09/24/01 MJRoberts  - Creation
 */
@@ -30,13 +30,13 @@ Modified
 #include "resfind.h"
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   tads 2 file signature 
+/*
+ *   tads 2 file signature
  */
 #define T2_SIG "TADS2 bin\012\015\032"
 
-/* 
- *   tads 3 file signature 
+/*
+ *   tads 3 file signature
  */
 #define T3_SIG "T3-image\015\012\032"
 
@@ -44,7 +44,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Find a resource in a tads 2 game file 
+ *   Find a resource in a tads 2 game file
  */
 static int t2_find_res(osfildef *fp, const char *resname,
                        tads_resinfo *info)
@@ -60,29 +60,29 @@ static int t2_find_res(osfildef *fp, const char *resname,
     /* note the length of the name we're seeking */
     resname_len = strlen(resname);
 
-    /* 
+    /*
      *   note the seek location of the start of the tads 2 game file stream
      *   within the file - if the game file is embedded in a larger file
      *   stream, the seek locations we find within the file are relative to
-     *   this starting location 
+     *   this starting location
      */
     startpos = osfpos(fp);
 
-    /* 
+    /*
      *   skip past the tads 2 file header (13 bytes for the signature, 7
      *   bytes for the version header, 2 bytes for the flags, 26 bytes for
-     *   the timestamp) 
+     *   the timestamp)
      */
     osfseek(fp, 13 + 7 + 2 + 26, OSFSK_CUR);
 
-    /* 
+    /*
      *   scan the sections in the file; stop on $EOF, and skip everything
-     *   else but HTMLRES, which is the section type that 
+     *   else but HTMLRES, which is the section type that
      */
     for (;;)
     {
         unsigned long endofs;
-        
+
         /* read the section type and next-section pointer */
         if (osfrb(fp, buf, 1)
             || osfrb(fp, buf + 1, (int)((unsigned char)buf[0] + 4)))
@@ -99,11 +99,11 @@ static int t2_find_res(osfildef *fp, const char *resname,
         {
             unsigned long entry_cnt;
             unsigned long i;
-            
-            /* 
+
+            /*
              *   It's a multimedia resource block.  Read the index table
              *   header (which contains the number of entries and a reserved
-             *   uint32).  
+             *   uint32).
              */
             if (osfrb(fp, buf, 8))
                 return FALSE;
@@ -131,19 +131,19 @@ static int t2_find_res(osfildef *fp, const char *resname,
                 if (name_len > sizeof(buf) || osfrb(fp, buf, name_len))
                     return FALSE;
 
-                /* 
+                /*
                  *   if it matches the name we're looking for, note that we
-                 *   found it 
+                 *   found it
                  */
                 if (name_len == resname_len
                     && memicmp(resname, buf, name_len) == 0)
                 {
-                    /* 
+                    /*
                      *   note that we found it, and note its resource size
                      *   and offset in the return structure - but keep
                      *   scanning the rest of the directory, since we need
                      *   to know where the directory ends to know where the
-                     *   actual resources begin 
+                     *   actual resources begin
                      */
                     found = TRUE;
                     info->seek_pos = res_ofs;
@@ -151,10 +151,10 @@ static int t2_find_res(osfildef *fp, const char *resname,
                 }
             }
 
-            /* 
+            /*
              *   if we found our resource, the current seek position is the
              *   base of the offset we found in the directory; so fix up the
-             *   offset to give the actual file location 
+             *   offset to give the actual file location
              */
             if (found)
             {
@@ -170,15 +170,15 @@ static int t2_find_res(osfildef *fp, const char *resname,
         }
         else if (buf[0] == 4 && memcmp(buf+1, "$EOF", 4) == 0)
         {
-            /* 
+            /*
              *   that's the end of the file - we've finished without finding
-             *   the resource, so return failure 
+             *   the resource, so return failure
              */
             return FALSE;
         }
         else
         {
-            /* 
+            /*
              *   this isn't a section we're interested in - skip to the end
              *   of the section and keep going
              */
@@ -196,13 +196,13 @@ static int t3_find_res(osfildef *fp, const char *resname,
 {
     char buf[256];
     size_t resname_len;
-    
+
     /* note the length of the name we're seeking */
     resname_len = strlen(resname);
 
-    /* 
+    /*
      *   skip the file header - 11 bytes for the signature, 2 bytes for the
-     *   format version, 32 reserved bytes, and 24 bytes for the timestamp 
+     *   format version, 32 reserved bytes, and 24 bytes for the timestamp
      */
     osfseek(fp, 11 + 2 + 32 + 24, OSFSK_CUR);
 
@@ -210,7 +210,7 @@ static int t3_find_res(osfildef *fp, const char *resname,
     for (;;)
     {
         unsigned long siz;
-        
+
         /* read the block header */
         if (osfrb(fp, buf, 10))
             return FALSE;
@@ -225,10 +225,10 @@ static int t3_find_res(osfildef *fp, const char *resname,
             unsigned int entry_cnt;
             unsigned int i;
 
-            /* 
+            /*
              *   remember the current seek position - the data seek location
              *   for each index entry is given as an offset from this
-             *   location 
+             *   location
              */
             base_ofs = osfpos(fp);
 
@@ -269,7 +269,7 @@ static int t3_find_res(osfildef *fp, const char *resname,
                 if (entry_name_len == resname_len
                     && memicmp(resname, buf, resname_len) == 0)
                 {
-                    /* 
+                    /*
                      *   fill in the return information - note that the
                      *   entry offset given in the header is an offset from
                      *   data block's starting location, so fix this up to
@@ -285,18 +285,18 @@ static int t3_find_res(osfildef *fp, const char *resname,
         }
         else if (memcmp(buf, "EOF ", 4) == 0)
         {
-            /* 
+            /*
              *   end of file - we've finished without finding the resource,
-             *   so return failure 
+             *   so return failure
              */
             return FALSE;
         }
         else
         {
-            /* 
+            /*
              *   we don't care about anything else - just skip this block
              *   and keep going; to skip the block, simply seek ahead by the
-             *   size of the block's contents as given in the block header 
+             *   size of the block's contents as given in the block header
              */
             osfseek(fp, siz, OSFSK_CUR);
         }
@@ -310,11 +310,11 @@ static int t3_find_res(osfildef *fp, const char *resname,
  *   invoked - this allows searching for a resource within a game file that
  *   is embedded in a larger file stream, since we don't care where within
  *   the osfildef stream the tads game file starts.
- *   
+ *
  *   Fills in the resource information structure with the seek offset and
  *   size of the resource in the file and returns true if the resource is
  *   found; returns false if a resource with the given name doesn't exist in
- *   the file.  
+ *   the file.
  */
 int tads_find_resource_fp(osfildef *fp, const char *resname,
                           tads_resinfo *info)
@@ -326,7 +326,7 @@ int tads_find_resource_fp(osfildef *fp, const char *resname,
     {
         /* seek back to the start of the header */
         osfseek(fp, -12, OSFSK_CUR);
-        
+
         /* check which signature we have */
         if (memcmp(buf, T2_SIG, strlen(T2_SIG)) == 0)
         {
@@ -340,21 +340,21 @@ int tads_find_resource_fp(osfildef *fp, const char *resname,
         }
     }
 
-    /* 
+    /*
      *   if we get here, it means either that we couldn't read the
      *   signature, or that we didn't recognize the signature - in either
-     *   case, we can't parse the file at all, so we can't find the resource 
+     *   case, we can't parse the file at all, so we can't find the resource
      */
     return FALSE;
 }
 
 /*
- *   Find a resource in a file, given the filename. 
- *   
+ *   Find a resource in a file, given the filename.
+ *
  *   Fills in the resource information structure with the seek offset and
  *   size of the resource in the file and returns true if the resource is
  *   found; returns false if a resource with the given name doesn't exist in
- *   the file.  
+ *   the file.
  */
 int tads_find_resource(const char *fname, const char *resname,
                        tads_resinfo *info)
@@ -383,7 +383,7 @@ int tads_find_resource(const char *fname, const char *resname,
 /* ------------------------------------------------------------------------ */
 /*
  *   Testing main - looks for a given resource in a given file, and copies
- *   it to standard output if found.  
+ *   it to standard output if found.
  */
 #ifdef TEST
 
@@ -394,7 +394,7 @@ int main(int argc, char **argv)
     const char *resname;
     tads_resinfo res_info;
     unsigned long rem;
-    
+
     /* check usage */
     if (argc != 3)
     {
@@ -431,9 +431,9 @@ int main(int argc, char **argv)
         char buf[1024];
         size_t cur;
 
-        /* 
+        /*
          *   read up to the buffer size or up to the resource size
-         *   remaining, whichever is smaller 
+         *   remaining, whichever is smaller
          */
         cur = sizeof(buf);
         if (cur > rem)

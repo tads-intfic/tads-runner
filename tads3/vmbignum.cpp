@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmbignum.cpp - big number metaclass
 Function
-  
+
 Notes
-  
+
 Modified
   02/18/00 MJRoberts  - Creation
 */
@@ -48,7 +48,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   statics 
+ *   statics
  */
 
 /* metaclass registration object */
@@ -118,7 +118,7 @@ const unsigned char CVmObjBigNum::one_[] =
 
 #if 0
 /*
- *   Pi to 2048 digits 
+ *   Pi to 2048 digits
  */
 const unsigned char CVmObjBigNum::pi_[] =
 {
@@ -131,9 +131,9 @@ const unsigned char CVmObjBigNum::pi_[] =
     /* flags */
     0x00,
 
-    /* 
+    /*
      *   the first 2048 decimal digits of pi, packed two to a byte (typed
-     *   in from memory - I hope I got everything right :) 
+     *   in from memory - I hope I got everything right :)
      */
 
     /* 1-100 */
@@ -149,7 +149,7 @@ const unsigned char CVmObjBigNum::pi_[] =
     0x25, 0x35, 0x94, 0x08, 0x12, 0x84, 0x81, 0x11, 0x74, 0x50,
     0x28, 0x41, 0x02, 0x70, 0x19, 0x38, 0x52, 0x11, 0x05, 0x55,
     0x96, 0x44, 0x62, 0x29, 0x48, 0x95, 0x49, 0x30, 0x38, 0x19,
-    
+
     /* 201-300 */
     0x64, 0x42, 0x88, 0x10, 0x97, 0x56, 0x65, 0x93, 0x34, 0x46,
     0x12, 0x84, 0x75, 0x64, 0x82, 0x33, 0x78, 0x67, 0x83, 0x16,
@@ -163,21 +163,21 @@ const unsigned char CVmObjBigNum::pi_[] =
     0x09, 0x17, 0x15, 0x36, 0x43, 0x67, 0x89, 0x25, 0x90, 0x36,
     0x00, 0x11, 0x33, 0x05, 0x30, 0x54, 0x88, 0x20, 0x46, 0x65,
     0x21, 0x38, 0x41, 0x46, 0x95, 0x19, 0x41, 0x51, 0x16, 0x09,
-    
+
     /* 401-500 */
     0x43, 0x30, 0x57, 0x27, 0x03, 0x65, 0x75, 0x95, 0x91, 0x95,
     0x30, 0x92, 0x18, 0x61, 0x17, 0x38, 0x19, 0x32, 0x61, 0x17,
     0x93, 0x10, 0x51, 0x18, 0x54, 0x80, 0x74, 0x46, 0x23, 0x79,
     0x96, 0x27, 0x49, 0x56, 0x73, 0x51, 0x88, 0x57, 0x52, 0x72,
     0x48, 0x91, 0x22, 0x79, 0x38, 0x18, 0x30, 0x11, 0x94, 0x91,
-    
+
     /* 501-600 */
     0x29, 0x83, 0x36, 0x73, 0x36, 0x24, 0x40, 0x65, 0x66, 0x43,
     0x08, 0x60, 0x21, 0x39, 0x49, 0x46, 0x39, 0x52, 0x24, 0x73,
     0x71, 0x90, 0x70, 0x21, 0x79, 0x86, 0x09, 0x43, 0x70, 0x27,
     0x70, 0x53, 0x92, 0x17, 0x17, 0x62, 0x93, 0x17, 0x67, 0x52,
     0x38, 0x46, 0x74, 0x81, 0x84, 0x67, 0x66, 0x94, 0x05, 0x13,
-    
+
     /* 601-700 */
     0x20, 0x00, 0x56, 0x81, 0x27, 0x14, 0x52, 0x63, 0x56, 0x08,
     0x27, 0x78, 0x57, 0x71, 0x34, 0x27, 0x57, 0x78, 0x96, 0x09,
@@ -296,7 +296,7 @@ extern CVmBigNumCache *S_bignum_cache;
 /* ------------------------------------------------------------------------ */
 /*
  *   Static creation methods.  These routines allocate an object ID and
- *   create a new object.  
+ *   create a new object.
  */
 
 
@@ -314,9 +314,9 @@ vm_obj_id_t CVmObjBigNum::create_from_stack(VMG_ const uchar **pc_ptr,
     if (argc < 1 || argc > 2)
         err_throw(VMERR_WRONG_NUM_OF_ARGS);
 
-    /* 
+    /*
      *   check the first argument, which gives the source value - this can be
-     *   an integer, a string, or another BigNumber value 
+     *   an integer, a string, or another BigNumber value
      */
     val = G_stk->get(0);
     if (val->typ == VM_INT)
@@ -338,9 +338,9 @@ vm_obj_id_t CVmObjBigNum::create_from_stack(VMG_ const uchar **pc_ptr,
         err_throw(VMERR_NUM_VAL_REQD);
     }
 
-    /* 
+    /*
      *   get the precision value, if provided; if not, infer it from the
-     *   source value 
+     *   source value
      */
     if (argc > 1)
     {
@@ -431,7 +431,7 @@ vm_obj_id_t CVmObjBigNum::createu(VMG_ int in_root_set,
 vm_obj_id_t CVmObjBigNum::create_int64(VMG_ int in_root_set,
                                        uint32_t hi, uint32_t lo)
 {
-    /* 
+    /*
      *   Store into our portable 8-byte format: the portable format is
      *   little-endian, so simply store the low part in the first four bytes,
      *   and the high part in the second four bytes.
@@ -440,7 +440,7 @@ vm_obj_id_t CVmObjBigNum::create_int64(VMG_ int in_root_set,
     oswp4(buf, lo);
     oswp4(buf+4, hi);
 
-    /* 
+    /*
      *   Now create the value from the buffer.  (This could be implemented a
      *   little more efficiently by working directly from the integers, but
      *   this is certainly not on any critical paths, and the create_rp8 code
@@ -453,9 +453,9 @@ vm_obj_id_t CVmObjBigNum::create_int64(VMG_ int in_root_set,
 vm_obj_id_t CVmObjBigNum::create_rp8(VMG_ int in_root_set,
                                      const char *buf)
 {
-    /* 
+    /*
      *   create the BigNumber object big enough to hold a 64-bit integer
-     *   value, which can have up to 20 digits 
+     *   value, which can have up to 20 digits
      */
     vm_obj_id_t id = vm_new_id(vmg_ in_root_set, FALSE, FALSE);
     new (vmg_ id) CVmObjBigNum(vmg_ 20);
@@ -475,9 +475,9 @@ vm_obj_id_t CVmObjBigNum::create_rp8(VMG_ int in_root_set,
 vm_obj_id_t CVmObjBigNum::create_rp8s(VMG_ int in_root_set,
                                       const char *buf)
 {
-    /* 
+    /*
      *   create the BigNumber object big enough to hold a 64-bit integer
-     *   value, which can have up to 20 digits 
+     *   value, which can have up to 20 digits
      */
     vm_obj_id_t id = vm_new_id(vmg_ in_root_set, FALSE, FALSE);
     new (vmg_ id) CVmObjBigNum(vmg_ 20);
@@ -487,13 +487,13 @@ vm_obj_id_t CVmObjBigNum::create_rp8s(VMG_ int in_root_set,
     uchar p[8];
     memcpy(p, buf, 8);
 
-    /* 
+    /*
      *   If the value is negative, as indicated by the sign bit on the most
      *   significant byte, get the absolute value by computing the two's
      *   complement.  This makes the arithmetic easy because we can do the
      *   bit twiddling with unsigned values, and just set the BigNum sign bit
      *   when we're done with all of that.
-     *   
+     *
      *   Note that this 2's complement arithmetic is truly portable - it
      *   doesn't matter whether the local machine's native int type is
      *   big-endian or little-endian or some bizarre interleaved-endian, or
@@ -504,7 +504,7 @@ vm_obj_id_t CVmObjBigNum::create_rp8s(VMG_ int in_root_set,
      *   a universal notation that we define as 64-bit 2's complement
      *   little-endian.  We're doing our work at the byte level, so as long
      *   as the local machine has 8+-bit bytes (which is a requirement for
-     *   the platform to have a C compiler), this code is portable.  
+     *   the platform to have a C compiler), this code is portable.
      */
     int neg = (p[7] & 0x80) != 0;
     if (neg)
@@ -523,16 +523,16 @@ vm_obj_id_t CVmObjBigNum::create_rp8s(VMG_ int in_root_set,
 /* set the value from an unsigned 64-bit little-endian buffer */
 void CVmObjBigNum::set_rp8(const uchar *p)
 {
-    /* 
+    /*
      *   set up temporary registers with enough precision for 64-bit ints (we
-     *   need at most 20 digits for these values) 
+     *   need at most 20 digits for these values)
      */
     char tmp1[5 + 20] = { 20, 0, 0, 0, 0 };
     char tmp2[5 + 20] = { 20, 0, 0, 0, 0 };
 
     /*
      *   shift in bits 24 at a time - this makes the math fit in 32-bit ints
-     *   so that we don't have to worry about int overflows 
+     *   so that we don't have to worry about int overflows
      */
     set_uint_val(get_ext(),
                  (((ulong)p[7]) << 16) | (((ulong)p[6]) << 8) | p[5]);
@@ -600,12 +600,12 @@ vm_obj_id_t CVmObjBigNum::create(VMG_ int in_root_set, double val,
 }
 
 /*
- *   Create from a BER-encoded compressed integer value 
+ *   Create from a BER-encoded compressed integer value
  */
 vm_obj_id_t CVmObjBigNum::create_from_ber(VMG_ int in_root_set,
                                           const char *buf, size_t len)
 {
-    /* 
+    /*
      *   Create the object. The source value has 7 bits of precision per
      *   byte.  We need log(2)/log(10) digits of precision per bit of
      *   precision, which is about 0.30103 digits per bit.
@@ -655,17 +655,17 @@ vm_obj_id_t CVmObjBigNum::create_from_ber(VMG_ int in_root_set,
  *   Create from a floating point value encoded in an IEEE 754-2008 binary
  *   interchange format, little-endian order.  We accept bit sizes of 16, 32,
  *   64, and 128 (half, single, double, and quad precision).
- *   
+ *
  */
 vm_obj_id_t CVmObjBigNum::create_from_ieee754(
     VMG_ int in_root_set, const char *buf, int bits)
 {
-    /* 
+    /*
      *   Create the object.  Use the decimal equivalent precision of the IEEE
      *   754 object.  Note that we use 17 digits for doubles; the binary type
      *   stores 53 bits of mantissa == 15.95 decimal digits, but there's a
      *   pathological case at 1+epsilon, which is 1 + 2e-16, which requires
-     *   17 decimal digits to store.  
+     *   17 decimal digits to store.
      */
     int prec = (bits == 16 ? 4 : bits == 32 ? 8 : bits == 64 ? 17 :
                 bits == 128 ? 35 : 8);
@@ -684,7 +684,7 @@ vm_obj_id_t CVmObjBigNum::create_from_ieee754(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Cast a value to BigNumber 
+ *   Cast a value to BigNumber
  */
 void CVmObjBigNum::cast_to_bignum(VMG_ vm_val_t *bnval,
                                   const vm_val_t *srcval)
@@ -719,7 +719,7 @@ void CVmObjBigNum::cast_to_bignum(VMG_ vm_val_t *bnval,
 
 
 /*
- *   Promote an integer value to BigNumber 
+ *   Promote an integer value to BigNumber
  */
 void CVmObjBigNum::promote_int(VMG_ vm_val_t *val) const
 {
@@ -730,11 +730,11 @@ void CVmObjBigNum::promote_int(VMG_ vm_val_t *val) const
 /* ------------------------------------------------------------------------ */
 /*
  *   Constructors.  These are called indirectly through our static
- *   creation methods.  
+ *   creation methods.
  */
 
 /*
- *   Create with no extension 
+ *   Create with no extension
  */
 CVmObjBigNum::CVmObjBigNum()
 {
@@ -743,7 +743,7 @@ CVmObjBigNum::CVmObjBigNum()
 }
 
 /*
- *   Create with a given precision 
+ *   Create with a given precision
  */
 CVmObjBigNum::CVmObjBigNum(VMG_ size_t digits)
 {
@@ -752,7 +752,7 @@ CVmObjBigNum::CVmObjBigNum(VMG_ size_t digits)
 }
 
 /*
- *   Create with a given integer value 
+ *   Create with a given integer value
  */
 CVmObjBigNum::CVmObjBigNum(VMG_ long val, size_t digits)
 {
@@ -776,7 +776,7 @@ CVmObjBigNum::CVmObjBigNum(VMG_ const char *str, size_t len, size_t digits)
 }
 
 /*
- *   Create from a double value 
+ *   Create from a double value
  */
 CVmObjBigNum::CVmObjBigNum(VMG_ double val, size_t digits)
 {
@@ -789,14 +789,14 @@ CVmObjBigNum::CVmObjBigNum(VMG_ double val, size_t digits)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Delete 
+ *   Delete
  */
 void CVmObjBigNum::notify_delete(VMG_ int in_root_set)
 {
-    /* 
+    /*
      *   free our extension - do this only if it's not in the root set,
      *   because extension will be directly in the image data for a root
-     *   set object 
+     *   set object
      */
     if (ext_ != 0 && !in_root_set)
         G_mem->get_var_heap()->free_mem(ext_);
@@ -805,7 +805,7 @@ void CVmObjBigNum::notify_delete(VMG_ int in_root_set)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Allocate space for a given precision 
+ *   Allocate space for a given precision
  */
 void CVmObjBigNum::alloc_bignum(VMG_ size_t digits)
 {
@@ -825,7 +825,7 @@ void CVmObjBigNum::alloc_bignum(VMG_ size_t digits)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Write to a 'data' mode file 
+ *   Write to a 'data' mode file
  */
 int CVmObjBigNum::write_to_data_file(CVmDataSource *fp)
 {
@@ -846,7 +846,7 @@ int CVmObjBigNum::write_to_data_file(CVmDataSource *fp)
 
 /*
  *   Read from a 'data' mode file and instantiate a new BigNumber object to
- *   hold the result 
+ *   hold the result
  */
 int CVmObjBigNum::read_from_data_file(VMG_ vm_val_t *retval, CVmDataSource *fp)
 {
@@ -874,7 +874,7 @@ int CVmObjBigNum::read_from_data_file(VMG_ vm_val_t *retval, CVmDataSource *fp)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Set my value to a string 
+ *   Set my value to a string
  */
 void CVmObjBigNum::set_str_val(const char *str, size_t len)
 {
@@ -885,7 +885,7 @@ void CVmObjBigNum::set_str_val(const char *str, size_t len)
 /*
  *   Set my string value with a given radix.  If the radix is decimal, we'll
  *   use the regular floating point parser.  Otherwise we'll parse it as an
- *   integer value in the given radix.  
+ *   integer value in the given radix.
  */
 void CVmObjBigNum::set_str_val(const char *str, size_t len, int radix)
 {
@@ -897,7 +897,7 @@ void CVmObjBigNum::set_str_val(const char *str, size_t len, int radix)
 /*
  *   IEEE 754-2008 binary interchange format buffer manipulation.  We arrange
  *   our buffer in little-endian order to match the idiosyncratic TADS
- *   pack/unpack formats, but otherwise we use the standard IEEE formats.  
+ *   pack/unpack formats, but otherwise we use the standard IEEE formats.
  */
 
 /* IEEE 754-2008 buffer */
@@ -909,7 +909,7 @@ struct ieee754
         this->buf = (unsigned char *)buf;
         this->bits = bits;
         this->bytes = bits/8;
-        
+
         /* get the mantissa size (in bits) for the format size */
         mbits = (bits == 16 ? 10 :
                  bits == 32 ? 23 :
@@ -918,22 +918,22 @@ struct ieee754
                  0);
         if (mbits == 0)
             err_throw(VMERR_NO_DOUBLE_CONV);
-        
+
         /* the exponent uses the leftover bits, minus the sign bit */
         ebits = bits - mbits - 1;
-        
+
         /* figure the exponent bias - it's the halfway point for the range */
         ebias = (1 << (ebits - 1)) - 1;
-        
+
         /* figure the exponent range */
         emin = 1 - ebias;
         emax = ebias;
     }
 
-    /* 
+    /*
      *   Get the number of decimal digits this type can represent.  The
      *   decimal precision is fractional, since the IEEE type is binary; we
-     *   round up to the next integer.  There's a 
+     *   round up to the next integer.  There's a
      */
     int decimal_digits()
     {
@@ -957,10 +957,10 @@ struct ieee754
     /* set Infinity */
     void set_infinity(int neg)
     {
-        /* 
+        /*
          *   Infinity is represented with the maximum exponent plus one, and
          *   the mantissa set to all zeros.  Infinities can be positive or
-         *   negative, so set the sign bit.  
+         *   negative, so set the sign bit.
          */
         memset(buf, 0, bytes);
         set_exp(emax + 1);
@@ -970,9 +970,9 @@ struct ieee754
     /* is the value zero? */
     int is_zero() const
     {
-        /* 
+        /*
          *   a zero is represented by all bits zero except possibly the sign
-         *   bit, which is 0 for +0 and 1 for -0 
+         *   bit, which is 0 for +0 and 1 for -0
          */
         int sum = 0;
         for (int i = 0 ; i < bytes - 1 ; ++i)
@@ -984,10 +984,10 @@ struct ieee754
     /* set Zero */
     void set_zero(int neg)
     {
-        /* 
+        /*
          *   Zero is represented with an exponent of zero and all zero bits
          *   in the mantissa.  Zeros can be positive or negative, so set the
-         *   sign bit.  
+         *   sign bit.
          */
         memset(buf, 0, bytes);
         set_sign(neg);
@@ -1043,9 +1043,9 @@ struct ieee754
     /* set NAN (not a number) */
     void set_nan()
     {
-        /* 
+        /*
          *   NAN (Not A Number) is represented with the maximum exponent plus
-         *   one, and a non-zero mantissa.  
+         *   one, and a non-zero mantissa.
          */
         set_exp(emax + 1);
         set_mbit(0, 1);
@@ -1094,11 +1094,11 @@ struct ieee754
         else
             buf[byteidx] &= ~mask;
     }
-    
-    /* 
+
+    /*
      *   Round up - add 1 to the lowest bit.  Returns true if we carried to
-     *   out of the highest order bit, false if not. 
-     *   
+     *   out of the highest order bit, false if not.
+     *
      *   Carrying means that we carried into the implied "1" above the first
      *   stored bit.  That bumps that bit to 0 and carries to the next bit,
      *   so we now have an implied "10" before the first bit.  The caller
@@ -1107,7 +1107,7 @@ struct ieee754
      *   number, because bumping the exponent works for both.  For
      *   subnormals, we carry into the implied "0" above the first bit, which
      *   bumps it to 1, which puts us in the normalized range, which we
-     *   represent by bumping the exponent up one to emin.)  
+     *   represent by bumping the exponent up one to emin.)
      */
     int round_up()
     {
@@ -1127,11 +1127,11 @@ struct ieee754
                 return FALSE;
             }
         }
-        
-        /* 
+
+        /*
          *   if we got this far, we've carried into the most significant
          *   byte, which is a partial byte - we need to use the msb bit mask
-         *   for this arithmetic 
+         *   for this arithmetic
          */
         unsigned char mask = mantissa_msb_mask();
         int b = (buf[imsb] + 1) & mask;
@@ -1176,7 +1176,7 @@ struct ieee754
             /* it fits in the first two bytes */
             buf[bytes-1] &= 0x80;
             buf[bytes-1] |= (e >> (ebits - 7)) & 0x7f;
-            
+
             mask = (0xff << (15 - ebits)) & 0xff;
             buf[bytes-2] &= ~mask;
             buf[bytes-2] |= (e << (15 - ebits)) & mask;
@@ -1246,7 +1246,7 @@ struct ieee754
  *   this is for consistency with the idiosyncratic TADS pack/unpack formats,
  *   which use little-endian ordering for consistency with the standard TADS
  *   integer interchange formats.  To get the fully standard format, simply
- *   reverse the byte order of the buffer we return.  
+ *   reverse the byte order of the buffer we return.
  */
 void CVmObjBigNum::convert_to_ieee754(VMG_ char *buf, int bits, int &ov)
 {
@@ -1256,10 +1256,10 @@ void CVmObjBigNum::convert_to_ieee754(VMG_ char *buf, int bits, int &ov)
     /* set up the buffer descriptor */
     ieee754 val(buf, bits);
 
-    /* 
+    /*
      *   Check for zero, infinity, and NAN.  These all have special
      *   representations that don't follow from the arithmetic algorithm
-     *   below.  
+     *   below.
      */
     if (is_zero(ext_))
     {
@@ -1277,7 +1277,7 @@ void CVmObjBigNum::convert_to_ieee754(VMG_ char *buf, int bits, int &ov)
         return;
     }
 
-    /* 
+    /*
      *   Figure the precision we need for our intermediate calculations.  Our
      *   most demanding calculation is the log2 of the value; we need to be
      *   able to represent the full precision of the binary type in the
@@ -1286,14 +1286,14 @@ void CVmObjBigNum::convert_to_ieee754(VMG_ char *buf, int bits, int &ov)
      *   for this calculation is (decimal digits of mantissa) + (decimal
      *   digits of exponent).  Add a couple of guard digits as usual so that
      *   we don't lose significant precision in rounding in intermediate
-     *   calculations.  
+     *   calculations.
      */
     int prec = val.decimal_digits() + val.decimal_exp_digits() + 2;
 
-    /* 
+    /*
      *   Set up some registers for intermediate calculations.  We don't have
      *   to allocate these since we know the upper bound to the precision
-     *   we'll need (namely 35+2 for the 128-bit type). 
+     *   we'll need (namely 35+2 for the 128-bit type).
      */
     char t1[5+37] = { (char)prec, 0, 0, 0, 0 };
     char t2buf[5+37] = { (char)prec, 0, 0, 0, 0 }, *t2 = t2buf;
@@ -1306,24 +1306,24 @@ void CVmObjBigNum::convert_to_ieee754(VMG_ char *buf, int bits, int &ov)
      *   == W+F, which makes N == 2^(W+F) == 2^W * 2^F == 2^F * 2^W.  Recall
      *   that the format we're looking for is A*2^B, which we now have: A is
      *   2^F, and B is W.
-     *   
+     *
      *   That will give us *a* binary representation of the number, but not
      *   necessarily the canonical representation: we have to normalize by
      *   choosing the exponent such that the implied (but not stored) first
      *   bit of the mantissa is 1.  The ln2 calculation will get us close; we
      *   then need to adjust the exponent once we start pulling out the bits
-     *   of the mantissa.  
+     *   of the mantissa.
      */
 
     /* get/cache ln2 to the required precision */
     const char *ln2 = cache_ln2(prec);
 
-    /* 
+    /*
      *   Get the absolute value of the argument.  Our format and the IEEE
      *   format both represent the value as a combination of an absolute
      *   value and a sign, so the only thing we need to do with the sign is
      *   to set the same sign on the result as on the input.  For the log
-     *   calculation, though, we need to be working with a positive value. 
+     *   calculation, though, we need to be working with a positive value.
      */
     copy_val(t2, ext_, TRUE);
     set_neg(t2, FALSE);
@@ -1332,7 +1332,7 @@ void CVmObjBigNum::convert_to_ieee754(VMG_ char *buf, int bits, int &ov)
     compute_ln_into(t1, t2);
     compute_quotient_into(t2, 0, t1, ln2);
 
-    /* 
+    /*
      *   Get the whole part as an integer - this is the "B" value as above.
      *   Note that this will definitely fit in a 32-bit integer type:
      *   BigNumber stores absolute values in the range 10^-32768 to 10^32767,
@@ -1344,9 +1344,9 @@ void CVmObjBigNum::convert_to_ieee754(VMG_ char *buf, int bits, int &ov)
     if (get_neg(t1))
         b = -b;
 
-    /* 
+    /*
      *   Calculate 2^fractional part - this is the "A" value as above.  2^y =
-     *   e^(y*ln2), so calculate t2*ln2 into t3, then e^t3 back into t2.  
+     *   e^(y*ln2), so calculate t2*ln2 into t3, then e^t3 back into t2.
      */
     compute_frac(t2);
     compute_prod_into(t1, t2, ln2);
@@ -1356,9 +1356,9 @@ void CVmObjBigNum::convert_to_ieee754(VMG_ char *buf, int bits, int &ov)
      *   If 'b' is less than emin-1 (the subnormal exponent value), we need
      *   to raise it back up to emin-1.  Do this by halving the mantissa and
      *   incrementing 'b', repeating until 'b' is emin-1.
-     *   
+     *
      *   If 'b' is less than emin-1 by more than the bit precision of the
-     *   target type, we won't have any bits to store, so store zero.  
+     *   target type, we won't have any bits to store, so store zero.
      */
     if (b < val.emin - 1 - val.mbits)
     {
@@ -1371,14 +1371,14 @@ void CVmObjBigNum::convert_to_ieee754(VMG_ char *buf, int bits, int &ov)
         b += 1;
     }
 
-    /* 
+    /*
      *   Extract the bits of the mantissa.  Do this by repeatedly shifting
      *   and subtracting: starting with divisor = 1, if decimal mantissa >=
      *   divisor, subtract divisor and set the current bit in the output to
      *   1, otherwise set the output bit to 0; set divisor = divisor/2,
      *   repeat until we've filled the output mantissa.  A is 2^fraction,
      *   where -1 < fraction < 1, so 0.5 < A < 2.
-     *   
+     *
      *   Normalization requires that the output mantissa start with an
      *   implied 1.  This means that we ignore leading zeros; for each
      *   leading zero, we decrement b but don't set an output bit.  When we
@@ -1388,7 +1388,7 @@ void CVmObjBigNum::convert_to_ieee754(VMG_ char *buf, int bits, int &ov)
      *   any further; instead, start storing leading zeros.  (Subnormal
      *   means that the number is stored with an implied *0* leading bit, and
      *   the special stored exponent value of emin-1, which implies an actual
-     *   exponent of emin.)  
+     *   exponent of emin.)
      */
     copy_val(t1, (const char *)one_, FALSE);
     int mbit, sig;
@@ -1397,10 +1397,10 @@ void CVmObjBigNum::convert_to_ieee754(VMG_ char *buf, int bits, int &ov)
         /* the current bit is 1 if t2 >= t1 */
         if (compare_abs(t2, t1) >= 0)
         {
-            /* 
+            /*
              *   it's a 1 bit - if it's the first 1 bit, note that we've
              *   found a significant bit, but don't store it, since the first
-             *   bit is implied in the output format 
+             *   bit is implied in the output format
              */
             if (sig || b == val.emin - 1)
                 val.set_mbit(mbit++, 1);
@@ -1415,10 +1415,10 @@ void CVmObjBigNum::convert_to_ieee754(VMG_ char *buf, int bits, int &ov)
         }
         else
         {
-            /* 
+            /*
              *   It's a zero bit - store it if we've found a 1 already, OR
              *   the exponent is already at the subnormal value.  Otherwise
-             *   just decrement the exponent.  
+             *   just decrement the exponent.
              */
             if (sig || b == val.emin - 1)
                 val.set_mbit(mbit++, 0);
@@ -1427,13 +1427,13 @@ void CVmObjBigNum::convert_to_ieee754(VMG_ char *buf, int bits, int &ov)
         }
     }
 
-    /* 
+    /*
      *   Round the result: if the remainder is less than half of the last
      *   bit's value (i.e., t2 < t1), round down (i.e., do nothing).  If the
      *   remainder is greater than half of the last bit's value (i.e. t2 >
      *   t1), round up (add 1 to the low-order bit).  If the remainder is
      *   exactly half of the last bit's value, round up if the last bit was a
-     *   1, down if it was a 0.  
+     *   1, down if it was a 0.
      */
     int r = compare_abs(t2, t1);
     if (r > 0 || (r == 0 && val.get_mbit(val.mbits-1)))
@@ -1465,7 +1465,7 @@ void CVmObjBigNum::convert_to_ieee754(VMG_ char *buf, int bits, int &ov)
  *   the standard IEEE format, except that it's little endian, for
  *   consistency with the TADS pack/unpack formats.  To convert a buffer in
  *   the fully standard IEEE format, simply reverse the byte order before
- *   converting.  
+ *   converting.
  */
 void CVmObjBigNum::set_ieee754_value(VMG_ const char *buf, int bits)
 {
@@ -1491,16 +1491,16 @@ void CVmObjBigNum::set_ieee754_value(VMG_ const char *buf, int bits)
         return;
     }
 
-    /* 
+    /*
      *   figure the precision for our intermediate calculations based on the
-     *   precision of the source format in decimal digits 
+     *   precision of the source format in decimal digits
      */
     int prec = val.decimal_digits() + 2;
 
-    /* 
+    /*
      *   Set up some registers for intermediate calculations.  We don't have
      *   to allocate these since we know the upper bound to the precision
-     *   we'll need (namely 35+2 for the 128-bit type).  
+     *   we'll need (namely 35+2 for the 128-bit type).
      */
     char t1[5+37] = { (char)prec, 0, 0, 0, 0 };
     char t2buf[5+37] = { (char)prec, 0, 0, 0, 0 }, *t2 = t2buf;
@@ -1514,9 +1514,9 @@ void CVmObjBigNum::set_ieee754_value(VMG_ const char *buf, int bits)
      *   in register t1 and zero in the accumulator.  If the leading bit is 1
      *   (exponent >= emin), add r1 to the accumulator.  Divide t1 by 2 and
      *   loop: if the current bit is set, add t1 to the accumulator.  Repeat
-     *   for each bit of the mantissa.  
+     *   for each bit of the mantissa.
      */
-    
+
     /* calculate t1 = 2^B = e^(B*ln2) */
     const char *ln2 = cache_ln2(prec);
     int e = val.get_exp();
@@ -1524,10 +1524,10 @@ void CVmObjBigNum::set_ieee754_value(VMG_ const char *buf, int bits)
     compute_prod_into(t2, t1, ln2);
     compute_exp_into(t1, t2);
 
-    /* 
+    /*
      *   If b > emin-1, there's an implied 1 bit for the whole part.  If b ==
      *   emin-1, we have a subnormal number, meaning that the implied lead
-     *   bit is 0, and the actual exponent is val.emin.  
+     *   bit is 0, and the actual exponent is val.emin.
      */
     if (e > val.emin - 1)
     {
@@ -1536,7 +1536,7 @@ void CVmObjBigNum::set_ieee754_value(VMG_ const char *buf, int bits)
     }
     else
     {
-        /* 
+        /*
          *   subnormal - the implied leading bit is "0", but the actual
          *   exponent value is emin - one higher than it appears
          */
@@ -1583,7 +1583,7 @@ const char *CVmObjBigNum::cast_to_string(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   Convert to string with a given radix 
+ *   Convert to string with a given radix
  */
 const char *CVmObjBigNum::explicit_to_string(
     VMG_ vm_obj_id_t self, vm_val_t *new_str, int radix, int flags) const
@@ -1593,24 +1593,24 @@ const char *CVmObjBigNum::explicit_to_string(
      *   without a fractional part, generate the integer representation in
      *   the given radix.  If we have a fractional part, or the requested
      *   radix is decimal, use the floating-point formatter instead.
-     *   
+     *
      *   Also use an integer conversion if we've been specfically asked for
-     *   an integer conversion.  
+     *   an integer conversion.
      */
     if ((radix != 10 && is_frac_zero(ext_))
         || (flags & TOSTR_ROUND) != 0)
     {
-        /* 
+        /*
          *   it's all integer, and we have a non-decimal radix - format as an
-         *   integer 
+         *   integer
          */
         return cvt_to_string_in_radix(vmg_ self, new_str, radix);
     }
     else
-    {   
-        /* 
+    {
+        /*
          *   no radix, or we have a fraction - use the basic floating-point
-         *   formatter with default options 
+         *   formatter with default options
          */
         return cvt_to_string(vmg_ self, new_str, ext_, 100, -1, -1, -1, 0, 0);
     }
@@ -1618,7 +1618,7 @@ const char *CVmObjBigNum::explicit_to_string(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   String buffer allocator 
+ *   String buffer allocator
  */
 char *CBigNumStringBufAlo::get_buf(size_t need)
 {
@@ -1640,7 +1640,7 @@ char *CBigNumStringBufAlo::get_buf(size_t need)
 /* ------------------------------------------------------------------------ */
 /*
  *   convert to a string, storing the result in the given buffer if it'll
- *   fit, otherwise in a new string 
+ *   fit, otherwise in a new string
  */
 const char *CVmObjBigNum::cvt_to_string_buf(
     VMG_ vm_val_t *new_str, char *buf, size_t buflen,
@@ -1658,7 +1658,7 @@ const char *CVmObjBigNum::cvt_to_string_buf(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Convert to a string, creating a new string object to hold the result 
+ *   Convert to a string, creating a new string object to hold the result
  */
 const char *CVmObjBigNum::cvt_to_string(
     VMG_ vm_obj_id_t self, vm_val_t *new_str, const char *ext,
@@ -1692,7 +1692,7 @@ const char *CVmObjBigNum::cvt_to_string(
             lead_fill_str = 0;
     }
 
-    /* 
+    /*
      *   convert to a string - don't pass in a buffer, since we want to
      *   create a new string to hold the result
      */
@@ -1724,9 +1724,9 @@ const char *CVmObjBigNum::cvt_to_string_in_radix(
     }
     else if (is_infinity(ext_))
     {
-        /* 
+        /*
          *   show infinity as "1.#INF" for positive or unsigned, "-1.#INF"
-         *   for negative infinity 
+         *   for negative infinity
          */
         fixed = (neg ? "-1.#INF" : "1.#INF");
     }
@@ -1748,29 +1748,29 @@ const char *CVmObjBigNum::cvt_to_string_in_radix(
             /* if there's a fractional part, round to integer */
             round_to_int(tmp);
 
-            /* 
+            /*
              *   It's an ordinary non-zero number.  Figure how many digits
              *   the integer portion will take in the given radix.  This is
              *   fairly simple: a D digit number in decimal requires
              *   D/log10(R) digits in base R, rounding up.  Our storage
              *   format makes it easy to determine D - it's simply our
-             *   base-10 exponent.  
+             *   base-10 exponent.
              */
             int len = (int)ceil(get_exp(ext_) / log10((double)radix));
 
             /* if the value is zero, we need one digit for the zero */
             if (len == 0)
                 len = 1;
-            
+
             /* if it's negative, add space for the '-' */
             if (neg)
                 len += 1;
-            
+
             /* create the string */
             new_str->set_obj(CVmObjString::create(vmg_ FALSE, len));
             CVmObjString *str = (CVmObjString *)vm_objp(vmg_ new_str->val.obj);
             char *buf = str->cons_get_buf(), *p = buf;
-            
+
             /* add the '-' sign if negative */
             if (neg)
             {
@@ -1778,7 +1778,7 @@ const char *CVmObjBigNum::cvt_to_string_in_radix(
                 ++buf;
                 --len;
             }
-            
+
             /* generate the digits */
             while (!is_zero(tmp) && p - buf < len)
             {
@@ -1789,10 +1789,10 @@ const char *CVmObjBigNum::cvt_to_string_in_radix(
                 /* add it to the output */
                 *p++ = (char)(rem < 10 ? rem + '0' : rem - 10 + 'A');
             }
-            
-            /* 
+
+            /*
              *   We just generated the digits in reverse order.  Reverse the
-             *   string so that they're in the right order. 
+             *   string so that they're in the right order.
              */
             char *p1, *p2, tmp;
             for (p1 = buf, p2 = p - 1 ; p2 > p1 ; --p2, ++p1)
@@ -1823,13 +1823,13 @@ const char *CVmObjBigNum::cvt_to_string_in_radix(
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   save to a file 
+/*
+ *   save to a file
  */
 void CVmObjBigNum::save_to_file(VMG_ class CVmFile *fp)
 {
     size_t prec;
-    
+
     /* get our precision */
     prec = get_prec(ext_);
 
@@ -1837,14 +1837,14 @@ void CVmObjBigNum::save_to_file(VMG_ class CVmFile *fp)
     fp->write_bytes(ext_, calc_alloc(prec));
 }
 
-/* 
- *   restore from a file 
+/*
+ *   restore from a file
  */
 void CVmObjBigNum::restore_from_file(VMG_ vm_obj_id_t,
                                      CVmFile *fp, CVmObjFixup *)
 {
     size_t prec;
-    
+
     /* read the precision */
     prec = fp->read_uint2();
 
@@ -1867,8 +1867,8 @@ void CVmObjBigNum::restore_from_file(VMG_ vm_obj_id_t,
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   set a property 
+/*
+ *   set a property
  */
 void CVmObjBigNum::set_prop(VMG_ class CVmUndo *,
                             vm_obj_id_t, vm_prop_id_t,
@@ -1879,7 +1879,7 @@ void CVmObjBigNum::set_prop(VMG_ class CVmUndo *,
 }
 
 /*
- *   get a static property 
+ *   get a static property
  */
 int CVmObjBigNum::call_stat_prop(VMG_ vm_val_t *result, const uchar **pc_ptr,
                                  uint *argc, vm_prop_id_t prop)
@@ -1895,23 +1895,23 @@ int CVmObjBigNum::call_stat_prop(VMG_ vm_val_t *result, const uchar **pc_ptr,
         return s_getp_e(vmg_ result, argc);
 
     default:
-        /* 
+        /*
          *   we don't define this one - inherit the default from the base
-         *   object metaclass 
+         *   object metaclass
          */
         return CVmObject::call_stat_prop(vmg_ result, pc_ptr, argc, prop);
     }
 }
 
-/* 
- *   get a property 
+/*
+ *   get a property
  */
 int CVmObjBigNum::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *val,
                            vm_obj_id_t self, vm_obj_id_t *source_obj,
                            uint *argc)
 {
     uint func_idx;
-    
+
     /* translate the property into a function vector index */
     func_idx = G_meta_table
                ->prop_to_vector_idx(metaclass_reg_->get_reg_idx(), prop);
@@ -1928,7 +1928,7 @@ int CVmObjBigNum::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *val,
 }
 
 /*
- *   Property evaluator - formatString 
+ *   Property evaluator - formatString
  */
 int CVmObjBigNum::getp_format(VMG_ vm_obj_id_t self,
                               vm_val_t *retval, uint *argc)
@@ -1941,7 +1941,7 @@ int CVmObjBigNum::getp_format(VMG_ vm_obj_id_t self,
     int exp_digits = -1;
     vm_val_t *lead_fill = 0;
     static CVmNativeCodeDesc desc(0, 6);
-    
+
     /* check arguments */
     if (get_prop_check_argc(retval, argc, &desc))
         return TRUE;
@@ -1966,9 +1966,9 @@ int CVmObjBigNum::getp_format(VMG_ vm_obj_id_t self,
     if (orig_argc >= 5)
         exp_digits = CVmBif::pop_int_or_nil(vmg_ -1);
 
-    /* 
+    /*
      *   get the lead fill string if provided (leave it on the stack to
-     *   protect against garbage collection) 
+     *   protect against garbage collection)
      */
     if (orig_argc >= 6)
         lead_fill = G_stk->get(0);
@@ -1993,7 +1993,7 @@ int CVmObjBigNum::getp_equal_rnd(VMG_ vm_obj_id_t self,
 {
     vm_val_t val2;
     static CVmNativeCodeDesc desc(1);
-    
+
     /* check arguments */
     if (get_prop_check_argc(retval, argc, &desc))
         return TRUE;
@@ -2010,7 +2010,7 @@ int CVmObjBigNum::getp_equal_rnd(VMG_ vm_obj_id_t self,
     else
     {
         int ret;
-        
+
         /* test for equality */
         ret = compute_eq_round(vmg_ ext_, get_objid_ext(vmg_ val2.val.obj));
 
@@ -2023,7 +2023,7 @@ int CVmObjBigNum::getp_equal_rnd(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   property eval - get the precision 
+ *   property eval - get the precision
  */
 int CVmObjBigNum::getp_get_prec(VMG_ vm_obj_id_t self,
                                 vm_val_t *retval, uint *argc)
@@ -2042,7 +2042,7 @@ int CVmObjBigNum::getp_get_prec(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   property eval - set the precision 
+ *   property eval - set the precision
  */
 int CVmObjBigNum::getp_set_prec(VMG_ vm_obj_id_t self,
                                 vm_val_t *retval, uint *argc)
@@ -2086,7 +2086,7 @@ int CVmObjBigNum::s_getp_pi(VMG_ vm_val_t *val, uint *argc)
     char *new_ext;
     const char *pi;
     static CVmNativeCodeDesc desc(1);
-    
+
     /* check arguments */
     if (get_prop_check_argc(val, argc, &desc))
         return TRUE;
@@ -2143,9 +2143,9 @@ int CVmObjBigNum::s_getp_e(VMG_ vm_val_t *val, uint *argc)
  *   Set up for a zero-argument operation that returns a BigNumber result.
  *   Returns true if the argument check indicates that the caller should
  *   simply return to its caller, false if the caller should proceed.
- *   
+ *
  *   After checking the argument count, we'll proceed to set up the return
- *   value as per setup_getp_retval().  
+ *   value as per setup_getp_retval().
  */
 int CVmObjBigNum::setup_getp_0(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                uint *argc, char **new_ext)
@@ -2164,16 +2164,16 @@ int CVmObjBigNum::setup_getp_0(VMG_ vm_obj_id_t self, vm_val_t *retval,
  *   the argument and returns a BigNumber result.  Does the work of
  *   setup_getp_0, but also pops the argument value and converts it to a
  *   BigNumber (throwing an error if the value is not convertible).
- *   
+ *
  *   Fills in val2 with the argument value, and fills in *ext2 with val2's
  *   extension buffer.
- *   
+ *
  *   The result value will have the larger of the precisions of self and
  *   the other value, unless use_self_prec is set, in which case we'll use
- *   self's precision unconditionally.  
- *   
+ *   self's precision unconditionally.
+ *
  *   If either argument is not a number, we'll set the return value to the
- *   not-a-number argument unchanged, and return true.  
+ *   not-a-number argument unchanged, and return true.
  */
 int CVmObjBigNum::setup_getp_1(VMG_ vm_obj_id_t self,
                                vm_val_t *retval, uint *argc,
@@ -2206,9 +2206,9 @@ int CVmObjBigNum::setup_getp_1(VMG_ vm_obj_id_t self,
         return TRUE;
     }
 
-    /* 
+    /*
      *   if val2's precision is higher than ours, use it, unless we've
-     *   been specifically told to use our own precision for the result 
+     *   been specifically told to use our own precision for the result
      */
     size_t prec = get_prec(ext_);
     if (!use_self_prec && get_prec(*ext2) > prec)
@@ -2236,20 +2236,20 @@ int CVmObjBigNum::setup_getp_1(VMG_ vm_obj_id_t self,
  *   true if we finished the operation, in which case the caller should
  *   simply return; returns false if the operation should still be carried
  *   out, in which case the caller should proceed as normal.
- *   
+ *
  *   If the 'self' value is not-a-number, we'll return it as the result
  *   (and return true to indicate that no further processing is required).
- *   
+ *
  *   If we return false, we'll have pushed a reference to 'self' onto the
  *   stack for protection against garbage collection.  The caller must
  *   discard this reference before returning.  We push no such
  *   self-reference if we return true.
- *   
+ *
  *   In addition, if we return false, we'll fill in '*new_ext' with a
  *   pointer to the extension buffer for the return value object that we
  *   allocate.  We'll allocate the return value with the same precision as
  *   'self'.
- *   
+ *
  *   Note that the caller should ensure that any argument sare removed
  *   from the stack before calling this routine, since we might push the
  *   self-reference onto the stack.
@@ -2287,11 +2287,11 @@ int CVmObjBigNum::getp_frac(VMG_ vm_obj_id_t self,
     /* check arguments and allocate the result value */
     if (setup_getp_0(vmg_ self, retval, argc, &new_ext))
         return TRUE;
-    
+
     /* make a copy in the new object, and get the fractional portion */
     memcpy(new_ext, ext_, calc_alloc(get_prec(ext_)));
     compute_frac(new_ext);
-    
+
     /* remove my self-reference */
     G_stk->discard();
 
@@ -2349,29 +2349,29 @@ int CVmObjBigNum::getp_round_dec(VMG_ vm_obj_id_t self,
     /* make a copy in the new object */
     memcpy(new_ext, ext_, calc_alloc(prec));
 
-    /* 
+    /*
      *   Determine if the first digit we're lopping off is actually
      *   represented in the number or not.  This digit position is the
      *   exponent plus the number of decimal places after the decimal to
      *   keep - if this value is at least zero and less than the
-     *   precision, it's part of the number.  
+     *   precision, it's part of the number.
      */
     post_idx = places + exp;
     if (post_idx < 0)
     {
-        /* 
+        /*
          *   the digit after the last digit to keep is actually before the
          *   beginning of the number, so the result of the rounding is
-         *   simply zero 
+         *   simply zero
          */
         set_zero(new_ext);
     }
     else if (post_idx >= (int)prec)
     {
-        /* 
+        /*
          *   the digit after the last digit to keep is past the end of the
          *   represented digits, so rounding has no effect at all - we'll
-         *   simply return the same number 
+         *   simply return the same number
          */
     }
     else
@@ -2409,15 +2409,15 @@ int CVmObjBigNum::getp_abs(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   absolute value 
+ *   absolute value
  */
 int CVmObjBigNum::abs_val(VMG_ vm_val_t *retval, vm_obj_id_t self)
 {
-    /* 
+    /*
      *   If I'm not an ordinary number or an infinity, or I'm already
      *   non-negative, return myself unchanged.  Note that we change negative
      *   infinity to infinity, even though this might not make a great deal
-     *   of sense mathematically.  
+     *   of sense mathematically.
      */
     if (!get_neg(ext_)
         || (get_type(ext_) != VMBN_T_NUM && get_type(ext_) != VMBN_T_INF))
@@ -2429,7 +2429,7 @@ int CVmObjBigNum::abs_val(VMG_ vm_val_t *retval, vm_obj_id_t self)
     /* push a self-reference while we're working */
     G_stk->push()->set_obj(self);
 
-    /* 
+    /*
      *   if I'm negative infinity, we don't need any precision in the new
      *   value; otherwise use my original precision
      */
@@ -2499,9 +2499,9 @@ int CVmObjBigNum::getp_ceil(VMG_ vm_obj_id_t self,
     /* check what we have */
     if (exp <= 0)
     {
-        /* 
+        /*
          *   it's an entirely fractional number - the result is zero if
-         *   the number is negative or zero, one if the number is positive 
+         *   the number is negative or zero, one if the number is positive
          */
         if (get_neg(new_ext) || frac_zero)
         {
@@ -2520,9 +2520,9 @@ int CVmObjBigNum::getp_ceil(VMG_ vm_obj_id_t self,
         for (idx = (size_t)exp ; idx < prec ; ++idx)
             set_dig(new_ext, idx, 0);
 
-        /* 
+        /*
          *   if there's a fractional part and it's positive, increment the
-         *   number 
+         *   number
          */
         if (!frac_zero && !get_neg(new_ext))
             increment_abs(new_ext);
@@ -2536,7 +2536,7 @@ int CVmObjBigNum::getp_ceil(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   property eval - floor (greatest integer <= self) 
+ *   property eval - floor (greatest integer <= self)
  */
 int CVmObjBigNum::getp_floor(VMG_ vm_obj_id_t self,
                              vm_val_t *retval, uint *argc)
@@ -2560,9 +2560,9 @@ int CVmObjBigNum::getp_floor(VMG_ vm_obj_id_t self,
     /* check what we have */
     if (exp <= 0)
     {
-        /* 
+        /*
          *   it's an entirely fractional number - the result is zero if
-         *   the number is positive or zero, -1 if the number is negative 
+         *   the number is positive or zero, -1 if the number is negative
          */
         if (!get_neg(new_ext) || frac_zero)
         {
@@ -2582,9 +2582,9 @@ int CVmObjBigNum::getp_floor(VMG_ vm_obj_id_t self,
         for (idx = (size_t)exp ; idx < prec ; ++idx)
             set_dig(new_ext, idx, 0);
 
-        /* 
+        /*
          *   if there's a fractional part and the number is negative,
-         *   increment the number's absolute value 
+         *   increment the number's absolute value
          */
         if (!frac_zero && get_neg(new_ext))
             increment_abs(new_ext);
@@ -2620,7 +2620,7 @@ int CVmObjBigNum::getp_get_scale(VMG_ vm_obj_id_t self,
         /* return an integer giving the number's scale */
         retval->set_int(get_exp(ext_));
     }
-    
+
     /* handled */
     return TRUE;
 }
@@ -2646,7 +2646,7 @@ int CVmObjBigNum::getp_scale(VMG_ vm_obj_id_t self,
     /* set up the return value */
     if (setup_getp_retval(vmg_ self, retval, &new_ext, prec))
         return TRUE;
-    
+
     /* copy the value */
     memcpy(new_ext, ext_, calc_alloc(prec));
 
@@ -2700,9 +2700,9 @@ int CVmObjBigNum::getp_copy_sign(VMG_ vm_obj_id_t self,
     /* set the sign from the other object */
     set_neg(new_ext, get_neg(ext2));
 
-    /* 
+    /*
      *   normalize it (this is important when the value was zero to start
-     *   with, since zero is always represented without a negative sign) 
+     *   with, since zero is always represented without a negative sign)
      */
     normalize(new_ext);
 
@@ -2785,9 +2785,9 @@ int CVmObjBigNum::getp_remainder(VMG_ vm_obj_id_t self,
     rem_ext = compute_init_2op(vmg_ &rem_val, ext_, ext2);
     G_stk->push(&rem_val);
 
-    /* 
+    /*
      *   create a list for the return value - it will have two elements:
-     *   the quotient and the remainder 
+     *   the quotient and the remainder
      */
     retval->set_obj(CVmObjList::create(vmg_ FALSE, 2));
     lst = (CVmObjList *)vm_objp(vmg_ retval->val.obj);
@@ -2826,16 +2826,16 @@ int CVmObjBigNum::getp_sin(VMG_ vm_obj_id_t self,
     /* cache pi */
     pi = cache_pi(prec + 3);
 
-    /* 
+    /*
      *   Allocate our temporary registers.  We'll use 1 and 2 to calculate
      *   x^n - we'll start with x^(n-2) in one, and multiply by x^2 to put
      *   the result in the other.  3 we'll use to store n!.  4 we'll use
      *   to store the result of x^n/n!, and 5 and 6 we'll swap as the
      *   master accumulator.  7 we'll use to store x^2.
-     *   
+     *
      *   Allocate the temporary registers with more digits of precision
      *   than we need in the result, to ensure that accumulated rounding
-     *   errors don't affect the result.  
+     *   errors don't affect the result.
      */
     alloc_temp_regs(prec + 3, 7,
                     &ext1, &hdl1, &ext2, &hdl2, &ext3, &hdl3,
@@ -2852,7 +2852,7 @@ int CVmObjBigNum::getp_sin(VMG_ vm_obj_id_t self,
         /*
          *   Note that sin(-x) = -sin(x).  If x < 0, note the negative
          *   sign and then negate the value so that we calculate sin(x)
-         *   and return the negative of the result.  
+         *   and return the negative of the result.
          */
         neg_result = get_neg(ext1);
         set_neg(ext1, FALSE);
@@ -2867,12 +2867,12 @@ int CVmObjBigNum::getp_sin(VMG_ vm_obj_id_t self,
          *   as possible to speed up convergence of the series.
          *   Fortunately this is especially easy for sin() because of the
          *   periodic nature of the function.
-         *   
+         *
          *   First, note that sin(2*pi*i + x) = sin(x) for all integers i,
          *   so we can reduce the argument mod 2*pi until it's in the
          *   range 0 <= x < 2*pi (we might have to do this multiple times
          *   if the number's scale exceeds its precision).  Note that we
-         *   already made sure the number is positive.  
+         *   already made sure the number is positive.
          */
         while (compare_abs(ext1, ext7) > 0)
         {
@@ -2888,7 +2888,7 @@ int CVmObjBigNum::getp_sin(VMG_ vm_obj_id_t self,
         /*
          *   Next, note that sin(x+pi) = -sin(x).  If x > pi, negate the
          *   result (again if necessary) and reduce the argument by pi.
-         *   This will reduce our range to 0 <= x <= pi.  
+         *   This will reduce our range to 0 <= x <= pi.
          */
         copy_val(ext7, pi, TRUE);
         if (compare_abs(ext1, ext7) > 0)
@@ -2908,14 +2908,14 @@ int CVmObjBigNum::getp_sin(VMG_ vm_obj_id_t self,
         /*
          *   Use the fact that sin(x + pi) = -sin(x) once again: if x >
          *   pi/2, subtract pi from x to adjust the range to -pi/2 <= x <=
-         *   pi/2.  
+         *   pi/2.
          */
         div_by_long(ext7, 2);
         if (compare_abs(ext1, ext7) > 0)
         {
             /* negate the result */
             neg_result = !neg_result;
-            
+
             /* subtract pi from the argument */
             copy_val(ext7, pi, TRUE);
             compute_abs_diff_into(ext2, ext1, ext7);
@@ -2926,9 +2926,9 @@ int CVmObjBigNum::getp_sin(VMG_ vm_obj_id_t self,
             ext2 = tmp;
         }
 
-        /* 
+        /*
          *   once again, reduce our range using the sign equivalence -
-         *   this will limit our range to 0 <= x <= pi/2 
+         *   this will limit our range to 0 <= x <= pi/2
          */
         if (get_neg(ext1))
             neg_result = !neg_result;
@@ -2945,10 +2945,10 @@ int CVmObjBigNum::getp_sin(VMG_ vm_obj_id_t self,
             /* calculate pi/2 */
             copy_val(ext7, pi, TRUE);
             div_by_long(ext7, 2);
-            
-            /* 
+
+            /*
              *   subtract pi/2 - this will give us a value in the range
-             *   -pi/4 <= x <= pi/4 
+             *   -pi/4 <= x <= pi/4
              */
             compute_abs_diff_into(ext2, ext1, ext7);
 
@@ -2968,7 +2968,7 @@ int CVmObjBigNum::getp_sin(VMG_ vm_obj_id_t self,
         {
             /*
              *   We now have a value in the range 0 <= x <= pi/4, which
-             *   will converge quickly with our Taylor series 
+             *   will converge quickly with our Taylor series
              */
             calc_sin_series(vmg_ new_ext,
                             ext1, ext2, ext3, ext4, ext5, ext6, ext7);
@@ -2998,7 +2998,7 @@ int CVmObjBigNum::getp_sin(VMG_ vm_obj_id_t self,
 /*
  *   property eval - cosine.  This works very much the same way as
  *   getp_sin() - refer to the more extensive comments in that routine for
- *   more detail on the algorithm.  
+ *   more detail on the algorithm.
  */
 int CVmObjBigNum::getp_cos(VMG_ vm_obj_id_t self,
                            vm_val_t *retval, uint *argc)
@@ -3050,10 +3050,10 @@ int CVmObjBigNum::getp_cos(VMG_ vm_obj_id_t self,
             ext2 = tmp;
         }
 
-        /* 
+        /*
          *   Next, note that cos(x+pi) = -cos(x).  If x > pi, negate the
          *   result (again if necessary) and reduce the argument by pi.
-         *   This will reduce our range to 0 <= x <= pi.  
+         *   This will reduce our range to 0 <= x <= pi.
          */
         copy_val(ext7, pi, TRUE);
         if (compare_abs(ext1, ext7) > 0)
@@ -3073,7 +3073,7 @@ int CVmObjBigNum::getp_cos(VMG_ vm_obj_id_t self,
         /*
          *   Use the fact that cos(x + pi) = -cos(x) once again: if x >
          *   pi/2, subtract pi from x to adjust the range to -pi/2 <= x <=
-         *   pi/2.  
+         *   pi/2.
          */
         div_by_long(ext7, 2);
         if (compare_abs(ext1, ext7) > 0)
@@ -3093,7 +3093,7 @@ int CVmObjBigNum::getp_cos(VMG_ vm_obj_id_t self,
 
         /*
          *   once again, reduce our range using the sign equivalence -
-         *   this will limit our range to 0 <= x <= pi/2 
+         *   this will limit our range to 0 <= x <= pi/2
          */
         set_neg(ext1, FALSE);
 
@@ -3107,14 +3107,14 @@ int CVmObjBigNum::getp_cos(VMG_ vm_obj_id_t self,
         {
             /* negate the result */
             neg_result = !neg_result;
-            
+
             /* calculate pi/2 */
             copy_val(ext7, pi, TRUE);
             div_by_long(ext7, 2);
-            
-            /* 
+
+            /*
              *   subtract pi/2 - this will give us a value in the range
-             *   -pi/4 <= x <= pi/4 
+             *   -pi/4 <= x <= pi/4
              */
             compute_abs_diff_into(ext2, ext1, ext7);
 
@@ -3136,7 +3136,7 @@ int CVmObjBigNum::getp_cos(VMG_ vm_obj_id_t self,
         {
             /*
              *   We now have a value in the range 0 <= x <= pi/4, which
-             *   will converge quickly with our Taylor series 
+             *   will converge quickly with our Taylor series
              */
             calc_cos_series(vmg_ new_ext,
                             ext1, ext2, ext3, ext4, ext5, ext6, ext7);
@@ -3167,7 +3167,7 @@ int CVmObjBigNum::getp_cos(VMG_ vm_obj_id_t self,
  *   property eval - tangent.  We calculate the sine and cosine, then
  *   compute the quotient to determine the tangent.  This routine works
  *   very much like the sin() and cos() routines; refer to getp_sin() for
- *   more thorough documentation.  
+ *   more thorough documentation.
  */
 int CVmObjBigNum::getp_tan(VMG_ vm_obj_id_t self,
                            vm_val_t *retval, uint *argc)
@@ -3187,16 +3187,16 @@ int CVmObjBigNum::getp_tan(VMG_ vm_obj_id_t self,
     /* cache pi to the working precision */
     pi = cache_pi(prec + 3);
 
-    /* 
+    /*
      *   Allocate our temporary registers for sin() and cos()
      *   calculations, plus two extra: one to hold the sine while we're
      *   calculating the cosine, and the other to hold the cosine result.
-     *   
+     *
      *   (We could make do with fewer registers by copying values around,
      *   but if the numbers are of very high precision it's much cheaper
      *   to allocate more registers, since the registers come out of the
      *   register cache and probably won't require any actual memory
-     *   allocation.)  
+     *   allocation.)
      */
     alloc_temp_regs(prec + 3, 9,
                     &ext1, &hdl1, &ext2, &hdl2, &ext3, &hdl3,
@@ -3232,9 +3232,9 @@ int CVmObjBigNum::getp_tan(VMG_ vm_obj_id_t self,
             ext2 = tmp;
         }
 
-        /* 
+        /*
          *   Next, note that tan(x+pi) = tan(x).  So, if x > pi, the
-         *   argument by pi.  This will reduce our range to 0 <= x <= pi.  
+         *   argument by pi.  This will reduce our range to 0 <= x <= pi.
          */
         copy_val(ext7, pi, TRUE);
         if (compare_abs(ext1, ext7) > 0)
@@ -3251,7 +3251,7 @@ int CVmObjBigNum::getp_tan(VMG_ vm_obj_id_t self,
         /*
          *   Use the fact that tan(x + pi) = tan(x) once again: if x >
          *   pi/2, subtract pi from x to adjust the range to -pi/2 <= x <=
-         *   pi/2.  
+         *   pi/2.
          */
         div_by_long(ext7, 2);
         if (compare_abs(ext1, ext7) > 0)
@@ -3268,7 +3268,7 @@ int CVmObjBigNum::getp_tan(VMG_ vm_obj_id_t self,
 
         /*
          *   once again, reduce our range using the sign equivalence -
-         *   this will limit our range to 0 <= x <= pi/2 
+         *   this will limit our range to 0 <= x <= pi/2
          */
         if (get_neg(ext1))
             neg_result = !neg_result;
@@ -3276,7 +3276,7 @@ int CVmObjBigNum::getp_tan(VMG_ vm_obj_id_t self,
 
         /*
          *   Next, observe that tan(x+pi/2) = 1/tan(x).  If x > pi/4,
-         *   invert the result.  
+         *   invert the result.
          */
         copy_val(ext7, pi, TRUE);
         div_by_long(ext7, 4);
@@ -3285,7 +3285,7 @@ int CVmObjBigNum::getp_tan(VMG_ vm_obj_id_t self,
             /* calculate pi/2 */
             copy_val(ext7, pi, TRUE);
             div_by_long(ext7, 2);
-            
+
             /* subtract pi/2 to get into range -pi/4 <= x <= pi/4 */
             compute_abs_diff_into(ext2, ext1, ext7);
 
@@ -3303,9 +3303,9 @@ int CVmObjBigNum::getp_tan(VMG_ vm_obj_id_t self,
             invert_result = TRUE;
         }
 
-        /* 
+        /*
          *   make a copy of our argument value in ext9 for safekeeping
-         *   while we're calculating the sine 
+         *   while we're calculating the sine
          */
         copy_val(ext9, ext1, FALSE);
 
@@ -3315,18 +3315,18 @@ int CVmObjBigNum::getp_tan(VMG_ vm_obj_id_t self,
          *   This will also ensure that both sin and cos are non-negative,
          *   so the sign we calculated for the tangent is all that matters
          *   for the sign.
-         *   
-         *   First, Calculate the sine and store the result in r8.  
+         *
+         *   First, Calculate the sine and store the result in r8.
          */
         calc_sin_series(vmg_ ext8,
                         ext1, ext2, ext3, ext4, ext5, ext6, ext7);
 
-        /* 
+        /*
          *   Calculate the cosine and store the result in r1.  Note that
          *   we saved the argument value in ext9 while we were working on
          *   the sine, so we can now use that value as the argument here.
          *   ext1 was trashed by the sine calculation, so just use it as
-         *   the output register here.  
+         *   the output register here.
          */
         calc_cos_series(vmg_ ext1,
                         ext9, ext2, ext3, ext4, ext5, ext6, ext7);
@@ -3377,9 +3377,9 @@ int CVmObjBigNum::getp_deg2rad(VMG_ vm_obj_id_t self,
     /* cache pi to our required precision */
     pi = cache_pi(prec + 2);
 
-    /* 
+    /*
      *   allocate a temporary register for pi/180 - give it some extra
-     *   precision 
+     *   precision
      */
     alloc_temp_regs(prec + 2, 1, &ext1, &hdl1);
 
@@ -3461,7 +3461,7 @@ int CVmObjBigNum::getp_asin(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   property evaluator - arccosine 
+ *   property evaluator - arccosine
  */
 int CVmObjBigNum::getp_acos(VMG_ vm_obj_id_t self,
                             vm_val_t *retval, uint *argc)
@@ -3474,7 +3474,7 @@ int CVmObjBigNum::getp_acos(VMG_ vm_obj_id_t self,
  *   Common property evaluator routine - arcsine and arccosine.  arcsin
  *   and arccos are related by arccos(x) = pi/2 - arcsin(x).  So, to
  *   calculate an arccos, we can simply calculate the arcsin, then
- *   subtract the result from pi/2.  
+ *   subtract the result from pi/2.
  */
 int CVmObjBigNum::calc_asincos(VMG_ vm_obj_id_t self,
                                vm_val_t *retval, uint *argc, int is_acos)
@@ -3496,7 +3496,7 @@ int CVmObjBigNum::calc_asincos(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   Calculate the arcsine or arccosine into the given result variable 
+ *   Calculate the arcsine or arccosine into the given result variable
  */
 void CVmObjBigNum::calc_asincos_into(char *dst, const char *src,
                                      int is_acos)
@@ -3509,10 +3509,10 @@ void CVmObjBigNum::calc_asincos_into(char *dst, const char *src,
     /* cache pi to our working precision */
     pi = cache_pi(prec + 3);
 
-    /* 
+    /*
      *   allocate our temporary registers - use some extra precision over
      *   what we need for the result, to reduce the effect of accumulated
-     *   rounding error 
+     *   rounding error
      */
     alloc_temp_regs(prec + 3, 5,
                     &ext1, &hdl1, &ext2, &hdl2, &ext3, &hdl3,
@@ -3530,13 +3530,13 @@ void CVmObjBigNum::calc_asincos_into(char *dst, const char *src,
         };
         int use_sqrt;
         int sqrt_neg;
-        
+
         /* get the initial value of x into our accumulator, r1 */
         copy_val(ext1, src, FALSE);
 
-        /* 
+        /*
          *   check to see if the absolute value of the argument is greater
-         *   than 1 - if it is, it's not valid 
+         *   than 1 - if it is, it's not valid
          */
         copy_val(ext2, get_one(), FALSE);
         if (compare_abs(ext1, ext2) > 0)
@@ -3552,16 +3552,16 @@ void CVmObjBigNum::calc_asincos_into(char *dst, const char *src,
          *   speed things up, in these cases calculate pi/2 -
          *   asin(sqrt(1-x^2)) instead, which is equivalent but gives us a
          *   smaller asin() argument for quicker series convergence.
-         *   
+         *
          *   We don't need to compare to 1/sqrt(2) in great precision;
-         *   just use a few digits.  
+         *   just use a few digits.
          */
         copy_val(ext2, (const char *)one_over_sqrt2, TRUE);
         if (compare_abs(ext1, ext2) > 0)
         {
             /* flag that we're using the sqrt method */
             use_sqrt = TRUE;
-            
+
             /* note the sign - we'll need to apply this to the result */
             sqrt_neg = get_neg(ext1);
 
@@ -3601,23 +3601,23 @@ void CVmObjBigNum::calc_asincos_into(char *dst, const char *src,
             ext3 = tmp;
         }
 
-        /* 
+        /*
          *   We now have the arcsine in r1.  If we actually wanted the
          *   arccosine, subtract the arcsine from pi/2 to yield the
-         *   arccosine.  
+         *   arccosine.
          */
         if (is_acos)
         {
             /* get pi/2 into r2 */
             copy_val(ext2, pi, TRUE);
             div_by_long(ext2, 2);
-            
+
             /* negate r1 to get -asin */
             negate(ext1);
-            
+
             /* add -asin to r2 to yield the arccosine in r3 */
             compute_sum_into(ext3, ext2, ext1);
-            
+
             /* swap the result back into ext1 */
             tmp = ext3;
             ext3 = ext1;
@@ -3640,15 +3640,15 @@ void CVmObjBigNum::calc_asincos_into(char *dst, const char *src,
  *   argument values with absolute value less than 1/sqrt(2), because the
  *   series converges very slowly for larger values.  For operands above
  *   1/sqrt(2), the caller should instead compute the equivalent value
- *   
+ *
  *   +/- (pi/2 - asin(sqrt(1-x^2))).
- *   
+ *
  *   (+ if x > 0, - if x < 0).
- *   
+ *
  *   The argument value is in ext1, and we return a pointer to the
  *   register that contains the result (which will be one of the input
  *   registers).  We use all of the input registers as scratchpads, so
- *   their values are not retained.  
+ *   their values are not retained.
  */
 char *CVmObjBigNum::calc_asin_series(char *ext1, char *ext2,
                                      char *ext3, char *ext4, char *ext5)
@@ -3657,10 +3657,10 @@ char *CVmObjBigNum::calc_asin_series(char *ext1, char *ext2,
 
     /* get the current power of x (1) into the x power register, r2 */
     copy_val(ext2, ext1, FALSE);
-    
-    /* 
+
+    /*
      *   compute x^2 into r3 - we'll multiply the previous power by this
-     *   to get the next power (we need x^1, x^3, x^5, etc) 
+     *   to get the next power (we need x^1, x^3, x^5, etc)
      */
     compute_prod_into(ext3, ext1, ext1);
 
@@ -3672,16 +3672,16 @@ char *CVmObjBigNum::calc_asin_series(char *ext1, char *ext2,
     {
         ulong i;
         char *tmp;
-        
+
         /* move on to the next term */
         n += 2;
-        
-        /* 
+
+        /*
          *   compute the next weirdness factor into r4:
-         *   
+         *
          *    1*3*5*...*(n-2)
          *.  -----------------
-         *.  2*4*6*...*(n-1)*n 
+         *.  2*4*6*...*(n-1)*n
          */
 
         /* start out with 1 in r4 */
@@ -3690,8 +3690,8 @@ char *CVmObjBigNum::calc_asin_series(char *ext1, char *ext2,
         /* multiply by odd numbers up to but not including 'n' */
         for (i = 3 ; i < n ; i += 2)
             mul_by_long(ext4, i);
-        
-        /* 
+
+        /*
          *   Divide by even numbers up to and including n-1.  Note that we
          *   use div_by_long() because it's faster than using a BigNumber
          *   divisor.  div_by_long() has a limit of ULONG_MAX/10 for the
@@ -3699,42 +3699,42 @@ char *CVmObjBigNum::calc_asin_series(char *ext1, char *ext2,
          *   our maximum precision is 64k digits.  The series will converge
          *   to our maximum precision long before 'i' gets close to
          *   ULONG_MAX/10.  (Even if not, computing billions of series terms
-         *   would take so long that we'd never get there anyway.)  
+         *   would take so long that we'd never get there anyway.)
          */
         for (i = 2 ; i < n ; i += 2)
             div_by_long(ext4, i);
-        
+
         /* divide by n */
         div_by_long(ext4, n);
-        
-        /* 
+
+        /*
          *   compute the next power of x - multiply our current power of x
-         *   (r2) by x^2 (r3) 
+         *   (r2) by x^2 (r3)
          */
         compute_prod_into(ext5, ext2, ext3);
-        
+
         /* swap r5 into r2 - this new power of x is now current */
         tmp = ext5;
         ext5 = ext2;
         ext2 = tmp;
-        
-        /* 
+
+        /*
          *   multiply the current x power by the current weirdness factor
-         *   - this will yield the current term into r5 
+         *   - this will yield the current term into r5
          */
         compute_prod_into(ext5, ext2, ext4);
 
-        /* 
+        /*
          *   if this value is too small to show up in our accumulator,
-         *   we're done 
+         *   we're done
          */
         if (is_zero(ext5)
             || get_exp(ext1) - get_exp(ext5) > (int)get_prec(ext1))
             break;
 
-        /* 
+        /*
          *   we can trash the weird factor now - use it as a scratch pad
-         *   for adding the accumulator so far (r1) to this term 
+         *   for adding the accumulator so far (r1) to this term
          */
         compute_sum_into(ext4, ext1, ext5);
 
@@ -3780,44 +3780,44 @@ int CVmObjBigNum::getp_atan(VMG_ vm_obj_id_t self,
          *   our two series don't converge very rapidly.  Happily, we can
          *   fall back on an alternative in these case by using the
          *   relation
-         *   
+         *
          *   arctan(x) = (+/-)arccos(1/sqrt(x^2+1))
-         *   
+         *
          *   (The sign of the result is the same as the sign of x.)  Since
          *   we already have routines for arccosine and square root, this
          *   calculation is easy.
-         *   
+         *
          *   If x doesn't have absolute value close to 1, use the
-         *   appropriate series, since they converge rapidly.  
+         *   appropriate series, since they converge rapidly.
          */
         if (get_exp(ext_) < -1 || get_exp(ext_) > 2)
         {
             int term_neg;
             ulong n;
-            
-            /* 
+
+            /*
              *   exponent less than -1 -> the number has a small absolute
              *   value - use the small-x series expansion:
-             *   
+             *
              *   x - x^3/3 + x^5/5 - x^7/7 ...
-             *   
+             *
              *   OR
-             *   
+             *
              *   exponent greater than 2 -> the number has a large
              *   absolute value, so the large-x series expansion should
              *   converge quickly:
-             *   
+             *
              *   +/- pi/2 - 1/x + 1/3x^3 - 1/5x^5 ...
-             *   
+             *
              *   (the sign of the leading pi/2 term is positive if x is
              *   positive, negative if x is negative)
-             *   
+             *
              *   We can commonize these expressions by defining x' = x for
              *   small x and x' = 1/x for large x, defining C as 0 for
              *   small x and +/-pi/2 for large X, defining N as +1 for
              *   small x and -1 for large x, and rewriting the series as:
-             *   
-             *   C + Nx' - Nx'^3/3 + Nx'^5/5 + ...  
+             *
+             *   C + Nx' - Nx'^3/3 + Nx'^5/5 + ...
              */
 
             /* check for large or small value */
@@ -3851,9 +3851,9 @@ int CVmObjBigNum::getp_atan(VMG_ vm_obj_id_t self,
             /* start at the first term */
             n = 1;
 
-            /* 
+            /*
              *   get x'^2 into r3 - we'll use this to calculate each
-             *   subsequent term (we need x', x'^3, x'^5, etc) 
+             *   subsequent term (we need x', x'^3, x'^5, etc)
              */
             compute_prod_into(ext3, ext2, ext2);
 
@@ -3861,15 +3861,15 @@ int CVmObjBigNum::getp_atan(VMG_ vm_obj_id_t self,
             for (;;)
             {
                 char *tmp;
-                
+
                 /* copy the current power term from r2 into r4 */
                 copy_val(ext4, ext2, FALSE);
 
-                /* 
+                /*
                  *   divide by the current term constant (we'll never have
                  *   to compute billions of terms to reach our maximum
                  *   possible 64k digits of precision, so 'n' will always be
-                 *   way less than the div_by_long limit of ULONG_MAX/10) 
+                 *   way less than the div_by_long limit of ULONG_MAX/10)
                  */
                 div_by_long(ext4, n);
 
@@ -3877,10 +3877,10 @@ int CVmObjBigNum::getp_atan(VMG_ vm_obj_id_t self,
                 if (term_neg)
                     set_neg(ext4, !get_neg(ext4));
 
-                /* 
+                /*
                  *   if we're under the radar on precision, stop looping
                  *   (don't stop on the first term, since the accumulator
-                 *   hasn't been fully primed yet) 
+                 *   hasn't been fully primed yet)
                  */
                 if (n != 1
                     && (is_zero(ext4)
@@ -3896,16 +3896,16 @@ int CVmObjBigNum::getp_atan(VMG_ vm_obj_id_t self,
                 ext1 = ext5;
                 ext5 = tmp;
 
-                /* 
+                /*
                  *   move on to the next term - advance n by 2 and swap
-                 *   the term sign 
+                 *   the term sign
                  */
                 n += 2;
                 term_neg = !term_neg;
 
-                /* 
+                /*
                  *   compute the next power term - multiply r2 (the latest
-                 *   x' power) by r3 (x'^2) 
+                 *   x' power) by r3 (x'^2)
                  */
                 compute_prod_into(ext4, ext2, ext3);
 
@@ -3920,30 +3920,30 @@ int CVmObjBigNum::getp_atan(VMG_ vm_obj_id_t self,
         }
         else
         {
-            /* 
+            /*
              *   We have a value of x from .01 to 10 - in this range, the
-             *   rewrite using arccosine will give us excellent precision. 
+             *   rewrite using arccosine will give us excellent precision.
              */
 
             /* calculate x^2 into r1 */
             compute_prod_into(ext1, ext_, ext_);
-            
+
             /* add one (x^2 has to be positive, so don't worry about sign) */
             increment_abs(ext1);
-            
+
             /* take the square root and put the result in r2 */
             compute_sqrt_into(ext2, ext1);
-            
+
             /* divide that into 1, and put the result back in r1 */
             compute_quotient_into(ext1, 0, get_one(), ext2);
-            
-            /* 
+
+            /*
              *   Compute the arccosine of this value - the result is the
              *   arctangent, so we can store it directly in the output
-             *   register.  
+             *   register.
              */
             calc_asincos_into(new_ext, ext1, TRUE);
-            
+
             /* if the input was negative, invert the sign of the result */
             if (get_neg(ext_))
                 negate(new_ext);
@@ -4013,7 +4013,7 @@ int CVmObjBigNum::getp_ln(VMG_ vm_obj_id_t self,
 
 /*
  *   property evaluator - exp (exponentiate e, the base of the natural
- *   logarithm, to the power of this number) 
+ *   logarithm, to the power of this number)
  */
 int CVmObjBigNum::getp_exp(VMG_ vm_obj_id_t self,
                            vm_val_t *retval, uint *argc)
@@ -4087,7 +4087,7 @@ int CVmObjBigNum::getp_log10(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   property evaluator - pow(y) - calculate x^y 
+ *   property evaluator - pow(y) - calculate x^y
  */
 int CVmObjBigNum::getp_pow(VMG_ vm_obj_id_t self,
                            vm_val_t *retval, uint *argc)
@@ -4106,12 +4106,12 @@ int CVmObjBigNum::getp_pow(VMG_ vm_obj_id_t self,
 
     /* use the precision of the result */
     prec = get_prec(new_ext);
-    
-    /* 
+
+    /*
      *   Check for a special case: if the number we're exponentiating is
      *   zero, the result is 0 for any positive exponent, and an error for
      *   any non-positive exponent (0^0 is undefined, and 0^n where n<0 is
-     *   equivalent to 1/0^n == 1/0, which is a divide-by-zero error).  
+     *   equivalent to 1/0^n == 1/0, which is a divide-by-zero error).
      */
     if (is_zero(ext_))
     {
@@ -4122,7 +4122,7 @@ int CVmObjBigNum::getp_pow(VMG_ vm_obj_id_t self,
         /* 0^negative is a divide by zero error */
         if (get_neg(val2_ext))
             err_throw(VMERR_DIVIDE_BY_ZERO);
-        
+
         /* set the result to one, and we're done */
         set_zero(new_ext);
         goto done;
@@ -4136,41 +4136,41 @@ int CVmObjBigNum::getp_pow(VMG_ vm_obj_id_t self,
     err_try
     {
         int result_neg;
-        
+
         /*
          *   If a = e^b, then b = ln(a).  This means that x^y = e^ln(x^y)
          *   = e^(y * ln(x)).  So, we can compute the result in terms of
          *   natural logarithm and exponentiation of 'e', for which we
-         *   have primitives we can call.  
+         *   have primitives we can call.
          */
 
         /*
          *   If x is negative, we can only exponentiate the value to
          *   integer powers.  In this case, we can substitute x' = -x
          *   (hence x' will be positive), and rewrite the expression as
-         *   
+         *
          *   (-1)^y * (x')^y
-         *   
+         *
          *   We can only calculate (-1)^y for integer values of y, since
-         *   the result is complex if y is not an integer.  
+         *   the result is complex if y is not an integer.
          */
         if (get_neg(ext_))
         {
             size_t idx;
             int units_dig;
-            
+
             /* copy x into r2 */
             copy_val(ext2, ext_, FALSE);
 
-            /* 
+            /*
              *   calculate x' = (-x) - since x is negative, this will
-             *   guarantee that x' is positive 
+             *   guarantee that x' is positive
              */
             set_neg(ext2, FALSE);
 
-            /* 
+            /*
              *   make sure y is an integer - start at the first digit
-             *   after the decimal point and check for any non-zero digits 
+             *   after the decimal point and check for any non-zero digits
              */
             idx = (get_exp(val2_ext) < 0 ? 0 : (size_t)get_exp(val2_ext));
             for ( ; idx < get_prec(val2_ext) ; ++idx)
@@ -4196,9 +4196,9 @@ int CVmObjBigNum::getp_pow(VMG_ vm_obj_id_t self,
                 units_dig = get_dig(val2_ext, (size_t)get_exp(val2_ext) - 1);
             }
 
-            /* 
+            /*
              *   if the units digit is even, the result will be positive;
-             *   if it's odd, the result will be negative 
+             *   if it's odd, the result will be negative
              */
             result_neg = ((units_dig & 1) != 0);
 
@@ -4251,7 +4251,7 @@ int CVmObjBigNum::getp_sinh(VMG_ vm_obj_id_t self,
     /* calculate the hyperbolic sine using the common evaluator */
     return calc_sinhcosh(vmg_ self, retval, argc, FALSE, FALSE);
 }
-    
+
 /*
  *   property evaluator - cosh
  */
@@ -4271,7 +4271,7 @@ int CVmObjBigNum::getp_tanh(VMG_ vm_obj_id_t self,
 
 /*
  *   common property evaluator - compute a hyperbolic sine or cosine, or
- *   do both to calculate a hyperbolic tangent 
+ *   do both to calculate a hyperbolic tangent
  */
 int CVmObjBigNum::calc_sinhcosh(VMG_ vm_obj_id_t self,
                                 vm_val_t *retval, uint *argc,
@@ -4294,10 +4294,10 @@ int CVmObjBigNum::calc_sinhcosh(VMG_ vm_obj_id_t self,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   Compute the fractional part of a number (replacing the value in place).
  *   This effectively subtracts the integer portion of the number, leaving
- *   only the fractional portion.  
+ *   only the fractional portion.
  */
 void CVmObjBigNum::compute_frac(char *ext)
 {
@@ -4315,7 +4315,7 @@ void CVmObjBigNum::compute_frac(char *ext)
 
 /*
  *   Get the whole part of a number (replacing the value in place).  This
- *   truncates the number to its integer portion, with no rounding.  
+ *   truncates the number to its integer portion, with no rounding.
  */
 void CVmObjBigNum::compute_whole(char *ext)
 {
@@ -4346,9 +4346,9 @@ void CVmObjBigNum::compute_whole(char *ext)
  *   property evaluator - numType: get the number type information
  */
 
-/* 
+/*
  *   number types defined in bignum.h - these are part of the public API, so
- *   they can't be changed 
+ *   they can't be changed
  */
 #define NumTypeNum    0x0001
 #define NumTypeNAN    0x0002
@@ -4392,7 +4392,7 @@ int CVmObjBigNum::getp_numType(VMG_ vm_obj_id_t self,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Compute a natural logarithm 
+ *   Compute a natural logarithm
  */
 void CVmObjBigNum::compute_ln_into(char *dst, const char *src)
 {
@@ -4424,16 +4424,16 @@ void CVmObjBigNum::compute_ln_into(char *dst, const char *src)
          *   log(a)+b*ln(10).  a is the mantissa, which due to
          *   normalization is in the range 0.1 <= a < 1.0.  Thus, a is an
          *   ideal argument for the Taylor series.  So, we can simply
-         *   compute ln(mantissa), then add it to ln(10)*exponent.  
+         *   compute ln(mantissa), then add it to ln(10)*exponent.
          */
 
         /* copy our argument into r1 */
         copy_val(ext1, src, FALSE);
 
-        /* 
+        /*
          *   remember the original exponent, and set the exponent of the
          *   series argument to zero - we'll correct for this later by
-         *   adding the log of the exponent to the series result 
+         *   adding the log of the exponent to the series result
          */
         src_exp = get_exp(ext1);
         set_exp(ext1, 0);
@@ -4491,7 +4491,7 @@ void CVmObjBigNum::compute_ln_into(char *dst, const char *src)
 /*
  *   Compute the natural log series.  The argument value, initially in
  *   ext1, should be adjusted to a small value before this is called to
- *   ensure quick series convergence.  
+ *   ensure quick series convergence.
  */
 char *CVmObjBigNum::compute_ln_series_into(char *ext1, char *ext2,
                                            char *ext3, char *ext4,
@@ -4499,59 +4499,59 @@ char *CVmObjBigNum::compute_ln_series_into(char *ext1, char *ext2,
 {
     /* start at the first term of the series */
     ulong n = 1;
-    
+
     /* subtract one from r1 to yield (x-1) in r2 */
     compute_abs_diff_into(ext2, ext1, get_one());
-    
+
     /* add one to r1 to yield (x+1) */
     increment_abs(ext1);
-    
+
     /* compute (x-1)/(x+1) into r3 - this will be our current power */
     compute_quotient_into(ext3, 0, ext2, ext1);
-    
-    /* 
+
+    /*
      *   compute ((x-1)/(x+1))^2 into r4 - we'll multiply r3 by this on
      *   each iteration to produce the next required power, since we only
-     *   need the odd powers 
+     *   need the odd powers
      */
     compute_prod_into(ext4, ext3, ext3);
-    
+
     /* start out with the first power in our accumulator (r1) */
     copy_val(ext1, ext3, FALSE);
-    
+
     /* iterate until we have a good enough answer */
     for (;;)
     {
         /* compute the next power into r2 */
         compute_prod_into(ext2, ext3, ext4);
-        
+
         /* copy the result into our current power register, r3 */
         copy_val(ext3, ext2, FALSE);
-        
+
         /* advance n */
         n += 2;
-        
-        /* 
+
+        /*
          *   divide the power by n (we'll never have to compute billions of
          *   terms to get our maximum 64k digits of precision, so 'n' will
-         *   always be way less than the div_by_long limit of ULONG_MAX/10) 
+         *   always be way less than the div_by_long limit of ULONG_MAX/10)
          */
         div_by_long(ext2, n);
-        
+
         /* if it's too small to notice, we're done */
         if (is_zero(ext2)
             || get_exp(ext1) - get_exp(ext2) > (int)get_prec(ext1))
             break;
-        
+
         /* compute the sum with our accumulator into r5 */
         compute_sum_into(ext5, ext1, ext2);
-        
+
         /* swap r5 and r1 - the new sum is our new accumulator */
         char *tmp = ext5;
         ext5 = ext1;
         ext1 = tmp;
     }
-    
+
     /* multiply the result of the series by 2 */
     mul_by_long(ext1, 2);
 
@@ -4560,7 +4560,7 @@ char *CVmObjBigNum::compute_ln_series_into(char *ext1, char *ext2,
 }
 
 /*
- *   Compute e^x, where e is the base of the natural logarithm (2.818...) 
+ *   Compute e^x, where e is the base of the natural logarithm (2.818...)
  */
 void CVmObjBigNum::compute_exp_into(char *dst, const char *src)
 {
@@ -4592,76 +4592,76 @@ void CVmObjBigNum::compute_exp_into(char *dst, const char *src)
         /*
          *   We want to calculate e^x.  Observe that a^x = e^(x*ln(x)), so
          *   10^x = e^(x*ln(10)).  We can rewrite our desired expression
-         *   e^x as 
-         *   
+         *   e^x as
+         *
          *   e^[(x/ln(10)) * ln(10)]
-         *   
+         *
          *   which is thus
-         *   
+         *
          *   10^(x / ln(10))
-         *   
+         *
          *   We store our numbers as a mantissa times 10 raised to an
          *   integer exponent.  Clearly the exponent of 10 in the formula
          *   above is not always an integer (in fact, it's extremely rare
          *   that it would be an integer), so we still have more work to
          *   do.  What we must do is obtain an integer exponent.  So, let
          *   us define y = x/ln(10); we can now rewrite the above as
-         *   
+         *
          *   10^(int(y) + frac(y))
-         *   
+         *
          *   where int(y) is the integer portion of y and frac(y) is the
          *   fractional portion (y - int(y)).  We can rewrite the above as
-         *   
+         *
          *   10^frac(y) * 10^int(y)
-         *   
+         *
          *   which we can further rewrite as
-         *   
+         *
          *   e^(frac(y)*ln(10)) * 10^int(y)
-         *   
+         *
          *   We haven't made the problem of finding an exponential
          *   disappear, but we've reduced the argument to a very
          *   manageable range, which is important because it makes the
          *   Taylor series converge quickly.  Furthermore, it's extremely
          *   inexpensive to separate out the problem like this, since it
          *   falls quite naturally out of the representation we use, so it
-         *   doesn't add much overhead to do this preparation work.  
+         *   doesn't add much overhead to do this preparation work.
          */
 
         /* first, calculate x/ln(10) into r1 */
         compute_quotient_into(ext1, 0, src, ln10);
 
-        /* 
+        /*
          *   compute the integer portion of x/ln(10) - it has to fit in a
          *   16-bit integer, (-32768 to +32767), because this is going to
-         *   be the exponent of the result (or roughly so, anyway) 
+         *   be the exponent of the result (or roughly so, anyway)
          */
         decpt_idx = get_exp(ext1) >= 0 ? (size_t)get_exp(ext1) : 0;
         for (new_exp = 0, idx = 0 ; idx < decpt_idx ; ++idx)
         {
             int dig;
 
-            /* 
+            /*
              *   get this digit if it's represented; if not, it's an
-             *   implied trailing zero 
+             *   implied trailing zero
              */
             dig = (idx < get_prec(ext1) ? get_dig(ext1, idx) : 0);
-            
+
             /* add this digit into the accumulator */
             new_exp *= 10;
             new_exp += dig;
 
-            /* 
+            /*
              *   Make sure we're still in range.  Note that, because our
              *   representation is 0.dddd*10^x, we need one more factor of
              *   ten than you'd think here, the adjust of the range from
-             *   the expected -32768..32767 
+             *   the expected -32768..32767
              */
             if (new_exp > (get_neg(ext1) ? 32769L : 32766L))
                 err_throw(VMERR_NUM_OVERFLOW);
 
-            /* 
+            /*
              *   zero out this digit, so that when we're done r1 has the
-             *   fractional part only 
+             *   fractional part only
              */
             if (idx < get_prec(ext1))
                 set_dig(ext1, idx, 0);
@@ -4674,13 +4674,13 @@ void CVmObjBigNum::compute_exp_into(char *dst, const char *src)
         /* normalize the fractional part, which remains in ext1 */
         normalize(ext1);
 
-        /* 
+        /*
          *   Multiply it by ln10, storing the result in r3.  This is the
-         *   value we'll use with the Taylor series. 
+         *   value we'll use with the Taylor series.
          */
         compute_prod_into(ext3, ext1, ln10);
 
-        /* 
+        /*
          *   While our input value is greater than 0.5, divide it by two to
          *   make it smaller than 0.5.  This will speed up the series
          *   convergence.  When we're done, we'll correct for the divisions
@@ -4692,10 +4692,10 @@ void CVmObjBigNum::compute_exp_into(char *dst, const char *src)
         for (twos = 0 ; compare_abs(ext3, ext1) > 0 ; ++twos)
             div_by_long(ext3, 2);
 
-        /* 
+        /*
          *   Start with 1+x in our accumulator (r1).  This unrolls the
          *   trivial first two steps of the loop, where n=0 (term=1) and n=1
-         *   (term=x). 
+         *   (term=x).
          */
         copy_val(ext2, get_one(), FALSE);
         compute_sum_into(ext1, ext2, ext3);
@@ -4718,9 +4718,9 @@ void CVmObjBigNum::compute_exp_into(char *dst, const char *src)
             /* for efficiency, try integer division */
             if (use_int_fact)
             {
-                /* 
+                /*
                  *   we can still fit the factorial in an integer - divide
-                 *   by the integer value of n!, since it's a lot faster 
+                 *   by the integer value of n!, since it's a lot faster
                  */
                 copy_val(ext5, ext2, FALSE);
                 div_by_long(ext5, n_fact);
@@ -4728,9 +4728,9 @@ void CVmObjBigNum::compute_exp_into(char *dst, const char *src)
                 /* calculate the next n! integer, if it'll fit in a long */
                 if (n_fact > LONG_MAX/10/(n+1))
                 {
-                    /* 
+                    /*
                      *   it'll be too big next time - we'll have to start
-                     *   using the full quotient calculation 
+                     *   using the full quotient calculation
                      */
                     use_int_fact = FALSE;
                 }
@@ -4786,7 +4786,7 @@ void CVmObjBigNum::compute_exp_into(char *dst, const char *src)
             ext2 = tmp;
         }
 
-        /* 
+        /*
          *   set up our 10's exponent value - this is simply 1*10^new_exp,
          *   which we calculated earlier (which we represent as
          *   0.1*10^(new_exp+1)
@@ -4810,7 +4810,7 @@ void CVmObjBigNum::compute_exp_into(char *dst, const char *src)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Compute a hyperbolic sine or cosine 
+ *   Compute a hyperbolic sine or cosine
  */
 void CVmObjBigNum::compute_sinhcosh_into(char *dst, const char *src,
                                          int is_cosh, int is_tanh)
@@ -4818,39 +4818,39 @@ void CVmObjBigNum::compute_sinhcosh_into(char *dst, const char *src,
     size_t prec = get_prec(dst);
     uint hdl1, hdl2, hdl3, hdl4;
     char *ext1, *ext2, *ext3, *ext4;
-    
+
     /* allocate some temporary registers */
     alloc_temp_regs(prec + 3, 4,
                     &ext1, &hdl1, &ext2, &hdl2, &ext3, &hdl3,
                     &ext4, &hdl4);
-    
+
     /* catch errors so we can be sure to free registers */
     err_try
     {
-        /* 
+        /*
          *   sinh(x) = (e^x - e^(-x))/2
-         *   
+         *
          *   cosh(x) = (e^x + e^(-x))/2
-         *   
+         *
          *   The two differ only in the sign of the e^(-x) term, so most
-         *   of the calculation is the same for both.  
+         *   of the calculation is the same for both.
          */
-        
+
         /* compute e^x into r1 */
         compute_exp_into(ext1, src);
 
-        /* 
+        /*
          *   rather than calculating e^-x separately, simply invert our
          *   e^x value to yield e^-x (a simple division is much quicker
          *   than calculating another exponent, which involves an entire
-         *   taylor series expansion) 
+         *   taylor series expansion)
          */
         copy_val(ext3, get_one(), FALSE);
         compute_quotient_into(ext2, 0, ext3, ext1);
 
-        /* 
+        /*
          *   if we're calculating the tanh, we'll want both the sinh and
-         *   cosh values 
+         *   cosh values
          */
         if (is_tanh)
         {
@@ -4869,20 +4869,20 @@ void CVmObjBigNum::compute_sinhcosh_into(char *dst, const char *src,
         }
         else
         {
-            /* 
+            /*
              *   if this is sinh, the e^-x term is subtracted; if it's
-             *   cosh, it's added 
+             *   cosh, it's added
              */
             if (!is_cosh)
                 negate(ext2);
-        
+
             /* compute r1 + r2 into r3 (e^x +/- e^(-x)) */
             compute_sum_into(ext3, ext1, ext2);
-        
+
             /* halve the result */
             div_by_long(ext3, 2);
         }
-        
+
         /* store the result */
         copy_val(dst, ext3, TRUE);
     }
@@ -4897,7 +4897,7 @@ void CVmObjBigNum::compute_sinhcosh_into(char *dst, const char *src,
 /* ------------------------------------------------------------------------ */
 /*
  *   Cache the natural logarithm of 10 to the given precision and return
- *   the value 
+ *   the value
  */
 const char *CVmObjBigNum::cache_ln10(size_t prec)
 {
@@ -4920,13 +4920,13 @@ const char *CVmObjBigNum::cache_ln10(size_t prec)
         0x10
     };
 
-    /* 
+    /*
      *   round up the precision a bit to ensure that we don't have to
      *   repeatedly recalculate this value if we're asked for a cluster of
-     *   similar precisions 
+     *   similar precisions
      */
     prec = (prec + 7) & ~7;
-    
+
     /* get the ln10 cache register */
     ext = S_bignum_cache->get_ln10_reg(calc_alloc(prec), &expanded);
 
@@ -4934,17 +4934,17 @@ const char *CVmObjBigNum::cache_ln10(size_t prec)
     if (ext == 0)
         err_throw(VMERR_OUT_OF_MEMORY);
 
-    /* 
+    /*
      *   if we didn't have to allocate more memory, and the value in the
      *   register has at least the required precision, return the cached
-     *   value 
+     *   value
      */
     if (!expanded && get_prec(ext) >= prec)
         return ext;
 
-    /* 
+    /*
      *   we have reallocated the register, or we just didn't have enough
-     *   precision in the old value - set the new precision 
+     *   precision in the old value - set the new precision
      */
     set_prec(ext, prec);
 
@@ -4956,18 +4956,18 @@ const char *CVmObjBigNum::cache_ln10(size_t prec)
     /* catch errors so we can be sure to free registers */
     err_try
     {
-        /* 
+        /*
          *   Compute sqrt(10) - 10 is too large for the series to converge,
          *   but sqrt(10) is good.  We'll correct for this later by doubling
          *   the result of the series expansion, which gives us the correct
          *   result: ln(a^b) = b*ln(a), and sqrt(x) = x^(1/2), hence
          *   ln(sqrt(x)) = ln(x)/2, which means that ln(x) = 2*ln(sqrt(x)).
-         *   
+         *
          *   Note that we have to do this the hard way, by explicitly doing
          *   the ln series rather than just calling compute_ln_into() to get
          *   the value directly.  Why?  Because compute_ln_into() needs the
          *   cached value of ln(10) to do its work.  If we called
-         *   compute_ln_into() here, we'd get stuck in a recursion loop.  
+         *   compute_ln_into() here, we'd get stuck in a recursion loop.
          */
 
         /* compute sqrt(10), for quick series convergence */
@@ -4997,7 +4997,7 @@ const char *CVmObjBigNum::cache_ln10(size_t prec)
 /* ------------------------------------------------------------------------ */
 /*
  *   Cache the natural logarithm of 2 to the given precision and return the
- *   value 
+ *   value
  */
 const char *CVmObjBigNum::cache_ln2(size_t prec)
 {
@@ -5036,10 +5036,10 @@ const char *CVmObjBigNum::cache_pi(size_t prec)
     uint hdl1, hdl2, hdl3, hdl4, hdl5;
     char *ext1, *ext2, *ext3, *ext4, *ext5;
 
-    /* 
+    /*
      *   round up the precision a bit to ensure that we don't have to
      *   repeatedly recalculate this value if we're asked for a cluster of
-     *   similar precisions 
+     *   similar precisions
      */
     prec = (prec + 7) & ~7;
 
@@ -5050,17 +5050,17 @@ const char *CVmObjBigNum::cache_pi(size_t prec)
     if (ext == 0)
         err_throw(VMERR_OUT_OF_MEMORY);
 
-    /* 
+    /*
      *   if we didn't have to allocate more memory, and the value in the
      *   register has at least the required precision, return the cached
-     *   value 
+     *   value
      */
     if (!expanded && get_prec(ext) >= prec)
         return ext;
 
-    /* 
+    /*
      *   we have reallocated the register, or we just didn't have enough
-     *   precision in the old value - set the new precision 
+     *   precision in the old value - set the new precision
      */
     set_prec(ext, prec);
 
@@ -5072,18 +5072,18 @@ const char *CVmObjBigNum::cache_pi(size_t prec)
     /* catch errors so we can be sure to free registers */
     err_try
     {
-        /* 
+        /*
          *   Compute the arctangent of 1.  To do this, rewrite arctan(x) =
          *   arccos(1/sqrt(1+x^2)), so x=1 gives us arccos(1/sqrt(2)).
-         *   
+         *
          *   Now, arccos(x) = pi/2 - arcsin(x), but this would defeat the
          *   purpose since we want to calculate pi, thus we don't want to
          *   depend upon pi in our calculations.  Fortunately, arcsin(x) =
          *   pi/2 - arcsin(sqrt(1-x^2)), hence
-         *   
+         *
          *   pi/2 - arcsin(x) = pi/2 - (pi/2 - arcsin(sqrt(1-x^2)))
          *.  = arcsin(sqrt(1-x^2))
-         *   
+         *
          *   So, we can rewrite arccos(1/sqrt(2)) as arcsin(sqrt(1/2)).
          */
 
@@ -5116,14 +5116,14 @@ const char *CVmObjBigNum::cache_pi(size_t prec)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Cache e to the required precision 
+ *   Cache e to the required precision
  */
 const char *CVmObjBigNum::cache_e(size_t prec)
 {
-    /* 
+    /*
      *   round up the precision a bit to ensure that we don't have to
      *   repeatedly recalculate this value if we're asked for a cluster of
-     *   similar precisions 
+     *   similar precisions
      */
     prec = (prec + 7) & ~7;
 
@@ -5135,17 +5135,17 @@ const char *CVmObjBigNum::cache_e(size_t prec)
     if (ext == 0)
         err_throw(VMERR_OUT_OF_MEMORY);
 
-    /* 
+    /*
      *   if we didn't have to allocate more memory, and the value in the
      *   register has at least the required precision, return the cached
-     *   value 
+     *   value
      */
     if (!expanded && get_prec(ext) >= prec)
         return ext;
 
-    /* 
+    /*
      *   we have reallocated the register, or we just didn't have enough
-     *   precision in the old value - set the new precision 
+     *   precision in the old value - set the new precision
      */
     set_prec(ext, prec);
 
@@ -5161,7 +5161,7 @@ const char *CVmObjBigNum::cache_e(size_t prec)
  *   Compute a square root.  We use Newton's method (a reliable old method
  *   for extracting square roots, made better by the fact that, unlike the
  *   method's inventor, we are fortunate to have an electronic computer to
- *   carry out the tedious parts of the calculation for us).  
+ *   carry out the tedious parts of the calculation for us).
  */
 void CVmObjBigNum::compute_sqrt_into(char *dst, const char *src)
 {
@@ -5172,7 +5172,7 @@ void CVmObjBigNum::compute_sqrt_into(char *dst, const char *src)
     /* if the value is negative, it's an error */
     if (get_neg(src))
         err_throw(VMERR_OUT_OF_RANGE);
-    
+
     /* allocate our scratchpad registers */
     alloc_temp_regs(get_prec(dst) + 3, 4,
                     &ext1, &hdl1, &ext2, &hdl2, &ext3, &hdl3,
@@ -5181,31 +5181,31 @@ void CVmObjBigNum::compute_sqrt_into(char *dst, const char *src)
     /* catch errors so we can free our registers */
     err_try
     {
-        /* 
+        /*
          *   Compute our initial guess.  Since our number is represented as
-         *   
+         *
          *   (n * 10^exp),
-         *   
+         *
          *   the square root can be written as
-         *   
+         *
          *   sqrt(n) * sqrt(10^exp) = sqrt(n) * 10^(exp/2)
-         *   
+         *
          *   Approximate sqrt(n) as simply n for our initial guess.  This
          *   will get us to the right order of magnitude plus or minus
          *   one, so we should converge pretty quickly.
-         *   
+         *
          *   If we have an odd exponent, round up and divide the mantissa
          *   by 2 - this will be something like 0.456e7, which can be
          *   written as 4.56e6, whose square root is about 2e3, or .2e4.
-         *   
+         *
          *   If we have an even exponent, multiply the mantissa by 2.
          *   This will be something like .456e8, whose square root is
          *   about .67e4.
-         *   
+         *
          *   Note that it's well worth the trouble to make a good initial
          *   approximation, even with the multiply/divide, because these
          *   operations with longs are much more efficient than the full
-         *   BigNum divide we'll have to do on each iteration.  
+         *   BigNum divide we'll have to do on each iteration.
          */
         copy_val(ext1, src, TRUE);
         if ((get_exp(ext1) & 1) != 0)
@@ -5226,15 +5226,15 @@ void CVmObjBigNum::compute_sqrt_into(char *dst, const char *src)
         {
             char *tmp;
             size_t idx;
-            
-            /* 
+
+            /*
              *   Calculate the next iteration's approximation, noting that r1
              *   contains the current iteration's value p:
-             *   
+             *
              *   p' = p/2 + src/2p = (p + src/p)/2
-             *   
+             *
              *   Note that if p == 0, we can't compute src/p, so we can't
-             *   iterate any further.  
+             *   iterate any further.
              */
             if (is_zero(ext1))
                 break;
@@ -5248,18 +5248,18 @@ void CVmObjBigNum::compute_sqrt_into(char *dst, const char *src)
             /* compute (p + src/p)/2 into r4 */
             div_by_long(ext4, 2);
 
-            /* 
+            /*
              *   check for convergence - if the new value equals the old
              *   value to the precision requested for the result, we are
              *   at the limit of our ability to distinguish differences in
-             *   future terms, so we can stop 
+             *   future terms, so we can stop
              */
             if (get_neg(ext1) == get_neg(ext4)
                 && get_exp(ext1) == get_exp(ext4))
             {
-                /* 
+                /*
                  *   they're the same sign and magnitude - compare the
-                 *   digits to see where they first differ 
+                 *   digits to see where they first differ
                  */
                 for (idx = 0 ; idx < dst_prec + 1 ; ++idx)
                 {
@@ -5268,10 +5268,10 @@ void CVmObjBigNum::compute_sqrt_into(char *dst, const char *src)
                         break;
                 }
 
-                /* 
+                /*
                  *   if we didn't find any difference up to the output
                  *   precision plus one digit (for rounding), further
-                 *   iteration will be of no value 
+                 *   iteration will be of no value
                  */
                 if (idx >= dst_prec + 1)
                     break;
@@ -5283,9 +5283,9 @@ void CVmObjBigNum::compute_sqrt_into(char *dst, const char *src)
             ext4 = tmp;
         }
 
-        /* 
+        /*
          *   copy the last iteration's value into the destination,
-         *   rounding as needed 
+         *   rounding as needed
          */
         copy_val(dst, ext1, TRUE);
     }
@@ -5302,10 +5302,10 @@ void CVmObjBigNum::compute_sqrt_into(char *dst, const char *src)
  *   Calculate a Taylor expansion for sin().  The argument is in ext1, and
  *   we'll store the result in new_ext.  ext1 through ext7 are temporary
  *   registers that we'll overwrite with intermediate values.
- *   
+ *
  *   Before calling this function, the caller should reduce the value in
  *   ext1 to the range -pi/4 <= ext1 <= pi/4 to ensure quick convergence
- *   of the series.  
+ *   of the series.
  */
 void CVmObjBigNum::calc_sin_series(VMG_ char *new_ext, char *ext1,
                                    char *ext2, char *ext3, char *ext4,
@@ -5318,73 +5318,73 @@ void CVmObjBigNum::calc_sin_series(VMG_ char *new_ext, char *ext1,
     /* start with 1! (i.e., 1) in r3 */
     copy_val(ext3, get_one(), FALSE);
 
-    /* 
+    /*
      *   calculate x^2 into r7 - we need x, x^3, x^5, etc, so we can just
      *   multiply the last value by x^2 to get the next power we need
      */
     compute_prod_into(ext7, ext1, ext1);
-    
+
     /* start with x (reduced mod 2pi) in r5 (our accumulator) */
     copy_val(ext5, ext1, FALSE);
-    
+
     /* start at term n=1 in our expansion */
     n = 1;
-    
+
     /* the first term is positive */
     neg_term = FALSE;
-    
+
     /* go until we have a precise enough value */
     for (;;)
     {
-        /* 
+        /*
          *   move on to the next term: multiply r1 by x^2 into r2 to yield
-         *   the next power of x that we require 
+         *   the next power of x that we require
          */
         compute_prod_into(ext2, ext1, ext7);
-        
+
         /* swap r1 and r2 - r2 has the next power we need now */
         tmp = ext1;
         ext1 = ext2;
         ext2 = tmp;
-        
-        /* 
+
+        /*
          *   multiply r3 by (n+1)*(n+2) - it currently has n!, so this
-         *   will yield (n+2)!  
+         *   will yield (n+2)!
          */
         mul_by_long(ext3, (n+1)*(n+2));
-        
+
         /* advance n to the next term */
         n += 2;
-        
+
         /* each term swaps signs */
         neg_term = !neg_term;
-        
+
         /* divide r1 by r3 to yield the next term in our series in r4 */
         compute_quotient_into(ext4, 0, ext1, ext3);
-        
-        /* 
+
+        /*
          *   if this value is too small to count in our accumulator, we're
-         *   done 
+         *   done
          */
         if (is_zero(ext4)
             || get_exp(ext5) - get_exp(ext4) > (int)get_prec(ext4))
             break;
-        
-        /* 
-         *   invert the sign of the term in r4 if this is a negative term 
+
+        /*
+         *   invert the sign of the term in r4 if this is a negative term
          */
         if (neg_term)
             set_neg(ext4, !get_neg(ext4));
-        
+
         /* add r4 to our running accumulator in r5, yielding r6 */
         compute_sum_into(ext6, ext5, ext4);
-        
+
         /* swap r5 and r6 to put the accumulated value back into r5 */
         tmp = ext5;
         ext5 = ext6;
         ext6 = tmp;
     }
-    
+
     /* we're done - store the result, rounding if necessary */
     copy_val(new_ext, ext5, TRUE);
 }
@@ -5392,11 +5392,11 @@ void CVmObjBigNum::calc_sin_series(VMG_ char *new_ext, char *ext1,
 /*
  *   Calculate a Taylor expansion for cos().  The argument is in ext1, and
  *   we'll store the result in new_ext.  ext1 through ext7 are temporary
- *   registers that we'll overwrite with intermediate values.  
- *   
+ *   registers that we'll overwrite with intermediate values.
+ *
  *   Before calling this function, the caller should reduce the value in
  *   ext1 to the range -pi/4 <= ext1 <= pi/4 to ensure quick convergence
- *   of the series.  
+ *   of the series.
  */
 void CVmObjBigNum::calc_cos_series(VMG_ char *new_ext, char *ext1,
                                    char *ext2, char *ext3, char *ext4,
@@ -5410,33 +5410,33 @@ void CVmObjBigNum::calc_cos_series(VMG_ char *new_ext, char *ext1,
     copy_val(ext3, get_one(), FALSE);
     set_dig(ext3, 0, 2);
 
-    /* 
+    /*
      *   calculate x^2 into r7 - we need x^2, x^4, x^6, etc, so we can
      *   just multiply the last value by x^2 to get the next power we need
      */
     compute_prod_into(ext7, ext1, ext1);
 
-    /* 
+    /*
      *   the first power we need is x^2, so copy it into r1 (our current
-     *   power of x register) 
+     *   power of x register)
      */
     copy_val(ext1, ext7, FALSE);
 
-    /* 
+    /*
      *   start with 1 in r5, the accumulator (the first term of the series
-     *   is the constant value 1) 
+     *   is the constant value 1)
      */
     copy_val(ext5, get_one(), FALSE);
 
-    /* 
+    /*
      *   start at term n=2 in our expansion (the first term is just the
-     *   constant value 1, so we can start at the second term) 
+     *   constant value 1, so we can start at the second term)
      */
     n = 2;
 
-    /* 
+    /*
      *   the first term we calculate (i.e., the second term in the actual
-     *   series) is negative 
+     *   series) is negative
      */
     neg_term = TRUE;
 
@@ -5446,16 +5446,16 @@ void CVmObjBigNum::calc_cos_series(VMG_ char *new_ext, char *ext1,
         /* divide r1 by r3 to yield the next term in our series in r4 */
         compute_quotient_into(ext4, 0, ext1, ext3);
 
-        /* 
+        /*
          *   if this value is too small to count in our accumulator, we're
-         *   done 
+         *   done
          */
         if (is_zero(ext4)
             || get_exp(ext5) - get_exp(ext4) > (int)get_prec(ext4))
             break;
 
-        /* 
-         *   invert the sign of the term in r4 if this is a negative term 
+        /*
+         *   invert the sign of the term in r4 if this is a negative term
          */
         if (neg_term)
             set_neg(ext4, !get_neg(ext4));
@@ -5468,9 +5468,9 @@ void CVmObjBigNum::calc_cos_series(VMG_ char *new_ext, char *ext1,
         ext5 = ext6;
         ext6 = tmp;
 
-        /* 
+        /*
          *   move on to the next term: multiply r1 by x^2 into r2 to yield
-         *   the next power of x that we require 
+         *   the next power of x that we require
          */
         compute_prod_into(ext2, ext1, ext7);
 
@@ -5479,9 +5479,9 @@ void CVmObjBigNum::calc_cos_series(VMG_ char *new_ext, char *ext1,
         ext1 = ext2;
         ext2 = tmp;
 
-        /* 
+        /*
          *   multiply r3 by (n+1)*(n+2) - it currently has n!, so this
-         *   will yield (n+2)!  
+         *   will yield (n+2)!
          */
         mul_by_long(ext3, (n+1)*(n+2));
 
@@ -5491,14 +5491,14 @@ void CVmObjBigNum::calc_cos_series(VMG_ char *new_ext, char *ext1,
         /* each term swaps signs */
         neg_term = !neg_term;
     }
-    
+
     /* we're done - store the result, rounding if necessary */
     copy_val(new_ext, ext5, TRUE);
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   add a value 
+/*
+ *   add a value
  */
 int CVmObjBigNum::add_val(VMG_ vm_val_t *result,
                            vm_obj_id_t self, const vm_val_t *val)
@@ -5527,8 +5527,8 @@ int CVmObjBigNum::add_val(VMG_ vm_val_t *result,
     return TRUE;
 }
 
-/* 
- *   subtract a value 
+/*
+ *   subtract a value
  */
 int CVmObjBigNum::sub_val(VMG_ vm_val_t *result,
                           vm_obj_id_t self, const vm_val_t *val)
@@ -5557,8 +5557,8 @@ int CVmObjBigNum::sub_val(VMG_ vm_val_t *result,
     return TRUE;
 }
 
-/* 
- *   multiply a value 
+/*
+ *   multiply a value
  */
 int CVmObjBigNum::mul_val(VMG_ vm_val_t *result,
                           vm_obj_id_t self, const vm_val_t *val)
@@ -5587,8 +5587,8 @@ int CVmObjBigNum::mul_val(VMG_ vm_val_t *result,
     return TRUE;
 }
 
-/* 
- *   divide a value 
+/*
+ *   divide a value
  */
 int CVmObjBigNum::div_val(VMG_ vm_val_t *result,
                           vm_obj_id_t self, const vm_val_t *val)
@@ -5615,7 +5615,7 @@ int CVmObjBigNum::div_val(VMG_ vm_val_t *result,
     return TRUE;
 }
 
-/* 
+/*
  *   negate the number
  */
 int CVmObjBigNum::neg_val(VMG_ vm_val_t *result, vm_obj_id_t self)
@@ -5623,13 +5623,13 @@ int CVmObjBigNum::neg_val(VMG_ vm_val_t *result, vm_obj_id_t self)
     char *new_ext;
     size_t prec = get_prec(ext_);
 
-    /* 
+    /*
      *   If I'm not an ordinary number or an infinity, return myself
      *   unchanged.  Note that we change sign for an infinity, even though
      *   this might not make a great deal of sense mathematically.
-     *   
+     *
      *   If I'm zero, likewise return myself unchanged.  Negative zero is
-     *   still zero.  
+     *   still zero.
      */
     if ((get_type(ext_) != VMBN_T_NUM && get_type(ext_) != VMBN_T_INF)
         || is_zero(ext_))
@@ -5664,8 +5664,8 @@ int CVmObjBigNum::neg_val(VMG_ vm_val_t *result, vm_obj_id_t self)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   check a value for equality 
+/*
+ *   check a value for equality
  */
 int CVmObjBigNum::equals(VMG_ vm_obj_id_t self, const vm_val_t *val,
                          int /*depth*/) const
@@ -5700,7 +5700,7 @@ int CVmObjBigNum::equals(VMG_ vm_obj_id_t self, const vm_val_t *val,
 }
 
 /*
- *   Hash value calculation 
+ *   Hash value calculation
  */
 uint CVmObjBigNum::calc_hash(VMG_ vm_obj_id_t self, int /*depth*/) const
 {
@@ -5721,8 +5721,8 @@ uint CVmObjBigNum::calc_hash(VMG_ vm_obj_id_t self, int /*depth*/) const
     return hash;
 }
 
-/* 
- *   compare to another value 
+/*
+ *   compare to another value
  */
 int CVmObjBigNum::compare_to(VMG_ vm_obj_id_t self,
                              const vm_val_t *val) const
@@ -5748,7 +5748,7 @@ int CVmObjBigNum::compare_to(VMG_ vm_obj_id_t self,
  *   result value that is the same non-number type and returns null.  If
  *   both are valid numbers, we'll allocate a result value with precision
  *   equal to the greater of the precisions of the operands, and we'll
- *   return a pointer to the new object's extension buffer.  
+ *   return a pointer to the new object's extension buffer.
  */
 char *CVmObjBigNum::compute_init_2op(VMG_ vm_val_t *result,
                                      const char *ext1, const char *ext2)
@@ -5761,10 +5761,10 @@ char *CVmObjBigNum::compute_init_2op(VMG_ vm_val_t *result,
     if (get_prec(ext2) > new_prec)
         new_prec = get_prec(ext2);
 
-    /* 
+    /*
      *   if either operand is not an ordinary number, we need minimal
      *   precision to represent the result, since we don't actually need
-     *   to store a number 
+     *   to store a number
      */
     if (is_nan(ext1) || is_nan(ext2))
         new_prec = 1;
@@ -5802,7 +5802,7 @@ char *CVmObjBigNum::compute_init_2op(VMG_ vm_val_t *result,
 }
 
 /*
- *   Compute a sum 
+ *   Compute a sum
  */
 void CVmObjBigNum::compute_sum(VMG_ vm_val_t *result,
                                const char *ext1, const char *ext2)
@@ -5821,7 +5821,7 @@ void CVmObjBigNum::compute_sum(VMG_ vm_val_t *result,
 }
 
 /*
- *   Compute a difference 
+ *   Compute a difference
  */
 void CVmObjBigNum::compute_diff(VMG_ vm_val_t *result,
                                 const char *ext1, const char *ext2)
@@ -5838,7 +5838,7 @@ void CVmObjBigNum::compute_diff(VMG_ vm_val_t *result,
 }
 
 /*
- *   Compute a product 
+ *   Compute a product
  */
 void CVmObjBigNum::compute_prod(VMG_ vm_val_t *result,
                                 const char *ext1, const char *ext2)
@@ -5878,7 +5878,7 @@ void CVmObjBigNum::compute_quotient(VMG_ vm_val_t *result,
 /*
  *   Determine if two values are equal, rounding the value with greater
  *   precision to the shorter precision if the two are not of equal
- *   precision 
+ *   precision
  */
 int CVmObjBigNum::compute_eq_round(VMG_ const char *ext1, const char *ext2)
 {
@@ -5889,10 +5889,10 @@ int CVmObjBigNum::compute_eq_round(VMG_ const char *ext1, const char *ext2)
     char *tmp_ext;
     uint tmp_hdl;
     int ret;
-    
-    /* 
+
+    /*
      *   allocate a temporary register with a rounded copy of the more
-     *   precise of the values 
+     *   precise of the values
      */
     if (prec1 > prec2)
     {
@@ -5931,7 +5931,7 @@ int CVmObjBigNum::compute_eq_round(VMG_ const char *ext1, const char *ext2)
 /*
  *   Make an exact comparison for equality.  If one value is more precise
  *   than the other, we'll implicitly extend the shorter value to the
- *   right with trailing zeros.  
+ *   right with trailing zeros.
  */
 int CVmObjBigNum::compute_eq_exact(const char *ext1, const char *ext2)
 {
@@ -5942,12 +5942,12 @@ int CVmObjBigNum::compute_eq_exact(const char *ext1, const char *ext2)
     size_t prec2;
     size_t idx;
 
-    /* 
+    /*
      *   if either is not an ordinary number, they are never equal to any
      *   other value (note that this means INF != INF and NAN != NAN,
      *   which is reasonable because these values cannot be meaningfully
      *   compared; one NAN might mean something totally different from
-     *   another, and likewise various infinities are not comparable) 
+     *   another, and likewise various infinities are not comparable)
      */
     if (is_nan(ext1) || is_nan(ext2))
         return FALSE;
@@ -5984,9 +5984,9 @@ int CVmObjBigNum::compute_eq_exact(const char *ext1, const char *ext2)
     if (get_exp(ext1) != get_exp(ext2))
         return FALSE;
 
-    /* 
+    /*
      *   compare digits up to the smaller precision, then make sure that
-     *   the larger-precision value's digits are all zeros from there out 
+     *   the larger-precision value's digits are all zeros from there out
      */
     for (idx = 0 ; idx < min_prec ; ++idx)
     {
@@ -6006,14 +6006,14 @@ int CVmObjBigNum::compute_eq_exact(const char *ext1, const char *ext2)
                 return FALSE;
         }
     }
-    
+
     /* it's a match */
     return TRUE;
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Round a value 
+ *   Round a value
  */
 const char *CVmObjBigNum::round_val(VMG_ vm_val_t *new_val, const char *ext,
                                     size_t digits, int always_create)
@@ -6021,20 +6021,20 @@ const char *CVmObjBigNum::round_val(VMG_ vm_val_t *new_val, const char *ext,
     /* presume we need rounding */
     int need_round = TRUE;
 
-    /* 
+    /*
      *   if the value is already no longer than the requested precision,
      *   return the original value; similarly, if we don't have to do any
      *   rounding to truncate to the requested precision, do not change
      *   the original object; likewise, don't bother changing anything if
-     *   it's not a number 
+     *   it's not a number
      */
     if (get_type(ext) != VMBN_T_NUM || !get_round_dir(ext, digits))
     {
         if (always_create)
         {
-            /* 
+            /*
              *   we must create a new object regardless, but it won't need
-             *   rounding 
+             *   rounding
              */
             need_round = FALSE;
         }
@@ -6056,9 +6056,9 @@ const char *CVmObjBigNum::round_val(VMG_ vm_val_t *new_val, const char *ext,
     set_exp(new_ext, get_exp(ext));
     set_type(new_ext, get_type(ext));
 
-    /* 
+    /*
      *   if we don't need rounding, just truncate the old mantissa and
-     *   return the result 
+     *   return the result
      */
     if (!need_round)
     {
@@ -6077,7 +6077,7 @@ const char *CVmObjBigNum::round_val(VMG_ vm_val_t *new_val, const char *ext,
         /* return the new value */
         return new_ext;
     }
-    
+
     /* copy the mantissa up to the requested new precision */
     memcpy(new_ext + VMBN_MANT, ext + VMBN_MANT, (digits + 1)/2);
 
@@ -6089,19 +6089,19 @@ const char *CVmObjBigNum::round_val(VMG_ vm_val_t *new_val, const char *ext,
 }
 
 /*
- *   Convert a value to a big number value 
+ *   Convert a value to a big number value
  */
 int CVmObjBigNum::cvt_to_bignum(VMG_ vm_obj_id_t self, vm_val_t *val) const
 {
     /* if it's an integer, convert it to a BigNum value */
     if (val->typ == VM_INT)
     {
-        /* 
+        /*
          *   put my own value on the stack to ensure I'm not garbage
-         *   collected when creating the new object 
+         *   collected when creating the new object
          */
         G_stk->push()->set_obj(self);
-        
+
         /* it's an integer - convert it to a BigNum */
         val->set_obj(create(vmg_ FALSE, (long)val->val.intval, 32));
 

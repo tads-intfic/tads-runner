@@ -1,10 +1,10 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -22,7 +22,7 @@ Function
   substantially reworked for C++, Unicode, and the slightly different
   TADS 3 formatting model.
 Notes
-  
+
 Modified
   09/04/99 MJRoberts  - Creation
 */
@@ -44,7 +44,7 @@ Modified
 /*
  *   Synthetic console events.  These are events we generate alongside
  *   OS_EVT_xxx codes; we start these at 10000 to ensure that we don't
- *   overlap any current or future OS_EVT_xxx event codes.  
+ *   overlap any current or future OS_EVT_xxx event codes.
  */
 #define VMCON_EVT_END_QUIET_SCRIPT   10000     /* end quiet script playback */
 #define VMCON_EVT_DIALOG             10001            /* result from dialog */
@@ -58,7 +58,7 @@ Modified
  *   have arbitrarily many attributes, each of which have arbitrary string
  *   values.  However, at the moment, we only have a small number of
  *   attributes, and each attribute's value is merely a boolean, so it's
- *   adequate to represent these in the call interface with bit flags.  
+ *   adequate to represent these in the call interface with bit flags.
  */
 
 /* OVERWRITE, as in <file overwrite> */
@@ -73,16 +73,16 @@ Modified
  */
 enum vm_nl_type
 {
-    /* 
+    /*
      *   no line separation at all - write out this text and subsequent
-     *   text as part of the same line with no separators 
+     *   text as part of the same line with no separators
      */
     VM_NL_NONE,
 
-    /* 
+    /*
      *   flushing in preparation for input - don't show any line separation,
      *   and make sure that we display everything in the buffer, including
-     *   trailing spaces 
+     *   trailing spaces
      */
     VM_NL_INPUT,
 
@@ -92,9 +92,9 @@ enum vm_nl_type
     /* OS line separation - add a space after the text */
     VM_NL_OSNEWLINE,
 
-    /* 
+    /*
      *   flushing internal buffers only: no line separation, and do not
-     *   flush to underlying OS level yet 
+     *   flush to underlying OS level yet
      */
     VM_NL_NONE_INTERNAL
 };
@@ -107,17 +107,17 @@ enum vm_nl_type
  *   the integer handles to byte code to ensure that handles given back to us
  *   by the byte code are valid; if we handed back raw pointers to the byte
  *   code, it could call us with random garbage, and we'd have no way to
- *   protect against it.  
+ *   protect against it.
  */
 class CVmHandleManager
 {
 public:
     CVmHandleManager();
 
-    /* 
+    /*
      *   delete the object (use this rather than calling the destructor
      *   directly, since we need to call some virtuals in the course of
-     *   preparing for deletion 
+     *   preparing for deletion
      */
     void delete_obj(VMG0_);
 
@@ -139,9 +139,9 @@ protected:
     /* is the given handle valid? */
     int is_valid_handle(int handle)
     {
-        /* 
+        /*
          *   it's valid if it's within range for the allocated slots, and
-         *   there's a non-null object in the handle's slot 
+         *   there's a non-null object in the handle's slot
          */
         return (handle >= 1
                 && (size_t)handle <= handles_max_
@@ -151,18 +151,18 @@ protected:
     /* get the object for the given handle */
     void *get_object(int handle)
     {
-        /* 
+        /*
          *   If the handle is valid, get the item from the slot; the handle
          *   is indexed from 1, so decrement it to get the array index of the
-         *   object for the handle.  If the handle is invalid, return null. 
+         *   object for the handle.  If the handle is invalid, return null.
          */
         return is_valid_handle(handle) ? handles_[handle - 1] : 0;
     }
 
-    /* 
+    /*
      *   Delete the item in a slot, in preparation for destroying the handle
      *   manager itself - each subclass must override this to do the
-     *   appropriate work on termination.  
+     *   appropriate work on termination.
      */
     virtual void delete_handle_object(VMG_ int handle, void *obj) = 0;
 
@@ -175,7 +175,7 @@ protected:
 /* ------------------------------------------------------------------------ */
 /*
  *   Banner manager.  This keeps track of banner windows outside of the main
- *   console window.  
+ *   console window.
  */
 class CVmBannerManager: public CVmHandleManager
 {
@@ -187,26 +187,26 @@ public:
      *   creates a console object to format its output.  Returns a banner
      *   handle that can be used to refer to the window.  Banner handle zero
      *   is invalid and indicates failure.
-     *   
+     *
      *   'parent_id' is the banner ID of the parent of the new banner.  The
      *   new banner is created as a child of the given parent.  If parent_id
      *   is zero, then the new banner is created as a child of the main
      *   window.  The parent determines how the new window is laid out: the
      *   new window's display area is carved out of the display area of the
      *   parent.
-     *   
+     *
      *   'where' is OS_BANNER_FIRST, OS_BANNER_LAST, OS_BANNER_BEFORE, or
      *   OS_BANNER_AFTER.  'other_id' is the banner ID of an existing child
      *   of the given parent, for the relative insertion point; this is
      *   ignored for OS_BANNER_FIRST and OS_BANNER_LAST.
-     *   
+     *
      *   'wintype' is an OS_BANNER_TYPE_xxx code giving the type of window to
      *   be created.
-     *   
+     *
      *   'siz' is the size, in units specified by 'siz_units', an
      *   OS_BANNER_SIZE_xxx value.
-     *   
-     *   'style' is a combination of OS_BANNER_STYLE_xxx flags.  
+     *
+     *   'style' is a combination of OS_BANNER_STYLE_xxx flags.
      */
     int create_banner(VMG_ int parent_id,
                       int where, int other_id, int wintype,
@@ -217,9 +217,9 @@ public:
     void delete_banner(VMG_ int banner)
         { delete_or_orphan_banner(vmg_ banner, FALSE); }
 
-    /* 
+    /*
      *   Get the OS-level handle for the banner - this handle can be used to
-     *   call the os_banner_xxx functions directly.  
+     *   call the os_banner_xxx functions directly.
      */
     void *get_os_handle(int banner);
 
@@ -237,11 +237,11 @@ protected:
     /* delete the object in a slot, in preparation for deleting the manager */
     virtual void delete_handle_object(VMG_ int handle, void *)
     {
-        /* 
+        /*
          *   delete the banner object, but orphan the system-level banner -
          *   this will allow the system-level banner to remain visible even
          *   after VM termination, in case the host application continues
-         *   running even after the VM exits 
+         *   running even after the VM exits
          */
         delete_or_orphan_banner(vmg_ handle, TRUE);
     }
@@ -253,7 +253,7 @@ protected:
 /* ------------------------------------------------------------------------ */
 /*
  *   Log console manager.  This keeps track of log consoles, which are
- *   consoles created specifically for capturing text to a log file.  
+ *   consoles created specifically for capturing text to a log file.
  */
 class CVmLogConsoleManager: public CVmHandleManager
 {
@@ -285,7 +285,7 @@ protected:
 
 /*
  *   Log console manager item.  We use these to track individual log
- *   consoles.  
+ *   consoles.
  */
 class CVmLogConsoleItem
 {
@@ -304,7 +304,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Script stack entry 
+ *   Script stack entry
  */
 struct script_stack_entry
 {
@@ -350,7 +350,7 @@ private:
  *   Console.  A console corresponds to device that shows information to
  *   and reads text from the user.  On a text system, the console is
  *   simply the terminal.  On a graphical system, the console is usually
- *   an application window.  
+ *   an application window.
  */
 class CVmConsole
 {
@@ -401,36 +401,36 @@ public:
     /* clear the window */
     virtual void clear_window(VMG0_) = 0;
 
-    /* 
+    /*
      *   Flush all windows we control.  By default, we just flush our own
      *   window; consoles that manage multiple windows should flush their
-     *   managed windows here as well. 
+     *   managed windows here as well.
      */
     virtual void flush_all(VMG_ vm_nl_type nl) { flush(vmg_ nl); }
 
     /* immediately update the display window */
     void update_display(VMG0_);
 
-    /* 
+    /*
      *   Open a new log file.  Closes any previous log file.  If the file
      *   already exists, we'll overwrite it with the new log information,
      *   otherwise we'll create a new file.  Returns zero on success,
-     *   non-zero on failure.  
+     *   non-zero on failure.
      */
     int open_log_file(VMG_ const char *fname);
     int open_log_file(VMG_ const vm_val_t *filespec,
                       const struct vm_rcdesc *rc);
 
-    /* 
+    /*
      *   close any existing log file - returns zero on success, non-zero
-     *   on failure 
+     *   on failure
      */
     int close_log_file(VMG0_);
 
     /*
      *   Open a new command log file.  We'll log commands (and only
      *   commands) to the command log file.  Returns zero on success,
-     *   non-zero on failure.  
+     *   non-zero on failure.
      */
     int open_command_log(VMG_ const char *fname, int event_script);
     int open_command_log(VMG_ const vm_val_t *filespec,
@@ -445,7 +445,7 @@ public:
      *   false if the underlying OS display layer handles prompting, so a
      *   return of false doesn't necessarily mean that MORE prompts are
      *   never shown, but merely that we don't handle MORE prompts in the
-     *   output formatter itself.  
+     *   output formatter itself.
      */
     virtual int set_more_state(int state) = 0;
 
@@ -455,14 +455,14 @@ public:
     /* get the line width of the display device */
     virtual int get_line_width() const = 0;
 
-    /* 
+    /*
      *   Do we allow overrunning the line width when we can't find a natural
      *   breaking point (at a whitespace character, for example) such that
      *   we can fit some text within the line width?
-     *   
+     *
      *   If this returns false, then we'll force a newline when we reach the
      *   line width, even if doing so breaks up a single word that doesn't
-     *   have a natural breaking point within.  
+     *   have a natural breaking point within.
      */
     virtual int allow_overrun() const = 0;
 
@@ -476,14 +476,14 @@ public:
     /* reset the MORE prompt line count */
     void reset_line_count(int clearing);
 
-    /* 
+    /*
      *   check to see if we're reading from a script input file - returns
      *   true if so, false if reading from the user (via the keyboard or
-     *   other input device) 
+     *   other input device)
      */
     int is_reading_script() const { return (script_sp_ != 0); }
 
-    /* 
+    /*
      *   check to see if we're reading quietly from a script - if we're
      *   reading from a script, and this flag is true, we suppress all
      *   output
@@ -499,14 +499,14 @@ public:
     int is_event_script() const
         { return (script_sp_ != 0 && script_sp_->event_script); }
 
-    /* 
+    /*
      *   Open a script file.  If 'quiet' is true, no output is displayed
      *   while the script is being processed.  If 'script_more_mode' is true,
      *   MORE mode is in effect while processing the script, otherwise MORE
      *   mode is turned off while processing the script (to leave things as
      *   they are, simply pass in is_more_mode() for this argument).
-     *   
-     *   Returns 0 on success, non-zero on error.  
+     *
+     *   Returns 0 on success, non-zero on error.
      */
     int open_script_file(VMG_ const char *fname,
                          int quiet, int script_more_mode);
@@ -514,21 +514,21 @@ public:
                          const struct vm_rcdesc *rc,
                          int quiet, int script_more_mode);
 
-    /* 
+    /*
      *   Close the script file.  Returns the original MORE mode that was
      *   in effect before the script file was opened; this MORE mode
-     *   should be restored.  
+     *   should be restored.
      */
     int close_script_file(VMG0_);
 
-    /* 
+    /*
      *   Read a line of text from the keyboard.  Fills in the buffer with
      *   a null-terminated UTF-8 string.  Returns zero on success,
      *   non-zero on end-of-file reading the console (which usually
      *   indicates that the user has closed the application, so we're in
      *   the process of terminating; it might also indicate that the
      *   user's terminal has been detached, in which case we also probably
-     *   can't do much except terminate).  
+     *   can't do much except terminate).
      */
     int read_line(VMG_ char *buf, size_t buflen, int bypass_script = FALSE);
 
@@ -536,17 +536,17 @@ public:
      *   Read a line of input with optional timeout.  Fills in the buffer
      *   with a null-terminated UTF-8 string.  Returns an OS_EVT_xxx code,
      *   according to how the input was terminated:
-     *   
+     *
      *   OS_EVT_LINE - the user pressed Return to enter the text
      *.  OS_EVT_TIMEOUT - the timeout expired before the user pressed Return
      *.  OS_EVT_EOF - an error occurred reading the input
-     *   
+     *
      *   This routine is a cover for the low-level os_gets_timeout(), and
      *   behaves essentially the same way.  Note in particular that if this
      *   routine returns OS_EVT_TIMEOUT, then our read_line_cancel() routine
      *   must be called before any output or other display changes can be
      *   made, with the exception that another call to read_line_timeout()
-     *   is always allowed.  
+     *   is always allowed.
      */
     int read_line_timeout(VMG_ char *buf, size_t buflen,
                           unsigned long timeout, int use_timeout,
@@ -555,14 +555,14 @@ public:
     /*
      *   Cancel a line of input in progress, which was interrupted by a
      *   timeout in read_line_timeout().  If 'reset' is true, we'll forget
-     *   any editing state from the prior line.  
+     *   any editing state from the prior line.
      */
     void read_line_cancel(VMG_ int reset);
 
     /*
      *   Display a file dialog.  This routine works exactly the same way
      *   as os_askfile(), but is implemented here to allow for a formatted
-     *   text interface on systems where no dialog is available.  
+     *   text interface on systems where no dialog is available.
      */
     int askfile(VMG_ const char *prompt, size_t prompt_len,
                 char *reply, size_t replen,
@@ -587,13 +587,13 @@ public:
      *   Log an event.  This saves the event to the current script log, if
      *   there is one, in the proper format for the script.  We return the
      *   event code.
-     *   
+     *
      *   'evt' is the event type, as an OS_EVT_xxx or VMCON_EVT_xxx code.
-     *   
+     *
      *   'param' can be given in the local UI character set or in UTF-8 -
      *   specify which it is via 'param_is_utf8'.  We write the file in the
      *   local UI character set, so if the parameter is given in UTF-8, we
-     *   have to translate it.  
+     *   have to translate it.
      */
     int log_event(VMG_ int evt,
                   const char *param, size_t paramlen, int param_is_utf8);
@@ -601,7 +601,7 @@ public:
         { return log_event(vmg_ evt, 0, 0, FALSE); }
 
     /* log an event with the given event type tag */
-    void log_event(VMG_ const char *tag, 
+    void log_event(VMG_ const char *tag,
                    const char *param, size_t paramlen,
                    int param_is_utf8);
 
@@ -614,13 +614,13 @@ protected:
     /* the destructor is protected - use delete_obj() to delete */
     virtual ~CVmConsole() { }
 
-    /* 
+    /*
      *   Service routine - show MORE prompt on this console.  This can be
      *   called from show_more_prompt() when a MORE prompt is desired at all
-     *   in the subclassed console.  
+     *   in the subclassed console.
      */
     void show_con_more_prompt(VMG0_);
-    
+
     /* read a line from the script file */
     int read_line_from_script(char *buf, size_t buflen, int *evt);
 
@@ -630,11 +630,11 @@ protected:
     /* skip to the next line of the script */
     void skip_script_line(osfildef *fp);
 
-    /* 
+    /*
      *   read a script parameter - this reads the rest of the line into the
      *   given buffer, and skips to the start of the next line in the script;
      *   returns true on success, false if we reach EOF before reading
-     *   anything 
+     *   anything
      */
     int read_script_param(char *buf, size_t buflen, osfildef *fp);
 
@@ -659,27 +659,27 @@ protected:
 
     /* our log stream - this stream is written to the log file, if any */
     class CVmFormatterLog *log_str_;
-    
-    /* 
+
+    /*
      *   Flag: the log stream is enabled.  We can temporarily disable the
-     *   log stream, such as when writing to the statusline stream.  
+     *   log stream, such as when writing to the statusline stream.
      */
     unsigned int log_enabled_ : 1;
-    
+
     /*
      *   Flag: display two spaces after a period-like punctuation mark.
      *   This should be true if the output should have two spaces after a
      *   period, question mark, or exclamation point, false for a single
      *   space.  This should generally be true for fixed-width fonts,
      *   false for proportional fonts, although some users might prefer to
-     *   use single-spacing even for fixed-width fonts.  
+     *   use single-spacing even for fixed-width fonts.
      */
     unsigned int doublespace_ : 1;
 
-    /* 
+    /*
      *   flag: the command log is an event script; if this is set, we log all
      *   input events in the tagged <eventscript> file format, otherwise we
-     *   log just command lines in the old-style ">line" format 
+     *   log just command lines in the old-style ">line" format
      */
     unsigned int command_eventscript_ : 1;
 
@@ -687,10 +687,10 @@ protected:
      *   Script-input stack.  Each time we open a script, we create a new
      *   stack entry object and link it at the head of the list.  So, the
      *   head of the list is the current state, the next element is the
-     *   enclosing state, and so on.  
+     *   enclosing state, and so on.
      */
     script_stack_entry *script_sp_;
-    
+
     /* command log file, if there is one */
     class CVmDataSource *command_fp_;
     class CVmNetFile *command_nf_;
@@ -700,7 +700,7 @@ protected:
 /* ------------------------------------------------------------------------ */
 /*
  *   Main system console.  This console is attached to the OS-level primary
- *   console.  
+ *   console.
  */
 class CVmConsoleMain: public CVmConsole
 {
@@ -717,13 +717,13 @@ public:
     /* get the system log console manager */
     class CVmLogConsoleManager *get_log_console_manager() const
         { return log_console_manager_; }
-    
+
     /*
      *   Switch in or out of statusline mode.  When we're running on the text
      *   implementation of the OS layer, we must explicitly switch modes
      *   between the main text stream and statusline stream.  'mode' is true
      *   to switch to statusline mode, false to switch back to main text
-     *   mode.  
+     *   mode.
      */
     void set_statusline_mode(VMG_ int mode);
 
@@ -748,11 +748,11 @@ public:
     /* get the MORE mode */
     virtual int is_more_mode() const { return G_os_moremode; }
 
-    /* 
+    /*
      *   Flush everything - this flushes not only the main console, but any
      *   banner windows we're managing.  This should be called before pausing
      *   for input or for a timed delay, to make sure that buffered output in
-     *   all windows is shown.  
+     *   all windows is shown.
      */
     void flush_all(VMG_ vm_nl_type nl);
 
@@ -775,10 +775,10 @@ protected:
     /* statusline display stream */
     class CVmFormatterStatline *statline_str_;
 
-    /* 
+    /*
      *   The system banner window manager.  Since the main console is
      *   inherently a singleton (as there's only one OS-level primary
-     *   console), we keep track of the banner manager.  
+     *   console), we keep track of the banner manager.
      */
     class CVmBannerManager *banner_manager_;
 
@@ -789,7 +789,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Banner-window console.  
+ *   Banner-window console.
  */
 class CVmConsoleBanner: public CVmConsole
 {
@@ -843,7 +843,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Common base class for log-only consoles 
+ *   Common base class for log-only consoles
  */
 class CVmConsoleLogBase: public CVmConsole
 {
@@ -866,9 +866,9 @@ public:
     /* allow overrunning the line width in a lot file */
     virtual int allow_overrun() const { return TRUE; }
 
-    /* 
+    /*
      *   get the page length of the display device - this is arbitrary, since
-     *   we don't use MORE mode anyway 
+     *   we don't use MORE mode anyway
      */
     virtual int get_page_length() const { return 55; }
 };
@@ -877,7 +877,7 @@ public:
  *   Log console.  This is used to create a console that has no display
  *   presence, but simply captures its output directly to a log file.  (This
  *   is similar to the log file attached to a regular display console, but
- *   this kind of console ONLY has the log file.)  
+ *   this kind of console ONLY has the log file.)
  */
 class CVmConsoleLog: public CVmConsoleLogBase
 {
@@ -896,7 +896,7 @@ protected:
  *   This allows code to be written with a generic console pointer, rather
  *   than a test checking for the main console or some other console; just
  *   plug this in when there's not another console pointer and output will go
- *   to the main console automatically.  
+ *   to the main console automatically.
  */
 class CVmConsoleMainLog: public CVmConsoleLogBase
 {
@@ -918,17 +918,17 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   constants 
+ *   constants
  */
 
 /*
  *   HTML lexical analysis modes.  We use these modes for two purposes:
- *   
+ *
  *   First, for tracking our state while doing our own HTML parsing, which we
  *   do when the underlying renderer handles only plain text (in which case
  *   we must interpret and remove any HTML tags from the stream before
  *   sending the stream on to the underlying renderer).
- *   
+ *
  *   Second, for tracking the lexical state in the underlying renderer, when
  *   the underlying renderer handles full HTML interpretation.  In this case,
  *   we simply pass HTML tags through to the underlying renderer; but even
@@ -936,7 +936,7 @@ protected:
  *   structure of the text, so that we can tell when we're inside a tag and
  *   when we're in ordinary text.  Certain operations we apply (such as case
  *   conversions with "\^" and "\v" sequences) apply only to ordinary text,
- *   so we need to know what's what in the stream text.  
+ *   so we need to know what's what in the stream text.
  */
 enum vmconsole_html_state
 {
@@ -961,7 +961,7 @@ enum vmconsole_html_state
  *   read the full tag in order to obey an HEIGHT attribute we find.  When
  *   we encounter a <BR>, we figure out whether we think we'll need a
  *   flush or a blank line; if we find a HEIGHT attribute, we may change
- *   this opinion.  
+ *   this opinion.
  */
 enum vmconsole_html_br_mode
 {
@@ -972,7 +972,7 @@ enum vmconsole_html_br_mode
 
 /*
  *   Color/attribute information.  Each character is tagged with its current
- *   color and attributes. 
+ *   color and attributes.
  */
 struct vmcon_color_t
 {
@@ -998,7 +998,7 @@ struct vmcon_color_t
 /*
  *   Output Buffer Flags.  Each character in the output buffer has an
  *   associated flag value associated with it; the flag value is a
- *   combination of the bit flags defined here. 
+ *   combination of the bit flags defined here.
  */
 
 /*
@@ -1007,9 +1007,9 @@ struct vmcon_color_t
  *   ordinarily allow a soft line break.  Note that this does NOT override a
  *   hard line break (i.e., an explicit newline); it merely prevents a soft
  *   line break from occurring immediately after this character.
- *   
+ *
  *   We apply this flag to the character immediately preceding an explicit
- *   non-breaking space in the text stream.  
+ *   non-breaking space in the text stream.
  */
 #define VMCON_OBF_NOBREAK    0x01
 
@@ -1017,9 +1017,9 @@ struct vmcon_color_t
  *   Breakable character point.  This indicates that a line break is allowed
  *   to follow this character, even if the text at this point would not
  *   ordinarily allow a soft line break.
- *   
+ *
  *   We apply this flag to the character immediately preceding an explicit
- *   zero-width breakable space in the text stream. 
+ *   zero-width breakable space in the text stream.
  */
 #define VMCON_OBF_OKBREAK    0x02
 
@@ -1028,10 +1028,10 @@ struct vmcon_color_t
  *   run of break-anywhere text.  In break-anywhere text, we're allowed to
  *   break lines between any two characters, except adjacent to explicit
  *   non-breaking spaces in the text stream.
- *   
+ *
  *   Note that the NOBREAK flag overrides this flag, because this flag
  *   merely indicates the mode, while the NOBREAK flag indicates an explicit
- *   non-breaking indicator.  
+ *   non-breaking indicator.
  */
 #define VMCON_OBF_BREAK_ANY  0x04
 
@@ -1041,13 +1041,13 @@ struct vmcon_color_t
  *   we can insert a hyphen following this character and break the line
  *   after the hyphen.  If we do not hyphenate here, the soft hyphen has no
  *   effect; in particular, no hyphen character appears in the output stream
- *   when a soft hyphen is not used as a line break point.  
+ *   when a soft hyphen is not used as a line break point.
  */
 #define VMCON_OBF_SHY        0x08
 
 /*
  *   Quoted space.  This indicates that this is a space character that
- *   doesn't collapse in runs of contiguous whitespace. 
+ *   doesn't collapse in runs of contiguous whitespace.
  */
 #define VMCON_OBF_QSPACE     0x10
 
@@ -1056,17 +1056,17 @@ struct vmcon_color_t
 /*
  *   Output formatter stream interface.  A formatter stream performs
  *   formatting on a stream of displayed text.
- *   
+ *
  *   A given stream of display text might be fed into more than one
  *   formatter stream.  For example, if logging is turned on for a
  *   console, we'll feed the same text to the console's main formatting
  *   stream, which will end up being displayed to the user, and also to
  *   the log file's formatting stream, which will end up written out to
  *   the log file.
- *   
+ *
  *   Note that the formatter interface is internal to the console system.
  *   Client code should never need to refer to a formatter object, but
- *   should instead call the console object (CVmConsole).  
+ *   should instead call the console object (CVmConsole).
  */
 
 /* <TAB> tag alignment types */
@@ -1112,7 +1112,7 @@ public:
         cmap_ = 0;
     }
 
-    /* 
+    /*
      *   delete the object (call this instead of calling the destructor
      *   directly, since some subclasses need global access)
      */
@@ -1142,15 +1142,15 @@ public:
         /* we're not in either "caps", "nocaps", or "allcaps" mode yet */
         capsflag_ = nocapsflag_ = allcapsflag_ = FALSE;
 
-        /* 
+        /*
          *   set the initial buffer flags: start out in word-break (not
-         *   break-anywhere) more 
+         *   break-anywhere) more
          */
         cur_flags_ = 0;
 
-        /* 
+        /*
          *   start in normal spacing mode - treat runs of whitespace as
-         *   equivalent to a single space 
+         *   equivalent to a single space
          */
         obey_whitespace_ = FALSE;
 
@@ -1169,9 +1169,9 @@ public:
         /* presume this target accepts OS highlighting sequences */
         plain_text_target_ = FALSE;
 
-        /* 
+        /*
          *   start out in "normal" lexical state in our parser and in the
-         *   underlying output stream 
+         *   underlying output stream
          */
         html_parse_state_ = VMCON_HPS_NORMAL;
         html_passthru_state_ = VMCON_HPS_NORMAL;
@@ -1225,28 +1225,28 @@ public:
     {
         /* turn on NOCAPS mode */
         nocapsflag_ = TRUE;
-        
+
         /* turn off CAPS and ALLCAPS mode */
         capsflag_ = FALSE;
         allcapsflag_ = FALSE;
     }
-    
+
     /* turn on or off ALLCAPS mode */
     void allcaps(int all_caps)
     {
         /* set the ALLCAPS flag */
         allcapsflag_ = all_caps;
-        
+
         /* clear the CAPS and NOCAPS flags */
         capsflag_ = FALSE;
         nocapsflag_ = FALSE;
     }
 
-    /* 
+    /*
      *   Display a string of a given byte-length.  The text is given in
      *   UTF-8 format.  We'll interpret embedded control codes (newlines,
      *   blank lines, caps flags, etc); depending on the display mode, we
-     *   might also interpret HTML markup sequences.  
+     *   might also interpret HTML markup sequences.
      */
     int format_text(VMG_ const char *s, size_t len);
 
@@ -1270,7 +1270,7 @@ public:
 
     /*
      *   Flush the current line to the display, using the given type of
-     *   line termination. 
+     *   line termination.
      */
     void flush(VMG_ vm_nl_type nl);
 
@@ -1280,7 +1280,7 @@ public:
     /* immediately update the display window */
     void update_display(VMG0_);
 
-    /* 
+    /*
      *   determine if I'm an HTML target - this returns true if the
      *   underyling renderer accepts HTML, in which case we write HTML
      *   markups directly to the os_xxx routines (os_printz, for example).
@@ -1294,13 +1294,13 @@ public:
      *   Note that we read a line from the keyboard with echo.  Reading a
      *   line displays a carriage return without our help, taking us back to
      *   the first column - we need to know this so that we can deal
-     *   properly with output on the following line.  
+     *   properly with output on the following line.
      */
     void note_input_line()
     {
-        /* 
+        /*
          *   a CR/LF will have been echoed automatically by the input
-         *   reader, which takes us back to the first column 
+         *   reader, which takes us back to the first column
          */
         linecol_ = 0;
 
@@ -1310,7 +1310,7 @@ public:
 
     /* -------------------------------------------------------------------- */
     /*
-     *   Virtual interface to underlying OS renderer 
+     *   Virtual interface to underlying OS renderer
      */
 
     /* turn HTML mode on/off in the underlying OS-level renderer */
@@ -1326,9 +1326,9 @@ public:
     /* set text attributes */
     virtual void set_os_text_attr(int attr) = 0;
 
-    /* 
+    /*
      *   display text to the OS window; the text is given in the local
-     *   character set 
+     *   character set
      */
     virtual void print_to_os(const char *txt) = 0;
 
@@ -1347,7 +1347,7 @@ protected:
     /*
      *   Write a line (or a partial line) of text to the stream, using the
      *   indicated line breaking.  The text is given as wide Unicode
-     *   characters.  
+     *   characters.
      */
     void write_text(VMG_ const wchar_t *txt, size_t cnt,
                     const vmcon_color_t *colors, vm_nl_type nl);
@@ -1358,26 +1358,26 @@ protected:
     /* flush the current line, with or without padding */
     void flush_line(VMG_ int padding);
 
-    /* 
+    /*
      *   Buffer a character of output.  The character is presented to us as a
      *   wide Unicode character.  We'll expand this character with the local
      *   character mapping's expansion rules, then add the expansion to our
-     *   output buffer, performing word-wrapping as needed.  
+     *   output buffer, performing word-wrapping as needed.
      */
     void buffer_char(VMG_ wchar_t c);
 
-    /* 
+    /*
      *   buffer an expanded character - we'll buffer the given unicode
-     *   character, with no further expansion 
+     *   character, with no further expansion
      */
     void buffer_expchar(VMG_ wchar_t c);
 
     /* buffer a rendered expanded character */
     void buffer_rendered(wchar_t c, unsigned char flags, int wid);
 
-    /* 
+    /*
      *   Buffer a string of output to the stream.  The string is in UTF-8
-     *   format. 
+     *   format.
      */
     void buffer_string(VMG_ const char *txt);
 
@@ -1387,15 +1387,15 @@ protected:
     /* get the next wide unicode character in a UTF8-encoded string */
     static wchar_t next_wchar(const char **s, size_t *len);
 
-    /* 
+    /*
      *   Determine if we should use MORE mode in the formatter layer; if
      *   this returns true, we handle MORE prompting ourselves, otherwise
      *   we handle it through the OS layer.
-     *   
+     *
      *   The default version of this function is implemented in the output
      *   formatter configuration module.  This function can also be
      *   overridden in a subclass (for example, a log stream never uses
-     *   MORE mode, no matter what configuration we're using).  
+     *   MORE mode, no matter what configuration we're using).
      */
     virtual int formatter_more_mode() const;
 
@@ -1406,14 +1406,14 @@ protected:
      *   line wrapping, we'll simply fill up our internal buffer to its
      *   maximum size, since the flushing points are irrelevant to the line
      *   wrapping the underlying OS console will be doing and hence we might
-     *   as well buffer as much as we can for efficiency.  
+     *   as well buffer as much as we can for efficiency.
      */
     virtual int get_buffer_maxcol() const
     {
-        /* 
+        /*
          *   if the OS is doing the line wrapping, use the full buffer;
          *   otherwise, use the actual line width from the underyling
-         *   console 
+         *   console
          */
         if (os_line_wrap_)
             return OS_MAXWIDTH;
@@ -1425,8 +1425,8 @@ protected:
      *   Determine if the underlying stream interprets HTML markups.  We
      *   call this during initialization to set our html_target_ member
      *   (we cache the result since we check it frequently).
-     *   
-     *   This is implemented in the formatter configuration module.  
+     *
+     *   This is implemented in the formatter configuration module.
      */
     virtual int get_init_html_target() const;
 
@@ -1435,50 +1435,50 @@ protected:
      *   HTML mini-parser.  This only needs to be implemented when linking
      *   with non-HTML osifc implementations; when osifc provides HTML
      *   parsing, we don't need to do any HTML parsing here, so these can use
-     *   dummy implementations. 
+     *   dummy implementations.
      */
 
     /*
      *   Resume text-only HTML mini-parser.  This is called when we start
      *   writing a new string and discover that we're parsing inside an HTML
      *   tag in our mini-parser.
-     *   
-     *   Returns the next character after the run of text we parse.  
+     *
+     *   Returns the next character after the run of text we parse.
      */
     wchar_t resume_html_parsing(VMG_ wchar_t c,
                                 const char **sp, size_t *slenp);
 
     /* parse an HTML entity ('&') markup */
     wchar_t parse_entity(VMG_ wchar_t *ent, const char **sp, size_t *slenp);
-    
+
     /*
      *   Parse the beginning HTML markup.  This is called when we are
      *   scanning a '<' or '&' character in output text, and we're in HTML
      *   mode, and the underlying target doesn't support HTML parsing.
      *   Returns the next character to process after we finish our initial
-     *   parsing.  
+     *   parsing.
      */
     wchar_t parse_html_markup(VMG_ wchar_t c,
                               const char **sp, size_t *slenp);
 
-    /* 
+    /*
      *   Expand any pending tab.  This should be called when we're doing
      *   HTML mini-parsing, and we see a <TAB> tag or we reach the end of an
      *   output line.  We'll expand any pending RIGHT/CENTER tab by going
      *   back to the tab's location and inserting the necessary number of
      *   spaces now that we know the extent of the text affected.
-     *   
+     *
      *   If 'allow_anon' is true, we will allow "anonymous" tabs, which is
      *   to say tabs with no ID attribute.  Anonymous tabs allow text to be
      *   tabbed relative to the full width of the line, but these are
      *   meaningful only with normal line endings; when a line is flushed
      *   before the end of the line is reached (because the line will be
      *   used for a prompt, for example), anonymous tabs should not be
-     *   expanded with the line.  
+     *   expanded with the line.
      */
     void expand_pending_tab(VMG_ int allow_anon);
 
-    /* 
+    /*
      *   find a tab definition object; if 'create' it true and the specified
      *   tab doesn't exist, we'll create a new tab object
      */
@@ -1493,10 +1493,10 @@ protected:
     /* push the current color for later restoration */
     void push_color()
     {
-        /* 
+        /*
          *   add a level to the color stack, if possible; if it's not
          *   possible, assume we've lost an end tag somewhere, so rotate the
-         *   entire stack down a level 
+         *   entire stack down a level
          */
         if (color_sp_ == CVFMT_CLRSTK_MAX)
         {
@@ -1513,9 +1513,9 @@ protected:
     /* pop the current color */
     void pop_color()
     {
-        /* 
+        /*
          *   if we're at the bottom of the stack, we must have had too many
-         *   close tags; ignore the extra operation 
+         *   close tags; ignore the extra operation
          */
         if (color_sp_ != 0)
         {
@@ -1524,9 +1524,9 @@ protected:
         }
     }
 
-    /* 
+    /*
      *   Process a <nolog> tag.  By default, we ignore this tag entirely.
-     *   Log streams should hide the contents of this tag.  
+     *   Log streams should hide the contents of this tag.
      */
     virtual void process_nolog_tag(int /*is_end_tag*/)
     {
@@ -1535,7 +1535,7 @@ protected:
 
     /*
      *   Process a <log> tag.  By default, we hide the contents of this tag;
-     *   this tag marks text that is to be shown only in a log stream. 
+     *   this tag marks text that is to be shown only in a log stream.
      */
     virtual void process_log_tag(int is_end_tag)
     {
@@ -1548,48 +1548,48 @@ protected:
 
     /* -------------------------------------------------------------------- */
     /*
-     *   Member variables 
+     *   Member variables
      */
-        
+
     /* the console that owns this formatter stream */
     class CVmConsole *console_;
 
     /* our character mapper */
     class CCharmapToLocal *cmap_;
-    
+
     /* current line position and output column */
     int linepos_;
     int linecol_;
 
-    /* 
+    /*
      *   flag: the current buffer is a "continuation" line; that is, we've
      *   already flushed a partial line to the display without moving to a
      *   new line vertically, and the current buffer will be displayed on the
      *   same line on the terminal, to the right of the previously-displayed
-     *   material 
+     *   material
      */
     int is_continuation_;
 
     /* number of lines on the screen (since last MORE prompt) */
     int linecnt_;
 
-    /* 
+    /*
      *   Output buffer.  We keep the output buffer as wide Unicode
      *   characters, and translate to the local character set when we
      *   flush the buffer and send the text to the os_xxx routines for
-     *   display. 
+     *   display.
      */
     wchar_t linebuf_[OS_MAXWIDTH + 1];
 
-    /* 
+    /*
      *   Output buffer character colors.  We keep track of the display color
-     *   of each character in the buffer.  
+     *   of each character in the buffer.
      */
     vmcon_color_t colorbuf_[OS_MAXWIDTH + 1];
 
-    /* 
+    /*
      *   output buffer flags - we keep a flag value for each character in
-     *   the output buffer 
+     *   the output buffer
      */
     unsigned char flagbuf_[OS_MAXWIDTH + 1];
 
@@ -1608,10 +1608,10 @@ protected:
     vmcon_color_t color_stack_[CVFMT_CLRSTK_MAX];
     size_t color_sp_;
 
-    /* 
+    /*
      *   Current output character flags.  This is the base value to write to
      *   flagbuf_ for each character we output, given the current mode
-     *   settings.  
+     *   settings.
      */
     unsigned char cur_flags_;
 
@@ -1636,34 +1636,34 @@ protected:
     /*
      *   Flag indicating that the underlying output system wants to
      *   receive its output as HTML.
-     *   
+     *
      *   If this is true, we'll pass through HTML to the underlying output
      *   system, and in addition generate HTML sequences for certain
      *   TADS-native escapes (for example, we'll convert the "\n" sequence
      *   to a <BR> sequence).
-     *   
+     *
      *   If this is false, we'll do just the opposite: we'll remove HTML
-     *   from the output stream and convert it into normal text sequences. 
+     *   from the output stream and convert it into normal text sequences.
      */
     unsigned int html_target_ : 1;
 
     /*
      *   Flag indicating that the target uses plain text.  If this flag is
-     *   set, we won't add the OS escape codes for highlighted characters. 
+     *   set, we won't add the OS escape codes for highlighted characters.
      */
     unsigned int plain_text_target_ : 1;
 
-    /* 
+    /*
      *   flag: the underlying OS layer handles line wrapping, so we never
      *   need to write newlines when flushing our line buffer except when
-     *   we want to indicate a hard line break 
+     *   we want to indicate a hard line break
      */
     unsigned int os_line_wrap_ : 1;
 
-    /* 
+    /*
      *   Current lexical analysis state for our own HTML parsing.  This is
      *   used to track our HTML state when we have an underlying plain text
-     *   renderer.  
+     *   renderer.
      */
     vmconsole_html_state html_parse_state_;
 
@@ -1671,7 +1671,7 @@ protected:
      *   Current lexical analysis mode for the text stream going to the
      *   underlying renderer.  This is used to track the lexical structure of
      *   the stream when we're passing HTML tags through to the underlying
-     *   renderer.  
+     *   renderer.
      */
     vmconsole_html_state html_passthru_state_;
 
@@ -1682,10 +1682,10 @@ protected:
     /* <BR> defer mode */
     vmconsole_html_br_mode html_defer_br_;
 
-    /* 
+    /*
      *   HTML "ignore" mode - we suppress all output when parsing the
      *   contents of a <TITLE> or <ABOUTBOX> tag.  This is a counter that
-     *   keeps track of the nesting depth for ignored tags.  
+     *   keeps track of the nesting depth for ignored tags.
      */
     int html_in_ignore_;
 
@@ -1695,7 +1695,7 @@ protected:
      *   characters to the title buffer rather than the normal output
      *   buffer, and then call os_set_title() when we reach the </TITLE>
      *   tag.  This is a counter that keeps track of the nesting depth of
-     *   <TITLE> tags.  
+     *   <TITLE> tags.
      */
     int html_in_title_;
 
@@ -1706,9 +1706,9 @@ protected:
     /* pointer to next available character in title buffer */
     char *html_title_ptr_;
 
-    /* 
+    /*
      *   quoting level - this is a counter that keeps track of the nesting
-     *   depth of <Q> tags 
+     *   depth of <Q> tags
      */
     int html_quote_level_;
 
@@ -1718,7 +1718,7 @@ protected:
     /*
      *   Parsing mode flag for ALT attributes.  If we're parsing a tag
      *   that allows ALT, such as IMG or SOUND, we'll set this flag, then
-     *   insert the ALT text if we encounter it during parsing.  
+     *   insert the ALT text if we encounter it during parsing.
      */
     unsigned int html_allow_alt_ : 1;
 
@@ -1742,39 +1742,39 @@ protected:
     vmfmt_tab_align_t new_tab_align_;
     wchar_t new_tab_dp_;
 
-    /* 
+    /*
      *   Characteristics of pending tab.  We must handle this tab when we
      *   reach the next <TAB> or the end of the current line.  If
      *   pending_tab_align_ is VMFMT_TAB_NONE, it indicates that there is no
-     *   pending tab (since a pending tab always requires alignment).  
+     *   pending tab (since a pending tab always requires alignment).
      */
     vmfmt_tab_align_t pending_tab_align_;
     class CVmFmtTabStop *pending_tab_entry_;
     wchar_t pending_tab_dp_;
 
-    /* 
+    /*
      *   starting column of pending tab - this is the output column where we
      *   were writing when the pending tab was encountered, so this is the
-     *   column where we insert spaces for the tab 
+     *   column where we insert spaces for the tab
      */
     int pending_tab_start_;
 
-    /* 
+    /*
      *   color/attributes active at start of pending tab - this is the color
-     *   we'll use for the spaces we insert when we insert the tab 
+     *   we'll use for the spaces we insert when we insert the tab
      */
     vmcon_color_t pending_tab_color_;
 
-    /* 
+    /*
      *   Flag: this is a display stream.  Other types of streams (such as
-     *   log file streams) should set this to false. 
+     *   log file streams) should set this to false.
      */
     unsigned int is_disp_stream_ : 1;
 };
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Formatter for display windows 
+ *   Formatter for display windows
  */
 class CVmFormatterDisp: public CVmFormatter
 {
@@ -1790,16 +1790,16 @@ public:
         /* inherit base class initialization */
         CVmFormatter::init();
 
-        /* 
+        /*
          *   if we're compiled for HTML mode, set the standard output
          *   stream so that it knows it has an HTML target - this will
          *   ensure that HTML tags are passed through to the underlying
          *   stream, and that we generate HTML equivalents for our own
-         *   control sequences 
-         */ 
+         *   control sequences
+         */
         html_target_ = get_init_html_target();
 
-        /* 
+        /*
          *   since we always use HTML mode, turn on HTML mode in the
          *   underlying OS window if our underlying OS renderer is HTML-aware
          */
@@ -1810,7 +1810,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Formatter subclass for the main display 
+ *   Formatter subclass for the main display
  */
 class CVmFormatterMain: public CVmFormatterDisp
 {
@@ -1823,7 +1823,7 @@ public:
         if (html_title_buf_size_ != 0)
             html_title_buf_ = (char *)t3malloc(html_title_buf_size_);
     }
-    
+
     /* initialize */
     void init()
     {
@@ -1849,16 +1849,16 @@ protected:
             t3free(html_title_buf_);
     }
 
-    /* 
+    /*
      *   Determine if the main console uses OS-level line wrapping - if this
      *   is returns true, then an output formatter on this console will not
      *   insert a newline at the end of a line that it's flushing for word
      *   wrapping, but will instead let the underlying OS display layer
      *   handle the wrapping.
-     *   
+     *
      *   The OS line wrapping status is a PERMANENT feature of the console,
      *   so it is safe for the formatter to query this during initialization
-     *   and cache the value.  
+     *   and cache the value.
      */
     static int get_os_line_wrap();
 
@@ -1876,9 +1876,9 @@ protected:
     /* flush the underlying OS-level renderer */
     virtual void flush_to_os() { os_flush(); }
 
-    /* 
+    /*
      *   set text attributes for subsequent text directly in the underlying
-     *   OS window 
+     *   OS window
      */
     virtual void set_os_text_attr(int attr)
     {
@@ -1890,9 +1890,9 @@ protected:
     /* set the text color in the underlying OS window */
     virtual void set_os_text_color(os_color_t fg, os_color_t bg)
     {
-        /* 
+        /*
          *   if the target is in 'plain' mode, don't use colors; otherwise,
-         *   ask the console to do the work 
+         *   ask the console to do the work
          */
         if (!plain_text_target_)
             os_set_text_color(fg, bg);
@@ -1910,7 +1910,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Formatter subclass for the status line 
+ *   Formatter subclass for the status line
  */
 class CVmFormatterStatline: public CVmFormatterDisp
 {
@@ -1985,7 +1985,7 @@ public:
     /* reset the MORE prompt line counter */
     virtual void reset_line_count(int clearing)
     {
-        /* 
+        /*
          *   To ensure we always keep a line of context when we page-forward
          *   from a MORE prompt, start the line counter at 2.  Note that we
          *   do this in banner windows, but not in the main window, because -
@@ -1995,19 +1995,19 @@ public:
          *   page length calculation, because doing so would cause the
          *   *first* MORE prompt (from a cleared window) to show up too
          *   early.
-         *   
+         *
          *   When we're clearing the screen, reset to zero, since we have no
-         *   context to retain.  
+         *   context to retain.
          */
         linecnt_ = (clearing ? 0 : 1);
     }
 
 protected:
-    /* 
+    /*
      *   Use MORE mode in a banner window if we have the MORE-mode banner
      *   window style, AND the base display banner would use MORE mode.  The
      *   latter check tests to see if we handle MORE mode at the OS level or
-     *   in the formatter.  
+     *   in the formatter.
      */
     virtual int formatter_more_mode() const
     {
@@ -2077,13 +2077,13 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Formatter subclass for the log file 
+ *   Formatter subclass for the log file
  */
 class CVmFormatterLog: public CVmFormatter
 {
     friend class CVmConsole;
     friend class CVmConsoleLog;
-    
+
 public:
     CVmFormatterLog(class CVmConsole *console, int width)
         : CVmFormatter(console)
@@ -2111,22 +2111,22 @@ public:
     {
         /* inherit base class initialization */
         CVmFormatter::init();
-        
+
         /* use plain text in the log file stream */
         plain_text_target_ = TRUE;
-        
+
         /* we're not a display stream */
         is_disp_stream_ = FALSE;
-        
+
         /* we're not an HTML formatter */
         html_target_ = FALSE;
 
-        /* 
+        /*
          *   we use our own internal line wrapping, since our underlying
-         *   display layer is simply dumping to a text file 
+         *   display layer is simply dumping to a text file
          */
         os_line_wrap_ = FALSE;
-        
+
         /* no log file yet */
         logfp_ = 0;
     }
@@ -2185,13 +2185,13 @@ protected:
 
     /* set the log file to a file previously opened */
     int set_log_file(VMG_ CVmNetFile *nf, osfildef *fp);
-    
+
     /* close the log file */
     int close_log_file(VMG0_);
-    
-    /* 
+
+    /*
      *   Process a <nolog> tag.  Since we're a log stream, we hide the
-     *   contents of this tag.  
+     *   contents of this tag.
      */
     virtual void process_nolog_tag(int is_end_tag)
     {
@@ -2204,7 +2204,7 @@ protected:
 
     /*
      *   Process a <log> tag.  Since we're a log stream, we show the contents
-     *   of this tag, so we can simply parse and ignore it. 
+     *   of this tag, so we can simply parse and ignore it.
      */
     virtual void process_log_tag(int /*is_end_tag*/)
     {
@@ -2214,7 +2214,7 @@ protected:
     osfildef *logfp_;
     class CVmNetFile *lognf_;
     struct vm_globalvar_t *logglob_;
-    
+
     /* the maximum width to use for our lines */
     int width_;
 };

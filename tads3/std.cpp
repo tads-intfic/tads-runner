@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/STD.CPP,v 1.3 1999/07/11 00:46:52 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   std.cpp - T3 library functions
 Function
-  
+
 Notes
-  
+
 Modified
   04/16/99 MJRoberts  - Creation
 */
@@ -33,7 +33,7 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   Allocate space for a string of a given length.  We'll add in space
- *   for the null terminator.  
+ *   for the null terminator.
  */
 char *lib_alloc_str(size_t len)
 {
@@ -53,7 +53,7 @@ char *lib_alloc_str(size_t len)
  *   Allocate space for a string of known length, and save a copy of the
  *   string.  The length does not include a null terminator, and in fact
  *   the string does not need to be null-terminated.  The copy returned,
- *   however, is null-terminated.  
+ *   however, is null-terminated.
  */
 char *lib_copy_str(const char *str, size_t len)
 {
@@ -79,7 +79,7 @@ char *lib_copy_str(const char *str, size_t len)
 }
 
 /*
- *   allocate and copy a null-terminated string 
+ *   allocate and copy a null-terminated string
  */
 char *lib_copy_str(const char *str)
 {
@@ -87,7 +87,7 @@ char *lib_copy_str(const char *str)
 }
 
 /*
- *   Free a string previously allocated with lib_copy_str() 
+ *   Free a string previously allocated with lib_copy_str()
  */
 void lib_free_str(char *buf)
 {
@@ -97,7 +97,7 @@ void lib_free_str(char *buf)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Utility routine: compare spaces, collapsing whitespace 
+ *   Utility routine: compare spaces, collapsing whitespace
  */
 int lib_strequal_collapse_spaces(const char *a, size_t a_len,
                                  const char *b, size_t b_len)
@@ -109,7 +109,7 @@ int lib_strequal_collapse_spaces(const char *a, size_t a_len,
     /* calculate where the strings end */
     a_end = a + a_len;
     b_end = b + b_len;
-    
+
     /* keep going until we run out of strings */
     for (ap.set((char *)a), bp.set((char *)b) ;
          ap.getptr() < a_end && bp.getptr() < b_end ; )
@@ -136,9 +136,9 @@ int lib_strequal_collapse_spaces(const char *a, size_t a_len,
         bp.inc();
     }
 
-    /* 
+    /*
      *   if both strings ran out at the same time, we have a match;
-     *   otherwise, they're not the same 
+     *   otherwise, they're not the same
      */
     return (ap.getptr() == a_end && bp.getptr() == b_end);
 }
@@ -148,7 +148,7 @@ int lib_strequal_collapse_spaces(const char *a, size_t a_len,
  *   Utility routine: do a case-insensitive comparison of two UTF-8 strings.
  *   Returns strcmp-style results: negative if a < b, 0 if a == b, positive
  *   if a > b.
- *   
+ *
  *   If 'bmatchlen' is null, it means that the two strings must have the same
  *   number of characters.  Otherwise, we'll return 0 (equal) if 'a' is a
  *   leading substring of 'b', and fill in '*bmatchlen' with the length in
@@ -177,11 +177,11 @@ int t3_compare_case_fold(
             return ach - bch;
     }
 
-    /* 
+    /*
      *   if 'a' ran out first, and we have a 'bmatchlen' pointer, then we're
      *   being asked if 'a' is a leading substring of 'b', which it is - fill
      *   in '*bmatchlen' with the length of 'b' that we matched, and return
-     *   ture 
+     *   ture
      */
     if (bmatchlen != 0 && !ap.more() && bp.at_boundary())
     {
@@ -215,11 +215,11 @@ int t3_compare_case_fold(
             return ach - bch;
     }
 
-    /* 
+    /*
      *   if 'a' ran out first, and we have a 'bmatchlen' pointer, then we're
      *   being asked if 'a' is a leading substring of 'b', which it is - fill
      *   in '*bmatchlen' with the length of 'b' that we matched, and return
-     *   ture 
+     *   ture
      */
     if (bmatchlen != 0 && !ap.more() && bp.at_boundary())
     {
@@ -234,7 +234,7 @@ int t3_compare_case_fold(
 /* ------------------------------------------------------------------------ */
 /*
  *   Compare the minimum number of characters in each string with case
- *   folding. 
+ *   folding.
  */
 int t3_compare_case_fold_min(
     utf8_ptr &a, size_t &alen, utf8_ptr &b, size_t &blen)
@@ -246,9 +246,9 @@ int t3_compare_case_fold_min(
     /* set up folded-case string readers for the two strings */
     Utf8FoldStr ap(a.getptr(), alen), bp(b.getptr(), blen);
 
-    /* 
+    /*
      *   Scan until we're at a boundary in both strings.  Note that we start
-     *   at a boundary, so always compare at least one character. 
+     *   at a boundary, so always compare at least one character.
      */
     do
     {
@@ -261,7 +261,7 @@ int t3_compare_case_fold_min(
     }
     while (!ap.at_boundary() || !bp.at_boundary());
 
-    /* 
+    /*
      *   If we made it to a boundary in each string without finding a
      *   difference, we have a match.  Advance each string past the matched
      *   text.
@@ -289,9 +289,9 @@ int t3_compare_case_fold_min(
     Utf8FoldStr ap(a.getptr(), alen);
     CVmCaseFoldStr bp(b, blen);
 
-    /* 
+    /*
      *   Scan until we're at a boundary in both strings.  Note that we start
-     *   at a boundary, so always compare at least one character. 
+     *   at a boundary, so always compare at least one character.
      */
     do
     {
@@ -304,7 +304,7 @@ int t3_compare_case_fold_min(
     }
     while (!ap.at_boundary() || !bp.at_boundary());
 
-    /* 
+    /*
      *   If we made it to a boundary in each string without finding a
      *   difference, we have a match.  Advance each string past the matched
      *   text.
@@ -330,9 +330,9 @@ int t3_compare_case_fold_min(
     /* set up folded-case string readers for the two strings */
     CVmCaseFoldStr ap(a, alen), bp(b, blen);
 
-    /* 
+    /*
      *   Scan until we're at a boundary in both strings.  Note that we start
-     *   at a boundary, so always compare at least one character. 
+     *   at a boundary, so always compare at least one character.
      */
     do
     {
@@ -345,7 +345,7 @@ int t3_compare_case_fold_min(
     }
     while (!ap.at_boundary() || !bp.at_boundary());
 
-    /* 
+    /*
      *   If we got this far, we made it to a boundary in each string without
      *   finding a difference, so we have a match.  Advance each string past
      *   the matched text.
@@ -363,7 +363,7 @@ int t3_compare_case_fold_min(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Limited-length atoi 
+ *   Limited-length atoi
  */
 int lib_atoi(const char *str, size_t len)
 {
@@ -412,23 +412,23 @@ int lib_atoi_adv(const char *&str, size_t &len)
  *   we'll return the default version suffix.  In any case, we'll set
  *   name_len to the length of the name portion, excluding the version
  *   suffix and its leading separator.
- *   
+ *
  *   For example, with a '/' suffix, a versioned name string would look
  *   like "tads-gen/030000" - the name is "tads_gen" and the version is
- *   "030000".  
+ *   "030000".
  */
 const char *lib_find_vsn_suffix(const char *name_string, char suffix_char,
                                 const char *default_vsn, size_t *name_len)
 {
     const char *vsn;
-    
+
     /* find the suffix character, if any */
     for (vsn = name_string ; *vsn != '\0' && *vsn != suffix_char ; ++vsn);
 
     /* note the length of the name portion */
     *name_len = vsn - name_string;
 
-    /* 
+    /*
      *   skip the separator if we found one, to point vsn at the start of
      *   the suffix string itself - it we didn't find the separator
      *   character, use the default version string
@@ -445,7 +445,7 @@ const char *lib_find_vsn_suffix(const char *name_string, char suffix_char,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   allocating sprintf implementation 
+ *   allocating sprintf implementation
  */
 char *t3sprintf_alloc(const char *fmt, ...)
 {
@@ -460,7 +460,7 @@ char *t3sprintf_alloc(const char *fmt, ...)
 }
 
 /*
- *   allocating vsprintf implementation 
+ *   allocating vsprintf implementation
  */
 char *t3vsprintf_alloc(const char *fmt, va_list args)
 {
@@ -509,9 +509,9 @@ static const char *check_nth(const char *&fmt, int ival)
         /* 'th' suffix applies to most numbers */
         nth = "th";
 
-        /* 
+        /*
          *   check for 1st, 2nd, 3rd, 21st, 22nd, 23rd, etc; but note that
-         *   the the teens are all th's 
+         *   the the teens are all th's
          */
         if (ival % 100 < 10 || ival % 100 > 20)
         {
@@ -520,11 +520,11 @@ static const char *check_nth(const char *&fmt, int ival)
             case 1:
                 nth = "st";
                 break;
-                
+
             case 2:
                 nth = "nd";
                 break;
-                
+
             case 3:
                 nth = "rd";
                 break;
@@ -537,7 +537,7 @@ static const char *check_nth(const char *&fmt, int ival)
 }
 
 /*
- *   buffer-checked vsprintf implementation 
+ *   buffer-checked vsprintf implementation
  */
 size_t t3vsprintf(char *buf, size_t buflen, const char *fmt, va_list args0)
 {
@@ -545,12 +545,12 @@ size_t t3vsprintf(char *buf, size_t buflen, const char *fmt, va_list args0)
     size_t need = 0;
     char *dst;
 
-    /* 
+    /*
      *   make a private copy of the arguments, to ensure that we don't modify
      *   the caller's copy (on some platforms, va_list is a reference type;
      *   the caller might want to reuse their argument pointer for a two-pass
      *   operation, such as a pre-format pass to measure how much space is
-     *   needed) 
+     *   needed)
      */
     va_list args;
     os_va_copy(args, args0);
@@ -647,7 +647,7 @@ size_t t3vsprintf(char *buf, size_t buflen, const char *fmt, va_list args0)
                     }
                 }
             }
-            
+
             /* check what follows */
             switch (*fmt)
             {
@@ -669,10 +669,10 @@ size_t t3vsprintf(char *buf, size_t buflen, const char *fmt, va_list args0)
                 {
                     const char *p;
 
-                    /* 
+                    /*
                      *   Scan until we reach a null terminator, or until our
                      *   length reaches the maximum given by the precision
-                     *   qualifier.  
+                     *   qualifier.
                      */
                     for (txtlen = 0, p = txt ;
                          *p != '\0' && (fld_prec == -1
@@ -680,22 +680,22 @@ size_t t3vsprintf(char *buf, size_t buflen, const char *fmt, va_list args0)
                          ++p, ++txtlen) ;
                 }
 
-                /* 
+                /*
                  *   if the 'approximation' flag is specified, limit the
                  *   string to 60 characters or the field width, whichever
-                 *   is less 
+                 *   is less
                  */
                 if (approx)
                 {
                     size_t lim;
-                    
+
                     /* the default limit is 60 characters */
                     lim = 60;
 
-                    /* 
+                    /*
                      *   if a field width is specified, it overrides the
                      *   default - but take out three characters for the
-                     *   '...' suffix 
+                     *   '...' suffix
                      */
                     if (fld_wid != -1 && (size_t)fld_wid > lim)
                         lim = fld_wid - 3;
@@ -711,10 +711,10 @@ size_t t3vsprintf(char *buf, size_t buflen, const char *fmt, va_list args0)
                     }
                 }
 
-                /* 
+                /*
                  *   if a field width was specified and we have the default
                  *   right alignment, pad to the left with spaces if the
-                 *   width is greater than the actual length 
+                 *   width is greater than the actual length
                  */
                 if (fld_wid != -1 && !left_align)
                 {
@@ -728,9 +728,9 @@ size_t t3vsprintf(char *buf, size_t buflen, const char *fmt, va_list args0)
                 break;
 
             case 'P':
-                /* 
+                /*
                  *   URL parameter - this is a (char*) value with url
-                 *   encoding applied 
+                 *   encoding applied
                  */
                 txt = va_arg(args, char *);
 
@@ -802,22 +802,22 @@ size_t t3vsprintf(char *buf, size_t buflen, const char *fmt, va_list args0)
                     nth = check_nth(fmt, ival);
                 }
                 /* fall through to num_common: */
-                
+
             num_common:
                 /* use the temporary buffer where we formatted the value */
                 txt = buf;
                 txtlen = strlen(buf);
 
-                /* 
+                /*
                  *   Pad with leading spaces or zeros if the requested
                  *   field width exceeds the actual size and we have the
-                 *   default left alignment.  
+                 *   default left alignment.
                  */
                 if (fld_wid != -1 && !left_align && (size_t)fld_wid > txtlen)
                 {
-                    /* 
+                    /*
                      *   if we're showing an explicit sign, and we don't have
-                     *   a leading '-' in the results, add it 
+                     *   a leading '-' in the results, add it
                      */
                     if (plus && txt[0] != '-')
                     {
@@ -827,9 +827,9 @@ size_t t3vsprintf(char *buf, size_t buflen, const char *fmt, va_list args0)
                             --rem, *dst++ = '+';
                     }
 
-                    /* 
+                    /*
                      *   if we're showing leading zeros, and we have a
-                     *   negative number, show the '-' first 
+                     *   negative number, show the '-' first
                      */
                     if (lead_char == '0' && txt[0] == '-')
                     {
@@ -837,7 +837,7 @@ size_t t3vsprintf(char *buf, size_t buflen, const char *fmt, va_list args0)
                         ++need;
                         if (rem > 1)
                             --rem, *dst++ = '-';
-                        
+
                         /* we've shown the '-', so skip it in the number */
                         ++txt;
                         --txtlen;
@@ -942,9 +942,9 @@ size_t t3vsprintf(char *buf, size_t buflen, const char *fmt, va_list args0)
                 txtlen += 3;
             }
 
-            /* 
+            /*
              *   if we have left alignment and the actual length is less
-             *   than the field width, pad to the right with spaces 
+             *   than the field width, pad to the right with spaces
              */
             if (left_align && fld_wid != -1 && (size_t)fld_wid > txtlen)
             {
@@ -980,7 +980,7 @@ size_t t3vsprintf(char *buf, size_t buflen, const char *fmt, va_list args0)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Convert string to lower case 
+ *   Convert string to lower case
  */
 void t3strlwr(char *p)
 {
@@ -990,7 +990,7 @@ void t3strlwr(char *p)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Debugging routines for memory management 
+ *   Debugging routines for memory management
  */
 
 #ifdef T3_DEBUG
@@ -1012,7 +1012,7 @@ void t3strlwr(char *p)
 
 /*
  *   memory block prefix - each block we allocate has this prefix attached
- *   just before the pointer that we return to the program 
+ *   just before the pointer that we return to the program
  */
 struct mem_prefix_t
 {
@@ -1067,7 +1067,7 @@ static OS_Mutex mem_mutex;
 
 /*
  *   Check the integrity of the heap: traverse the entire list, and make
- *   sure the forward and backward pointers match up.  
+ *   sure the forward and backward pointers match up.
  */
 static void t3_check_heap()
 {
@@ -1079,11 +1079,11 @@ static void t3_check_heap()
     /* scan from the front */
     for (p = mem_head ; p != 0 ; p = p->nxt)
     {
-        /* 
+        /*
          *   If there's a backwards pointer, make sure it matches up.  If
          *   there's no backwards pointer, make sure we're at the head of
          *   the list.  If this is the end of the list, make sure it
-         *   matches the tail pointer.  
+         *   matches the tail pointer.
          */
         if ((p->prv != 0 && p->prv->nxt != p)
             || (p->prv == 0 && p != mem_head)
@@ -1097,7 +1097,7 @@ static void t3_check_heap()
 
 /*
  *   Allocate a block, storing it in a doubly-linked list of blocks and
- *   giving the block a unique ID.  
+ *   giving the block a unique ID.
  */
 void *t3malloc(size_t siz, int alloc_type)
 {
@@ -1150,7 +1150,7 @@ void *t3malloc(size_t siz, int alloc_type)
 /*
  *   reallocate a block - to simplify, we'll allocate a new block, copy
  *   the old block up to the smaller of the two block sizes, and delete
- *   the old block 
+ *   the old block
  */
 void *t3realloc(void *oldptr, size_t newsiz)
 {
@@ -1193,9 +1193,9 @@ void t3free(void *ptr, int alloc_type)
     mem_prefix_t *mem = ((mem_prefix_t *)ptr) - 1;
     size_t siz;
 
-    /* 
+    /*
      *   check that the call type matches the allocating call type (malloc,
-     *   new, or new[]) 
+     *   new, or new[])
      */
     if (mem->alloc_type != alloc_type)
         fprintf(stderr, "\n--- memory block freed with wrong call type: "
@@ -1244,9 +1244,9 @@ void t3free(void *ptr, int alloc_type)
     else
         mem_tail = mem->prv;
 
-    /* 
+    /*
      *   if we're being really cautious, check to make sure the block is
-     *   no longer in the list 
+     *   no longer in the list
      */
     if (double_check)
     {
@@ -1273,19 +1273,19 @@ void t3free(void *ptr, int alloc_type)
 }
 
 /*
- *   Default display lister callback 
+ *   Default display lister callback
  */
 static void fprintf_stderr(const char *msg)
 {
     fprintf(stderr, "%s", msg);
 }
-    
+
 /*
  *   Diagnostic routine to display the current state of the heap.  This
  *   can be called just before program exit to display any memory blocks
  *   that haven't been deleted yet; any block that is still in use just
  *   before program exit is a leaked block, so this function can be useful
- *   to help identify and remove memory leaks.  
+ *   to help identify and remove memory leaks.
  */
 void t3_list_memory_blocks(void (*cb)(const char *))
 {
@@ -1325,16 +1325,16 @@ void t3_list_memory_blocks(void (*cb)(const char *))
 /*
  *   Windows-specific additions to the memory header.  We'll track the first
  *   couple of return addresses from the stack, to make it easier to track
- *   down where the allocation request came from.  
+ *   down where the allocation request came from.
  */
 
 void os_mem_prefix_set(mem_prefix_t *mem)
 {
-    /* 
+    /*
      *   Trace back the call stack.  In the standard Intel stack arrangement,
      *   BP is the base pointer for the frame, and points to the enclosing
      *   frame pointer.  Just above BP is the return address.  We're not
-     *   interested in our own return address, so skip the first frame.  
+     *   interested in our own return address, so skip the first frame.
      */
     DWORD bp_;
     __asm mov bp_, ebp;

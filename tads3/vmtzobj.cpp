@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2012 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmtzobj.cpp - CVmObjTimeZone object
 Function
-  
+
 Notes
-  
+
 Modified
   02/06/12 MJRoberts  - Creation
 */
@@ -47,7 +47,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Allocate an extension structure 
+ *   Allocate an extension structure
  */
 vm_tzobj_ext *vm_tzobj_ext::alloc_ext(VMG_ CVmObjTimeZone *self,
                                       CVmTimeZone *tz)
@@ -68,7 +68,7 @@ vm_tzobj_ext *vm_tzobj_ext::alloc_ext(VMG_ CVmObjTimeZone *self,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjTimeZone object statics 
+ *   CVmObjTimeZone object statics
  */
 
 /* metaclass registration object */
@@ -99,7 +99,7 @@ CVmObjTimeZone::CVmObjTimeZone(VMG_ CVmTimeZone *tz)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   create dynamically using stack arguments 
+ *   create dynamically using stack arguments
  */
 vm_obj_id_t CVmObjTimeZone::create_from_stack(
     VMG_ const uchar **pc_ptr, uint argc)
@@ -183,8 +183,8 @@ vm_obj_id_t CVmObjTimeZone::create(VMG_ CVmTimeZone *tz)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   notify of deletion 
+/*
+ *   notify of deletion
  */
 void CVmObjTimeZone::notify_delete(VMG_ int /*in_root_set*/)
 {
@@ -194,8 +194,8 @@ void CVmObjTimeZone::notify_delete(VMG_ int /*in_root_set*/)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   set a property 
+/*
+ *   set a property
  */
 void CVmObjTimeZone::set_prop(VMG_ class CVmUndo *undo,
                               vm_obj_id_t self, vm_prop_id_t prop,
@@ -206,33 +206,33 @@ void CVmObjTimeZone::set_prop(VMG_ class CVmUndo *undo,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   get a property 
+/*
+ *   get a property
  */
 int CVmObjTimeZone::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                              vm_obj_id_t self, vm_obj_id_t *source_obj,
                              uint *argc)
 {
     uint func_idx;
-    
+
     /* translate the property into a function vector index */
     func_idx = G_meta_table
                ->prop_to_vector_idx(metaclass_reg_->get_reg_idx(), prop);
-    
+
     /* call the appropriate function */
     if ((this->*func_table_[func_idx])(vmg_ self, retval, argc))
     {
         *source_obj = metaclass_reg_->get_class_obj(vmg0_);
         return TRUE;
     }
-    
+
     /* inherit default handling from our base class */
     return CVmObject::get_prop(vmg_ prop, retval, self, source_obj, argc);
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   load from an image file 
+/*
+ *   load from an image file
  */
 void CVmObjTimeZone::load_from_image(VMG_ vm_obj_id_t self,
                                      const char *ptr, size_t siz)
@@ -240,15 +240,15 @@ void CVmObjTimeZone::load_from_image(VMG_ vm_obj_id_t self,
     /* load our image data */
     load_image_data(vmg_ self, ptr, siz);
 
-    /* 
+    /*
      *   save our image data pointer in the object table, so that we can
-     *   access it (without storing it ourselves) during a reload 
+     *   access it (without storing it ourselves) during a reload
      */
     G_obj_table->save_image_pointer(self, ptr, siz);
 }
 
 /*
- *   reload from the image file 
+ *   reload from the image file
  */
 void CVmObjTimeZone::reload_from_image(VMG_ vm_obj_id_t self,
                                        const char *ptr, size_t siz)
@@ -258,7 +258,7 @@ void CVmObjTimeZone::reload_from_image(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   load or reload data from the image 
+ *   load or reload data from the image
  */
 void CVmObjTimeZone::load_image_data(
     VMG_ vm_obj_id_t self, const char *ptr, size_t siz)
@@ -273,10 +273,10 @@ void CVmObjTimeZone::load_image_data(
     /* if we didn't find it, create a dummy entry for it */
     if (tz == 0)
     {
-        /* 
+        /*
          *   Read the default GMT offset and daylight savings offset.  Note
          *   that the saved values are in milliseconds, and os_tzinfo_t uses
-         *   seconds, so adjust accordingly. 
+         *   seconds, so adjust accordingly.
          */
         os_tzinfo_t desc;
         memset(&desc, 0, sizeof(desc));
@@ -299,8 +299,8 @@ void CVmObjTimeZone::load_image_data(
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   save to a file 
+/*
+ *   save to a file
  */
 void CVmObjTimeZone::save_to_file(VMG_ class CVmFile *fp)
 {
@@ -325,8 +325,8 @@ void CVmObjTimeZone::save_to_file(VMG_ class CVmFile *fp)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   restore from a file 
+/*
+ *   restore from a file
  */
 void CVmObjTimeZone::restore_from_file(VMG_ vm_obj_id_t self,
                                        CVmFile *fp, CVmObjFixup *fixups)
@@ -335,10 +335,10 @@ void CVmObjTimeZone::restore_from_file(VMG_ vm_obj_id_t self,
     if (ext_ != 0)
         G_mem->get_var_heap()->free_mem(ext_);
 
-    /* 
+    /*
      *   Read the GMT and DST offsets (in case we need a synthetic entry).
      *   Note that the saved values are in milliseconds, but os_tzinfo_t
-     *   works in seconds, so adjust accordingly. 
+     *   works in seconds, so adjust accordingly.
      */
     os_tzinfo_t desc;
     memset(&desc, 0, sizeof(desc));

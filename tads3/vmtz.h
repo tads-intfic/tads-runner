@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -68,7 +68,7 @@ Modified
 class CVmTimeZoneCache
 {
     friend class CVmTimeZone;
-    
+
 public:
     CVmTimeZoneCache();
     ~CVmTimeZoneCache();
@@ -76,21 +76,21 @@ public:
     /*
      *   Parse a timezone name, returning a CVmTimeZone object representing
      *   the zone.  This accepts names in the following formats:
-     *   
+     *
      *.    :local       - the local zone
-     *   
+     *
      *.    UTC+offset   - or GMT+ofs, Z+ofs, or simply +ofs: a zone at the
      *.                   given hh[:mm[:ss]] offset from UTC.  This type of
      *.                   zone uses a fixed offset year round and for all
      *.                   dates, not tied to any location's history.
-     *   
+     *
      *.    zoneinfoName - the name of a zoneinfo database entry, such as
      *.                   "America/Los_Angeles".  This type uses the zone
      *.                   history from the database.
      */
     class CVmTimeZone *parse_zone(VMG_ const char *name, size_t len);
 
-    /* 
+    /*
      *   Get a time zone object by name from the zoneinfo database; returns
      *   the cached copy if present, otherwise loads the entry from disk.
      */
@@ -98,7 +98,7 @@ public:
     class CVmTimeZone *get_db_zone(VMG_ const char *name)
         { return get_db_zone(vmg_ name, strlen(name)); }
 
-    /* 
+    /*
      *   Get a time zone object by GMT offset, in seconds.  Returns a zone
      *   that represents the fixed GMT offset, not for any particular
      *   location.
@@ -127,7 +127,7 @@ public:
     class CVmTimeZone *get_zone_by_abbr(VMG_ int32_t *gmtofs_ms,
                                         const char *name, size_t len);
 
-    /* 
+    /*
      *   Create a missing database zone.  This creates a placeholder zone
      *   representing a zone imported from a saved game using a different
      *   version of the database that includes a zone that's not defined in
@@ -141,7 +141,7 @@ public:
 
     /*
      *   Get the system default local time zone.  Returns a CVmTimeZone
-     *   object representing the local zone. 
+     *   object representing the local zone.
      */
     class CVmTimeZone *get_local_zone(VMG0_);
 
@@ -180,10 +180,10 @@ protected:
     /* did we successfully load the index? */
     int index_loaded_ok_;
 
-    /* 
+    /*
      *   Cached local zone object.  Determining the local time zone can be a
      *   non-trivial amount of work, so we cache this after we figure it out
-     *   the first time. 
+     *   the first time.
      */
     class CVmTimeZone *local_zone_;
 
@@ -225,15 +225,15 @@ struct vmtz_ttype
         this->fmt = fmt;
     }
 
-    /* 
+    /*
      *   standard time ofset, in milliseconds - add this to UTC to get local
-     *   standard time 
+     *   standard time
      */
     int32_t gmtofs;
 
-    /* 
+    /*
      *   daylight time offset, in milliseconds - add to local standard time
-     *   to get local wall clock time 
+     *   to get local wall clock time
      */
     int32_t save;
 
@@ -255,8 +255,8 @@ struct vmtz_trans
         this->daytime = daytime;
         this->ttype = ttype;
     }
-        
-    /* 
+
+    /*
      *   Date/time of the transition, relative to 3/1/0000 UTC; the time is
      *   in milliseconds after midnight.  This is starting time for the
      *   transition - it's the moment that our ttype comes into effect.
@@ -297,9 +297,9 @@ struct vmtz_rule
     /* the month the rule takes effect (1=January) */
     char mm;
 
-    /* 
+    /*
      *   When in the month the rule takes effect:
-     *   
+     *
      *.    0 -> takes effect on the fixed day of the month <dd>
      *.    1 -> last <weekday> of the month
      *.    2 -> first <weekday> on or after <dd>
@@ -307,7 +307,7 @@ struct vmtz_rule
      */
     char when;
 
-    /* 
+    /*
      *   The day of the month the rule takes effect (1-366).  (This can be
      *   greater than 31, because it's also used to encode POSIX TZ-style
      *   rules with "Julian day of year counting Feb 29".  Our calendar
@@ -317,15 +317,15 @@ struct vmtz_rule
      *   even if N > 31.
      */
     short dd;
-    
+
     /* the day of the week the rule takes effect (1=Sunday) */
     char weekday;
 
-    /* 
+    /*
      *   Time zone for the effective time/date: 0 -> local wall clock time
      *   (with the zone settings for the period immediately before the rule
      *   takes effect); 0x40 -> local standard time (for the period
-     *   immediately before the rule takes effect), 0x80 -> UTC 
+     *   immediately before the rule takes effect), 0x80 -> UTC
      */
     uchar at_zone;
 
@@ -426,13 +426,13 @@ public:
     /* zone.tab description/comment */
     const char *desc() const { return desc_; }
 
-    /* 
+    /*
      *   Convert a local wall clock time in this zone to UTC.  'daytime' is
      *   in milliseconds after midnight.
      */
     void local_to_utc(int32_t &dayno, int32_t &daytime);
 
-    /* 
+    /*
      *   Convert a UTC time to local time in this zone.  Returns the format
      *   abbreviation for the converted time (e.g., PDT for Pacific Daylight
      *   Time).  'daytime' is in milliseconds after midnight.  Fills in
@@ -440,9 +440,9 @@ public:
      */
     const char *utc_to_local(int32_t &dayno, int32_t &daytime, int32_t &tzofs);
 
-    /* 
+    /*
      *   Query the time zone information at the given time/right now.  The
-     *   time is in milliseconds after midnight. 
+     *   time is in milliseconds after midnight.
      */
     void query(vmtzquery *result,
                int32_t dayno, int32_t daytime, int local) const;

@@ -1,18 +1,18 @@
 /* $Header: d:/cvsroot/tads/tads3/TCT3.H,v 1.5 1999/07/11 00:46:55 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   tct3.h - TADS 3 compiler - T3 Virtual Machine Code Generator
 Function
-  
+
 Notes
-  
+
 Modified
   04/30/99 MJRoberts  - Creation
 */
@@ -28,14 +28,14 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   include the T3-specific CVmRuntimeSymbols class definition 
+ *   include the T3-specific CVmRuntimeSymbols class definition
  */
 #include "vmrunsym.h"
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   include the T3-specific final parse node classes 
+/*
+ *   include the T3-specific final parse node classes
  */
 #include "tct3drv.h"
 
@@ -44,7 +44,7 @@ Modified
 /*
  *   Define some internal compiler datatypes - any type
  *   VM_FIRST_INVALID_TYPE or higher is not used by the VM and can thus be
- *   used for our own internal types. 
+ *   used for our own internal types.
  */
 const vm_datatype_t VM_VOCAB_LIST = VM_MAKE_INTERNAL_TYPE(0);
 
@@ -53,7 +53,7 @@ const vm_datatype_t VM_VOCAB_LIST = VM_MAKE_INTERNAL_TYPE(0);
 /*
  *   Data structure sizes.  These are the sizes of various data structures
  *   that we write to the image file; these values are global to the
- *   entire image file, and are constants of the current file format.  
+ *   entire image file, and are constants of the current file format.
  */
 
 /* method header size */
@@ -88,7 +88,7 @@ const vm_datatype_t VM_VOCAB_LIST = VM_MAKE_INTERNAL_TYPE(0);
 /*
  *   Object Stream prefix flags.  Each object we write to the object
  *   stream starts with a prefix byte that we use to store some extra flag
- *   information about the object.  
+ *   information about the object.
  */
 
 /* object has been replaced - do not write to image file */
@@ -103,13 +103,13 @@ const vm_datatype_t VM_VOCAB_LIST = VM_MAKE_INTERNAL_TYPE(0);
 
 /* ------------------------------------------------------------------------ */
 /*
- *   T3 metaclass object stream header sizes 
+ *   T3 metaclass object stream header sizes
  */
 
-/* 
+/*
  *   internal header size - this is an extra header the compiler adds for
  *   each object in an object stream
- *   
+ *
  *   UINT2 compiler_flags
  */
 const size_t TCT3_OBJ_INTERNHDR_SIZE = 2;
@@ -120,19 +120,19 @@ const size_t TCT3_OBJ_INTERNHDR_OFS = 0;
 /* offset of internal header flags */
 const size_t TCT3_OBJ_INTERNHDR_FLAGS_OFS = TCT3_OBJ_INTERNHDR_OFS;
 
-/* 
+/*
  *   T3 generic metaclass header - this is the header on every metaclass
  *   in a T3 image file 'OBJS' block.
- *   
+ *
  *   UINT4 object_id
  *.  UINT2 metaclass_specific_byte_count
  */
 const size_t TCT3_META_HEADER_SIZE = 6;
 
-/* 
+/*
  *   large metaclass header size - this is the same as the standard
  *   header, but uses a 32-bit size field rather than the 16-bit size
- *   field 
+ *   field
  */
 const size_t TCT3_LARGE_META_HEADER_SIZE = 8;
 
@@ -145,13 +145,13 @@ const size_t TCT3_META_HEADER_OFS =
  *   tads-object metaclass object stream header sizes
  */
 
-/* 
+/*
  *   tads-object header - each object with metaclass tads-object defines
  *   this header
- *   
+ *
  *.  UINT2 superclass_count
  *.  UINT2 property_count
- *.  UINT2 object_flags 
+ *.  UINT2 object_flags
  */
 const size_t TCT3_TADSOBJ_HEADER_SIZE = 6;
 
@@ -159,23 +159,23 @@ const size_t TCT3_TADSOBJ_HEADER_SIZE = 6;
 const size_t TCT3_TADSOBJ_HEADER_OFS =
     TCT3_META_HEADER_OFS + TCT3_META_HEADER_SIZE;
 
-/* 
+/*
  *   offset to the superclass table, which immediately follows the
- *   tads-object header 
+ *   tads-object header
  */
 const size_t TCT3_TADSOBJ_SC_OFS =
     TCT3_TADSOBJ_HEADER_OFS + TCT3_TADSOBJ_HEADER_SIZE;
 
-/* 
+/*
  *   size of a property table entry
- *   
+ *
  *.  UINT2 property_ID
- *.  DATAHOLDER value 
+ *.  DATAHOLDER value
  */
 const size_t TCT3_TADSOBJ_PROP_SIZE = 2 + VMB_DATAHOLDER;
 
 /*
- *   T3 object flags 
+ *   T3 object flags
  */
 
 /* class flag - object is a class, not an instance */
@@ -187,16 +187,16 @@ const size_t TCT3_TADSOBJ_PROP_SIZE = 2 + VMB_DATAHOLDER;
  *   Metaclass List Entry.  This list keeps track of the metaclasses that
  *   the image file is dependent upon, and the dynamic link mapping
  *   between metaclass ID in the image file and the universally unique
- *   metaclass name.  
+ *   metaclass name.
  */
 struct tc_meta_entry
 {
     /* next entry in the list */
     tc_meta_entry *nxt;
 
-    /* 
+    /*
      *   metaclass symbol object, if present - we get the property list
-     *   from the metaclass symbol 
+     *   from the metaclass symbol
      */
     class CTcSymMetaclass *sym;
 
@@ -239,9 +239,9 @@ const int TCT3_METAID_LOOKUP_TABLE = 7;
 /*
  *   IMPORTANT!!!  When adding new entries to this list of pre-defined
  *   metaclasses, you must:
- *   
+ *
  *   - update the 'last' constant below
- *   
+ *
  *   - add the new entry to CTcGenTarg::load_image_file_meta_table()
  */
 
@@ -250,7 +250,7 @@ const int TCT3_METAID_LAST = 7;
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Function set dependency list entry 
+ *   Function set dependency list entry
  */
 struct tc_fnset_entry
 {
@@ -266,13 +266,13 @@ struct tc_fnset_entry
  *   Exception Table builder.  This object keeps track of the entries in
  *   an exception table under construction, so that the exception table
  *   for a function can be written to the code stream after all of the
- *   code in the function has been generated.  
+ *   code in the function has been generated.
  */
 class CTcT3ExcTable
 {
 public:
     CTcT3ExcTable();
-    
+
     ~CTcT3ExcTable()
     {
         /* if we've allocated a table, delete it */
@@ -280,29 +280,29 @@ public:
             t3free(table_);
     }
 
-    /* 
+    /*
      *   Set the current function or method's start offset.  The code
      *   generator for the function body should set this to the code
      *   stream offset of the start of the method header; this allows us
      *   to calculate the offsets of protected code and 'catch' blocks.
-     *   
+     *
      *   Important: this is the code stream offset (G_cs->get_ofs()), not
      *   the final code pool address.  We need only relative offsets, so
      *   the code stream offset suffices (and is available much earlier in
-     *   the code generation process).  
+     *   the code generation process).
      */
     void set_method_ofs(ulong ofs) { method_ofs_ = ofs; }
 
-    /* 
+    /*
      *   Add a 'catch' entry.  The offsets are all code stream offsets
-     *   (G_cs->get_ofs() values). 
+     *   (G_cs->get_ofs() values).
      */
     void add_catch(ulong protected_start_ofs, ulong protected_end_ofs,
                    ulong exc_obj_id, ulong catch_block_ofs);
 
-    /* 
+    /*
      *   write our exception table to the code stream - writes to the G_cs
-     *   global code stream object 
+     *   global code stream object
      */
     void write_to_code_stream();
 
@@ -325,7 +325,7 @@ protected:
 };
 
 /*
- *   Exception table entry 
+ *   Exception table entry
  */
 struct CTcT3ExcEntry
 {
@@ -344,7 +344,7 @@ struct CTcT3ExcEntry
 /*
  *   Data Stream Page Layout Manager.  This works with a CTcDataStream
  *   object (such as the constant pool or the code pool) to divide the
- *   stream into pages for the image file.  
+ *   stream into pages for the image file.
  */
 class CTcStreamLayout
 {
@@ -355,18 +355,18 @@ public:
         page_size_ = 0;
         page_cnt_ = 0;
     }
-    
-    /* 
+
+    /*
      *   Calculate my layout, given the maximum object size.  This can be
      *   called once the entire stream has been generated, hence the size
      *   of the largest indivisible item in the stream is known.  This
      *   will apply all fixups throughout the stream.
-     *   
+     *
      *   If this is the first stream for this layout, is_first is true.
      *   If we're adding more pages, is_first is false, and max_len is
      *   ignored (so the caller must ensure that the max_len provided on
      *   laying out the first stream for this page set is adequate for all
-     *   streams added to this layout).  
+     *   streams added to this layout).
      */
     void calc_layout(class CTcDataStream *ds, ulong max_len, int is_first);
 
@@ -375,7 +375,7 @@ public:
      *   definition block and the pool pages.  This cannot be called until
      *   after calc_layout() has been called for all streams, because we
      *   must apply all fixups throughout the entire image before we can
-     *   write out anything.  
+     *   write out anything.
      */
     void write_to_image(class CTcDataStream **ds_array, size_t ds_cnt,
                         class CVmImageWriter *image_writer, int pool_id,
@@ -393,7 +393,7 @@ public:
 /*
  *   Debug line list page.  We keep a linked list of these pages, and
  *   allocate new entries out of the last page.  We keep going until the
- *   last page is filled up, then allocate a new page.  
+ *   last page is filled up, then allocate a new page.
  */
 const size_t TCT3_DEBUG_LINE_PAGE_SIZE = 1024;
 const size_t TCT3_DEBUG_LINE_REC_SIZE = 5;
@@ -402,11 +402,11 @@ struct tct3_debug_line_page
     /* next page in list */
     tct3_debug_line_page *nxt;
 
-    /* 
+    /*
      *   Entries on this page (each entry is a debug line record offset in
      *   the code stream).  Each entry consists of one byte for the code
      *   stream identifier (TCGEN_xxx_STREAM) and four bytes for a
-     *   portable UINT4 with the offset in the stream.  
+     *   portable UINT4 with the offset in the stream.
      */
     uchar line_ofs[TCT3_DEBUG_LINE_PAGE_SIZE * TCT3_DEBUG_LINE_REC_SIZE];
 };
@@ -415,7 +415,7 @@ struct tct3_debug_line_page
 /* ------------------------------------------------------------------------ */
 /*
  *   T3-specific code generator helper class.  This class provides a set
- *   of static functions that are useful for T3 code generation.  
+ *   of static functions that are useful for T3 code generation.
  */
 class CTcGenTarg
 {
@@ -430,34 +430,34 @@ public:
      *   Set the run-time metaclass dependency table index for a given
      *   metaclass, identified by 'name' (a string of length 'len').  'idx'
      *   is the run-time metaclass dependency index.
-     *   
+     *
      *   When we're operating as part of an interactive debugger, the image
      *   loader must call this for each entry in the metaclass dependency
      *   table loaded from the image file.  This allows us to fix up our
      *   internal notion of the metaclass indices so that we generate code
      *   compatible with the actual loaded image file.
-     *   
+     *
      *   The protocol is as follows: call start_image_file_meta_table(), then
      *   call load_image_file_meta_table() on each entry in the table, then
-     *   call end_image_file_meta_table().  
+     *   call end_image_file_meta_table().
      */
     void start_image_file_meta_table();
     void load_image_file_meta_table(const char *nm, size_t len, int idx);
     void end_image_file_meta_table();
 
     /*
-     *   Allocate a new global property ID. 
+     *   Allocate a new global property ID.
      */
     tctarg_prop_id_t new_prop_id() { return next_prop_++; }
 
     /*
-     *   Allocate a new global object ID. 
+     *   Allocate a new global object ID.
      */
     tctarg_obj_id_t new_obj_id() { return next_obj_++; }
 
-    /* 
+    /*
      *   add a metaclass to the dependency table - returns the index of
-     *   the metaclass in the table 
+     *   the metaclass in the table
      */
     int add_meta(const char *meta_extern_name, size_t len,
                  class CTcSymMetaclass *sym);
@@ -466,33 +466,33 @@ public:
     int add_meta(const char *nm)
         { return add_meta(nm, strlen(nm), 0); }
 
-    /* 
+    /*
      *   Find a metaclass entry, adding it if it's not already there.  If
      *   the metaclass is already defined, and it has an associated
      *   symbol, we will not change the associated symbol - this will let
      *   the caller detect that the metaclass has been previously defined
-     *   for a different symbol, which is usually an error. 
+     *   for a different symbol, which is usually an error.
      */
     int find_or_add_meta(const char *nm, size_t len,
                          class CTcSymMetaclass *sym);
 
-    /* 
+    /*
      *   Get the property ID for the given method table index in the given
      *   metaclass.  The metaclass ID is given as the internal metaclass ID
      *   (without the "/version" suffix), not as the external class name.
-     *   Returns a parse node for the property, or null if it's not found.  
+     *   Returns a parse node for the property, or null if it's not found.
      */
     CTcPrsNode *get_metaclass_prop(const char *name, ushort idx) const;
 
     /* get a metaclass symbol by the metaclass's global identifier */
     class CTcSymMetaclass *find_meta_sym(const char *nm, size_t len);
 
-    /* 
+    /*
      *   Find the metaclass table entry for a given global identifier.  If
      *   update_vsn is true, we'll update the entry stored in the table to
      *   the given version number if the given name's version number is
      *   higher than the one in the table.  If we find an entry, we'll
-     *   fill in *entry_idx with the entry's index.  
+     *   fill in *entry_idx with the entry's index.
      */
     tc_meta_entry *find_meta_entry(const char *nm, size_t len,
                                    int update_vsn, int *entry_idx);
@@ -509,13 +509,13 @@ public:
 
     /*
      *   Get the dependency table index for the given pre-defined metaclass,
-     *   specified by the TCT3_METAID_xxx value. 
+     *   specified by the TCT3_METAID_xxx value.
      */
     int get_predef_meta_idx(int id) const { return predef_meta_idx_[id]; }
 
     /*
      *   Add a function set to the dependency table - returns the index of
-     *   the function set in the table 
+     *   the function set in the table
      */
     ushort add_fnset(const char *fnset_extern_name, size_t len);
     ushort add_fnset(const char *fnset_extern_name)
@@ -529,7 +529,7 @@ public:
 
     /*
      *   Notify the code generator that parsing is finished.  This should
-     *   be called after parsing and before code generation begins.  
+     *   be called after parsing and before code generation begins.
      */
     void parsing_done();
 
@@ -540,13 +540,13 @@ public:
      *   is finished, we'll know the minimum size we need for each
      *   constant pool page.  This doesn't actually allocate any space in
      *   the constant pool; this merely keeps track of the longest string
-     *   we'll eventually need to store.  
+     *   we'll eventually need to store.
      */
     void note_str(size_t len);
 
     /*
      *   Note number of elements in a constant list value.  This is the
-     *   list equivalent of note_str().  
+     *   list equivalent of note_str().
      */
     void note_list(size_t element_count);
 
@@ -555,7 +555,7 @@ public:
      *   invoked during code generation for each code block; we'll keep
      *   track of the longest byte code block, so that after code
      *   generation is complete, we'll know the minimum size we need for
-     *   each code pool page.  
+     *   each code pool page.
      */
     void note_bytecode(ulong len);
 
@@ -563,7 +563,7 @@ public:
      *   Notify the code generator that we're replacing an object (via the
      *   "replace" statement) at the given stream offset.  We'll mark the
      *   data in the stream as deleted so that we don't write it to the
-     *   image file.  
+     *   image file.
      */
     void notify_replace_object(ulong stream_ofs);
 
@@ -585,7 +585,7 @@ public:
      *   Write the image file.  The compiler calls this after all parsing
      *   and code generation are completed to write an image file.  We
      *   must apply all fixups, assign the code and constant pool layouts,
-     *   and write the data to the image file.  
+     *   and write the data to the image file.
      */
     void write_to_image(class CVmFile *image_fp, uchar data_xor_mask,
                         const char tool_data[4]);
@@ -607,7 +607,7 @@ public:
     /*
      *   Add a debug line record.  If we're in debug mode, this will clear
      *   the peephole optimizer to ensure that the line record doesn't get
-     *   confused due to compression of opcodes.  
+     *   confused due to compression of opcodes.
      */
     void add_line_rec(class CTcTokFileDesc *file, long linenum);
 
@@ -617,24 +617,24 @@ public:
     /* write a CALLPROP instruction */
     void write_callprop(int argc, int varargs, vm_prop_id_t prop);
 
-    /* 
+    /*
      *   Determine if we can skip an opcode for peephole optimization.
      *   We'll look at the previous opcode to determine if this opcode is
      *   reachable, and we'll indicate that we should suppress the new
-     *   opcode if not.  
+     *   opcode if not.
      */
     int can_skip_op();
 
-    /* 
+    /*
      *   Add a string to the constant pool, and create a fixup for the
-     *   item for a reference from the given stream at the given offset.  
+     *   item for a reference from the given stream at the given offset.
      */
     void add_const_str(const char *str, size_t len,
                        class CTcDataStream *ds, ulong ofs);
 
-    /* 
+    /*
      *   Add a list to the constant pool, and create a fixup for the item
-     *   for a reference from the given stream at the given offset.  
+     *   for a reference from the given stream at the given offset.
      */
     void add_const_list(class CTPNList *lst,
                         class CTcDataStream *ds, ulong ofs);
@@ -643,7 +643,7 @@ public:
      *   Write a constant value (in the compiler's internal
      *   representation, a CTcConstVal structure) to a given buffer in T3
      *   image file DATA_HOLDER format.  Write at a given offset, or at
-     *   the current write offset.  
+     *   the current write offset.
      */
     void write_const_as_dh(class CTcDataStream *ds, ulong ofs,
                            const class CTcConstVal *src);
@@ -656,7 +656,7 @@ public:
      *   instruction at a jump destination with anything previous: the
      *   instruction at a jump destination must be generated as-is, rather
      *   than being combined with the preceding instruction, since someone
-     *   could jump directly to it.  
+     *   could jump directly to it.
      */
     void clear_peephole()
     {
@@ -670,7 +670,7 @@ public:
     /*
      *   Remove the last JMP instruction.  This is used when we detect
      *   that we just generated a JMP ahead to the very next instruction,
-     *   in which case we can eliminate the JMP, since it has no effect. 
+     *   in which case we can eliminate the JMP, since it has no effect.
      */
     void remove_last_jmp();
 
@@ -686,16 +686,16 @@ public:
      *   statically can be ignored.
      */
 
-    /* 
+    /*
      *   reset the stack depth counters - call this at the start
-     *   generating of each code block 
+     *   generating of each code block
      */
     void reset_sp_depth() { sp_depth_ = max_sp_depth_ = 0; }
 
-    /* 
+    /*
      *   get the maximum stack depth for the current function - use this
      *   when finished generating a code block to determine the maximum
-     *   stack space needed by the code block 
+     *   stack space needed by the code block
      */
     int get_max_sp_depth() const { return max_sp_depth_; }
 
@@ -722,7 +722,7 @@ public:
     /* record a full stack reset back to function entry conditions */
     void note_rst() { sp_depth_ = 0; }
 
-    /* 
+    /*
      *   do post-call cleanup: generate a named argument table pointer if
      *   needed, remove the named arguments from the stack
      */
@@ -751,7 +751,7 @@ public:
     void close_method_cleanup(struct tct3_method_gen_ctx *ctx);
 
     /*
-     *   Generate a TadsObject header to a data stream 
+     *   Generate a TadsObject header to a data stream
      */
     void open_tadsobj(struct tct3_tadsobj_ctx *ctx,
                       CTcDataStream *stream,
@@ -762,15 +762,15 @@ public:
     /*
      *   Linker support: ensure that the given intrinsic class has a modifier
      *   object.  If there's no modifier, we'll create one and add code for
-     *   it to the intrinsic class modifier stream. 
+     *   it to the intrinsic class modifier stream.
      */
     void linker_ensure_mod_obj(CTcSymMetaclass *mc_sym);
     void linker_ensure_mod_obj(const char *name, size_t len);
 
-    /* 
+    /*
      *   get my exception table object - this is used to construct a
      *   method's exception table during code generation, and to write the
-     *   table to the code stream 
+     *   table to the code stream
      */
     CTcT3ExcTable *get_exc_table() { return &exc_table_; }
 
@@ -782,10 +782,10 @@ public:
     int is_in_op_overload() const { return in_op_overload_; }
     void set_in_op_overload(int f) { in_op_overload_ = f; }
 
-    /*   
+    /*
      *   set the method offset - the code body object calls this when it's
      *   about to start generating code to let us know the offset of the
-     *   current method 
+     *   current method
      */
     void set_method_ofs(ulong ofs);
 
@@ -794,16 +794,16 @@ public:
      *   debug line record tables in the program, so that we can store the
      *   list in the object file.  We need this information in the object
      *   file because each debug line record table in an object file must
-     *   be fixed up at link time after loading the object file. 
+     *   be fixed up at link time after loading the object file.
      */
     void add_debug_line_table(ulong ofs);
 
-    /* 
+    /*
      *   Set dynamic (run-time) compilation mode.  This mode must be used for
      *   code compiled during program execution, such as for an "eval()"
      *   facility.  In dynamic compilation, all pool addresses are already
      *   resolved from the loaded program, and we can't add anything to any
-     *   of the constant or code pools.  
+     *   of the constant or code pools.
      */
     void set_dyn_eval() { eval_for_dyn_ = TRUE; }
 
@@ -844,9 +844,9 @@ public:
     /* get the active debugger stack level */
     int get_debug_stack_level() const { return debug_stack_level_; }
 
-    /* 
+    /*
      *   Generate a BigNumber object, returning the object ID.  The input
-     *   text gives the source representation of the number. 
+     *   text gives the source representation of the number.
      */
     vm_obj_id_t gen_bignum_obj(const char *txt, size_t len, int promoted);
 
@@ -862,48 +862,48 @@ private:
      *   is completed; at this point, the T3 code generator can determine
      *   how the code pages will be laid out, since we now know the size
      *   of the largest single chunk of code.
-     *   
+     *
      *   We'll fill in *first_static_page with the page number in the code
      *   pool of the first page of code containing static initializers.
      *   We group all of the static initializer code together at the end
      *   of the code pool to allow the pre-initialization re-writer to
-     *   omit all of the static code pages from the final image file.  
+     *   omit all of the static code pages from the final image file.
      */
     void calc_pool_layouts(size_t *first_static_page);
 
-    /* 
+    /*
      *   Write a TADS object stream to the image file.  This routine will
      *   fix up the property table in each object to put the table in
-     *   sorted order.  
+     *   sorted order.
      */
     void write_tads_objects_to_image(class CTcDataStream *obj_stream,
                                      class CVmImageWriter *image_writer,
                                      int metaclass_idx);
 
-    /* 
+    /*
      *   write the TADS objects of one particular type - transient or
-     *   persistent - to the image file 
+     *   persistent - to the image file
      */
     void write_tads_objects_to_image(CTcDataStream *os,
         CVmImageWriter *image_writer, int meta_idx, int trans);
 
-    /* 
+    /*
      *   Write an object stream of non-TADS objects to the image file.
      *   This writes the objects as-is, without looking into their
-     *   contents at all.  
+     *   contents at all.
      */
     void write_nontads_objs_to_image(class CTcDataStream *obj_stream,
                                      class CVmImageWriter *image_writer,
                                      int metaclass_idx, int large_obs);
 
-    /* 
+    /*
      *   Sort an object's property table, and compress the table to remove
      *   deleted properties.  Returns the final size of the object data to
      *   write to the image file, which could differ from the original
      *   size, because we might remove property slots from the property
      *   data.  If we do change the size of the property table, we'll
      *   update the stream data to reflect the new property count and
-     *   metaclass data size.  
+     *   metaclass data size.
      */
     size_t sort_object_prop_table(class CTcDataStream *obj_stream,
                                   ulong start_ofs);
@@ -968,9 +968,9 @@ private:
     /* write the list of source file descriptors to an object file */
     void write_sources_to_object_file(class CVmFile *fp);
 
-    /* 
+    /*
      *   read the list of sources from an object file, adding the sources
-     *   to the tokenizer's internal list 
+     *   to the tokenizer's internal list
      */
     void read_sources_from_object_file(class CVmFile *fp);
 
@@ -986,7 +986,7 @@ private:
 
     /* hash table enumerator callback - generate dictionary code */
     static void enum_dict_gen_cb(void *ctx, class CVmHashEntry *entry);
-        
+
 
     /* most recent opcodes we've written, for peephole optimization */
     uchar last_op_;
@@ -1046,13 +1046,13 @@ private:
     /*
      *   Object ID of the multi-method static initializer object.  This will
      *   be set by build_multimethod_initializers() if we end up creating any
-     *   registration code.  
+     *   registration code.
      */
     vm_obj_id_t mminit_obj_;
 
-    /* 
+    /*
      *   property sorting buffer - this is space we allocate to copy an
-     *   object's property table for sorting 
+     *   object's property table for sorting
      */
     char *sort_buf_;
     size_t sort_buf_size_;
@@ -1072,13 +1072,13 @@ private:
     /* flag: we're generating a debugger speculative evaluation expression */
     uint speculative_ : 1;
 
-    /* 
+    /*
      *   debugger active stack context level - valid when eval_for_debug_
-     *   is true 
+     *   is true
      */
     int debug_stack_level_;
 
-    /* 
+    /*
      *   String interning hash table.  This is a table of short string
      *   literals that we've generated into the data segment.  Whenever we
      *   generate a new string literal, we'll check this table to see if
@@ -1086,7 +1086,7 @@ private:
      *   use the original string rather than generating a new copy.  This can
      *   reduce the size of the object file by eliminating duplication of
      *   common short strings.
-     *   
+     *
      *   Note that string interning has the potential to change run-time
      *   semantics in some other languages, but not in TADS.  There are two
      *   common issues in other languages.  First, in C/C++, a string
@@ -1100,7 +1100,7 @@ private:
      *   distinct source-code strings must therefore have distinct reference
      *   identities.  String comparisons in TADS are always by value, so
      *   there's no need for distinct references if two strings have
-     *   identical contents.  
+     *   identical contents.
      */
     class CVmHashTable *strtab_;
 
@@ -1112,20 +1112,20 @@ private:
      *   which it builds its own initial table of the known metaclasses.
      *   When we're debugging, we need to get these values from the image
      *   file.
-     *   
+     *
      *   This is a simple translation table - we translate from our internal
      *   index (a TCT3_METAID_xxx value) to the corresponding dependency
      *   index in the actual image file.  So, we just need as many of these
      *   as there TCT3_METAID_xxx indices.  We never need these for any
      *   additional metaclasses that might exist - we only care about the
-     *   ones that the compiler specifically knows about in advance.  
+     *   ones that the compiler specifically knows about in advance.
      */
     int predef_meta_idx_[TCT3_METAID_LAST + 1];
 };
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Method generator context 
+ *   Method generator context
  */
 struct tct3_method_gen_ctx
 {
@@ -1148,7 +1148,7 @@ struct tct3_method_gen_ctx
 
 /* ------------------------------------------------------------------------ */
 /*
- *   TadsObject header writer context 
+ *   TadsObject header writer context
  */
 struct tct3_tadsobj_ctx
 {
@@ -1162,7 +1162,7 @@ struct tct3_tadsobj_ctx
 /* ------------------------------------------------------------------------ */
 /*
  *   Named arguments information.  This keeps track of the named arguments
- *   for a generated call.  
+ *   for a generated call.
  */
 struct CTcNamedArgs
 {

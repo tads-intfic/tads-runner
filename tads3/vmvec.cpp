@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmvec.cpp - T3 VM Vector metaclass
 Function
-  
+
 Notes
-  
+
 Modified
   05/14/00 MJRoberts  - Creation
 */
@@ -47,7 +47,7 @@ Modified
  *   The largest number of items we can store is the smaller of the maximum
  *   value for a UINT2 (unsigned 16-bit integer, so 2^16-1) or the maximum
  *   allocation size (OSMALMAX) divided by the element size (DATAHOLDER)
- *   divided minus overhead. 
+ *   divided minus overhead.
  */
 const int32_t VEC_MAX_BY_ALO =
     (int32_t)(OSMALMAX/(VMB_DATAHOLDER + 1.0/8)) - 4;
@@ -57,7 +57,7 @@ const int32_t VEC_MAX_ELEMENTS =
 
 /* ------------------------------------------------------------------------ */
 /*
- *   statics 
+ *   statics
  */
 
 /* metaclass registration object */
@@ -112,25 +112,25 @@ static const int PROPIDX_generate = 31;
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   create with a given number of elements 
+/*
+ *   create with a given number of elements
  */
 CVmObjVector::CVmObjVector(VMG_ size_t element_count)
 {
     /* allocate space */
     alloc_vector(vmg_ element_count);
 
-    /* 
+    /*
      *   a vector intially has no elements in use; the element_count
      *   merely gives the number of slots to be allocated initially (this
-     *   won't affect the allocation count, which is stored separately) 
+     *   won't affect the allocation count, which is stored separately)
      */
     set_element_count(0);
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   allocate space 
+ *   allocate space
  */
 void CVmObjVector::alloc_vector(VMG_ size_t cnt)
 {
@@ -147,7 +147,7 @@ void CVmObjVector::alloc_vector(VMG_ size_t cnt)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   notify of deletion 
+ *   notify of deletion
  */
 void CVmObjVector::notify_delete(VMG_ int)
 {
@@ -158,7 +158,7 @@ void CVmObjVector::notify_delete(VMG_ int)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Check an argument to see if it's a source list or vector 
+ *   Check an argument to see if it's a source list or vector
  */
 static int get_src_obj(VMG_ const vm_val_t *arg, size_t *copy_cnt)
 {
@@ -176,8 +176,8 @@ static int get_src_obj(VMG_ const vm_val_t *arg, size_t *copy_cnt)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   create dynamically using stack arguments 
+/*
+ *   create dynamically using stack arguments
  */
 vm_obj_id_t CVmObjVector::create_from_stack(VMG_ const uchar **pc_ptr,
                                             uint argc)
@@ -188,7 +188,7 @@ vm_obj_id_t CVmObjVector::create_from_stack(VMG_ const uchar **pc_ptr,
     size_t copy_cnt = 0;
     vm_val_t *lstval = 0;
     size_t i;
-    
+
     /* check arguments */
     if (argc > 2)
         err_throw(VMERR_WRONG_NUM_OF_ARGS);
@@ -226,7 +226,7 @@ vm_obj_id_t CVmObjVector::create_from_stack(VMG_ const uchar **pc_ptr,
     {
         /* get the second argument */
         vm_val_t *arg2 = G_stk->get(1);
-        
+
         /* see what we have */
         if (get_src_obj(vmg_ arg2, &copy_cnt))
         {
@@ -235,10 +235,10 @@ vm_obj_id_t CVmObjVector::create_from_stack(VMG_ const uchar **pc_ptr,
         }
         else if (arg2->typ == VM_INT)
         {
-            /* 
+            /*
              *   They want an explicit initial size, with the elements filled
              *   in with nil values.  Set the copy size; we'll know to fill
-             *   in nil values since there's no source object to copy from.  
+             *   in nil values since there's no source object to copy from.
              */
             copy_cnt = (size_t)arg2->val.intval;
         }
@@ -249,9 +249,9 @@ vm_obj_id_t CVmObjVector::create_from_stack(VMG_ const uchar **pc_ptr,
         }
     }
 
-    /* 
+    /*
      *   make sure we allocate enough initial space to store the source
-     *   object we're copying 
+     *   object we're copying
      */
     if (copy_cnt > cnt)
         cnt = copy_cnt;
@@ -265,19 +265,19 @@ vm_obj_id_t CVmObjVector::create_from_stack(VMG_ const uchar **pc_ptr,
     {
         vm_val_t ele;
 
-        /* 
+        /*
          *   get my element at this index: if we have a source list or
          *   vector, take the current element from that list or vector;
-         *   otherwise, initialize the element to nil 
+         *   otherwise, initialize the element to nil
          */
         if (lstval != 0)
             lstval->ll_index(vmg_ &ele, i + 1);
         else
             ele.set_nil();
 
-        /* 
+        /*
          *   set my element at this index - this is construction, so there's
-         *   no need to save undo information 
+         *   no need to save undo information
          */
         vec->set_element(i, &ele);
     }
@@ -293,8 +293,8 @@ vm_obj_id_t CVmObjVector::create_from_stack(VMG_ const uchar **pc_ptr,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   save to a file 
+/*
+ *   save to a file
  */
 void CVmObjVector::save_to_file(VMG_ class CVmFile *fp)
 {
@@ -311,8 +311,8 @@ void CVmObjVector::save_to_file(VMG_ class CVmFile *fp)
     fp->write_bytes(get_element_ptr(0), calc_alloc_ele(ele_cnt));
 }
 
-/* 
- *   restore from a file 
+/*
+ *   restore from a file
  */
 void CVmObjVector::restore_from_file(VMG_ vm_obj_id_t self,
                                      CVmFile *fp, CVmObjFixup *fixups)
@@ -345,8 +345,8 @@ void CVmObjVector::restore_from_file(VMG_ vm_obj_id_t self,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   create with no initial contents 
+/*
+ *   create with no initial contents
  */
 vm_obj_id_t CVmObjVector::create(VMG_ int in_root_set)
 {
@@ -355,8 +355,8 @@ vm_obj_id_t CVmObjVector::create(VMG_ int in_root_set)
     return id;
 }
 
-/* 
- *   create with a given number of elements 
+/*
+ *   create with a given number of elements
  */
 vm_obj_id_t CVmObjVector::create(VMG_ int in_root_set, size_t element_count)
 {
@@ -400,13 +400,13 @@ vm_obj_id_t CVmObjVector::create_fill(VMG_ int in_root_set,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Create a copy of this object 
+ *   Create a copy of this object
  */
 vm_obj_id_t CVmObjVector::create_copy(VMG_ const vm_val_t *self_val)
 {
     vm_obj_id_t new_id;
     CVmObjVector *new_vec;
-    
+
     /* save the original object on the stack for gc protection */
     G_stk->push(self_val);
 
@@ -430,7 +430,7 @@ vm_obj_id_t CVmObjVector::create_copy(VMG_ const vm_val_t *self_val)
 /*
  *   Set the allocation size - this is the number of elements we've allocated
  *   space for, which might exceed the number of elements we're actually
- *   storing currently.  
+ *   storing currently.
  */
 void CVmObjVector::set_allocated_count(size_t cnt)
 {
@@ -444,28 +444,28 @@ void CVmObjVector::set_allocated_count(size_t cnt)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Create an iterator 
+ *   Create an iterator
  */
 void CVmObjVector::new_iterator(VMG_ vm_val_t *retval,
                                 const vm_val_t *self_val)
 {
     vm_val_t copy_val;
 
-    /* 
+    /*
      *   Create a copy of the vector - since a vector can change, we must
      *   always create an iterator based on a copy, so that the iterator has
      *   a consistent view of the original as of the time the iterator was
-     *   created.  
+     *   created.
      */
     copy_val.set_obj(create_copy(vmg_ self_val));
 
     /* push the copy for gc protection */
     G_stk->push(&copy_val);
 
-    /* 
+    /*
      *   Set up a new indexed iterator object.  The first valid index for a
      *   vector is always 1, and the last valid index is the same as the
-     *   number of elements.  
+     *   number of elements.
      */
     retval->set_obj(CVmObjIterIdx::create_for_coll(vmg_ &copy_val,
         1, get_element_count()));
@@ -475,24 +475,24 @@ void CVmObjVector::new_iterator(VMG_ vm_val_t *retval,
 }
 
 /*
- *   Create a live iterator 
+ *   Create a live iterator
  */
 void CVmObjVector::new_live_iterator(VMG_ vm_val_t *retval,
                                      const vm_val_t *self_val)
 {
-    /* 
+    /*
      *   Set up a new indexed iterator object.  The first valid index for a
      *   vector is always 1, and the last valid index is the same as the
      *   number of elements.  Since we want a "live" iterator, create the
-     *   iterator with a direct reference to the vector.  
+     *   iterator with a direct reference to the vector.
      */
     retval->set_obj(CVmObjIterIdx::create_for_coll(vmg_ self_val,
         1, get_element_count()));
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   set a property 
+/*
+ *   set a property
  */
 void CVmObjVector::set_prop(VMG_ class CVmUndo *,
                             vm_obj_id_t, vm_prop_id_t,
@@ -502,8 +502,8 @@ void CVmObjVector::set_prop(VMG_ class CVmUndo *,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   call a static property 
+/*
+ *   call a static property
  */
 int CVmObjVector::call_stat_prop(VMG_ vm_val_t *result,
                                  const uchar **pc_ptr, uint *argc,
@@ -528,8 +528,8 @@ int CVmObjVector::call_stat_prop(VMG_ vm_val_t *result,
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   get a property 
+/*
+ *   get a property
  */
 int CVmObjVector::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                            vm_obj_id_t self, vm_obj_id_t *source_obj,
@@ -558,13 +558,13 @@ int CVmObjVector::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
  *   Expand the vector to accommodate the given number of new elements.
  *   We'll increase the element count, and we'll save undo for the change.
  *   If necessary, we'll re-allocate our memory extension block at a
- *   larger size. 
+ *   larger size.
  */
 void CVmObjVector::expand_by(VMG_ vm_obj_id_t self, size_t added_elements)
 {
     /* calculate the element count */
     size_t new_ele_cnt = get_element_count() + added_elements;
-    
+
     /* remember the new size, saving undo */
     set_element_count_undo(vmg_ self, new_ele_cnt);
 }
@@ -572,7 +572,7 @@ void CVmObjVector::expand_by(VMG_ vm_obj_id_t self, size_t added_elements)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Append an element, with no undo 
+ *   Append an element, with no undo
  */
 void CVmObjVector::append_element(VMG_ vm_obj_id_t self, const vm_val_t *val)
 {
@@ -598,7 +598,7 @@ void CVmObjVector::append_element(VMG_ vm_obj_id_t self, const vm_val_t *val)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Set the element count, keeping undo for the change 
+ *   Set the element count, keeping undo for the change
  */
 void CVmObjVector::set_element_count_undo(VMG_ vm_obj_id_t self,
                                           size_t new_ele_cnt)
@@ -614,18 +614,18 @@ void CVmObjVector::set_element_count_undo(VMG_ vm_obj_id_t self,
         /* get the old size */
         old_ele_cnt = get_element_count();
 
-        /* 
+        /*
          *   If we're shrinking the vector, save undo for each element we're
          *   dropping off the end; to do this, simply set each element we're
          *   losing to nil, since this will add an undo record with the
-         *   original value of the element.  
-         *   
+         *   original value of the element.
+         *
          *   Note that we must save undo for dropped elements BEFORE we set
          *   the vector's new sizd.  We must perform the steps in this order
          *   because undo is applied in reverse order: when we read back the
          *   undo, we'll first change the vector size to its old size (since
          *   that's the last saved undo instruction), then we'll set the
-         *   elements to their old values.  
+         *   elements to their old values.
          */
         nil_val.set_nil();
         for (idx = new_ele_cnt ; idx < old_ele_cnt ; ++idx)
@@ -634,18 +634,18 @@ void CVmObjVector::set_element_count_undo(VMG_ vm_obj_id_t self,
         /* set up an integer with the pre-modification element count */
         old_val.set_int(old_ele_cnt);
 
-        /* 
+        /*
          *   add the undo record - use the special index value 0xffffffff
          *   as the key; this will never be a valid index for a real
          *   element, because we could never address an element with an
-         *   index this high in a 32-bit address space 
+         *   index this high in a 32-bit address space
          */
         G_undo->add_new_record_int_key(vmg_ self, 0xffffffffU, &old_val);
     }
 
-    /* 
+    /*
      *   if the new size is larger than our current allocation size,
-     *   increase the allocated size 
+     *   increase the allocated size
      */
     if (new_ele_cnt > get_allocated_count())
     {
@@ -669,26 +669,26 @@ void CVmObjVector::set_element_count_undo(VMG_ vm_obj_id_t self,
         /* set the new allocation size */
         set_allocated_count(new_alloc_cnt);
 
-        /* 
+        /*
          *   clear the undo bits (it's easier than moving them, and the only
-         *   cost is that we might generate some redundant undo records) 
+         *   cost is that we might generate some redundant undo records)
          */
         clear_undo_bits();
     }
 
-    /* 
+    /*
      *   if we're expanding the in-use size of the vector, set each
-     *   newly-added element to nil 
+     *   newly-added element to nil
      */
     if (new_ele_cnt > get_element_count())
     {
         size_t i;
         vm_val_t nil_val;
 
-        /* 
+        /*
          *   set the old value for each new element to nil (we don't have to
          *   save undo for this, since the undo operation for the change in
-         *   size will simply discard all of the new elements) 
+         *   size will simply discard all of the new elements)
          */
         nil_val.set_nil();
         for (i = get_element_count() ; i < new_ele_cnt ; ++i)
@@ -700,33 +700,33 @@ void CVmObjVector::set_element_count_undo(VMG_ vm_obj_id_t self,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   notify of new undo savepoint 
+/*
+ *   notify of new undo savepoint
  */
 void CVmObjVector::notify_new_savept()
 {
-    /* 
+    /*
      *   clear the undo bits - we obviously have no undo for the new
-     *   savepoint yet 
+     *   savepoint yet
      */
     clear_undo_bits();
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   apply undo 
+ *   apply undo
  */
 void CVmObjVector::apply_undo(VMG_ struct CVmUndoRecord *rec)
 {
-    /* 
+    /*
      *   if the record refers to index 0xffffffff, this is a size-change
-     *   record; otherwise, it's an ordinary element change record 
+     *   record; otherwise, it's an ordinary element change record
      */
     if ((size_t)rec->id.intval == 0xffffffffU)
     {
-        /* 
+        /*
          *   it's a size change - apply the new size, which is stored as
-         *   an integer in the old value record 
+         *   an integer in the old value record
          */
         set_element_count((size_t)rec->oldval.val.intval);
     }
@@ -739,7 +739,7 @@ void CVmObjVector::apply_undo(VMG_ struct CVmUndoRecord *rec)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   mark references from an undo record 
+ *   mark references from an undo record
  */
 void CVmObjVector::mark_undo_ref(VMG_ CVmUndoRecord *rec)
 {
@@ -749,8 +749,8 @@ void CVmObjVector::mark_undo_ref(VMG_ CVmUndoRecord *rec)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   mark references 
+/*
+ *   mark references
  */
 void CVmObjVector::mark_refs(VMG_ uint state)
 {
@@ -761,9 +761,9 @@ void CVmObjVector::mark_refs(VMG_ uint state)
     for (char *p = get_element_ptr(0) ; cnt != 0 ;
          --cnt, inc_element_ptr(&p))
     {
-        /* 
+        /*
          *   if this is an object, mark it as referenced, and mark its
-         *   references as referenced 
+         *   references as referenced
          */
         if (vmb_get_dh_type(p) == VM_OBJ)
             G_obj_table->mark_all_refs(vmb_get_dh_obj(p), state);
@@ -772,7 +772,7 @@ void CVmObjVector::mark_refs(VMG_ uint state)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   load from an image file 
+ *   load from an image file
  */
 void CVmObjVector::load_from_image(VMG_ vm_obj_id_t self,
                                    const char *ptr, size_t siz)
@@ -780,7 +780,7 @@ void CVmObjVector::load_from_image(VMG_ vm_obj_id_t self,
     /* load from the image data */
     load_image_data(vmg_ ptr, siz);
 
-    /* 
+    /*
      *   save our image data pointer in the object table, so that we can
      *   access it (without storing it ourselves) during a reload
      */
@@ -788,7 +788,7 @@ void CVmObjVector::load_from_image(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   reload the object from image data 
+ *   reload the object from image data
  */
 void CVmObjVector::reload_from_image(VMG_ vm_obj_id_t,
                                      const char *ptr, size_t siz)
@@ -797,8 +797,8 @@ void CVmObjVector::reload_from_image(VMG_ vm_obj_id_t,
     load_image_data(vmg_ ptr, siz);
 }
 
-/* 
- *   load the data from an image file 
+/*
+ *   load the data from an image file
  */
 void CVmObjVector::load_image_data(VMG_ const char *ptr, size_t siz)
 {
@@ -824,18 +824,18 @@ void CVmObjVector::load_image_data(VMG_ const char *ptr, size_t siz)
     if (siz > VMB_LEN*2 + (VMB_DATAHOLDER * ele_cnt))
         siz = VMB_LEN*2 + (VMB_DATAHOLDER * ele_cnt);
 
-    /* 
+    /*
      *   allocate memory at the new allocation size as indicated in the
-     *   image data 
+     *   image data
      */
     alloc_vector(vmg_ alloc_cnt);
 
     /* set the in-use element count */
     set_element_count(ele_cnt);
 
-    /* 
+    /*
      *   if the size is smaller than we'd expect from the initialized
-     *   element count, set extra elements to nil 
+     *   element count, set extra elements to nil
      */
     if (siz < VMB_LEN*2 + (VMB_DATAHOLDER * ele_cnt))
     {
@@ -856,7 +856,7 @@ void CVmObjVector::load_image_data(VMG_ const char *ptr, size_t siz)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   index the vector
  */
 int CVmObjVector::index_val_q(VMG_ vm_val_t *result, vm_obj_id_t,
@@ -869,9 +869,9 @@ int CVmObjVector::index_val_q(VMG_ vm_val_t *result, vm_obj_id_t,
     if (idx < 1 || (uint32_t)idx > get_element_count())
         err_throw(VMERR_INDEX_OUT_OF_RANGE);
 
-    /* 
+    /*
      *   get the indexed element and store it in the result, adjusting the
-     *   index to the C-style 0-based range 
+     *   index to the C-style 0-based range
      */
     get_element(idx - 1, result);
 
@@ -880,7 +880,7 @@ int CVmObjVector::index_val_q(VMG_ vm_val_t *result, vm_obj_id_t,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   set an indexed element of the vector
  */
 int CVmObjVector::set_index_val_q(VMG_ vm_val_t *new_container,
@@ -895,36 +895,36 @@ int CVmObjVector::set_index_val_q(VMG_ vm_val_t *new_container,
     if (idx < 1)
         err_throw(VMERR_INDEX_OUT_OF_RANGE);
 
-    /* 
+    /*
      *   if it's higher than the current length, extend the vector with nil
-     *   entries to the requested size 
+     *   entries to the requested size
      */
     if ((uint32_t)idx > get_element_count())
     {
         size_t i;
         vm_val_t nil_val;
-        
+
         /* note the first new element index */
         i = get_element_count();
 
         /* extend the vector */
         set_element_count_undo(vmg_ self, idx);
 
-        /* 
+        /*
          *   Fill in entries between the old length and the new length with
          *   nil.  Note that we don't have to fill in the very last element,
          *   since we'll explicitly set it to the new value momentarily
          *   anyway.  Note also that we don't need to keep undo for the
          *   initializations, since on undo we'll truncate the vector to
          *   remove the newly-added elements and thus won't need to restore
-         *   any values for the slots.  
+         *   any values for the slots.
          */
         for (nil_val.set_nil() ; i < (size_t)idx - 1 ; ++i)
             set_element(i, &nil_val);
 
-        /* 
+        /*
          *   set the new value - this doesn't require undo since we had to
-         *   expand the vector to make room for it 
+         *   expand the vector to make room for it
          */
         set_element(idx - 1, new_val);
     }
@@ -944,7 +944,7 @@ int CVmObjVector::set_index_val_q(VMG_ vm_val_t *new_container,
 /* ------------------------------------------------------------------------ */
 /*
  *   Set an element and record undo for the change - takes a C-style 0-based
- *   index.  
+ *   index.
  */
 void CVmObjVector::set_element_undo(VMG_ vm_obj_id_t self,
                                     size_t idx, const vm_val_t *new_val)
@@ -960,9 +960,9 @@ void CVmObjVector::set_element_undo(VMG_ vm_obj_id_t self,
         /* add the undo record */
         G_undo->add_new_record_int_key(vmg_ self, idx, &old_val);
 
-        /* 
+        /*
          *   set the undo bit to indicate that we now have undo for this
-         *   element 
+         *   element
          */
         set_undo_bit(idx, TRUE);
     }
@@ -972,9 +972,9 @@ void CVmObjVector::set_element_undo(VMG_ vm_obj_id_t self,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   Check a value for equality.  We will match any list or vector with the
- *   same number of elements and the same value for each element.  
+ *   same number of elements and the same value for each element.
  */
 int CVmObjVector::equals(VMG_ vm_obj_id_t self, const vm_val_t *val,
                          int depth) const
@@ -1008,13 +1008,13 @@ int CVmObjVector::equals(VMG_ vm_obj_id_t self, const vm_val_t *val,
     {
         vm_val_t val1;
         vm_val_t val2;
-        
+
         /* get this element of self */
         get_element(idx, &val1);
 
         /* get this element of the other value */
         val->ll_index(vmg_ &val2, idx + 1);
-        
+
         /* if these elements aren't equal, our values aren't equal */
         if (!val1.equals(vmg_ &val2, depth + 1))
             return FALSE;
@@ -1026,7 +1026,7 @@ int CVmObjVector::equals(VMG_ vm_obj_id_t self, const vm_val_t *val,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Hash value calculation 
+ *   Hash value calculation
  */
 uint CVmObjVector::calc_hash(VMG_ vm_obj_id_t self, int depth) const
 {
@@ -1036,24 +1036,24 @@ uint CVmObjVector::calc_hash(VMG_ vm_obj_id_t self, int depth) const
     /* if the recursion depth is excessive, throw an error */
     if (depth > VM_MAX_TREE_DEPTH_EQ)
         err_throw(VMERR_TREE_TOO_DEEP_EQ);
-    
+
     /* combine the hash values of the members of the vector */
     for (hash = 0, i = 0 ; i < get_element_count() ; ++i)
     {
         vm_val_t ele;
-        
+
         /* get this element */
         get_element(i, &ele);
 
-        /* 
+        /*
          *   Calculate its hash value and add it into the combined hash.
-         *   
+         *
          *   Note that we have to increase the recursion depth, because we're
          *   recursively calculating the hash value of our contents, and our
          *   contents can refer (directly or indirectly) back to this object.
          *   In other words, we can have cycles in the reference tree from
          *   this object back to itself, so we need to keep track of the
-         *   recursion depth to ensure we don't loop forever.  
+         *   recursion depth to ensure we don't loop forever.
          */
         hash += ele.calc_hash(vmg_ depth + 1);
     }
@@ -1063,7 +1063,7 @@ uint CVmObjVector::calc_hash(VMG_ vm_obj_id_t self, int depth) const
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   add a value to the vector
  */
 int CVmObjVector::add_val(VMG_ vm_val_t *result,
@@ -1077,9 +1077,9 @@ int CVmObjVector::add_val(VMG_ vm_val_t *result,
     /* push the value to append, for gc protection */
     G_stk->push(val);
 
-    /* 
+    /*
      *   remember the index of the first new element - this is simply one
-     *   higher than the last valid current index 
+     *   higher than the last valid current index
      */
     idx = get_element_count();
 
@@ -1089,9 +1089,9 @@ int CVmObjVector::add_val(VMG_ vm_val_t *result,
     /* if it's not list-like, just add it directly as a single element */
     alo_cnt = (rhs_cnt < 0 ? 1 : rhs_cnt);
 
-    /* 
+    /*
      *   allocate a copy of the vector for the result - make it big enough
-     *   for my elements plus the elements to be appended 
+     *   for my elements plus the elements to be appended
      */
     result->set_obj(create(vmg_ FALSE, idx + alo_cnt));
 
@@ -1105,9 +1105,9 @@ int CVmObjVector::add_val(VMG_ vm_val_t *result,
     memcpy(new_vec->get_element_ptr(0), get_element_ptr(0),
            calc_alloc_ele(idx));
 
-    /* 
+    /*
      *   set the element count to include the elements copied so far (it's a
-     *   new vector, so there's no need to save undo) 
+     *   new vector, so there's no need to save undo)
      */
     new_vec->set_element_count(idx);
 
@@ -1126,7 +1126,7 @@ int CVmObjVector::add_val(VMG_ vm_val_t *result,
             /* get this element from the right-hand side */
             vm_val_t ele;
             val->ll_index(vmg_ &ele, i);
-            
+
             /* store the element in the result */
             new_vec->set_element(idx, &ele);
             new_vec->set_element_count(idx + 1);
@@ -1141,7 +1141,7 @@ int CVmObjVector::add_val(VMG_ vm_val_t *result,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   subtract a value from the vector
  */
 int CVmObjVector::sub_val(VMG_ vm_val_t *result,
@@ -1161,9 +1161,9 @@ int CVmObjVector::sub_val(VMG_ vm_val_t *result,
     /* get the number of elements to remove */
     rhs_cnt = (val->is_listlike(vmg0_) ? val->ll_length(vmg0_) : -1);
 
-    /* 
+    /*
      *   allocate a new vector for the result - the new object will be no
-     *   larger than the current object, so allocate at the same size 
+     *   larger than the current object, so allocate at the same size
      */
     result->set_obj(create(vmg_ FALSE, ele_cnt));
 
@@ -1173,9 +1173,9 @@ int CVmObjVector::sub_val(VMG_ vm_val_t *result,
     /* get the return value as a vector */
     new_vec = (CVmObjVector *)vm_objp(vmg_ result->val.obj);
 
-    /* 
+    /*
      *   copy each element from me to the new vector, but don't copy
-     *   elements found in the right-hand side 
+     *   elements found in the right-hand side
      */
     for (i = 0, new_cnt = 0 ; i < ele_cnt ; ++i)
     {
@@ -1201,25 +1201,25 @@ int CVmObjVector::sub_val(VMG_ vm_val_t *result,
                 vm_val_t rh_ele;
                 val->ll_index(vmg_ &rh_ele, j);
 
-                /* 
+                /*
                  *   if this right-hand element matches this left-hand
-                 *   element, note that we have a match 
+                 *   element, note that we have a match
                  */
                 if (rh_ele.equals(vmg_ &ele))
                 {
                     /* note that we found it */
                     found = TRUE;
-                    
+
                     /* no need to look any further - one match is enough */
                     break;
                 }
             }
         }
 
-        /* 
+        /*
          *   If we didn't find the value, include it in the result vector.
          *   Note that we don't have to save undo, since we're still
-         *   constructing the new vector. 
+         *   constructing the new vector.
          */
         if (!found)
         {
@@ -1231,9 +1231,9 @@ int CVmObjVector::sub_val(VMG_ vm_val_t *result,
         }
     }
 
-    /* 
+    /*
      *   update the new vector's size - we don't have to save undo for this
-     *   change, because we're still constructing the new vector 
+     *   change, because we're still constructing the new vector
      */
     new_vec->set_element_count(new_cnt);
 
@@ -1246,7 +1246,7 @@ int CVmObjVector::sub_val(VMG_ vm_val_t *result,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   property evaluator - convert to a list 
+ *   property evaluator - convert to a list
  */
 int CVmObjVector::getp_to_list(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                uint *argc)
@@ -1266,9 +1266,9 @@ int CVmObjVector::getp_to_list(VMG_ vm_obj_id_t self, vm_val_t *retval,
     /* note our size */
     src_cnt = get_element_count();
 
-    /* 
+    /*
      *   if there's a starting index, retrieve it; otherwise, start at our
-     *   first element 
+     *   first element
      */
     if (orig_argc >= 1)
         start_idx = (size_t)CVmBif::pop_int_val(vmg0_);
@@ -1286,18 +1286,18 @@ int CVmObjVector::getp_to_list(VMG_ vm_obj_id_t self, vm_val_t *retval,
     /* adjust the starting index to a 0-based index */
     --start_idx;
 
-    /* 
+    /*
      *   if there's a size argument, retrieve it; if it's not specified,
-     *   use our actual size for the output size 
+     *   use our actual size for the output size
      */
     if (orig_argc >= 2)
         dst_cnt = (size_t)CVmBif::pop_int_val(vmg0_);
     else
         dst_cnt = src_cnt;
 
-    /* 
+    /*
      *   in no case will the result list have more elements than we can
-     *   actually supply 
+     *   actually supply
      */
     if (start_idx >= src_cnt)
     {
@@ -1338,7 +1338,7 @@ int CVmObjVector::getp_to_list(VMG_ vm_obj_id_t self, vm_val_t *retval,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   property evaluator - copy from another vector or list 
+ *   property evaluator - copy from another vector or list
  */
 int CVmObjVector::getp_copy_from(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                  uint *argc)
@@ -1414,7 +1414,7 @@ int CVmObjVector::getp_copy_from(VMG_ vm_obj_id_t self, vm_val_t *retval,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   property evaluator - fill with a value 
+ *   property evaluator - fill with a value
  */
 int CVmObjVector::getp_fill_val(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                 uint *argc)
@@ -1449,9 +1449,9 @@ int CVmObjVector::getp_fill_val(VMG_ vm_obj_id_t self, vm_val_t *retval,
     /* adjust the starting index to a 0-based index */
     --start_idx;
 
-    /* 
+    /*
      *   if there's a count argument, retrieve it; if it's not specified,
-     *   use our actual size for the count 
+     *   use our actual size for the count
      */
     int end_idx = (orig_argc >= 3
                    ? start_idx + CVmBif::pop_int_val(vmg0_)
@@ -1481,7 +1481,7 @@ int CVmObjVector::getp_fill_val(VMG_ vm_obj_id_t self, vm_val_t *retval,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   property evaluator - get the number of elements 
+ *   property evaluator - get the number of elements
  */
 int CVmObjVector::getp_get_size(VMG_ vm_obj_id_t, vm_val_t *retval,
                                 uint *argc)
@@ -1502,7 +1502,7 @@ int CVmObjVector::getp_get_size(VMG_ vm_obj_id_t, vm_val_t *retval,
 /* ------------------------------------------------------------------------ */
 /*
  *   property evaluator - select a subset; returns a new vector consisting
- *   of the subset of the original vector 
+ *   of the subset of the original vector
  */
 int CVmObjVector::getp_subset(VMG_ vm_obj_id_t self, vm_val_t *retval,
                               uint *argc)
@@ -1525,10 +1525,10 @@ int CVmObjVector::getp_subset(VMG_ vm_obj_id_t self, vm_val_t *retval,
     /* push a self-reference while allocating to protect from gc */
     G_interpreter->push_obj(vmg_ self);
 
-    /* 
+    /*
      *   allocate the new vector that we'll return - all we know at this
      *   point is that the new vector won't be larger than the current
-     *   vector, so allocate at the current size 
+     *   vector, so allocate at the current size
      */
     cnt = get_element_count();
     retval->set_obj(create(vmg_ FALSE, cnt));
@@ -1536,10 +1536,10 @@ int CVmObjVector::getp_subset(VMG_ vm_obj_id_t self, vm_val_t *retval,
     /* get the return value as an vector */
     new_vec = (CVmObjVector *)vm_objp(vmg_ retval->val.obj);
 
-    /* 
+    /*
      *   push a reference to the new list to protect it from the garbage
      *   collector, which could be invoked in the course of executing the
-     *   user callback 
+     *   user callback
      */
     G_stk->push(retval);
 
@@ -1547,10 +1547,10 @@ int CVmObjVector::getp_subset(VMG_ vm_obj_id_t self, vm_val_t *retval,
      *   Go through each element of our list, and invoke the callback on
      *   each element.  If the element passes, write it to the current
      *   output location in the list; otherwise, just skip it.
-     *   
+     *
      *   Note that we're using the same list as source and destination,
      *   which is easy because the list will either shrink or stay the
-     *   same - we'll never need to insert new elements.  
+     *   same - we'll never need to insert new elements.
      */
     for (src = dst = 0 ; src < cnt ; ++src)
     {
@@ -1569,9 +1569,9 @@ int CVmObjVector::getp_subset(VMG_ vm_obj_id_t self, vm_val_t *retval,
         /* get the result from R0 */
         val = G_interpreter->get_r0();
 
-        /* 
+        /*
          *   if the callback returned non-nil and non-zero, include this
-         *   element in the result 
+         *   element in the result
          */
         if (val->typ == VM_NIL
             || (val->typ == VM_INT && val->val.intval == 0))
@@ -1580,9 +1580,9 @@ int CVmObjVector::getp_subset(VMG_ vm_obj_id_t self, vm_val_t *retval,
         }
         else
         {
-            /* 
+            /*
              *   include this element in the result (there's no need to
-             *   save undo, since the whole vector is new) 
+             *   save undo, since the whole vector is new)
              */
             new_vec->set_element(dst, &ele);
 
@@ -1623,9 +1623,9 @@ int CVmObjVector::getp_apply_all(VMG_ vm_obj_id_t self, vm_val_t *retval,
     /* push a self-reference while working to protect from gc */
     G_interpreter->push_obj(vmg_ self);
 
-    /* 
+    /*
      *   we're going to return the 'self' object, since we update the vector
-     *   in-place 
+     *   in-place
      */
     retval->set_obj(self);
 
@@ -1634,7 +1634,7 @@ int CVmObjVector::getp_apply_all(VMG_ vm_obj_id_t self, vm_val_t *retval,
      *   each element.  Replace each element with the result of the
      *   callback.  Note that we intentionally re-check the element count on
      *   each iteration, in case the callback changes the number of
-     *   elements.  
+     *   elements.
      */
     for (idx = 0 ; idx < get_element_count() ; ++idx)
     {
@@ -1668,7 +1668,7 @@ int CVmObjVector::getp_index_which(VMG_ vm_obj_id_t self, vm_val_t *retval,
 }
 
 /*
- *   property evaluator - lastIndexWhich 
+ *   property evaluator - lastIndexWhich
  */
 int CVmObjVector::getp_last_index_which(VMG_ vm_obj_id_t self,
                                         vm_val_t *retval, uint *argc)
@@ -1679,7 +1679,7 @@ int CVmObjVector::getp_last_index_which(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   general handler for indexWhich and lastIndexWhich 
+ *   general handler for indexWhich and lastIndexWhich
  */
 int CVmObjVector::gen_index_which(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                   uint *argc, int forward, int count_only,
@@ -1713,7 +1713,7 @@ int CVmObjVector::gen_index_which(VMG_ vm_obj_id_t self, vm_val_t *retval,
 
     /*
      *   Go through each element of our vector, and invoke the callback on
-     *   each element, looking for the first one that returns true.  
+     *   each element, looking for the first one that returns true.
      */
     for (;;)
     {
@@ -1731,9 +1731,9 @@ int CVmObjVector::gen_index_which(VMG_ vm_obj_id_t self, vm_val_t *retval,
         /* invoke the callback */
         G_interpreter->call_func_ptr(vmg_ func_val, 1, rc, 0);
 
-        /* 
+        /*
          *   if the callback returned true, we've found the element we're
-         *   looking for 
+         *   looking for
          */
         if (G_interpreter->get_r0()->typ == VM_NIL
             || (G_interpreter->get_r0()->typ == VM_INT
@@ -1753,7 +1753,7 @@ int CVmObjVector::gen_index_which(VMG_ vm_obj_id_t self, vm_val_t *retval,
             {
                 /* we want the (1-based) index - return it */
                 retval->set_int(idx + 1);
-            
+
                 /* found it - no need to keep looking */
                 break;
             }
@@ -1763,21 +1763,21 @@ int CVmObjVector::gen_index_which(VMG_ vm_obj_id_t self, vm_val_t *retval,
         if (forward)
             ++idx;
     }
-    
+
     /* discard our gc protection (self) and our arguments */
     G_stk->discard(2);
 
     /* return the count if desired */
     if (count_only)
         retval->set_int(val_cnt);
-    
+
     /* handled */
     return TRUE;
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   property evaluator - lastValWhich 
+ *   property evaluator - lastValWhich
  */
 int CVmObjVector::getp_last_val_which(VMG_ vm_obj_id_t self,
                                       vm_val_t *retval, uint *argc)
@@ -1789,7 +1789,7 @@ int CVmObjVector::getp_last_val_which(VMG_ vm_obj_id_t self,
     if (retval->typ == VM_INT)
     {
         int idx;
-        
+
         /* get the element as the return value */
         idx = (int)retval->val.intval;
         get_element(idx - 1, retval);
@@ -1801,7 +1801,7 @@ int CVmObjVector::getp_last_val_which(VMG_ vm_obj_id_t self,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   property evaluator - valWhich 
+ *   property evaluator - valWhich
  */
 int CVmObjVector::getp_val_which(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                  uint *argc)
@@ -1836,7 +1836,7 @@ int CVmObjVector::getp_for_each(VMG_ vm_obj_id_t self, vm_val_t *retval,
 }
 
 /*
- *   property evaluator - call a callback for each element 
+ *   property evaluator - call a callback for each element
  */
 int CVmObjVector::getp_for_each_assoc(VMG_ vm_obj_id_t self,
                                       vm_val_t *retval, uint *argc)
@@ -1848,7 +1848,7 @@ int CVmObjVector::getp_for_each_assoc(VMG_ vm_obj_id_t self,
 
 
 /*
- *   General forEach/forEachAssoc processor 
+ *   General forEach/forEachAssoc processor
  */
 int CVmObjVector::for_each_gen(VMG_ vm_obj_id_t self,
                                vm_val_t *retval, uint *argc,
@@ -1871,7 +1871,7 @@ int CVmObjVector::for_each_gen(VMG_ vm_obj_id_t self,
     /* no return value */
     retval->set_nil();
 
-    /* 
+    /*
      *   Invoke the callback on each element.  Note that we intentionally do
      *   not cache the element count, since it is possible that a program
      *   could change the vector size in the course of an iteration; if we
@@ -1879,7 +1879,7 @@ int CVmObjVector::for_each_gen(VMG_ vm_obj_id_t self,
      *   iteration, we would visit invalid elements past the new end of the
      *   vector.  To avoid this possibility, we re-check the current element
      *   count on each iteration to make sure we haven't run off the end of
-     *   the vector.  
+     *   the vector.
      */
     for (idx = 0 ; idx < get_element_count() ; ++idx)
     {
@@ -1897,7 +1897,7 @@ int CVmObjVector::for_each_gen(VMG_ vm_obj_id_t self,
 
     /* discard our gc protection (self) and our arguments */
     G_stk->discard(2);
-    
+
     /* handled */
     return TRUE;
 }
@@ -1925,21 +1925,21 @@ int CVmObjVector::getp_map_all(VMG_ vm_obj_id_t self, vm_val_t *retval,
     /* push a self-reference while working to protect from gc */
     G_interpreter->push_obj(vmg_ self);
 
-    /* 
+    /*
      *   allocate a new vector for the return value - the new vector will
      *   have the same size as the original, since we're mapping each
      *   element of the old vector to the corresponding element of the new
-     *   vector 
+     *   vector
      */
     retval->set_obj(create(vmg_ FALSE, get_allocated_count()));
 
     /* get the return value as an vector */
     new_vec = (CVmObjVector *)vm_objp(vmg_ retval->val.obj);
 
-    /* 
+    /*
      *   push a reference to the new list to protect it from the garbage
      *   collector, which could be invoked in the course of executing the
-     *   user callback 
+     *   user callback
      */
     G_stk->push(retval);
 
@@ -1947,7 +1947,7 @@ int CVmObjVector::getp_map_all(VMG_ vm_obj_id_t self, vm_val_t *retval,
      *   Go through each element of our vector, and invoke the callback on
      *   each element, storing the result in the corresponding element of
      *   the new vector.  Note that we re-check the element count on each
-     *   iteration, in case the callback changes it on us.  
+     *   iteration, in case the callback changes it on us.
      */
     for (idx = 0 ; idx < get_element_count() ; ++idx)
     {
@@ -1957,9 +1957,9 @@ int CVmObjVector::getp_map_all(VMG_ vm_obj_id_t self, vm_val_t *retval,
         /* invoke the callback */
         G_interpreter->call_func_ptr(vmg_ func_val, 1, &rc, 0);
 
-        /* 
+        /*
          *   replace this element with the result (there's no need to save
-         *   undo, since the whole vector is new) 
+         *   undo, since the whole vector is new)
          */
         new_vec->set_element(idx, G_interpreter->get_r0());
         new_vec->set_element_count(idx + 1);
@@ -1974,7 +1974,7 @@ int CVmObjVector::getp_map_all(VMG_ vm_obj_id_t self, vm_val_t *retval,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   property evaluator - indexOf 
+ *   property evaluator - indexOf
  */
 int CVmObjVector::getp_index_of(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                 uint *argc)
@@ -1984,7 +1984,7 @@ int CVmObjVector::getp_index_of(VMG_ vm_obj_id_t self, vm_val_t *retval,
 }
 
 /*
- *   property evaluator - lastIndexOf 
+ *   property evaluator - lastIndexOf
  */
 int CVmObjVector::getp_last_index_of(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                      uint *argc)
@@ -1995,7 +1995,7 @@ int CVmObjVector::getp_last_index_of(VMG_ vm_obj_id_t self, vm_val_t *retval,
 
 /*
  *   general handler for indexOf and lastIndexOf - searches the vector
- *   either forwards of backwards for a given value 
+ *   either forwards of backwards for a given value
  */
 int CVmObjVector::gen_index_of(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                uint *argc, int forward, int count_only)
@@ -2055,7 +2055,7 @@ int CVmObjVector::gen_index_of(VMG_ vm_obj_id_t self, vm_val_t *retval,
             {
                 /* this is the one - return its 1-based index */
                 retval->set_int(idx + 1);
-                
+
                 /* foind it - no need to keep searching */
                 break;
             }
@@ -2072,7 +2072,7 @@ int CVmObjVector::gen_index_of(VMG_ vm_obj_id_t self, vm_val_t *retval,
     /* return the count if desired */
     if (count_only)
         retval->set_int(val_cnt);
-    
+
     /* handled */
     return TRUE;
 }
@@ -2103,7 +2103,7 @@ int CVmObjVector::getp_count_which(VMG_ vm_obj_id_t self, vm_val_t *retval,
 /* ------------------------------------------------------------------------ */
 /*
  *   property evaluator - getUnique; returns a new vector consisting of the
- *   unique elements of the original vector 
+ *   unique elements of the original vector
  */
 int CVmObjVector::getp_get_unique(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                   uint *argc)
@@ -2119,9 +2119,9 @@ int CVmObjVector::getp_get_unique(VMG_ vm_obj_id_t self, vm_val_t *retval,
     /* put myself on the stack for GC protection */
     G_interpreter->push_obj(vmg_ self);
 
-    /* 
+    /*
      *   allocate a new vector for the return value - the new vector will
-     *   never be any larger than the original 
+     *   never be any larger than the original
      */
     cnt = get_element_count();
     retval->set_obj(create(vmg_ FALSE, cnt));
@@ -2152,7 +2152,7 @@ int CVmObjVector::getp_get_unique(VMG_ vm_obj_id_t self, vm_val_t *retval,
 /*
  *   For construction, eliminate repeated elements of the vector, leaving
  *   only the unique elements.  Reduces the size of the vector to the size
- *   required to accommodate the unique elements.  
+ *   required to accommodate the unique elements.
  */
 void CVmObjVector::cons_uniquify(VMG0_)
 {
@@ -2169,8 +2169,8 @@ void CVmObjVector::cons_uniquify(VMG0_)
         vm_val_t src_val;
         int found;
 
-        /* 
-         *   look for a copy of this source value already in the output list 
+        /*
+         *   look for a copy of this source value already in the output list
          */
         get_element(src, &src_val);
         for (idx = 0, found = FALSE ; idx < dst ; ++idx)
@@ -2194,12 +2194,12 @@ void CVmObjVector::cons_uniquify(VMG0_)
         /* if we didn't find the value, copy it to the output list */
         if (!found)
         {
-            /* 
+            /*
              *   add it to the output vector - since this is a
              *   construction-only method, there's no need to save undo (if
              *   we apply undo, we'll undo the entire construction of the
              *   vector, hence there's no need to track changes made since
-             *   creation) 
+             *   creation)
              */
             set_element(dst, &src_val);
 
@@ -2214,7 +2214,7 @@ void CVmObjVector::cons_uniquify(VMG0_)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   property evaluator - appendUnique 
+ *   property evaluator - appendUnique
  */
 int CVmObjVector::getp_append_unique(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                      uint *argc)
@@ -2266,7 +2266,7 @@ int CVmObjVector::getp_append_unique(VMG_ vm_obj_id_t self, vm_val_t *retval,
             set_element_undo(vmg_ self, cnt + i - 1, &ele);
         }
     }
-    
+
     /* uniquify the result */
     uniquify_for_append(vmg_ self);
 
@@ -2277,8 +2277,8 @@ int CVmObjVector::getp_append_unique(VMG_ vm_obj_id_t self, vm_val_t *retval,
     return TRUE;
 }
 
-/* 
- *   uniquify after an appendUnique operation 
+/*
+ *   uniquify after an appendUnique operation
  */
 void CVmObjVector::uniquify_for_append(VMG_ vm_obj_id_t self)
 {
@@ -2318,10 +2318,10 @@ void CVmObjVector::uniquify_for_append(VMG_ vm_obj_id_t self)
         /* if we didn't find the value, copy it to the output list */
         if (!found)
         {
-            /* 
+            /*
              *   Add it to the output vector if we're actually changing this
              *   element (i.e., the destination and source indices are
-             *   unequal).  
+             *   unequal).
              */
             if (dst != src)
                 set_element_undo(vmg_ self, dst, &src_val);
@@ -2362,7 +2362,7 @@ public:
 };
 
 /*
- *   property evaluator - sort 
+ *   property evaluator - sort
  */
 int CVmObjVector::getp_sort(VMG_ vm_obj_id_t self, vm_val_t *retval,
                             uint *in_argc)
@@ -2387,9 +2387,9 @@ int CVmObjVector::getp_sort(VMG_ vm_obj_id_t self, vm_val_t *retval,
     if (argc >= 1)
         sorter.descending_ = (G_stk->get(0)->typ != VM_NIL);
 
-    /* 
+    /*
      *   if we have a comparison function, note it, but leave it on the
-     *   stack for gc protection 
+     *   stack for gc protection
      */
     if (argc >= 2)
     {
@@ -2418,8 +2418,8 @@ int CVmObjVector::getp_sort(VMG_ vm_obj_id_t self, vm_val_t *retval,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   property evaluator - set the length 
+/*
+ *   property evaluator - set the length
  */
 int CVmObjVector::getp_set_length(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                   uint *argc)
@@ -2429,7 +2429,7 @@ int CVmObjVector::getp_set_length(VMG_ vm_obj_id_t self, vm_val_t *retval,
     int32_t idx;
     vm_val_t nil_val;
     static CVmNativeCodeDesc desc(1);
-    
+
     /* check arguments */
     if (get_prop_check_argc(retval, argc, &desc))
         return TRUE;
@@ -2450,11 +2450,11 @@ int CVmObjVector::getp_set_length(VMG_ vm_obj_id_t self, vm_val_t *retval,
     /* set the vector to its new size */
     set_element_count_undo(vmg_ self, (size_t)new_len);
 
-    /* 
+    /*
      *   Set each newly added element to nil.  Note that we don't bother
      *   saving undo for these changes: to undo this change, the only thing
      *   we'll have to do is reduce the vector size to its previous size,
-     *   and we've already saved undo for the size change.  
+     *   and we've already saved undo for the size change.
      */
     nil_val.set_nil();
     for (idx = old_len ; idx < new_len ; ++idx)
@@ -2465,7 +2465,7 @@ int CVmObjVector::getp_set_length(VMG_ vm_obj_id_t self, vm_val_t *retval,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   property evaluator - insert one or more elements at a given index
  */
 int CVmObjVector::getp_insert_at(VMG_ vm_obj_id_t self, vm_val_t *retval,
@@ -2480,9 +2480,9 @@ int CVmObjVector::getp_insert_at(VMG_ vm_obj_id_t self, vm_val_t *retval,
     /* note the original size of the vector */
     int old_cnt = get_element_count();
 
-    /* 
+    /*
      *   get the starting insertion index; negatives count from the end, and
-     *   zero means to insert after the last existing element 
+     *   zero means to insert after the last existing element
      */
     int ins_idx = CVmBif::pop_int_val(vmg0_);
     if (ins_idx <= 0)
@@ -2491,17 +2491,17 @@ int CVmObjVector::getp_insert_at(VMG_ vm_obj_id_t self, vm_val_t *retval,
     /* the return value is 'self' */
     retval->set_obj(self);
 
-    /* 
+    /*
      *   note the number of items we're adding - we're adding each
-     *   argument, other than the first 
+     *   argument, other than the first
      */
     int add_cnt = argc - 1;
 
-    /* 
+    /*
      *   if the starting index is out of range, it's an error - it can
      *   range from 1 to one higher than the current element count (the
      *   top end of the range allows us to insert elements after all of
-     *   the current elements) 
+     *   the current elements)
      */
     if (ins_idx < 1 || ins_idx > old_cnt + 1)
         err_throw(VMERR_INDEX_OUT_OF_RANGE);
@@ -2531,8 +2531,8 @@ int CVmObjVector::getp_insert_at(VMG_ vm_obj_id_t self, vm_val_t *retval,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   property evaluator - append an element 
+/*
+ *   property evaluator - append an element
  */
 int CVmObjVector::getp_prepend(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                uint *argc)
@@ -2545,11 +2545,11 @@ int CVmObjVector::getp_prepend(VMG_ vm_obj_id_t self, vm_val_t *retval,
     /* insert one element at the start of the vector */
     insert_elements_undo(vmg_ self, 0, 1);
 
-    /* 
+    /*
      *   set the first element - note that there's no need to save undo,
      *   since undoing this operation will simply discard this element (in
      *   other words, there's no previous value for this element since it's
-     *   being created anew here) 
+     *   being created anew here)
      */
     set_element(0, G_stk->get(0));
 
@@ -2564,7 +2564,7 @@ int CVmObjVector::getp_prepend(VMG_ vm_obj_id_t self, vm_val_t *retval,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   property evaluator - remove an element at the given position
  */
 int CVmObjVector::getp_remove_element_at(VMG_ vm_obj_id_t self,
@@ -2599,8 +2599,8 @@ int CVmObjVector::getp_remove_element_at(VMG_ vm_obj_id_t self,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   property evaluator - remove element(s) matching a given value 
+/*
+ *   property evaluator - remove element(s) matching a given value
  */
 int CVmObjVector::getp_remove_element(VMG_ vm_obj_id_t self,
                                       vm_val_t *retval, uint *argc)
@@ -2633,19 +2633,19 @@ int CVmObjVector::getp_remove_element(VMG_ vm_obj_id_t self,
         /* get this element */
         get_element(src, &ele_val);
 
-        /* 
+        /*
          *   if this element doesn't match the value to be deleted, add it
-         *   to the result vector 
+         *   to the result vector
          */
         if (!ele_val.equals(vmg_ del_val))
         {
-            /* 
+            /*
              *   This element is a keeper - if we're moving it to a new
              *   position (i.e., we've deleted any elements before this
              *   one), store it at its new position, keeping undo
              *   information.  If we're storing it at its same position,
              *   there's no need to re-store the value or keep any undo,
-             *   since no change is involved.  
+             *   since no change is involved.
              */
             if (dst != src)
                 set_element_undo(vmg_ self, dst, &ele_val);
@@ -2686,9 +2686,9 @@ int CVmObjVector::getp_remove_range(VMG_ vm_obj_id_t self,
     if (start_idx < 0)
         start_idx += get_element_count() + 1;
 
-    /* 
+    /*
      *   make sure the index is in range - it must refer to an existing
-     *   element 
+     *   element
      */
     if (start_idx < 1 || start_idx > (int)get_element_count())
         err_throw(VMERR_INDEX_OUT_OF_RANGE);
@@ -2698,9 +2698,9 @@ int CVmObjVector::getp_remove_range(VMG_ vm_obj_id_t self,
     if (end_idx < 0)
         end_idx += get_element_count() + 1;
 
-    /* 
+    /*
      *   make sure it's in range - it must refer to an existing element,
-     *   and it must be greater than or equal to the starting index 
+     *   and it must be greater than or equal to the starting index
      */
     if (end_idx < start_idx || end_idx > (int)get_element_count())
         err_throw(VMERR_INDEX_OUT_OF_RANGE);
@@ -2712,11 +2712,11 @@ int CVmObjVector::getp_remove_range(VMG_ vm_obj_id_t self,
     /* the return value is 'self' */
     retval->set_obj(self);
 
-    /* 
+    /*
      *   delete the elements - the number of elements we're deleting is
      *   one higher than the difference of the starting and ending indices
      *   (if the two indices are the same, we're deleting just the one
-     *   element) 
+     *   element)
      */
     remove_elements_undo(vmg_ self, start_idx, end_idx - start_idx + 1);
 
@@ -2725,8 +2725,8 @@ int CVmObjVector::getp_remove_range(VMG_ vm_obj_id_t self,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   property evaluator - append an element 
+/*
+ *   property evaluator - append an element
  */
 int CVmObjVector::getp_append(VMG_ vm_obj_id_t self, vm_val_t *retval,
                               uint *argc)
@@ -2765,9 +2765,9 @@ int CVmObjVector::getp_append(VMG_ vm_obj_id_t self, vm_val_t *retval,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   property evaluator - append elements from a collection, or append a
- *   single non-collection element 
+ *   single non-collection element
  */
 int CVmObjVector::getp_append_all(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                   uint *argc)
@@ -2801,13 +2801,13 @@ int CVmObjVector::getp_append_all(VMG_ vm_obj_id_t self, vm_val_t *retval,
         /* get the next new element */
         vm_val_t ele;
         valp->ll_index(vmg_ &ele, i);
-        
-        /* 
+
+        /*
          *   add the new element - note that we don't need to keep undo
          *   because we created this new element in this same operation, and
          *   hence undoing the operation will truncate the vector to exclude
          *   the element, and hence we don't need an old value for the
-         *   element 
+         *   element
          */
         set_element(cnt + i - 1, &ele);
     }
@@ -2820,7 +2820,7 @@ int CVmObjVector::getp_append_all(VMG_ vm_obj_id_t self, vm_val_t *retval,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   property evaluator - splice
  */
 int CVmObjVector::getp_splice(VMG_ vm_obj_id_t self, vm_val_t *retval,
@@ -2862,9 +2862,9 @@ int CVmObjVector::getp_splice(VMG_ vm_obj_id_t self, vm_val_t *retval,
     retval->set_obj(self);
     G_stk->push(retval);
 
-    /* 
+    /*
      *   If we're doing a net deletion, contract the vector.  If we're doing
-     *   a net expansion, expand it. 
+     *   a net expansion, expand it.
      */
     if (del_cnt > ins_cnt)
     {
@@ -2882,12 +2882,12 @@ int CVmObjVector::getp_splice(VMG_ vm_obj_id_t self, vm_val_t *retval,
     /* set the new elements */
     for (int i = 0 ; i < ins_cnt ; ++i, --ins)
     {
-        /* 
+        /*
          *   If this element is within the old vector's size range, save
          *   undo, since we're overwriting a pre-existing element.  If it's
          *   beyond the end of the old vector, there's no need to keep undo
          *   since the overall undo operation will simply shrink the vector
-         *   to eliminate the slot. 
+         *   to eliminate the slot.
          */
         if (i < old_cnt)
             set_element_undo(vmg_ self, start_idx + i, ins);
@@ -2906,7 +2906,7 @@ int CVmObjVector::getp_splice(VMG_ vm_obj_id_t self, vm_val_t *retval,
 /*
  *   Insert room for new elements.  Inserts the given number of elements at
  *   the given starting index.  Leaves the old elements in the added slots
- *   unchanged; the caller is responsible for setting the element values.  
+ *   unchanged; the caller is responsible for setting the element values.
  */
 void CVmObjVector::insert_elements_undo(VMG_ vm_obj_id_t self,
                                         int ins_idx, int add_cnt)
@@ -2918,15 +2918,15 @@ void CVmObjVector::insert_elements_undo(VMG_ vm_obj_id_t self,
     /* create the new elements */
     set_element_count_undo(vmg_ self, new_cnt);
 
-    /* 
+    /*
      *   Move the existing elements to their new slots.  Start with the
      *   starting index, and move it to its new position, since the starting
      *   index is the first element that needs to be moved.  Note that we
      *   start at the top and work down, to avoid overwriting any overlapping
      *   part of the new position block and the old position block.
-     *   
+     *
      *   If we're inserting after the last element, there's no moving that
-     *   needs to be done.  
+     *   needs to be done.
      */
     if (ins_idx < old_cnt)
     {
@@ -2939,10 +2939,10 @@ void CVmObjVector::insert_elements_undo(VMG_ vm_obj_id_t self,
             /* calculate the new slot */
             int new_idx = idx + add_cnt;
 
-            /* 
+            /*
              *   if the new index is within the old size range, keep undo for
              *   the change; otherwise, no undo is necessary, since when we
-             *   undo we'll be completely dropping this new slot 
+             *   undo we'll be completely dropping this new slot
              */
             if (new_idx < old_cnt)
                 set_element_undo(vmg_ self, new_idx, &ele);
@@ -2954,7 +2954,7 @@ void CVmObjVector::insert_elements_undo(VMG_ vm_obj_id_t self,
 
 
 /*
- *   Delete a range of elements 
+ *   Delete a range of elements
  */
 void CVmObjVector::remove_elements_undo(VMG_ vm_obj_id_t self,
                                         size_t start_idx, size_t del_cnt)
@@ -2965,17 +2965,17 @@ void CVmObjVector::remove_elements_undo(VMG_ vm_obj_id_t self,
     /* move all of the elements to their new slots, keeping undo */
     for (size_t idx = start_idx ; idx < cnt ; ++idx)
     {
-        /* 
+        /*
          *   calculate the index of the element to replace this one - it's
-         *   past us by the number of items being deleted 
+         *   past us by the number of items being deleted
          */
         size_t move_idx = idx + del_cnt;
 
-        /* 
+        /*
          *   if we're moving from a valid index in the old vector, get the
          *   element; otherwise, replace the value with nil (but still
          *   replace the value, since we want to keep undo for its original
-         *   value) 
+         *   value)
          */
         vm_val_t val;
         if (move_idx < cnt)
@@ -2998,7 +2998,7 @@ void CVmObjVector::remove_elements_undo(VMG_ vm_obj_id_t self,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Property evaluator - join into a string 
+ *   Property evaluator - join into a string
  */
 int CVmObjVector::getp_join(VMG_ vm_obj_id_t self, vm_val_t *retval,
                             uint *argc)
@@ -3010,7 +3010,7 @@ int CVmObjVector::getp_join(VMG_ vm_obj_id_t self, vm_val_t *retval,
 }
 
 /*
- *   C++ interface to join() 
+ *   C++ interface to join()
  */
 void CVmObjVector::join(VMG_ vm_val_t *retval, vm_obj_id_t self,
                         const char *sep, size_t sep_len) const
@@ -3022,7 +3022,7 @@ void CVmObjVector::join(VMG_ vm_val_t *retval, vm_obj_id_t self,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Explicitly convert to a string 
+ *   Explicitly convert to a string
  */
 const char *CVmObjVector::explicit_to_string(
     VMG_ vm_obj_id_t self, vm_val_t *new_str, int radix, int flags) const
@@ -3063,10 +3063,10 @@ int CVmObjVector::static_getp_generate(VMG_ vm_val_t *retval, uint *in_argc)
     /* create the vector */
     retval->set_obj(CVmObjVector::create(vmg_ FALSE, cnt));
     CVmObjVector *vec = (CVmObjVector *)vm_objp(vmg_ retval->val.obj);
-    
+
     /* push the new vector for gc protection */
     G_stk->push(retval);
-    
+
     /* find out how many arguments the function wants */
     int fargc = funcdesc.is_varargs() ? -1 : funcdesc.get_max_argc();
 
@@ -3081,16 +3081,16 @@ int CVmObjVector::static_getp_generate(VMG_ vm_val_t *retval, uint *in_argc)
         /* push the callback arguments */
         const int pushed_argc = 1;
         G_stk->push()->set_int(i+1);
-        
+
         /* adjust the arguments for what the callback actually wants */
         int sent_argc = fargc < 0 || fargc > pushed_argc ? pushed_argc : fargc;
-        
+
         /* call the callback */
         G_interpreter->call_func_ptr(vmg_ func, sent_argc, &rc, 0);
-        
+
         /* discard excess arguments */
         G_stk->discard(pushed_argc - sent_argc);
-        
+
         /* add the result to the list */
         vec->set_element(i, G_interpreter->get_r0());
         vec->set_element_count(i+1);
@@ -3105,7 +3105,7 @@ int CVmObjVector::static_getp_generate(VMG_ vm_val_t *retval, uint *in_argc)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Property evaluator: get the index of the element with the minimum value 
+ *   Property evaluator: get the index of the element with the minimum value
  */
 int CVmObjVector::getp_indexOfMin(VMG_ vm_obj_id_t self,
                                   vm_val_t *retval, uint *argc)
@@ -3117,7 +3117,7 @@ int CVmObjVector::getp_indexOfMin(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   Property evaluator: get the value of the element with the minimum value 
+ *   Property evaluator: get the value of the element with the minimum value
  */
 int CVmObjVector::getp_minVal(VMG_ vm_obj_id_t self,
                               vm_val_t *retval, uint *argc)
@@ -3129,7 +3129,7 @@ int CVmObjVector::getp_minVal(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   Property evaluator: get the index of the element with the maximum value 
+ *   Property evaluator: get the index of the element with the maximum value
  */
 int CVmObjVector::getp_indexOfMax(VMG_ vm_obj_id_t self,
                                   vm_val_t *retval, uint *argc)
@@ -3141,7 +3141,7 @@ int CVmObjVector::getp_indexOfMax(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   Property evaluator: get the value of the element with the maximum value 
+ *   Property evaluator: get the value of the element with the maximum value
  */
 int CVmObjVector::getp_maxVal(VMG_ vm_obj_id_t self,
                               vm_val_t *retval, uint *argc)
@@ -3156,11 +3156,11 @@ int CVmObjVector::getp_maxVal(VMG_ vm_obj_id_t self,
  *   General handling for minIndex, minVal, maxIndex, and maxVal.  This finds
  *   the highest/lowest value in the list, optionally mapped through a
  *   callback function.  Returns the winning element's index and value.
- *   
+ *
  *   'sense' is the sense of the search: -1 for minimum, 1 for maximum.
  *   'want_index' is true if 'retval' should be set to the index of the
  *   winning element, false if 'retval' should be set to the winning
- *   element's value.  
+ *   element's value.
  */
 int CVmObjVector::get_minmax(VMG_ vm_obj_id_t self, vm_val_t *retval,
                              uint *in_argc, const vm_rcdesc *rc,
@@ -3240,7 +3240,7 @@ int CVmObjVector::get_minmax(VMG_ vm_obj_id_t self, vm_val_t *retval,
         retval->set_int(winner_idx + 1);
     else
         *retval = winner;
-        
+
     /* handled */
     return TRUE;
 }

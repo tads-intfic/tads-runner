@@ -66,7 +66,7 @@ extern "C" int glkunix_startup_code(glkunix_startup_t *data)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Invoke the tads 2 main entrypoint with the given command-line arguments 
+ *   Invoke the tads 2 main entrypoint with the given command-line arguments
  */
 static int main_t2(int argc, char **argv)
 {
@@ -117,11 +117,11 @@ static int main_t3(int argc, char **argv)
     garglk_set_story_name(s ? s + 1 : argv[1]);
 #endif
 
-    /* 
+    /*
      *   Initialize the OS layer.  Since this is a command-line-only
      *   implementation, there's no need to ask the OS layer to try to get
      *   us a filename to run, so pass in null for the prompt and filename
-     *   buffer.  
+     *   buffer.
      */
     os_init(&argc, argv, 0, 0, 0);
 
@@ -147,7 +147,7 @@ static int main_t3(int argc, char **argv)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Main entrypoint 
+ *   Main entrypoint
  */
 
 void glk_main(void)
@@ -176,15 +176,15 @@ void glk_main(void)
     );
 #endif
 
-    /* 
+    /*
      *   if one of our special usage message arguments was given, show the
-     *   usage 
+     *   usage
      */
     if (argc == 2 && stricmp(argv[1], "-help2") == 0)
     {
         /* invoke the tads 2 main entrypoint with no arguments */
         main_t2(1, argv);
-        
+
         /* that's all we need to do with this option */
         os_term(OSEXSUCC);
     }
@@ -192,7 +192,7 @@ void glk_main(void)
     {
         /* invoke the tads 3 main entrypoint with no arguments */
         main_t3(1, argv);
-        
+
         /* that's all we need to do with this option */
         os_term(OSEXSUCC);
     }
@@ -200,9 +200,9 @@ void glk_main(void)
     /* look at the arguments and try to find the program name */
     if (!vm_get_game_arg(argc, argv, prog_arg, sizeof(prog_arg), &engine_ver))
     {
-        /* 
+        /*
          *   there's no game file name specified or implied - show the
-         *   generic combined v2/v3 usage message 
+         *   generic combined v2/v3 usage message
          */
         mainwin = glk_window_open(0, 0, 0, wintype_TextBuffer, 0);
         glk_set_window(mainwin);

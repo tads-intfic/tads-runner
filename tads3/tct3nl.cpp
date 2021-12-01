@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -20,7 +20,7 @@ Function
   methods.
 
 Notes
-  
+
 Modified
   11/22/99 MJRoberts  - Creation
 */
@@ -36,11 +36,11 @@ Modified
  *   table in the debug records in the image file.  When we don't include
  *   linking functionality in a program, these entrypoints will never be
  *   called (but they're needed to link anything that references a
- *   CTcSymbol subclass, since they're virtual functions in those classes) 
+ *   CTcSymbol subclass, since they're virtual functions in those classes)
  */
 
-/* 
- *   write the symbol to an image file's global symbol table 
+/*
+ *   write the symbol to an image file's global symbol table
  */
 int CTcSymFunc::write_to_image_file_global(class CVmImageWriter *)
 {
@@ -48,8 +48,8 @@ int CTcSymFunc::write_to_image_file_global(class CVmImageWriter *)
     return FALSE;
 }
 
-/* 
- *   write the symbol to an image file's global symbol table 
+/*
+ *   write the symbol to an image file's global symbol table
  */
 int CTcSymObj::write_to_image_file_global(class CVmImageWriter *)
 {
@@ -58,15 +58,15 @@ int CTcSymObj::write_to_image_file_global(class CVmImageWriter *)
 }
 
 /*
- *   build the dictionary 
+ *   build the dictionary
  */
 void CTcSymObj::build_dictionary()
 {
     assert(FALSE);
 }
 
-/* 
- *   write the symbol to an image file's global symbol table 
+/*
+ *   write the symbol to an image file's global symbol table
  */
 int CTcSymProp::write_to_image_file_global(class CVmImageWriter *)
 {
@@ -74,8 +74,8 @@ int CTcSymProp::write_to_image_file_global(class CVmImageWriter *)
     return FALSE;
 }
 
-/* 
- *   write the symbol to an image file's global symbol table 
+/*
+ *   write the symbol to an image file's global symbol table
  */
 int CTcSymEnum::write_to_image_file_global(class CVmImageWriter *)
 {
@@ -83,8 +83,8 @@ int CTcSymEnum::write_to_image_file_global(class CVmImageWriter *)
     return FALSE;
 }
 
-/* 
- *   write the symbol to an image file's global symbol table 
+/*
+ *   write the symbol to an image file's global symbol table
  */
 int CTcSymMetaclass::write_to_image_file_global(class CVmImageWriter *)
 {
@@ -92,8 +92,8 @@ int CTcSymMetaclass::write_to_image_file_global(class CVmImageWriter *)
     return FALSE;
 }
 
-/* 
- *   write the symbol to an image file's global symbol table 
+/*
+ *   write the symbol to an image file's global symbol table
  */
 int CTcSymBif::write_to_image_file_global(class CVmImageWriter *)
 {
@@ -101,8 +101,8 @@ int CTcSymBif::write_to_image_file_global(class CVmImageWriter *)
     return FALSE;
 }
 
-/* 
- *   write the symbol to an image file's global symbol table 
+/*
+ *   write the symbol to an image file's global symbol table
  */
 int CTcSymExtfn::write_to_image_file_global(class CVmImageWriter *)
 {

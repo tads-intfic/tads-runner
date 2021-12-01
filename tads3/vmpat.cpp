@@ -1,16 +1,16 @@
-/* 
+/*
  *   Copyright (c) 2002 by Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmpat.cpp - regular-expression compiled pattern object
 Function
-  
+
 Notes
-  
+
 Modified
   08/27/02 MJRoberts  - Creation
 */
@@ -32,7 +32,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Statics 
+ *   Statics
  */
 static CVmMetaclassPattern metaclass_reg_obj;
 CVmMetaclass *CVmObjPattern::metaclass_reg_ = &metaclass_reg_obj;
@@ -48,7 +48,7 @@ int (CVmObjPattern::
 
 /* ------------------------------------------------------------------------ */
 /*
- *   create 
+ *   create
  */
 CVmObjPattern::CVmObjPattern(VMG_ re_compiled_pattern *pat,
                              const vm_val_t *src_str)
@@ -66,19 +66,19 @@ CVmObjPattern::CVmObjPattern(VMG_ re_compiled_pattern *pat,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   notify of deletion 
+ *   notify of deletion
  */
 void CVmObjPattern::notify_delete(VMG_ int in_root_set)
 {
     /* free my extension data */
     if (ext_ != 0)
     {
-        /* 
+        /*
          *   Free my pattern, if I've compiled it.  (Note that we must not
          *   call get_pattern() here, because doing so would unnecessarily
          *   create a pattern if we haven't already done so - that would be
          *   stupid, because the only reason we're asking for it is so that
-         *   we can delete it.)  
+         *   we can delete it.)
          */
         if (get_ext()->pat != 0)
             CRegexParser::free_pattern(get_ext()->pat);
@@ -91,7 +91,7 @@ void CVmObjPattern::notify_delete(VMG_ int in_root_set)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Create from the stack 
+ *   Create from the stack
  */
 vm_obj_id_t CVmObjPattern::create_from_stack(VMG_ const uchar **pc_ptr,
                                              uint argc)
@@ -130,8 +130,8 @@ vm_obj_id_t CVmObjPattern::create_from_stack(VMG_ const uchar **pc_ptr,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   set a property 
+/*
+ *   set a property
  */
 void CVmObjPattern::set_prop(VMG_ class CVmUndo *,
                              vm_obj_id_t, vm_prop_id_t,
@@ -143,14 +143,14 @@ void CVmObjPattern::set_prop(VMG_ class CVmUndo *,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Get a property 
+ *   Get a property
  */
 int CVmObjPattern::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *val,
                             vm_obj_id_t self, vm_obj_id_t *source_obj,
                             uint *argc)
 {
     uint func_idx;
-    
+
     /* translate the property into a function vector index */
     func_idx = G_meta_table
                ->prop_to_vector_idx(metaclass_reg_->get_reg_idx(), prop);
@@ -169,12 +169,12 @@ int CVmObjPattern::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *val,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Mark references 
+ *   Mark references
  */
 void CVmObjPattern::mark_refs(VMG_ uint state)
 {
     const vm_val_t *valp;
-    
+
     /* if our source value is an object reference, mark it */
     if (get_ext() != 0
         && (valp = get_orig_str())->typ == VM_OBJ
@@ -187,7 +187,7 @@ void CVmObjPattern::mark_refs(VMG_ uint state)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Load from an image file 
+ *   Load from an image file
  */
 void CVmObjPattern::load_from_image(VMG_ vm_obj_id_t self, const char *ptr,
                                     size_t len)
@@ -200,13 +200,13 @@ void CVmObjPattern::load_from_image(VMG_ vm_obj_id_t self, const char *ptr,
     /* get our source value */
     vmb_get_dh(ptr, &get_ext()->str);
 
-    /* 
+    /*
      *   We haven't compiled our pattern yet.  Note that it might not be
      *   possible to obtain the text of our string at this point, because it
      *   might be another object and thus might not have been loaded yet.
      *   So, note that we have no pattern yet, and request post-load
      *   initialization, so that we can compile our pattern after we know all
-     *   of the other objects have been loaded.  
+     *   of the other objects have been loaded.
      */
     set_pattern(0);
     G_obj_table->request_post_load_init(self);
@@ -217,7 +217,7 @@ void CVmObjPattern::load_from_image(VMG_ vm_obj_id_t self, const char *ptr,
  *   Perform post-load initialization: we compile our pattern here.  Note
  *   that we need to wait until now to compile our pattern, since our source
  *   string could be another object, which isn't guaranteed to have been
- *   loaded until we get here.  
+ *   loaded until we get here.
  */
 void CVmObjPattern::post_load_init(VMG_ vm_obj_id_t self)
 {
@@ -241,8 +241,8 @@ void CVmObjPattern::post_load_init(VMG_ vm_obj_id_t self)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   save to a file 
+/*
+ *   save to a file
  */
 void CVmObjPattern::save_to_file(VMG_ class CVmFile *fp)
 {
@@ -253,8 +253,8 @@ void CVmObjPattern::save_to_file(VMG_ class CVmFile *fp)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   restore from a file 
+/*
+ *   restore from a file
  */
 void CVmObjPattern::restore_from_file(VMG_ vm_obj_id_t self,
                                       class CVmFile *fp, CVmObjFixup *fixups)
@@ -274,19 +274,19 @@ void CVmObjPattern::restore_from_file(VMG_ vm_obj_id_t self,
     /* remember it in our extension */
     vmb_get_dh(buf, &get_ext()->str);
 
-    /* 
+    /*
      *   clear out our pattern and request post-load initialization - we
      *   can't necessarily compile it yet, because we might not have loaded
      *   the source string data, so just make a note that we need to compile
-     *   it the next time we need it 
+     *   it the next time we need it
      */
     set_pattern(0);
     G_obj_table->request_post_load_init(self);
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   property evaluator - get my original string 
+/*
+ *   property evaluator - get my original string
  */
 int CVmObjPattern::getp_get_str(VMG_ vm_obj_id_t self,
                                 vm_val_t *retval, uint *argc)

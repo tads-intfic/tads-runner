@@ -1,18 +1,18 @@
 /* $Header: d:/cvsroot/tads/tads3/VMFILE.H,v 1.2 1999/05/17 02:52:28 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmfile.h - VM external file interface
 Function
-  
+
 Notes
-  
+
 Modified
   10/28/98 MJRoberts  - Creation
 */
@@ -28,7 +28,7 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   VM external file interface.  The VM uses this interface for
- *   manipulating files that contain program images and saved state. 
+ *   manipulating files that contain program images and saved state.
  */
 
 class CVmFile
@@ -50,10 +50,10 @@ public:
         seek_base_ = seek_base;
     }
 
-    /* 
+    /*
      *   Duplicate the file handle, a la stdio freopen().  'mode' is a
      *   simplified fopen()-style mode string, with the same syntax as used
-     *   in osfdup(). 
+     *   in osfdup().
      */
     CVmFile *dup(const char *mode)
     {
@@ -76,7 +76,7 @@ public:
      *   handling a byte stream embedded within a larger OS file (such as
      *   a resource within a file containing multiple resources).  If
      *   we're simply providing access to the entire underlying file, the
-     *   seek_base value should be zero.  
+     *   seek_base value should be zero.
      */
     void set_file(osfildef *fp, long seek_base)
     {
@@ -92,10 +92,10 @@ public:
      *   to keep the handle open after deleting us, the caller should use
      *   this function to detach us from the OS file handle before
      *   deleting us.
-     *   
+     *
      *   After calling this routine, no operations can be performed on the
      *   underlying file through this object, since we will have forgotten
-     *   the file handle.  
+     *   the file handle.
      */
     void detach_file()
     {
@@ -103,15 +103,15 @@ public:
         fp_ = 0;
     }
 
-    /* 
+    /*
      *   Open an existing file for reading.  Throws an error if the file
-     *   does not exist.  
+     *   does not exist.
      */
     void open_read(const char *fname, os_filetype_t typ);
 
-    /* 
+    /*
      *   Create a file for writing, replacing any existing file.  Throws
-     *   an error if the file cannot be created. 
+     *   an error if the file cannot be created.
      */
     void open_write(const char *fname, os_filetype_t typ);
 
@@ -131,7 +131,7 @@ public:
 
     /*
      *   Read various types from the file.  These routines throw an error
-     *   if the data cannot be read. 
+     *   if the data cannot be read.
      */
     uchar read_byte() { char b; read_bytes(&b, 1); return (uchar)b; }
     uint read_uint2() { char b[2]; read_bytes(b, 2); return osrp2(b); }
@@ -146,13 +146,13 @@ public:
             err_throw(VMERR_READ_FILE);
     }
 
-    /* 
+    /*
      *   Read bytes, with no error on partial read.  If the full request
      *   can't be satisfied (because of end of file, partial read on pipe or
      *   socket, etc), reads as many as are available and returns the count.
      *   If no bytes are available, returns zero.  This routine can still
      *   throw an error if some other error occurs besides end-of-file (file
-     *   not open, etc).  
+     *   not open, etc).
      */
     size_t read_nbytes(char *buf, size_t buflen)
     {
@@ -163,9 +163,9 @@ public:
     char *read_line(char *buf, size_t buflen)
         { return osfgets(buf, buflen, fp_); }
 
-    /* 
+    /*
      *   read a string with a one-byte length prefix, adding a null
-     *   terminator; returns the length 
+     *   terminator; returns the length
      */
     size_t read_str_byte_prefix(char *buf, size_t buflen)
     {
@@ -178,9 +178,9 @@ public:
         return len;
     }
 
-    /* 
+    /*
      *   read a string with a two-byte length prefix, adding a null
-     *   terminator; returns the length 
+     *   terminator; returns the length
      */
     size_t read_str_short_prefix(char *buf, size_t buflen)
     {
@@ -193,7 +193,7 @@ public:
         return len;
     }
 
-    /* 
+    /*
      *   Read a string with a two-byte length prefix, allocating the buffer
      *   with lib_alloc_str() (the caller frees it with lib_free_str()).
      *   We'll null-terminate the result, and optionally return the length in
@@ -214,7 +214,7 @@ public:
 
     /*
      *   Write various types to the file.  These routines throw an error
-     *   if the data cannot be written. 
+     *   if the data cannot be written.
      */
     void write_byte(char c) { char b[1]; b[0] = c; write_bytes(b, 1); }
     void write_int2(int v) { char b[2]; oswp2s(b, v); write_bytes(b, 2); }
@@ -224,7 +224,7 @@ public:
 
     /*
      *   Write a string with a single-byte length prefix.  Throws an error if
-     *   the string is too long. 
+     *   the string is too long.
      */
     void write_str_byte_prefix(const char *str, size_t len)
     {
@@ -280,13 +280,13 @@ protected:
     /* our underlying OS file handle */
     osfildef *fp_;
 
-    /* 
+    /*
      *   Base seek position - this is useful for virtual byte streams that
      *   are embedded in larger files (resource files, for example).
      *   set_pos() is always relative to this position.  Note that
      *   set_pos_from_eof() is *not* relative to this position, so
      *   embedded byte streams must not use set_pos_from_eof() unless the
-     *   embedded stream ends at the end of the enclosing file. 
+     *   embedded stream ends at the end of the enclosing file.
      */
     long seek_base_;
 };
@@ -297,7 +297,7 @@ protected:
  *   than CVmFile: this interface can be implemented on different kinds of
  *   underlying storage formats to provide generic stream access independent
  *   of the actual storage implementation.
- *   
+ *
  *   We provide default implementations of the type readers in terms of the
  *   low-level byte reader virtual method, which must be implemented by each
  *   concrete subclass.  However, all of the type readers are virtual, so
@@ -305,7 +305,7 @@ protected:
  *   efficiently on the underlying stream (for example, some implementations
  *   might have ready access to the data in a buffer already, in which case
  *   it might be faster to avoid the extra buffer copy of the default
- *   implementations of the type readers).  
+ *   implementations of the type readers).
  */
 class CVmStream
 {
@@ -319,9 +319,9 @@ public:
     virtual uchar read_byte() { char b; read_bytes(&b, 1); return (uchar)b; }
     virtual void write_byte(uchar b) { write_bytes((char *)&b, 1); }
 
-    /* 
+    /*
      *   read various integer types (signed 2-byte, unsigned 2-byte, signed
-     *   4-byte, unsigned 4-byte) 
+     *   4-byte, unsigned 4-byte)
      */
     virtual int read_int2() { char b[2]; read_bytes(b, 2); return osrp2s(b); }
     virtual uint read_uint2()
@@ -342,18 +342,18 @@ public:
     virtual void write_uint4(ulong l)
         { char b[4]; oswp4(b, l); write_bytes(b, 4); }
 
-    /* 
+    /*
      *   Read bytes - this must be provided by the implementation.  Throws an
-     *   error if the full number of bytes requested cannot be read. 
+     *   error if the full number of bytes requested cannot be read.
      */
     virtual void read_bytes(char *buf, size_t len) = 0;
 
-    /* 
+    /*
      *   Read bytes - reads up to the amount requested, but treats a partial
      *   read (due to end of file, partial read on a pipe or socket, etc) as
      *   a success.  Returns the actual number of bytes read, which may be
      *   less than the requested number, and can even be zero if the file is
-     *   already at EOF.  
+     *   already at EOF.
      */
     virtual size_t read_nbytes(char *buf, size_t len) = 0;
 
@@ -366,9 +366,9 @@ public:
     /* get the current seek offset */
     virtual long get_seek_pos() const = 0;
 
-    /* 
+    /*
      *   set the seek offset - this is only valid with offsets previously
-     *   obtained with get_seek_pos() 
+     *   obtained with get_seek_pos()
      */
     virtual void set_seek_pos(long pos) = 0;
 
@@ -377,7 +377,7 @@ public:
 };
 
 /*
- *   Implementation of the generic stream with an underlying CVmFile object 
+ *   Implementation of the generic stream with an underlying CVmFile object
  */
 class CVmFileStream: public CVmStream
 {
@@ -422,7 +422,7 @@ public:
     {
         /* remember the current seek position */
         long orig = fp_->get_pos();
-        
+
         /* seek to the end of the file */
         fp_->set_pos_from_eof(0);
 
@@ -442,7 +442,7 @@ private:
 };
 
 /*
- *   Reference-counted long int value (service class for CVmCountingStream) 
+ *   Reference-counted long int value (service class for CVmCountingStream)
  */
 class CVmRefCntLong: public CVmRefCntObj
 {
@@ -455,7 +455,7 @@ public:
 /*
  *   Counting stream; write-only.  This is a stream for measuring the size of
  *   data for writing.  We don't actually write anything; we just count the
- *   bytes written.  
+ *   bytes written.
  */
 class CVmCountingStream: public CVmStream
 {
@@ -465,7 +465,7 @@ public:
         pos_ = 0;
         len_ = new CVmRefCntLong();
     }
-    
+
     CVmCountingStream(CVmRefCntLong *l)
     {
         l->add_ref();
@@ -473,7 +473,7 @@ public:
     }
 
     ~CVmCountingStream() { len_->release_ref(); }
-    
+
     CVmStream *clone(VMG_ const char * /*mode*/)
         { return new CVmCountingStream(len_); }
 
@@ -515,7 +515,7 @@ protected:
  *   memory buffer.  This uses a fixed, pre-allocated buffer provided by the
  *   caller, so writing is limited to the space in the buffer.  (For a more
  *   flexible memory stream writer that allocates space as needed, use
- *   CVmExpandableMemoryStream.)  
+ *   CVmExpandableMemoryStream.)
  */
 class CVmMemoryStream: public CVmStream
 {
@@ -656,7 +656,7 @@ protected:
 };
 
 /*
- *   reference-counted buffer 
+ *   reference-counted buffer
  */
 class CVmRefCntBuf: public CVmRefCntObj
 {
@@ -710,7 +710,7 @@ protected:
 };
 
 /*
- *   Read-only memory stream 
+ *   Read-only memory stream
  */
 class CVmReadOnlyMemoryStream: public CVmMemoryStream
 {
@@ -732,7 +732,7 @@ struct CVmExpandableMemoryStreamBlock
         this->ofs = ofs;
         nxt = 0;
     }
-    
+
     /* block length */
     static const int BlockLen = 4096;
 
@@ -776,9 +776,9 @@ public:
     /* read bytes */
     void read_bytes(char *buf, size_t len)
     {
-        /* 
+        /*
          *   if the request would take us past the current content length,
-         *   it's an error 
+         *   it's an error
          */
         if (cur_block_->ofs + cur_block_ofs_ + (long)len > len_)
             err_throw(VMERR_READ_FILE);
@@ -913,10 +913,10 @@ public:
             }
         }
 
-        /* 
+        /*
          *   if the seek pointer is past the current content length, we've
          *   written past the old end of the file and thus expanded the file
-         *   - note the new length 
+         *   - note the new length
          */
         if (cur_block_->ofs + cur_block_ofs_ > len_)
             len_ = cur_block_->ofs + cur_block_ofs_;
@@ -925,9 +925,9 @@ public:
     /* get the current seek offset */
     long get_seek_pos() const
     {
-        /* 
+        /*
          *   figure the seek position as the current block's base offset plus
-         *   the current offset within that block 
+         *   the current offset within that block
          */
         return cur_block_->ofs + cur_block_ofs_;
     }
@@ -943,11 +943,11 @@ public:
         }
         else if (pos >= len_)
         {
-            /* 
+            /*
              *   At end of file.  This is a special case for setting the
              *   block pointer, because we could be positioned at the last
              *   byte of the last block, which we won't find in our scan.
-             *   Explicitly set the position here.  
+             *   Explicitly set the position here.
              */
             pos = len_;
             cur_block_ = last_block_;
@@ -1003,9 +1003,9 @@ protected:
         last_block_ = b;
     }
 
-    /* 
+    /*
      *   read one byte, incrementing the read pointer if desired; returns
-     *   true on success, false on EOF 
+     *   true on success, false on EOF
      */
     int mread_byte(char *c, int inc)
     {
@@ -1045,7 +1045,7 @@ protected:
 
 /*
  *   Expandable memory stream.  This automatically allocates additional
- *   buffer space as needed.  
+ *   buffer space as needed.
  */
 
 class CVmExpandableMemoryStream: public CVmStream
@@ -1060,7 +1060,7 @@ public:
         { return new CVmExpandableMemoryStream(bl); }
 
     ~CVmExpandableMemoryStream() { bl->release_ref(); }
-   
+
     /* read bytes */
     virtual void read_bytes(char *buf, size_t len)
         { bl->read_bytes(buf, len); }

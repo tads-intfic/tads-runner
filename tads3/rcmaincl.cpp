@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   rcmaincl.cpp - resource compiler - command line interface
 Function
-  
+
 Notes
-  
+
 Modified
   01/03/00 MJRoberts  - Creation
 */
@@ -29,7 +29,7 @@ Modified
 #include "rcmain.h"
 
 /*
- *   Host interface 
+ *   Host interface
  */
 class MyHostIfc: public CRcHostIfc
 {
@@ -42,7 +42,7 @@ public:
 };
 
 /*
- *   Main program entrypoint 
+ *   Main program entrypoint
  */
 int main(int argc, char **argv)
 {
@@ -74,7 +74,7 @@ int main(int argc, char **argv)
             else
                 goto bad_option;
             break;
-            
+
         default:
         bad_option:
             /* invalid option - skip all arguments so we go to usage */
@@ -148,14 +148,14 @@ int main(int argc, char **argv)
         {
             char *p;
             char *alias;
-            
+
             /* check for an alias */
             for (p = argv[curarg] ; *p != '\0' && *p != '=' ; ++p) ;
             if (*p == '=')
             {
-                /* 
+                /*
                  *   overwrite the '=' with a null byte so that the
-                 *   filename ends here 
+                 *   filename ends here
                  */
                 *p = '\0';
 
@@ -167,15 +167,15 @@ int main(int argc, char **argv)
                 /* there's no alias */
                 alias = 0;
             }
-            
+
             /* it's a file - add the file to the operations list */
             res_list->add_file(argv[curarg], alias, recurse);
         }
     }
 
-    /* 
+    /*
      *   if we're not creating, and the image doesn't exist, try adding
-     *   the default image file extension 
+     *   the default image file extension
      */
     if (!create && osfacc(image_fname))
     {
@@ -195,7 +195,7 @@ done:
     /* delete the resource list if we created one */
     if (res_list != 0)
         delete res_list;
-    
+
     /* show any unfreed memory (if we're in a debug build) */
     t3_list_memory_blocks(0);
 

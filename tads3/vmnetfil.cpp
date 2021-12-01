@@ -11,7 +11,7 @@ Function
   This module contains the network storage server implementation of
   CVmNetFile.
 Notes
-  
+
 Modified
   09/08/10 MJRoberts  - Creation
 */
@@ -42,10 +42,10 @@ Modified
 /*
  *   Ticket generator.  Generates the storage server "ticket" for a given
  *   filename.  The buffer must be at least 65 characters long.
- *   
+ *
  *   The ticket authenticates the game server to the storage server by
  *   proving that the game server has a valid API key, which is the
- *   equivalent of a password.  
+ *   equivalent of a password.
  */
 class ServerTicket
 {
@@ -54,13 +54,13 @@ public:
     {
         /*
          *   The ticket formula is as follows:
-         *   
+         *
          *.    hash1 = SHA256(fname : gameServerID)
          *.    ticket = SHA256(hash1 : apiKey)
-         *   
+         *
          *   The filename must be the fully qualified filename with session
          *   ID prefix, of the form ~SID/path.
-         *   
+         *
          *   The ticket's purpose is to authenticate the game server by
          *   proving that we know the API key, but without revealing the key.
          *   A secure hash accomplishes this by generating a hash value that
@@ -83,7 +83,7 @@ public:
          *   secure against collision attacks (i.e., it's impossible to find
          *   SHA256 input that produces a chosen output).  The attacker will
          *   still *know* the plaintext that's hashed with the API key, but
-         *   can't *choose* the plaintext.  
+         *   can't *choose* the plaintext.
          */
         char hash1[65];
         sha256_ezf(hash1, "%s:%s",
@@ -101,7 +101,7 @@ private:
 };
 
 /*
- *   Are we in network storage server mode? 
+ *   Are we in network storage server mode?
  */
 int CVmNetFile::is_net_mode(VMG0_)
 {
@@ -141,7 +141,7 @@ const char *CVmNetFile::build_server_filename(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Open a network file 
+ *   Open a network file
  */
 CVmNetFile *CVmNetFile::open(VMG_ const char *fname, int sfid,
                              int mode, os_filetype_t typ,
@@ -150,11 +150,11 @@ CVmNetFile *CVmNetFile::open(VMG_ const char *fname, int sfid,
     /* check to see if we're in network mode */
     if (is_net_mode(vmg0_))
     {
-        /* 
+        /*
          *   We're in network mode, so the file is on the remote storage
          *   server.  All operations on the open file will actually be
          *   performed on a local temporary copy.  Generate a name for the
-         *   temp file.  
+         *   temp file.
          */
         char tmp[OSFNMAX];
         if (!os_gen_temp_filename(tmp, sizeof(tmp)))
@@ -171,11 +171,11 @@ CVmNetFile *CVmNetFile::open(VMG_ const char *fname, int sfid,
          *   the server and save it into the temp file we just selected.  The
          *   truncate flag means that we're replacing any existing contents,
          *   so there's no need to download the old file.
-         *   
+         *
          *   If NEITHER read nor write modes are set, we don't have to fetch
          *   the file: we're not going to access the contents, and we're not
-         *   going to re-upload the contents on close.  
-         *   
+         *   going to re-upload the contents on close.
+         *
          *   It might seem strange at first glance that we have to fetch a
          *   file in write-only mode.  But we do: we need the old contents in
          *   this case, even though we're not going to look at them locally,
@@ -184,19 +184,19 @@ CVmNetFile *CVmNetFile::open(VMG_ const char *fname, int sfid,
          *   intact.  To do this we have to download the old copy, so that
          *   the updated copy we upload on close retains the rest of the
          *   contents that we didn't modify.
-         *   
+         *
          *   If we do decide to download the file, and the file doesn't
          *   exist, this is an error unless the CREATE flag is set.  The
          *   CREATE flag means that we're meant to create a new file if
          *   there's no existing file, so it's explicitly not an error if the
-         *   file doesn't exist.  
+         *   file doesn't exist.
          */
         if ((mode & (NETF_READ | NETF_WRITE)) != 0
             && (mode & NETF_TRUNC) == 0)
         {
-            /* 
+            /*
              *   Not in TRUNCATE mode, so we need to download the file.  Open
-             *   the temp file for writing.  
+             *   the temp file for writing.
              */
             osfildef *fp = osfoprwtb(tmp, typ);
             if (fp == 0)
@@ -204,22 +204,22 @@ CVmNetFile *CVmNetFile::open(VMG_ const char *fname, int sfid,
 
             /* get the storage server "ticket" for the file */
             ServerTicket ticket(vmg_ fname, sfid);
-            
+
             /* build the request URL */
             char *url = t3sprintf_alloc(
                 "%sgetfile?file=%P&ticket=%P",
                 G_net_config->get("storage.rootpath", "/"),
                 fname, ticket.get());
-            
+
             /* set up a file stream writer on the temp file */
             CVmFileSource reply(fp);
-            
+
             /* download the file from the server into the temp file */
             char *headers = 0;
             int hstat = OS_HttpClient::request(
                 0, G_net_config->get("storage.domain"), 80,
                 "GET", url, 0, 0, 0, &reply, &headers, 0, 0);
-            
+
             /* done with the URL */
             t3free(url);
 
@@ -235,7 +235,7 @@ CVmNetFile *CVmNetFile::open(VMG_ const char *fname, int sfid,
              *   in the request, this counts as success - the caller wishes
              *   to create the file if it doesn't already exist, so it's not
              *   an error if it doesn't exist.  In this case simply replace
-             *   the status code with "OK".  
+             *   the status code with "OK".
              */
             if (memcmp(stat, "FileNotFound ", 13) == 0)
                 strcpy(stat, "OK ");
@@ -248,19 +248,19 @@ CVmNetFile *CVmNetFile::open(VMG_ const char *fname, int sfid,
             vmnet_check_storagesrv_stat(vmg_ stat);
         }
 
-        /* 
+        /*
          *   Success.  Return a file info structure with the temporary file
          *   as the local file name, and the caller's filename as the server
-         *   filename.  
+         *   filename.
          */
         return new CVmNetFile(tmp, sfid, fname, mode, typ, mime_type);
     }
     else
     {
-        /* 
+        /*
          *   Local mode - the given file is our local file.  Don't bother
          *   storing the MIME type for these, since we don't use this with
-         *   the local file system APIs. 
+         *   the local file system APIs.
          */
         return new CVmNetFile(fname, sfid, 0, mode, typ, 0);
     }
@@ -268,7 +268,7 @@ CVmNetFile *CVmNetFile::open(VMG_ const char *fname, int sfid,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Close a network file 
+ *   Close a network file
  */
 void CVmNetFile::close(VMG0_)
 {
@@ -276,7 +276,7 @@ void CVmNetFile::close(VMG0_)
     if (srvfname == 0 || !is_net_mode(vmg0_))
     {
         int err = 0;
-        
+
         /* if we opened the file in "create" mode, set the OS file type */
         if ((mode & NETF_CREATE) != 0)
             os_settype(lclfname, typ);
@@ -311,22 +311,22 @@ void CVmNetFile::close(VMG0_)
         return;
     }
 
-    /* 
+    /*
      *   presume we won't perform a network operation, so there'll be no
-     *   server status code generated 
+     *   server status code generated
      */
     char *stat = 0;
 
     /*
      *   We have a network file.
-     *   
+     *
      *   If we opened the file in DELETE mode, delete the server file.  Note
      *   that we check this before checking WRITE mode, since there's no
      *   point in sending the updated contents to the server if we're just
      *   going to turn around and delete the file anyway.
-     *   
+     *
      *   Otherwise, if we opened the file with WRITE access, send the updated
-     *   version of the temp file back to the server.  
+     *   version of the temp file back to the server.
      */
     if ((mode & NETF_DELETE) != 0)
     {
@@ -358,15 +358,15 @@ void CVmNetFile::close(VMG0_)
     }
     else if ((mode & NETF_WRITE) != 0)
     {
-        /* 
+        /*
          *   open the local temp file for reading - if we can't, throw a
          *   "close file" error, since this is equivalent to an error
-         *   flushing the write buffer to disk on closing a regular file 
+         *   flushing the write buffer to disk on closing a regular file
          */
         osfildef *fp = osfoprb(lclfname, typ);
         if (fp == 0)
             err_throw(VMERR_CLOSE_FILE);
-        
+
         /* set up a stream reader on the temp file */
         CVmFileSource *st = new CVmFileSource(fp);
 
@@ -423,7 +423,7 @@ static int server_file_check(VMG_ const char *srvfname, const char *mode)
 {
     /* get the server ticket */
     ServerTicket ticket(vmg_ srvfname, 0);
-    
+
     /* build the request URL to test file existence */
     char *url = t3sprintf_alloc(
         "%stestfile?file=%P&ticket=%P&mode=%s",
@@ -435,10 +435,10 @@ static int server_file_check(VMG_ const char *srvfname, const char *mode)
     int hstat = OS_HttpClient::request(
         0, G_net_config->get("storage.domain"), 80,
         "GET", url, 0, 0, 0, &rstr, 0, 0, 0);
-    
+
     /* done with the URL */
     t3free(url);
-    
+
     /* check the result */
     char reply[128];
     return (hstat == 200
@@ -448,16 +448,16 @@ static int server_file_check(VMG_ const char *srvfname, const char *mode)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Check to see if a file exists 
+ *   Check to see if a file exists
  */
 int CVmNetFile::exists(VMG_ const char *fname, int sfid)
 {
     /* create a no-op descriptor for the file */
     CVmNetFile *nf = open(vmg_ fname, sfid, 0, OSFTUNK, 0);
 
-    /* 
+    /*
      *   if it's a network file, check with the server; otherwise check the
-     *   local file system 
+     *   local file system
      */
     int ret = (nf->is_net_file()
                ? server_file_check(vmg_ nf->srvfname, "R")
@@ -472,16 +472,16 @@ int CVmNetFile::exists(VMG_ const char *fname, int sfid)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Check to see if a file is writable 
+ *   Check to see if a file is writable
  */
 int CVmNetFile::can_write(VMG_ const char *fname, int sfid)
 {
     /* create a no-op descriptor for the file */
     CVmNetFile *nf = open(vmg_ fname, sfid, 0, OSFTUNK, 0);
 
-    /* 
+    /*
      *   if it's a network file, check with the server; otherwise check the
-     *   local file system 
+     *   local file system
      */
     int ret = (nf->is_net_file()
                ? server_file_check(vmg_ nf->srvfname, "W")
@@ -501,16 +501,16 @@ int CVmNetFile::can_write(VMG_ const char *fname, int sfid)
 int CVmNetFile::get_file_mode(
     VMG_ unsigned long *mode, unsigned long *attrs, int follow_links)
 {
-    /* 
+    /*
      *   if it's a network file, check with the server to see if the file
-     *   exists; otherwise check the local file system 
+     *   exists; otherwise check the local file system
      */
     int ret;
     if (is_net_file())
     {
-        /* 
+        /*
          *   network file - if the file exists, it's simply a regular file,
-         *   since that's all we support 
+         *   since that's all we support
          */
         ret = server_file_check(vmg_ srvfname, "R");
         *mode = (ret ? OSFMODE_FILE : 0);
@@ -520,14 +520,14 @@ int CVmNetFile::get_file_mode(
         /* local file - get the local file mode */
         ret = osfmode(lclfname, follow_links, mode, attrs);
     }
-    
+
     /* return the result */
     return ret;
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Get file status 
+ *   Get file status
  */
 int CVmNetFile::get_file_stat(VMG_ os_file_stat_t *stat, int follow_links)
 {
@@ -552,9 +552,9 @@ int CVmNetFile::resolve_symlink(VMG_ char *target, size_t target_size)
 {
     if (is_net_file())
     {
-        /* 
+        /*
          *   the storage server doesn't support symbolic links, so there's
-         *   never anything to resolve 
+         *   never anything to resolve
          */
         if (target_size != 0)
             target[0] = '\0';
@@ -588,7 +588,7 @@ void CVmNetFile::rename_to(VMG_ CVmNetFile *newname)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Create a directory 
+ *   Create a directory
  */
 void CVmNetFile::mkdir(VMG_ int create_parents)
 {
@@ -606,7 +606,7 @@ void CVmNetFile::mkdir(VMG_ int create_parents)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Remove a directory 
+ *   Remove a directory
  */
 void CVmNetFile::rmdir(VMG_ int remove_contents)
 {
@@ -624,7 +624,7 @@ void CVmNetFile::rmdir(VMG_ int remove_contents)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Read a directory 
+ *   Read a directory
  */
 int CVmNetFile::readdir(VMG_ const char *nominal_path, vm_val_t *retval)
 {

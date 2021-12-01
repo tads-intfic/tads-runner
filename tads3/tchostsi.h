@@ -1,18 +1,18 @@
 /* $Header: d:/cvsroot/tads/tads3/TCHOSTSI.H,v 1.2 1999/05/17 02:52:27 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   tchostsi.h - stdio implementation of host interface
 Function
-  
+
 Notes
-  
+
 Modified
   04/22/99 MJRoberts  - Creation
 */
@@ -27,7 +27,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   stdio host interface 
+ *   stdio host interface
  */
 class CTcHostIfcStdio: public CTcHostIfc
 {
@@ -70,10 +70,10 @@ public:
     void set_show_progress(int flag) { show_progress_ = flag; }
 
 protected:
-    /* 
+    /*
      *   internal display routine - formats the message, converts it to
      *   the console character set and displays the result on the standard
-     *   output 
+     *   output
      */
     void v_printf(const char *msg, va_list args);
 

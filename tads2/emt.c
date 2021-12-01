@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/EMT.C,v 1.2 1999/05/17 02:52:11 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -31,7 +31,7 @@ Modified
 void emtval(emtcxdef *ctx, tokdef *tok, uchar *base)
 {
     ushort oplen;
-        
+
     switch(tok->toktyp)
     {
     case TOKTSYMBOL:
@@ -40,11 +40,11 @@ void emtval(emtcxdef *ctx, tokdef *tok, uchar *base)
         case TOKSTARGC:
             emtop(ctx, OPCARGC);
             return;
-            
+
         case TOKSTSELF:
             emtop(ctx, OPCPUSHSELF);
             return;
-            
+
         case TOKSTOBJ:
         case TOKSTFWDOBJ:
             emtop(ctx, OPCPUSHOBJ);
@@ -59,7 +59,7 @@ void emtval(emtcxdef *ctx, tokdef *tok, uchar *base)
             else
                 emtop(ctx, OPCGETLCL);
             break;
-            
+
         case TOKSTBIFN:
             emtop(ctx, OPCBUILTIN);
             emtbyte(ctx, 0);
@@ -93,7 +93,7 @@ void emtval(emtcxdef *ctx, tokdef *tok, uchar *base)
     case TOKTTRUE:
         emtop(ctx, OPCPUSHTRUE);
         return;
-        
+
     case TOKTPOUND:
         emtop(ctx, OPCPUSHPN);
         emtint2(ctx, tok->tokofs);
@@ -123,7 +123,7 @@ void emtlst(emtcxdef *ctx, uint ofs, uchar *base)
     ushort    i;
     emtlidef *lst;
     emtledef *ele;
-        
+
     initofs = ctx->emtcxofs;                        /* save starting offset */
     emtint2(ctx, 2);                             /* emit placeholder length */
     if (ofs == 0) return;              /* nothing more to do for empty list */
@@ -133,7 +133,7 @@ void emtlst(emtcxdef *ctx, uint ofs, uchar *base)
     for (i = lst->emtlicnt, ele = &lst->emtliele[i-1] ; i ; --ele, --i)
     {
         uchar dat;
-        
+
         switch(ele->emtletyp)
         {
         case TOKTLIST:
@@ -144,7 +144,7 @@ void emtlst(emtcxdef *ctx, uint ofs, uchar *base)
         case TOKTSSTRING:
         {
             uint oplen = osrp2(base + ele->emtleval);
-            
+
             emtbyte(ctx, DAT_SSTRING);
             emtmem(ctx, base + ele->emtleval, oplen);
             continue;
@@ -181,7 +181,7 @@ void emtlst(emtcxdef *ctx, uint ofs, uchar *base)
             assert(FALSE);
             break;
         }
-        
+
         /* if we get here, emit datatype in dat, plus value */
         emtbyte(ctx, dat);
         if (dat != DAT_TRUE && dat != DAT_NIL)
@@ -195,13 +195,13 @@ void emtres(emtcxdef *ctx, ushort bytes)
 {
     ushort oldsiz = mcmobjsiz(ctx->emtcxmem, ctx->emtcxobj);
     ushort need;
-    
+
     need = ctx->emtcxofs + bytes + 1;
-    
+
     if (need > oldsiz)
     {
         ushort newsiz;
-        
+
         newsiz = need + EMTINC;
         if (newsiz < oldsiz) errsig(ctx->emtcxerr, ERR_OBJOVF);
         ctx->emtcxptr = mcmrealo(ctx->emtcxmem, ctx->emtcxobj, newsiz);
@@ -244,10 +244,10 @@ void emtslbl(emtcxdef *ctx, noreg uint *lblp, int release)
     ushort   nxt;
     short    diff;
     ushort   curpos = ctx->emtcxofs;
-    
+
     p->emtlofs = curpos;
     p->emtlflg |= EMTLFSET;
-    
+
     /* run through forward reference list, fixing up each reference */
     for (fwd = p->emtllnk ; fwd != EMTLLNKEND ; fwd = nxt)
     {
@@ -271,7 +271,7 @@ void emtdlbl(emtcxdef *ctx, noreg uint *lblp)
     /* if label has forward references, internal error: label never set */
     if (ctx->emtcxlbl[*lblp].emtllnk != EMTLLNKEND)
         errsig(ctx->emtcxerr, ERR_LBNOSET);
-          
+
     ctx->emtcxlbl[*lblp].emtllnk = ctx->emtcxlfre;
     ctx->emtcxlfre = *lblp;
     *lblp = EMTLLNKEND;
@@ -289,9 +289,9 @@ void emtjmp(emtcxdef *ctx, uchar op, uint lbl)
     emtldef *p = &ctx->emtcxlbl[lbl];
     short    diff;
     uint     fwd;
-    
+
     emtop(ctx, op);
-    
+
     if (p->emtlflg & EMTLFSET)
         diff = p->emtlofs - ctx->emtcxofs;      /* back ref - compute delta */
     else
@@ -311,7 +311,7 @@ void emtlini(emtcxdef *ctx)
     int      i;
     emtldef *p;
     int      max;
-    
+
     for (max = ctx->emtcxlcnt, i = 1, p = ctx->emtcxlbl ; i < max ; ++p, ++i)
         p->emtllnk = i;
     p->emtllnk = EMTLLNKEND;

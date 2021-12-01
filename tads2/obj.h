@@ -2,11 +2,11 @@
 $Header: d:/cvsroot/tads/TADS2/OBJ.H,v 1.3 1999/07/11 00:46:30 MJRoberts Exp $
 */
 
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -20,7 +20,7 @@ Notes
   they can have a flag set to indicate that they are to be ignored,
   which effectively deletes them.  The dynamic part changes at run-time,
   with properties deleted and changed as requested.
-  
+
   The static part is kept around at all times to allow objects to revert
   back to their original state with very little work.  For TADS games,
   this allows objects to be restored to their pre-play state after game
@@ -60,7 +60,7 @@ typedef ushort objnum;
  *   For non-class objects, we'll leave some space free in the object so
  *   that a few properties can be added without having to resize the
  *   object.  Class objects will probably never have anything added, so
- *   there's no need for extra space.  
+ *   there's no need for extra space.
  */
 #define OBJEXTRA 64
 
@@ -85,8 +85,8 @@ typedef struct objdef objdef;
    The object structure is actually laid out portably, using unaligned
    2-byte arrays, stored least significant byte first, for each ushort
    (including the objnum array for the superclasses).  The actual
-   entries are at these offsets on all machines: 
- 
+   entries are at these offsets on all machines:
+
       objws      0
       objflg     2
       objnsc     4
@@ -97,7 +97,7 @@ typedef struct objdef objdef;
       objsc[0]   14
       objsc[1]   16
       etc
-      
+
    If the OBJFINDEX flag is set, the object has a property index.
    The index occurs after the last superclass (so it's where the
    property data would go if there were no index), and the property
@@ -113,7 +113,7 @@ typedef struct objdef objdef;
    only the active instance of a particular property is stored.
    The index must be maintained by all routines that can change
    property information:  setp, delp, revert, etc.
-   
+
    Preceding the index table is a two-byte entry that gives the
    offset of the properties.  Since the properties immediately
    follow the index, this can be used to deduce how large a space
@@ -164,7 +164,7 @@ typedef struct objucxdef objucxdef;
  *   becomes higher than the tail's), the tail is advanced by discarding
  *   as many of the least recent undo records as necessary to make room
  *   for the new head position.  When the head and the previous head point
- *   to the same place, we have no undo records in the buffer.  
+ *   to the same place, we have no undo records in the buffer.
  */
 /*
  *   The first byte of an undo record specifies what action is to be
@@ -172,7 +172,7 @@ typedef struct objucxdef objucxdef;
  *   property.  If a property was changed, it is undone by setting the
  *   property back to its old value.  An additional special flag indicates
  *   a "savepoint."  Normally, all changes back to a savepoint will be
- *   undone.  
+ *   undone.
  */
 #define OBJUADD    1             /* a property was added (undo by deleting) */
 #define OBJUCHG    2   /* a property was changed (change back to old value) */
@@ -183,7 +183,7 @@ typedef struct objucxdef objucxdef;
 /*
  *   After the control byte (OBJUxxx), the object number, property
  *   number, datatype, and data value will follow; some or all of these
- *   may be omitted, depending on the control byte. 
+ *   may be omitted, depending on the control byte.
  */
 
 /* get object flags */
@@ -227,7 +227,7 @@ typedef struct objucxdef objucxdef;
 /* set reset size */
 /* void objsetrst(objdef *objptr, uint newrst); */
 #define objsetrst(o,n) oswp2(((char *)(o)) + 12, n)
- 
+
 /* given an object pointer, get first superclass pointer */
 /* uchar *objsc(objdef *objptr); */
 #define objsc(o) (((uchar *)(o)) + OBJDEFSIZ)
@@ -277,7 +277,7 @@ uint objgetp(mcmcxdef *ctx, objnum objn, prpnum prop,
 /*
  *   Get the *ending* offset of the given property's value, without any
  *   inheritance.  Returns the byte offset one past the end of the
- *   property's data.  
+ *   property's data.
  */
 uint objgetp_end(mcmcxdef *ctx, objnum objn, prpnum prop);
 
@@ -308,17 +308,17 @@ objdef *objexp(mcmcxdef *ctx, objnum obj, ushort *siz);
  *   Set an object's property, deleting the original value of the
  *   property if it existed.  If an undo context is provided, write an
  *   undo record for the change; if the undo context pointer is null, no
- *   undo information is retained. 
+ *   undo information is retained.
  */
 void objsetp(mcmcxdef *ctx, objnum obj, prpnum prop,
              dattyp typ, void *val, objucxdef *undoctx);
 
-/* 
+/*
  *   Delete a property.  If mark_only is true, we'll only mark the
  *   property as deleted without actually reclaiming its space; this is
  *   necessary when removing a code property (type DAT_CODE) any time
  *   other code properties may follow, because p-code is not entirely
- *   self-relative and thus can't always be relocated within an object. 
+ *   self-relative and thus can't always be relocated within an object.
  */
 void objdelp(mcmcxdef *mctx, objnum objn, prpnum prop, int mark_only);
 
@@ -339,13 +339,13 @@ void objendemt(mcmcxdef *ctx, objnum objn, prpnum prop, uint endofs);
  *   Determine if undo records should be kept.  Undo records should be
  *   kept only if a savepoint is present in the undo log.  If no savepoint
  *   is present, adding undo records would be useless, since it will not
- *   be possible to apply the undo information. 
+ *   be possible to apply the undo information.
  */
 int objuok(objucxdef *undoctx);
 
 /*
  *   Reserve space in an undo buffer, deleting old records as needed.
- *   Returns a pointer to the reserved space. 
+ *   Returns a pointer to the reserved space.
  */
 uchar *objures(objucxdef *undoctx, uchar cmd, ushort siz);
 
@@ -360,7 +360,7 @@ void obj1undo(mcmcxdef *mctx, objucxdef *undoctx);
  *   the undo list, NOTHING will be undone.  This prevents reaching an
  *   inconsistent state in which some, but not all, of the operations
  *   between two savepoints are undone: either all operations between two
- *   savepoints will be undone, or none will. 
+ *   savepoints will be undone, or none will.
  */
 void objundo(mcmcxdef *mctx, objucxdef *undoctx);
 
@@ -389,7 +389,7 @@ void objulose(objucxdef *undoctx);
  */
 objdef *objnew(mcmcxdef *mctx, int sccnt, ushort propspace,
                objnum *objnptr, int classflg);
-            
+
 /* initialize an already allocated object */
 void objini(mcmcxdef *mctx, int sccnt, objnum objn, int classflg);
 
@@ -408,7 +408,7 @@ void objaddsc(mcmcxdef *mctx, int sccnt, objnum objn);
  *   store the source for an object as a special system property in the
  *   object; when the object is recompiled, all of the object's properties
  *   and superclasses must be deleted except the source property, which is
- *   retained even after recompilation. 
+ *   retained even after recompilation.
  */
 void objclr(mcmcxdef *mctx, objnum objn, prpnum mindel);
 

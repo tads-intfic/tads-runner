@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/vmwrtimg.cpp,v 1.4 1999/07/11 00:46:59 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -15,7 +15,7 @@ Name
 Function
   Provides functions to write an image file
 Notes
-  
+
 Modified
   04/04/99 MJRoberts  - Creation
 */
@@ -31,7 +31,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   initialize 
+ *   initialize
  */
 CVmImageWriter::CVmImageWriter(CVmFile *fp)
 {
@@ -43,7 +43,7 @@ CVmImageWriter::CVmImageWriter(CVmFile *fp)
 }
 
 /*
- *   delete 
+ *   delete
  */
 CVmImageWriter::~CVmImageWriter()
 {
@@ -51,7 +51,7 @@ CVmImageWriter::~CVmImageWriter()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   get the current seek position in the underlying file 
+ *   get the current seek position in the underlying file
  */
 long CVmImageWriter::get_pos() const
 {
@@ -60,7 +60,7 @@ long CVmImageWriter::get_pos() const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Prepare the file - write the header. 
+ *   Prepare the file - write the header.
  */
 void CVmImageWriter::prepare(uint vsn, const char tool_data[4])
 {
@@ -92,7 +92,7 @@ void CVmImageWriter::begin_block(const char *block_id, int mandatory)
 {
     char buf[10];
     uint flags;
-    
+
     /* if there's a block currently open, close it */
     end_block();
 
@@ -119,21 +119,21 @@ void CVmImageWriter::begin_block(const char *block_id, int mandatory)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   End the current block.  If no block is open, this does nothing. 
+ *   End the current block.  If no block is open, this does nothing.
  */
 void CVmImageWriter::end_block()
 {
     long end_pos;
     uint32_t siz;
-    
+
     /* if there's no block open, there's nothing we need to do */
     if (block_start_ == 0)
         return;
 
-    /* 
+    /*
      *   note the current file position - this will let us compute the
      *   size of the block, and we'll need to seek back here when we're
-     *   done updating the block header 
+     *   done updating the block header
      */
     end_pos = fp_->get_pos();
 
@@ -143,11 +143,11 @@ void CVmImageWriter::end_block()
      *   starting seek position.  'block_start_' contains the seek
      *   position of the block header, which takes up ten bytes; we want
      *   to store the size of the block's data, excluding the header,
-     *   which is (end_pos - block_header_pos - 10).  
+     *   which is (end_pos - block_header_pos - 10).
      */
     siz = (uint32_t)(end_pos - block_start_ - 10);
 
-    /* 
+    /*
      *   Seek back to the location of the size field in the block header;
      *   this is four bytes into the block header.  Then, update the size
      *   field with the size of the block's data.
@@ -155,9 +155,9 @@ void CVmImageWriter::end_block()
     fp_->set_pos(block_start_ + 4);
     fp_->write_uint4(siz);
 
-    /* 
+    /*
      *   seek back to the end of the block, so we can resume writing data
-     *   following the block 
+     *   following the block
      */
     fp_->set_pos(end_pos);
 
@@ -167,7 +167,7 @@ void CVmImageWriter::end_block()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Write raw bytes to the file 
+ *   Write raw bytes to the file
  */
 void CVmImageWriter::write_bytes(const char *ptr, uint32_t siz)
 {
@@ -193,16 +193,16 @@ void CVmImageWriter::write_bytes(const char *ptr, uint32_t siz)
 /* ------------------------------------------------------------------------ */
 /*
  *   Finish the file.  Closes the current block if one is open, and writes
- *   the end-of-file marker to the file. 
+ *   the end-of-file marker to the file.
  */
 void CVmImageWriter::finish()
 {
     /* if there's a block open, close it */
     end_block();
 
-    /* 
+    /*
      *   write the EOF block - the block contains no data, so simply begin
-     *   and end it 
+     *   and end it
      */
     begin_block("EOF ", TRUE);
     end_block();
@@ -221,7 +221,7 @@ void CVmImageWriter::write_entrypt(uint32_t entry_ofs, size_t method_hdr_size,
                                    int dbg_vsn_id)
 {
     char buf[32];
-    
+
     /* prepare the block's contents */
     oswp4(buf, entry_ofs);
     oswp2(buf+4, method_hdr_size);
@@ -250,7 +250,7 @@ void CVmImageWriter::write_func_dep(const char **funcset_names, int count)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   begin a metaclass dependency block 
+ *   begin a metaclass dependency block
  */
 void CVmImageWriter::begin_meta_dep(int count)
 {
@@ -262,7 +262,7 @@ void CVmImageWriter::begin_meta_dep(int count)
 }
 
 /*
- *   Write a metaclass dependency block 
+ *   Write a metaclass dependency block
  */
 void CVmImageWriter::write_meta_dep(const char **meta_names, int count)
 {
@@ -271,7 +271,7 @@ void CVmImageWriter::write_meta_dep(const char **meta_names, int count)
 }
 
 /*
- *   write a metaclass dependency block item 
+ *   write a metaclass dependency block item
  */
 void CVmImageWriter::write_meta_dep_item(const char *metaclass_name)
 {
@@ -281,7 +281,7 @@ void CVmImageWriter::write_meta_dep_item(const char *metaclass_name)
     /* write a placeholder next record offset */
     mcld_ofs_pos_ = fp_->get_pos();
     fp_->write_uint2(0);
-    
+
     /* write the metaclass name */
     write_dep_block_item(metaclass_name);
 
@@ -297,7 +297,7 @@ void CVmImageWriter::write_meta_dep_item(const char *metaclass_name)
 }
 
 /*
- *   write a metaclass dependency property list item 
+ *   write a metaclass dependency property list item
  */
 void CVmImageWriter::write_meta_item_prop(uint prop_id)
 {
@@ -309,7 +309,7 @@ void CVmImageWriter::write_meta_item_prop(uint prop_id)
 }
 
 /*
- *   end a metaclass prop list 
+ *   end a metaclass prop list
  */
 void CVmImageWriter::end_meta_prop_list()
 {
@@ -338,25 +338,25 @@ void CVmImageWriter::end_meta_prop_list()
 }
 
 /*
- *   end a metaclass dependency block 
+ *   end a metaclass dependency block
  */
 void CVmImageWriter::end_meta_dep()
 {
     /* end the last metaclass item */
     end_meta_prop_list();
-    
+
     /* end the dependency block */
     end_dep_block();
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Begin a dependency block 
+ *   Begin a dependency block
  */
 void CVmImageWriter::begin_dep_block(const char *block_id, int count)
 {
     char buf[4];
-    
+
     /* open the block */
     begin_block(block_id, TRUE);
 
@@ -366,7 +366,7 @@ void CVmImageWriter::begin_dep_block(const char *block_id, int count)
 }
 
 /*
- *   Write a dependency block item 
+ *   Write a dependency block item
  */
 void CVmImageWriter::write_dep_block_item(const char *nm)
 {
@@ -385,7 +385,7 @@ void CVmImageWriter::write_dep_block_item(const char *nm)
 }
 
 /*
- *   End a dependency block 
+ *   End a dependency block
  */
 void CVmImageWriter::end_dep_block()
 {
@@ -395,7 +395,7 @@ void CVmImageWriter::end_dep_block()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Write a generic dependency list block 
+ *   Write a generic dependency list block
  */
 void CVmImageWriter::write_dep_block(const char *block_id,
                                      const char **names, int count)
@@ -413,13 +413,13 @@ void CVmImageWriter::write_dep_block(const char *block_id,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Write a constant pool definition block 
+ *   Write a constant pool definition block
  */
 void CVmImageWriter::write_pool_def(uint pool_id, uint32_t page_count,
                                     uint32_t page_size, int mandatory)
 {
     char buf[16];
-    
+
     /* prepare the block's data */
     oswp2(buf, pool_id);
     oswp4(buf+2, page_count);
@@ -432,7 +432,7 @@ void CVmImageWriter::write_pool_def(uint pool_id, uint32_t page_count,
 }
 
 /*
- *   Fix up a pool definition block with the actual page count 
+ *   Fix up a pool definition block with the actual page count
  */
 void CVmImageWriter::fix_pool_def(long def_seek_ofs, uint32_t page_count)
 {
@@ -441,11 +441,11 @@ void CVmImageWriter::fix_pool_def(long def_seek_ofs, uint32_t page_count)
 
     /* note the file position at entry */
     old_pos = fp_->get_pos();
-    
-    /* 
+
+    /*
      *   seek to the original definition block location, plus the size of
      *   the block header (10 bytes), plus the offset within the block of
-     *   the pool page count (it starts 2 bytes into the block data) 
+     *   the pool page count (it starts 2 bytes into the block data)
      */
     fp_->set_pos(def_seek_ofs + 10 + 2);
 
@@ -460,7 +460,7 @@ void CVmImageWriter::fix_pool_def(long def_seek_ofs, uint32_t page_count)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Write a constant pool page 
+ *   Write a constant pool page
  */
 void CVmImageWriter::write_pool_page(uint pool_id, uint32_t page_index,
                                      const char *page_data,
@@ -490,7 +490,7 @@ void CVmImageWriter::write_pool_page(uint pool_id, uint32_t page_index,
 /* ------------------------------------------------------------------------ */
 /*
  *   Begin writing a constant pool page.  This constructs the header and
- *   prepares for writing the bytes making up the page. 
+ *   prepares for writing the bytes making up the page.
  */
 void CVmImageWriter::begin_pool_page(uint pool_id, uint32_t page_index,
                                      int mandatory, uchar xor_mask)
@@ -510,7 +510,7 @@ void CVmImageWriter::begin_pool_page(uint pool_id, uint32_t page_index,
 }
 
 /*
- *   write bytes to a pool page under construction 
+ *   write bytes to a pool page under construction
  */
 void CVmImageWriter::write_pool_page_bytes(const char *buf, uint32_t siz,
                                            uchar xor_mask)
@@ -521,12 +521,12 @@ void CVmImageWriter::write_pool_page_bytes(const char *buf, uint32_t siz,
 
 /*
  *   XOR and write a block of data - we will XOR each byte of the data
- *   with the given mask byte before writing it to the file 
+ *   with the given mask byte before writing it to the file
  */
 void CVmImageWriter::xor_and_write_bytes(const char *mem, uint32_t siz,
                                          uchar xor_mask)
 {
-    /* 
+    /*
      *   if there's no mask, simply write the data directly - anything XOR
      *   zero equals the original value
      */
@@ -537,9 +537,9 @@ void CVmImageWriter::xor_and_write_bytes(const char *mem, uint32_t siz,
     }
     else
     {
-        /* 
+        /*
          *   copy the data in chunks into our buffer, XOR it with the
-         *   mask, and write the results 
+         *   mask, and write the results
          */
         while (siz != 0)
         {
@@ -548,9 +548,9 @@ void CVmImageWriter::xor_and_write_bytes(const char *mem, uint32_t siz,
             size_t rem;
             char *dst;
 
-            /* 
+            /*
              *   limit this chunk to the buffer size or the remainder of
-             *   the input, whichever is smaller 
+             *   the input, whichever is smaller
              */
             cur = sizeof(buf);
             if (cur > siz)
@@ -570,7 +570,7 @@ void CVmImageWriter::xor_and_write_bytes(const char *mem, uint32_t siz,
 }
 
 /*
- *   finish writing a pool page 
+ *   finish writing a pool page
  */
 void CVmImageWriter::end_pool_page()
 {
@@ -603,7 +603,7 @@ void CVmImageWriter::begin_sym_block()
 }
 
 /*
- *   write a symbolic name for an object ID 
+ *   write a symbolic name for an object ID
  */
 void CVmImageWriter::write_sym_item_objid(const char *nm, size_t len,
                                           ulong obj_id)
@@ -618,7 +618,7 @@ void CVmImageWriter::write_sym_item_objid(const char *nm, size_t len,
 }
 
 /*
- *   write a symbolic name for a property ID 
+ *   write a symbolic name for a property ID
  */
 void CVmImageWriter::write_sym_item_propid(const char *nm, size_t len,
                                            uint prop_id)
@@ -648,7 +648,7 @@ void CVmImageWriter::write_sym_item_func(const char *nm, size_t len,
 }
 
 /*
- *   write a symbolic name item 
+ *   write a symbolic name item
  */
 void CVmImageWriter::write_sym_item(const char *nm, size_t len,
                                     const vm_val_t *val)
@@ -676,20 +676,20 @@ void CVmImageWriter::write_sym_item(const char *nm, size_t len,
 }
 
 /*
- *   end a symbolic names block 
+ *   end a symbolic names block
  */
 void CVmImageWriter::end_sym_block()
 {
     long old_pos;
     char buf[4];
-    
+
     /* end the block */
     end_block();
 
-    /* 
+    /*
      *   Go back and fix the header with the number of items we wrote.
      *   First, remember our current position, then seek back to the count
-     *   prefix. 
+     *   prefix.
      */
     old_pos = fp_->get_pos();
     fp_->set_pos(symd_prefix_);
@@ -725,9 +725,9 @@ void CVmImageWriter::begin_objs_block(uint metaclass_idx, int large_objects,
     /* remember where the prefix goes so we can fix it up later */
     objs_prefix_ = fp_->get_pos();
 
-    /* 
+    /*
      *   write a placeholder object count, the metaclass dependency table
-     *   index, and the OBJS flags 
+     *   index, and the OBJS flags
      */
     oswp2(buf, 0);
     oswp2(buf + 2, metaclass_idx);
@@ -738,7 +738,7 @@ void CVmImageWriter::begin_objs_block(uint metaclass_idx, int large_objects,
 }
 
 /*
- *   Write bytes to an OBJS (object static data) block 
+ *   Write bytes to an OBJS (object static data) block
  */
 void CVmImageWriter::write_objs_bytes(const char *buf, uint32_t siz)
 {
@@ -762,24 +762,24 @@ void CVmImageWriter::end_objs_block(uint object_count)
 
     /* seek back to the original position */
     fp_->set_pos(pos);
-    
+
     /* end the block */
     end_block();
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   SRCF blocks - source file descriptors 
+ *   SRCF blocks - source file descriptors
  */
 
 /*
- *   begin a SRCF block 
+ *   begin a SRCF block
  */
 void CVmImageWriter::begin_srcf_block(int count)
 {
-    /* 
+    /*
      *   begin the block - SRCF blocks are always optional, since they're
-     *   purely for debugging purposes 
+     *   purely for debugging purposes
      */
     begin_block("SRCF", FALSE);
 
@@ -791,7 +791,7 @@ void CVmImageWriter::begin_srcf_block(int count)
 }
 
 /*
- *   begin a SRCF file entry 
+ *   begin a SRCF file entry
  */
 void CVmImageWriter::begin_srcf_entry(int orig_index, const char *fname)
 {
@@ -802,7 +802,7 @@ void CVmImageWriter::begin_srcf_entry(int orig_index, const char *fname)
 
     /* write a placeholder size entry */
     fp_->write_uint4(0);
-    
+
     /* write the original index */
     fp_->write_uint2(orig_index);
 
@@ -820,7 +820,7 @@ void CVmImageWriter::begin_srcf_entry(int orig_index, const char *fname)
 }
 
 /*
- *   write a SRCF line record entry 
+ *   write a SRCF line record entry
  */
 void CVmImageWriter::write_srcf_line_entry(ulong linenum, ulong addr)
 {
@@ -833,7 +833,7 @@ void CVmImageWriter::write_srcf_line_entry(ulong linenum, ulong addr)
 }
 
 /*
- *   end a SRCF file entry 
+ *   end a SRCF file entry
  */
 void CVmImageWriter::end_srcf_entry()
 {
@@ -854,7 +854,7 @@ void CVmImageWriter::end_srcf_entry()
 }
 
 /*
- *   end a SRCF block 
+ *   end a SRCF block
  */
 void CVmImageWriter::end_srcf_block()
 {
@@ -863,24 +863,24 @@ void CVmImageWriter::end_srcf_block()
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   MACR blocks - global preprocess macro symbol table 
+/*
+ *   MACR blocks - global preprocess macro symbol table
  */
 
-/* 
- *   begin a MACR block 
+/*
+ *   begin a MACR block
  */
 void CVmImageWriter::begin_macr_block()
 {
-    /* 
+    /*
      *   write the header - it's an optional block since it's for the
-     *   debugger's use only 
+     *   debugger's use only
      */
     begin_block("MACR", FALSE);
 }
 
 /*
- *   end a MACR block 
+ *   end a MACR block
  */
 void CVmImageWriter::end_macr_block()
 {
@@ -894,13 +894,13 @@ void CVmImageWriter::end_macr_block()
  */
 
 /*
- *   begin a GSYM block 
+ *   begin a GSYM block
  */
 void CVmImageWriter::begin_gsym_block()
 {
-    /* 
+    /*
      *   begin the block - GSYM blocks are always optional, since they're
-     *   purely for debugging purposes 
+     *   purely for debugging purposes
      */
     begin_block("GSYM", FALSE);
 
@@ -912,15 +912,15 @@ void CVmImageWriter::begin_gsym_block()
 }
 
 /*
- *   write a GSYM entry 
+ *   write a GSYM entry
  */
 void CVmImageWriter::write_gsym_entry(const char *sym, size_t sym_len,
                                       int type_id,
                                       const char *dat, size_t dat_len)
 {
-    /* 
+    /*
      *   write the length of the symbol, length of the extra data, and the
-     *   symbol type 
+     *   symbol type
      */
     fp_->write_uint2(sym_len);
     fp_->write_uint2(dat_len);
@@ -934,7 +934,7 @@ void CVmImageWriter::write_gsym_entry(const char *sym, size_t sym_len,
 }
 
 /*
- *   end a GSYM block 
+ *   end a GSYM block
  */
 void CVmImageWriter::end_gsym_block(ulong cnt)
 {
@@ -949,7 +949,7 @@ void CVmImageWriter::end_gsym_block(ulong cnt)
 
     /* seek back to the original position */
     fp_->set_pos(pos);
-    
+
     /* end the block using the generic mechanism */
     end_block();
 }
@@ -964,9 +964,9 @@ void CVmImageWriter::end_gsym_block(ulong cnt)
  */
 void CVmImageWriter::begin_mhls_block()
 {
-    /* 
+    /*
      *   begin the block - MHLS blocks are always optional, since they're
-     *   purely for debugging purposes 
+     *   purely for debugging purposes
      */
     begin_block("MHLS", FALSE);
 
@@ -981,7 +981,7 @@ void CVmImageWriter::begin_mhls_block()
 }
 
 /*
- *   write an MHLS entry 
+ *   write an MHLS entry
  */
 void CVmImageWriter::write_mhls_entry(ulong addr)
 {
@@ -993,7 +993,7 @@ void CVmImageWriter::write_mhls_entry(ulong addr)
 }
 
 /*
- *   end an MHLS block 
+ *   end an MHLS block
  */
 void CVmImageWriter::end_mhls_block()
 {
@@ -1023,18 +1023,18 @@ void CVmImageWriter::end_mhls_block()
  */
 void CVmImageWriter::begin_sini_block(ulong static_cs_ofs, ulong init_cnt)
 {
-    /* 
+    /*
      *   begin the block - SINI blocks are mandatory, since the program
      *   depends upon static initializers being evaluated immediately
-     *   after compilation 
+     *   after compilation
      */
     begin_block("SINI", TRUE);
 
-    /* 
+    /*
      *   write the size of our header (including the size prefix); this
      *   serves as a simple versioning flag so we can tell if fields added
      *   at a later date are part of a given image file's data or not (if
-     *   the header is too small to contain them, they're not present) 
+     *   the header is too small to contain them, they're not present)
      */
     fp_->write_uint4(12);
 
@@ -1046,7 +1046,7 @@ void CVmImageWriter::begin_sini_block(ulong static_cs_ofs, ulong init_cnt)
 }
 
 /*
- *   end an SINI block 
+ *   end an SINI block
  */
 void CVmImageWriter::end_sini_block()
 {

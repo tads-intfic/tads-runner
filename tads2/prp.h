@@ -2,11 +2,11 @@
 $Header: d:/cvsroot/tads/TADS2/PRP.H,v 1.2 1999/05/17 02:52:13 MJRoberts Exp $
 */
 
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -18,12 +18,12 @@ Notes
   stored in objects, which must be binary-portable.  Hence, the internal
   structure of a property header is not a C structure, but a portable
   sequence of bytes.  Multi-byte quantities are stored in Intel format.
-  
+
     property number    - 2 bytes
     property datatype  - 1 byte
     property size      - 2 bytes
     property flags     - 1 byte
-    
+
   This header is followed immediately by the property value.  For
   convenience, a set of macros is defined to provide access to the
   fields of a property header.
@@ -72,9 +72,9 @@ typedef uchar prpdef;                   /* prpdef is just an array of bytes */
 #define PRPFIGN   0x02               /* ignore this prop (has been changed) */
 #define PRPFDEL   0x04             /* property has been permanently deleted */
 
-/* 
+/*
  *   invalid property number - this number will never be used as an actual
- *   property, so it can be used to signify the lack of a valid property 
+ *   property, so it can be used to signify the lack of a valid property
  */
 #define PRP_INVALID     0
 

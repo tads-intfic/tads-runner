@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2001, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmlookup.cpp - LookupTable metaclass implementation
 Function
-  
+
 Notes
-  
+
 Modified
   02/06/01 MJRoberts  - Creation
 */
@@ -47,7 +47,7 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   LookupTable undo record.  We attach this record to the standard undo
- *   record via the 'ptrval' field.  
+ *   record via the 'ptrval' field.
  */
 struct lookuptab_undo_rec
 {
@@ -61,7 +61,7 @@ struct lookuptab_undo_rec
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Allocate a new extension structure 
+ *   Allocate a new extension structure
  */
 vm_lookup_ext *vm_lookup_ext::alloc_ext(VMG_ CVmObjLookupTable *self,
                                         uint bucket_cnt, uint value_cnt)
@@ -89,7 +89,7 @@ vm_lookup_ext *vm_lookup_ext::alloc_ext(VMG_ CVmObjLookupTable *self,
 }
 
 /*
- *   initialize the buckets and free list 
+ *   initialize the buckets and free list
  */
 void vm_lookup_ext::init_ext()
 {
@@ -101,11 +101,11 @@ void vm_lookup_ext::init_ext()
     for (i = bucket_cnt, bucketp = buckets ; i != 0 ; --i, ++bucketp)
         *bucketp = 0;
 
-    /* 
+    /*
      *   Initialize the value free list.  We suballocate the value entry
      *   structures out of our main allocation block; the available memory
      *   for the structures comes immediately after the last bucket, so
-     *   bucketp points to the first value entry. 
+     *   bucketp points to the first value entry.
      */
     valp = (vm_lookup_val *)(void *)bucketp;
     first_free = valp;
@@ -124,7 +124,7 @@ void vm_lookup_ext::init_ext()
 }
 
 /*
- *   Reallocate an extension structure, adding more value entries. 
+ *   Reallocate an extension structure, adding more value entries.
  */
 vm_lookup_ext *vm_lookup_ext::expand_ext(VMG_ CVmObjLookupTable *self,
                                          vm_lookup_ext *old_ext,
@@ -146,7 +146,7 @@ vm_lookup_ext *vm_lookup_ext::expand_ext(VMG_ CVmObjLookupTable *self,
 }
 
 /*
- *   Copy extension data 
+ *   Copy extension data
  */
 void vm_lookup_ext::copy_ext_from(vm_lookup_ext *old_ext)
 {
@@ -215,7 +215,7 @@ void vm_lookup_ext::copy_ext_from(vm_lookup_ext *old_ext)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   LookupTable object statics 
+ *   LookupTable object statics
  */
 
 /* metaclass registration object */
@@ -246,12 +246,12 @@ int (CVmObjLookupTable::
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Lookup Table metaclass implementation 
+ *   Lookup Table metaclass implementation
  */
 
-/* 
+/*
  *   create a lookup table with a given hash table size and the given
- *   initial entry table size 
+ *   initial entry table size
  */
 CVmObjLookupTable::CVmObjLookupTable(VMG_ size_t bucket_cnt, size_t val_cnt)
 {
@@ -259,17 +259,17 @@ CVmObjLookupTable::CVmObjLookupTable(VMG_ size_t bucket_cnt, size_t val_cnt)
 
     /* set up an empty value */
     empty.set_empty();
-    
+
     /* allocate our extension structure from the variable heap */
     ext_ = (char *)vm_lookup_ext::alloc_ext(vmg_ this, bucket_cnt, val_cnt);
 
     /* initialize the extension */
     get_ext()->init_ext();
-}    
+}
 
 
 /*
- *   create 
+ *   create
  */
 vm_obj_id_t CVmObjLookupTable::create(VMG_ int in_root_set,
                                       uint bucket_count, uint init_capacity)
@@ -286,8 +286,8 @@ vm_obj_id_t CVmObjLookupTable::create(VMG_ int in_root_set,
     return id;
 }
 
-/* 
- *   create dynamically using stack arguments 
+/*
+ *   create dynamically using stack arguments
  */
 vm_obj_id_t CVmObjLookupTable::create_from_stack(
     VMG_ const uchar **pc_ptr, uint argc)
@@ -299,10 +299,10 @@ vm_obj_id_t CVmObjLookupTable::create_from_stack(
 
     /* parse the arguments */
     get_constructor_args(vmg_ argc, &bucket_count, &init_capacity, &src_obj);
-    
-    /* 
+
+    /*
      *   allocate the object ID - this type of construction never creates a
-     *   root object 
+     *   root object
      */
     id = vm_new_id(vmg_ FALSE, TRUE, FALSE);
 
@@ -320,8 +320,8 @@ vm_obj_id_t CVmObjLookupTable::create_from_stack(
     return id;
 }
 
-/* 
- *   get and check constructor arguments 
+/*
+ *   get and check constructor arguments
  */
 void CVmObjLookupTable::get_constructor_args(VMG_ uint argc,
                                              size_t *bucket_count,
@@ -341,10 +341,10 @@ void CVmObjLookupTable::get_constructor_args(VMG_ uint argc,
     else if (argc == 1)
     {
         int cnt;
-        
-        /* 
+
+        /*
          *   One argument - they want to create from a list.  Retrieve the
-         *   list or vector object. 
+         *   list or vector object.
          */
         G_stk->pop(src_obj);
 
@@ -358,9 +358,9 @@ void CVmObjLookupTable::get_constructor_args(VMG_ uint argc,
     }
     else if (argc == 2)
     {
-        /* 
+        /*
          *   two arguments - they specified the bucket count and initial
-         *   capacity; pop the parameters 
+         *   capacity; pop the parameters
          */
         *bucket_count = (size_t)CVmBif::pop_long_val(vmg0_);
         *init_capacity = (size_t)CVmBif::pop_long_val(vmg0_);
@@ -385,7 +385,7 @@ void CVmObjLookupTable::get_constructor_args(VMG_ uint argc,
  *   necessary to save undo during construction because the whole object
  *   creation and construction is atomic for undo purposes: if we undo any of
  *   this, we undo the whole creation of the object, so there's no need to
- *   worry about saving old state internal to the object.)  
+ *   worry about saving old state internal to the object.)
  */
 void CVmObjLookupTable::populate_from_list(VMG_ const vm_val_t *src)
 {
@@ -411,24 +411,24 @@ void CVmObjLookupTable::populate_from_list(VMG_ const vm_val_t *src)
 
 
 /*
- *   Create a copy of this object 
+ *   Create a copy of this object
  */
 vm_obj_id_t CVmObjLookupTable::create_copy(VMG0_)
 {
     vm_obj_id_t id;
     CVmObjLookupTable *new_obj;
-    
+
     /* allocate the object ID */
     id = vm_new_id(vmg_ FALSE, TRUE, FALSE);
 
     /* allocate a new object */
     new_obj = new (vmg_ id) CVmObjLookupTable();
 
-    /* 
+    /*
      *   set up the new object with our same sizes, but don't initialize it
      *   - we're going to blast all of our data directly into the new
      *   extension, so we don't need to waste time setting up an empty
-     *   initial state 
+     *   initial state
      */
     new_obj->ext_ = (char *)vm_lookup_ext::alloc_ext(
         vmg_ new_obj, get_bucket_count(), get_entry_count());
@@ -440,8 +440,8 @@ vm_obj_id_t CVmObjLookupTable::create_copy(VMG0_)
     return id;
 }
 
-/* 
- *   notify of deletion 
+/*
+ *   notify of deletion
  */
 void CVmObjLookupTable::notify_delete(VMG_ int /*in_root_set*/)
 {
@@ -450,8 +450,8 @@ void CVmObjLookupTable::notify_delete(VMG_ int /*in_root_set*/)
         G_mem->get_var_heap()->free_mem(ext_);
 }
 
-/* 
- *   set a property 
+/*
+ *   set a property
  */
 void CVmObjLookupTable::set_prop(VMG_ class CVmUndo *undo,
                                  vm_obj_id_t self, vm_prop_id_t prop,
@@ -461,8 +461,8 @@ void CVmObjLookupTable::set_prop(VMG_ class CVmUndo *undo,
     err_throw(VMERR_INVALID_SETPROP);
 }
 
-/* 
- *   get a property 
+/*
+ *   get a property
  */
 int CVmObjLookupTable::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                                 vm_obj_id_t self, vm_obj_id_t *source_obj,
@@ -487,7 +487,7 @@ int CVmObjLookupTable::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
 }
 
 /*
- *   apply an undo record 
+ *   apply an undo record
  */
 void CVmObjLookupTable::apply_undo(VMG_ struct CVmUndoRecord *undo_rec)
 {
@@ -497,18 +497,18 @@ void CVmObjLookupTable::apply_undo(VMG_ struct CVmUndoRecord *undo_rec)
 
         /* get our private record from the standard undo record */
         rec = (lookuptab_undo_rec *)undo_rec->id.ptrval;
-    
+
         /* check the action in the record */
         switch(rec->action)
         {
         case LOOKUPTAB_UNDO_NULL:
-            /* 
+            /*
              *   null record, which means that it had a weak reference to an
              *   object that has been deleted - there's no way to reinstate
-             *   such records, so ignore it 
+             *   such records, so ignore it
              */
             break;
-            
+
         case LOOKUPTAB_UNDO_ADD:
             /* we added the entry, so we must now delete it */
             del_entry(vmg_ &rec->key);
@@ -539,7 +539,7 @@ void CVmObjLookupTable::apply_undo(VMG_ struct CVmUndoRecord *undo_rec)
 }
 
 /*
- *   discard extra undo information 
+ *   discard extra undo information
  */
 void CVmObjLookupTable::discard_undo(VMG_ CVmUndoRecord *rec)
 {
@@ -576,7 +576,7 @@ void CVmObjLookupTable::
 }
 
 /*
- *   Mark references.  Keys (but not values) are strongly referenced.  
+ *   Mark references.  Keys (but not values) are strongly referenced.
  */
 void CVmObjLookupTable::mark_refs(VMG_ uint state)
 {
@@ -610,18 +610,18 @@ void CVmObjLookupTable::mark_refs(VMG_ uint state)
     }
 }
 
-/* 
- *   load from an image file 
+/*
+ *   load from an image file
  */
 void CVmObjLookupTable::load_from_image(VMG_ vm_obj_id_t self,
                                         const char *ptr, size_t siz)
 {
     /* load our image data */
     load_image_data(vmg_ ptr, siz);
-    
-    /* 
+
+    /*
      *   save our image data pointer in the object table, so that we can
-     *   access it (without storing it ourselves) during a reload 
+     *   access it (without storing it ourselves) during a reload
      */
     G_obj_table->save_image_pointer(self, ptr, siz);
 }
@@ -637,7 +637,7 @@ void CVmObjLookupTable::reload_from_image(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   load or reload data from the image 
+ *   load or reload data from the image
  */
 void CVmObjLookupTable::load_image_data(VMG_ const char *ptr, size_t siz)
 {
@@ -694,8 +694,8 @@ void CVmObjLookupTable::load_image_data(VMG_ const char *ptr, size_t siz)
     }
 }
 
-/* 
- *   save to a file 
+/*
+ *   save to a file
  */
 void CVmObjLookupTable::save_to_file(VMG_ class CVmFile *fp)
 {
@@ -720,7 +720,7 @@ void CVmObjLookupTable::save_to_file(VMG_ class CVmFile *fp)
      *   default value in the loaded data, so to be compatible with those
      *   readers we must omit the value entirely.  If the image file was
      *   compiled with 030003 or later, it can only be loaded by VMs with
-     *   LookupTable implementations that know to read the value.  
+     *   LookupTable implementations that know to read the value.
      */
     if (image_file_version_ge(vmg_ "030003"))
     {
@@ -736,7 +736,7 @@ void CVmObjLookupTable::save_to_file(VMG_ class CVmFile *fp)
     for (i = ext->value_cnt, val = ext->idx_to_val(0) ; i != 0 ; --i, ++val)
     {
         uint idx;
-        
+
         /* store the key, value, and index */
         vmb_put_dh(buf, &val->key);
         vmb_put_dh(buf + VMB_DATAHOLDER, &val->val);
@@ -748,8 +748,8 @@ void CVmObjLookupTable::save_to_file(VMG_ class CVmFile *fp)
     }
 }
 
-/* 
- *   restore from a file 
+/*
+ *   restore from a file
  */
 void CVmObjLookupTable::restore_from_file(VMG_ vm_obj_id_t self,
                                           CVmFile *fp, CVmObjFixup *fixups)
@@ -762,7 +762,7 @@ void CVmObjLookupTable::restore_from_file(VMG_ vm_obj_id_t self,
     vm_lookup_val **bp;
     vm_lookup_val *entry;
     uint idx;
-    
+
     /* free our existing extension, if we have one */
     if (ext_ != 0)
         G_mem->get_var_heap()->free_mem(ext_);
@@ -779,9 +779,9 @@ void CVmObjLookupTable::restore_from_file(VMG_ vm_obj_id_t self,
     /* store the free pointer */
     ext->first_free = ext->img_idx_to_val(vmb_get_uint2(buf + 4));
 
-    /* 
+    /*
      *   if the saver was using version 030003 or later, there's a default
-     *   value; otherwise the default value is fixed at 'nil' 
+     *   value; otherwise the default value is fixed at 'nil'
      */
     ext->default_value.set_nil();
     if (image_file_version_ge(vmg_ "030003"))
@@ -823,8 +823,8 @@ void CVmObjLookupTable::restore_from_file(VMG_ vm_obj_id_t self,
     }
 }
 
-/* 
- *   create an iterator 
+/*
+ *   create an iterator
  */
 void CVmObjLookupTable::new_iterator(VMG_ vm_val_t *retval,
                                      const vm_val_t *self_val)
@@ -834,7 +834,7 @@ void CVmObjLookupTable::new_iterator(VMG_ vm_val_t *retval,
     /* save a copy of myself for protection against garbage collection */
     G_stk->push(self_val);
 
-    /* 
+    /*
      *   create a copy of my object, so that we can iterate over a snapshot
      *   of our state even if we subsequently change our state
      */
@@ -847,8 +847,8 @@ void CVmObjLookupTable::new_iterator(VMG_ vm_val_t *retval,
     G_stk->discard();
 }
 
-/* 
- *   create a live iterator 
+/*
+ *   create a live iterator
  */
 void CVmObjLookupTable::new_live_iterator(VMG_ vm_val_t *retval,
                                           const vm_val_t *self_val)
@@ -858,7 +858,7 @@ void CVmObjLookupTable::new_live_iterator(VMG_ vm_val_t *retval,
 }
 
 /*
- *   add an undo record 
+ *   add an undo record
  */
 void CVmObjLookupTable::add_undo_rec(VMG_ vm_obj_id_t self,
                                      lookuptab_undo_action action,
@@ -885,10 +885,10 @@ void CVmObjLookupTable::add_undo_rec(VMG_ vm_obj_id_t self,
     /* add the record to the global undo stream */
     if (!G_undo->add_new_record_ptr_key(vmg_ self, rec, old_entry_val))
     {
-        /* 
+        /*
          *   we didn't add an undo record, so our extra undo information
          *   isn't actually going to be stored in the undo system - hence we
-         *   must delete our extra information 
+         *   must delete our extra information
          */
         t3free(rec);
     }
@@ -897,7 +897,7 @@ void CVmObjLookupTable::add_undo_rec(VMG_ vm_obj_id_t self,
 /*
  *   Add an entry; does not generate undo.
  */
-void CVmObjLookupTable::add_entry(VMG_ 
+void CVmObjLookupTable::add_entry(VMG_
                                   const vm_val_t *key, const vm_val_t *val)
 {
     uint hashval;
@@ -906,7 +906,7 @@ void CVmObjLookupTable::add_entry(VMG_
     /* push the key and value as gc protection for a moment */
     G_stk->push(key);
     G_stk->push(val);
-    
+
     /* calculate the hash value for the key */
     hashval = calc_key_hash(vmg_ key);
 
@@ -926,18 +926,18 @@ void CVmObjLookupTable::add_entry(VMG_
 }
 
 /*
- *   Add an entry, generating undo 
+ *   Add an entry, generating undo
  */
 void CVmObjLookupTable::add_entry_undo(VMG_ vm_obj_id_t self,
                                        const vm_val_t *key,
                                        const vm_val_t *val)
 {
-    /* 
+    /*
      *   Add undo for the change.  Since we're adding a new record, there's
-     *   no old value for the record. 
+     *   no old value for the record.
      */
     add_undo_rec(vmg_ self, LOOKUPTAB_UNDO_ADD, key, 0);
-    
+
     /* add the entry */
     add_entry(vmg_ key, val);
 }
@@ -961,26 +961,26 @@ void CVmObjLookupTable::del_entry(VMG_ const vm_val_t *key)
 }
 
 /*
- *   Unlink an entry 
+ *   Unlink an entry
  */
 void CVmObjLookupTable::unlink_entry(VMG_ vm_lookup_val *entry, uint hashval,
                                      vm_lookup_val *prv_entry)
 {
     vm_lookup_ext *ext = get_ext();
-    
-    /* 
+
+    /*
      *   set the previous item's next pointer, or the head of the chain, as
-     *   appropriate 
+     *   appropriate
      */
     if (prv_entry == 0)
         ext->buckets[hashval] = entry->nxt;
     else
         prv_entry->nxt = entry->nxt;
-    
+
     /* link the entry into the free list */
     entry->nxt = ext->first_free;
     ext->first_free = entry;
-    
+
     /* set this entry's key and value to 'empty' to indicate that it's free */
     entry->key.set_empty();
     entry->val.set_empty();
@@ -1003,7 +1003,7 @@ void CVmObjLookupTable::mod_entry(VMG_ const vm_val_t *key,
 }
 
 /*
- *   Set an entry's value, generating undo 
+ *   Set an entry's value, generating undo
  */
 void CVmObjLookupTable::set_entry_val_undo(VMG_ vm_obj_id_t self,
                                            vm_lookup_val *entry,
@@ -1019,7 +1019,7 @@ void CVmObjLookupTable::set_entry_val_undo(VMG_ vm_obj_id_t self,
 /*
  *   Find an entry for a given key.  Returns the entry index, and fills in
  *   the hash value and previous-entry output variables if provided.
- *   Returns zero if there is no such key.  
+ *   Returns zero if there is no such key.
  */
 vm_lookup_val *CVmObjLookupTable::find_entry(VMG_ const vm_val_t *key,
                                              uint *hashval_p,
@@ -1059,7 +1059,7 @@ vm_lookup_val *CVmObjLookupTable::find_entry(VMG_ const vm_val_t *key,
 uint CVmObjLookupTable::calc_key_hash(VMG_ const vm_val_t *key)
 {
     uint hash;
-    
+
     /* calculate the raw hash for the value */
     hash = key->calc_hash(vmg0_);
 
@@ -1071,7 +1071,7 @@ uint CVmObjLookupTable::calc_key_hash(VMG_ const vm_val_t *key)
 }
 
 /*
- *   Allocate a new entry 
+ *   Allocate a new entry
  */
 vm_lookup_val *CVmObjLookupTable::alloc_new_entry(VMG0_)
 {
@@ -1090,7 +1090,7 @@ vm_lookup_val *CVmObjLookupTable::alloc_new_entry(VMG0_)
 }
 
 /*
- *   Check for free space, and expand the table if necessary.  
+ *   Check for free space, and expand the table if necessary.
  */
 void CVmObjLookupTable::expand_if_needed(VMG0_)
 {
@@ -1110,14 +1110,14 @@ void CVmObjLookupTable::expand_if_needed(VMG0_)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Get a value by index 
+ *   Get a value by index
  */
 int CVmObjLookupTable::index_val_q(VMG_ vm_val_t *result,
                                     vm_obj_id_t self,
                                     const vm_val_t *index_val)
 {
     vm_lookup_val *entry;
-    
+
     /* find the entry */
     entry = find_entry(vmg_ index_val, 0, 0);
 
@@ -1139,7 +1139,7 @@ int CVmObjLookupTable::index_val_q(VMG_ vm_val_t *result,
 
 /*
  *   Get a value by index, with an indication of whether or not the value
- *   exists. 
+ *   exists.
  */
 int CVmObjLookupTable::index_check(VMG_ vm_val_t *result, const vm_val_t *idx)
 {
@@ -1157,9 +1157,9 @@ int CVmObjLookupTable::index_check(VMG_ vm_val_t *result, const vm_val_t *idx)
     }
     else
     {
-        /* 
+        /*
          *   not found - set a nil result value and indicate that the key
-         *   isn't in the table 
+         *   isn't in the table
          */
         result->set_nil();
         return FALSE;
@@ -1168,7 +1168,7 @@ int CVmObjLookupTable::index_check(VMG_ vm_val_t *result, const vm_val_t *idx)
 
 
 /*
- *   Set or add an entry, with no undo 
+ *   Set or add an entry, with no undo
  */
 void CVmObjLookupTable::set_or_add_entry(VMG_ const vm_val_t *key,
                                          const vm_val_t *val)
@@ -1180,7 +1180,7 @@ void CVmObjLookupTable::set_or_add_entry(VMG_ const vm_val_t *key,
 
     /* if we found an existing entry, modify it; otherwise, add a new one */
     if (entry != 0)
-    {   
+    {
         /* set the new value for this entry */
         entry->val = *val;
     }
@@ -1192,7 +1192,7 @@ void CVmObjLookupTable::set_or_add_entry(VMG_ const vm_val_t *key,
 }
 
 /*
- *   Set a value by index 
+ *   Set a value by index
  */
 int CVmObjLookupTable::set_index_val_q(VMG_ vm_val_t *new_container,
                                        vm_obj_id_t self,
@@ -1200,13 +1200,13 @@ int CVmObjLookupTable::set_index_val_q(VMG_ vm_val_t *new_container,
                                        const vm_val_t *new_val)
 {
     vm_lookup_val *entry;
-    
+
     /* look for an existing entry with this key */
     entry = find_entry(vmg_ index_val, 0, 0);
 
     /* if we found an existing entry, modify it; otherwise, add a new one */
     if (entry != 0)
-    {   
+    {
         /* set the new value for this entry */
         set_entry_val_undo(vmg_ self, entry, new_val);
     }
@@ -1226,7 +1226,7 @@ int CVmObjLookupTable::set_index_val_q(VMG_ vm_val_t *new_container,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Property evaluator - determine if the given key is in the table 
+ *   Property evaluator - determine if the given key is in the table
  */
 int CVmObjLookupTable::getp_key_present(VMG_ vm_obj_id_t self,
                                         vm_val_t *retval, uint *argc)
@@ -1241,7 +1241,7 @@ int CVmObjLookupTable::getp_key_present(VMG_ vm_obj_id_t self,
 
     /* get the key */
     G_stk->pop(&key);
-    
+
     /* find the entry for this key */
     entry = find_entry(vmg_ &key, 0, 0);
 
@@ -1253,7 +1253,7 @@ int CVmObjLookupTable::getp_key_present(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   Property evaluator - remove an entry given a key 
+ *   Property evaluator - remove an entry given a key
  */
 int CVmObjLookupTable::getp_remove_entry(VMG_ vm_obj_id_t self,
                                          vm_val_t *retval, uint *argc)
@@ -1297,7 +1297,7 @@ int CVmObjLookupTable::getp_remove_entry(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   Property evaluator - apply a callback to each entry in the table 
+ *   Property evaluator - apply a callback to each entry in the table
  */
 int CVmObjLookupTable::getp_apply_all(VMG_ vm_obj_id_t self,
                                       vm_val_t *retval, uint *argc)
@@ -1307,7 +1307,7 @@ int CVmObjLookupTable::getp_apply_all(VMG_ vm_obj_id_t self,
     static CVmNativeCodeDesc desc(1);
     uint i;
     vm_rcdesc rc(vmg_ "LookupTable.applyAll", self, 3, G_stk->get(0), argc);
-    
+
     /* check arguments */
     if (get_prop_check_argc(retval, argc, &desc))
         return TRUE;
@@ -1322,19 +1322,19 @@ int CVmObjLookupTable::getp_apply_all(VMG_ vm_obj_id_t self,
     for (i = get_entry_count(), entry = get_ext()->idx_to_val(0) ;
          i != 0 ; ++entry, --i)
     {
-        /* 
+        /*
          *   if the entry is in use (it is if the key is non-empty), invoke
-         *   the callback on it 
+         *   the callback on it
          */
         if (entry->key.typ != VM_EMPTY)
         {
             /* push the arguments - (key, val) - push in reverse order */
             G_stk->push(&entry->val);
             G_stk->push(&entry->key);
-            
+
             /* invoke the callback */
             G_interpreter->call_func_ptr(vmg_ fn, 2, &rc, 0);
-            
+
             /* replace this element with the result */
             set_entry_val_undo(vmg_ self, entry, G_interpreter->get_r0());
         }
@@ -1351,7 +1351,7 @@ int CVmObjLookupTable::getp_apply_all(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   Property evaluator - invoke a callback for each entry in the table 
+ *   Property evaluator - invoke a callback for each entry in the table
  */
 int CVmObjLookupTable::getp_for_each(VMG_ vm_obj_id_t self,
                                      vm_val_t *retval, uint *argc)
@@ -1362,7 +1362,7 @@ int CVmObjLookupTable::getp_for_each(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   Property evaluator - invoke a callback for each entry in the table 
+ *   Property evaluator - invoke a callback for each entry in the table
  */
 int CVmObjLookupTable::getp_for_each_assoc(VMG_ vm_obj_id_t self,
                                            vm_val_t *retval, uint *argc)
@@ -1373,7 +1373,7 @@ int CVmObjLookupTable::getp_for_each_assoc(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   general processor for forEach/forEachAssoc 
+ *   general processor for forEach/forEachAssoc
  */
 int CVmObjLookupTable::for_each_gen(VMG_ vm_obj_id_t self,
                                     vm_val_t *retval, uint *argc,
@@ -1398,9 +1398,9 @@ int CVmObjLookupTable::for_each_gen(VMG_ vm_obj_id_t self,
     for (i = get_entry_count(), entry = get_ext()->idx_to_val(0) ;
          i != 0 ; --i, ++entry)
     {
-        /* 
+        /*
          *   if it's in use (i.e., if the key is non-empty), invoke the
-         *   callback for the entry 
+         *   callback for the entry
          */
         if (entry->key.typ != VM_EMPTY)
         {
@@ -1410,7 +1410,7 @@ int CVmObjLookupTable::for_each_gen(VMG_ vm_obj_id_t self,
             /* push the key if desired */
             if (pass_key_to_cb)
                 G_stk->push(&entry->key);
-            
+
             /* invoke the callback */
             G_interpreter->call_func_ptr(vmg_ fn, pass_key_to_cb ? 2 : 1,
                                          rc, 0);
@@ -1427,8 +1427,8 @@ int CVmObjLookupTable::for_each_gen(VMG_ vm_obj_id_t self,
     return TRUE;
 }
 
-/* 
- *   iterate over the table's contents through a callback 
+/*
+ *   iterate over the table's contents through a callback
  */
 void CVmObjLookupTable::for_each(
     VMG_ void (*cb)(VMG_ const vm_val_t *key,
@@ -1441,9 +1441,9 @@ void CVmObjLookupTable::for_each(
     for (i = get_entry_count(), entry = get_ext()->idx_to_val(0) ;
          i != 0 ; --i, ++entry)
     {
-        /* 
+        /*
          *   if it's in use (i.e., if the key is non-empty), invoke the
-         *   callback for the entry 
+         *   callback for the entry
          */
         if (entry->key.typ != VM_EMPTY)
             (*cb)(vmg_ &entry->key, &entry->val, ctx);
@@ -1479,7 +1479,7 @@ int CVmObjLookupTable::getp_count_entries(VMG_ vm_obj_id_t self,
     uint i;
     int cnt;
     vm_lookup_val *entry;
-    
+
     /* check arguments */
     if (get_prop_check_argc(retval, argc, &desc))
         return TRUE;
@@ -1502,7 +1502,7 @@ int CVmObjLookupTable::getp_count_entries(VMG_ vm_obj_id_t self,
 
 
 /*
- *   Property evaluator - make a list of all of the keys in the table 
+ *   Property evaluator - make a list of all of the keys in the table
  */
 int CVmObjLookupTable::getp_keys_to_list(VMG_ vm_obj_id_t self,
                                          vm_val_t *retval, uint *argc)
@@ -1512,7 +1512,7 @@ int CVmObjLookupTable::getp_keys_to_list(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   Property evaluator - make a list of all of the values in the table 
+ *   Property evaluator - make a list of all of the values in the table
  */
 int CVmObjLookupTable::getp_vals_to_list(VMG_ vm_obj_id_t self,
                                          vm_val_t *retval, uint *argc)
@@ -1522,7 +1522,7 @@ int CVmObjLookupTable::getp_vals_to_list(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   General handler for keys_to_list and vals_to_list 
+ *   General handler for keys_to_list and vals_to_list
  */
 int CVmObjLookupTable::getp_make_list(VMG_ vm_obj_id_t self,
                                       vm_val_t *retval, uint *argc,
@@ -1539,7 +1539,7 @@ int CVmObjLookupTable::getp_make_list(VMG_ vm_obj_id_t self,
 
     /* make the list */
     make_list(vmg_ retval, store_keys, 0);
-    
+
     /* discard our gc protection */
     G_stk->discard();
 
@@ -1549,7 +1549,7 @@ int CVmObjLookupTable::getp_make_list(VMG_ vm_obj_id_t self,
 
 /*
  *   Low-level list maker.  Creates a list of all of the keys or values in
- *   the table. 
+ *   the table.
  */
 void CVmObjLookupTable::make_list(VMG_ vm_val_t *retval, int store_keys,
                                   int (*filter)(VMG_ const vm_val_t *,
@@ -1614,7 +1614,7 @@ void CVmObjLookupTable::make_list(VMG_ vm_val_t *retval, int store_keys,
 
 
 /*
- *   Property evaluator: get the default value 
+ *   Property evaluator: get the default value
  */
 int CVmObjLookupTable::getp_get_def_val(VMG_ vm_obj_id_t self,
                                         vm_val_t *retval, uint *argc)
@@ -1636,7 +1636,7 @@ void CVmObjLookupTable::get_default_val(vm_val_t *val)
 }
 
 /*
- *   Property evaluator: set the default value 
+ *   Property evaluator: set the default value
  */
 int CVmObjLookupTable::getp_set_def_val(VMG_ vm_obj_id_t self,
                                         vm_val_t *retval, uint *argc)
@@ -1695,7 +1695,7 @@ int CVmObjLookupTable::getp_nthVal(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   Get the nth element's key and/or value 
+ *   Get the nth element's key and/or value
  */
 void CVmObjLookupTable::get_nth_ele(VMG_ vm_val_t *key, vm_val_t *val,
                                     vm_obj_id_t self, long idx)
@@ -1703,9 +1703,9 @@ void CVmObjLookupTable::get_nth_ele(VMG_ vm_val_t *key, vm_val_t *val,
     uint i;
     vm_lookup_val *entry;
 
-    /* 
+    /*
      *   if the index is zero, and we're asking for the value, return the
-     *   default value 
+     *   default value
      */
     if (idx == 0)
     {
@@ -1715,7 +1715,7 @@ void CVmObjLookupTable::get_nth_ele(VMG_ vm_val_t *key, vm_val_t *val,
             *val = get_ext()->default_value;
         return;
     }
-    
+
     /* iterate over our buckets */
     for (i = get_entry_count(), entry = get_ext()->idx_to_val(0) ;
          i != 0 ; --i, ++entry)
@@ -1747,12 +1747,12 @@ void CVmObjLookupTable::get_nth_ele(VMG_ vm_val_t *key, vm_val_t *val,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   WeakRefLookupTable 
+ *   WeakRefLookupTable
  */
 
 
-/*  
- *   statics 
+/*
+ *   statics
  */
 
 /* metaclass registration object */
@@ -1778,8 +1778,8 @@ vm_obj_id_t CVmObjWeakRefLookupTable::
     return id;
 }
 
-/* 
- *   create dynamically using stack arguments 
+/*
+ *   create dynamically using stack arguments
  */
 vm_obj_id_t CVmObjWeakRefLookupTable::create_from_stack(
     VMG_ const uchar **pc_ptr, uint argc)
@@ -1792,9 +1792,9 @@ vm_obj_id_t CVmObjWeakRefLookupTable::create_from_stack(
     /* parse the arguments */
     get_constructor_args(vmg_ argc, &bucket_count, &init_capacity, &src_obj);
 
-    /* 
+    /*
      *   allocate the object ID - this type of construction never creates a
-     *   root object 
+     *   root object
      */
     id = vm_new_id(vmg_ FALSE, TRUE, TRUE);
 
@@ -1815,7 +1815,7 @@ vm_obj_id_t CVmObjWeakRefLookupTable::create_from_stack(
 
 /*
  *   Mark undo references.  Keys are strongly referenced, so mark the key in
- *   the record, if present.  
+ *   the record, if present.
  */
 void CVmObjWeakRefLookupTable::
    mark_undo_ref(VMG_ struct CVmUndoRecord *undo_rec)
@@ -1831,7 +1831,7 @@ void CVmObjWeakRefLookupTable::
 }
 
 /*
- *   Mark references.  Keys (but not values) are strongly referenced.  
+ *   Mark references.  Keys (but not values) are strongly referenced.
  */
 void CVmObjWeakRefLookupTable::mark_refs(VMG_ uint state)
 {
@@ -1853,9 +1853,9 @@ void CVmObjWeakRefLookupTable::mark_refs(VMG_ uint state)
             if (entry->key.typ == VM_OBJ)
                 G_obj_table->mark_all_refs(entry->key.val.obj, state);
 
-            /* 
+            /*
              *   note that we only reference our value weakly, so do not
-             *   mark it here 
+             *   mark it here
              */
         }
     }
@@ -1863,7 +1863,7 @@ void CVmObjWeakRefLookupTable::mark_refs(VMG_ uint state)
 
 /*
  *   Remove stale weak references from an undo record.  Value entries are
- *   weakly referenced.  
+ *   weakly referenced.
  */
 void CVmObjWeakRefLookupTable::
    remove_stale_undo_weak_ref(VMG_ struct CVmUndoRecord *undo_rec)
@@ -1873,18 +1873,18 @@ void CVmObjWeakRefLookupTable::
     /* presume we won't want to forget the record */
     forget_record = FALSE;
 
-    /* 
+    /*
      *   if the old value in the undo record refers to an object, forget
-     *   about it 
+     *   about it
      */
     if (G_obj_table->is_obj_deletable(&undo_rec->oldval))
     {
-        /* 
+        /*
          *   the object is being deleted - since we only weakly reference
          *   our objects, we must forget about this object now; this also
          *   means we can forget about the record entirely, since there is
          *   no need to apply it in the future now that it doesn't do
-         *   anything 
+         *   anything
          */
         undo_rec->oldval.set_nil();
         forget_record = TRUE;
@@ -1906,9 +1906,9 @@ void CVmObjWeakRefLookupTable::
     }
 }
 
-/* 
+/*
  *   Remove stale weak references.  Our values are weak references, so
- *   remove any entries that have values that are about to be deleted.  
+ *   remove any entries that have values that are about to be deleted.
  */
 void CVmObjWeakRefLookupTable::remove_stale_weak_refs(VMG0_)
 {
@@ -1934,19 +1934,19 @@ void CVmObjWeakRefLookupTable::remove_stale_weak_refs(VMG0_)
             /* remember the next entry, in case we delete this one */
             nxt = entry->nxt;
 
-            /* 
+            /*
              *   if the value has an object reference that has become stale,
-             *   delete the entry 
+             *   delete the entry
              */
             if (G_obj_table->is_obj_deletable(&entry->val))
             {
                 /* it's deletable, so delete the entire record */
                 unlink_entry(vmg_ entry, hashval, prv);
 
-                /* 
+                /*
                  *   note that we do NOT advance the prv pointer - we've
                  *   deleted this entry, so the one preceding it is now the
-                 *   previous for the one following this one 
+                 *   previous for the one following this one
                  */
             }
             else
@@ -1961,11 +1961,11 @@ void CVmObjWeakRefLookupTable::remove_stale_weak_refs(VMG0_)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   LookupTable Iterator metaclass 
+ *   LookupTable Iterator metaclass
  */
 
 /*
- *   statics 
+ *   statics
  */
 
 /* metaclass registration object */
@@ -1995,7 +1995,7 @@ vm_obj_id_t CVmObjIterLookupTable::create_for_coll(VMG_ const vm_val_t *coll)
 }
 
 /*
- *   constructor 
+ *   constructor
  */
 CVmObjIterLookupTable::CVmObjIterLookupTable(VMG_ const vm_val_t *coll)
 {
@@ -2009,9 +2009,9 @@ CVmObjIterLookupTable::CVmObjIterLookupTable(VMG_ const vm_val_t *coll)
     /* clear the flags */
     set_flags(0);
 
-    /* 
+    /*
      *   set up at index zero - we're not at a valid entry until initialized
-     *   with getNext 
+     *   with getNext
      */
     set_entry_index(0);
 }
@@ -2019,7 +2019,7 @@ CVmObjIterLookupTable::CVmObjIterLookupTable(VMG_ const vm_val_t *coll)
 /*
  *   Find the first valid entry, starting at the given entry index.  If the
  *   given index refers to a valid entry, we return it.  If there is no
- *   valid next entry, we return zero.  
+ *   valid next entry, we return zero.
  */
 uint CVmObjIterLookupTable::find_first_valid_entry(VMG_ uint entry) const
 {
@@ -2034,9 +2034,9 @@ uint CVmObjIterLookupTable::find_first_valid_entry(VMG_ uint entry) const
     if (entry > ltab->get_entry_count())
         return 0;
 
-    /* 
+    /*
      *   scan entries until we find one with a non-empty key (an empty key
-     *   value indicates that the entry is free) 
+     *   value indicates that the entry is free)
      */
     for ( ; entry <= ltab->get_entry_count() ; ++entry)
     {
@@ -2055,7 +2055,7 @@ uint CVmObjIterLookupTable::find_first_valid_entry(VMG_ uint entry) const
 }
 
 /*
- *   notify of deletion 
+ *   notify of deletion
  */
 void CVmObjIterLookupTable::notify_delete(VMG_ int)
 {
@@ -2065,7 +2065,7 @@ void CVmObjIterLookupTable::notify_delete(VMG_ int)
 }
 
 /*
- *   property evaluator - get the next item 
+ *   property evaluator - get the next item
  */
 int CVmObjIterLookupTable::getp_get_next(VMG_ vm_obj_id_t self,
                                          vm_val_t *retval, uint *argc)
@@ -2086,9 +2086,9 @@ int CVmObjIterLookupTable::getp_get_next(VMG_ vm_obj_id_t self,
     /* advance to the next valid index after the current one */
     entry = find_first_valid_entry(vmg_ get_entry_index() + 1);
 
-    /* 
+    /*
      *   if we're past the end of the table, set the index to zero to
-     *   indicate that we're done 
+     *   indicate that we're done
      */
     if (entry == 0)
         err_throw(VMERR_OUT_OF_RANGE);
@@ -2103,7 +2103,7 @@ int CVmObjIterLookupTable::getp_get_next(VMG_ vm_obj_id_t self,
     return TRUE;
 }
 
-/* 
+/*
  *   property evaluator - get current value
  */
 int CVmObjIterLookupTable::getp_get_cur_val(VMG_ vm_obj_id_t self,
@@ -2122,7 +2122,7 @@ int CVmObjIterLookupTable::getp_get_cur_val(VMG_ vm_obj_id_t self,
     return TRUE;
 }
 
-/* 
+/*
  *   property evaluator - get current key
  */
 int CVmObjIterLookupTable::getp_get_cur_key(VMG_ vm_obj_id_t self,
@@ -2144,7 +2144,7 @@ int CVmObjIterLookupTable::getp_get_cur_key(VMG_ vm_obj_id_t self,
 /*
  *   Get the current entry index, value, and key for the current entry.  Any
  *   of the output pointers can be null if the corresponding value is not
- *   needed by the caller.  
+ *   needed by the caller.
  */
 void CVmObjIterLookupTable::get_cur_entry(VMG_ vm_val_t *valp,
                                           vm_val_t *keyp) const
@@ -2177,8 +2177,8 @@ void CVmObjIterLookupTable::get_cur_entry(VMG_ vm_val_t *valp,
         *keyp = entryp->key;
 }
 
-/* 
- *   property evaluator - is next value available?  
+/*
+ *   property evaluator - is next value available?
  */
 int CVmObjIterLookupTable::getp_is_next_avail(VMG_ vm_obj_id_t self,
                                               vm_val_t *retval, uint *argc)
@@ -2200,8 +2200,8 @@ int CVmObjIterLookupTable::getp_is_next_avail(VMG_ vm_obj_id_t self,
     return TRUE;
 }
 
-/* 
- *   property evaluator - reset to first item 
+/*
+ *   property evaluator - reset to first item
  */
 int CVmObjIterLookupTable::getp_reset_iter(VMG_ vm_obj_id_t self,
                                            vm_val_t *retval, uint *argc)
@@ -2223,29 +2223,29 @@ int CVmObjIterLookupTable::getp_reset_iter(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   Set the next index value, saving undo if necessary 
+ *   Set the next index value, saving undo if necessary
  */
 void CVmObjIterLookupTable::set_entry_index_undo(
     VMG_ vm_obj_id_t self, uint entry_idx)
-                                         
+
 {
     /* save undo if necessary */
     if (G_undo != 0 && !(get_flags() & VMOBJITERLOOKUPTABLE_UNDO))
     {
         vm_val_t val;
 
-        /* 
+        /*
          *   Add the undo record.  Store the entry index as the key (it's
          *   not really a key, but it'll do as a place to store the data).
          *   We don't need anything in the payload, so store a dummy nil
-         *   value.  
+         *   value.
          */
         val.set_nil();
         G_undo->add_new_record_int_key(vmg_ self, get_entry_index(), &val);
 
-        /* 
+        /*
          *   set the undo bit so we don't save redundant undo for this
-         *   savepoint 
+         *   savepoint
          */
         set_flags(get_flags() | VMOBJITERLOOKUPTABLE_UNDO);
     }
@@ -2255,19 +2255,19 @@ void CVmObjIterLookupTable::set_entry_index_undo(
 }
 
 /*
- *   apply undo 
+ *   apply undo
  */
 void CVmObjIterLookupTable::apply_undo(VMG_ CVmUndoRecord *rec)
 {
-    /* 
+    /*
      *   the integer key in the undo record is my saved index value (and is
-     *   the only thing in our state that can ever change) 
+     *   the only thing in our state that can ever change)
      */
     set_entry_index((uint)rec->id.intval);
 }
 
 /*
- *   mark references 
+ *   mark references
  */
 void CVmObjIterLookupTable::mark_refs(VMG_ uint state)
 {
@@ -2279,7 +2279,7 @@ void CVmObjIterLookupTable::mark_refs(VMG_ uint state)
 }
 
 /*
- *   load from an image file 
+ *   load from an image file
  */
 void CVmObjIterLookupTable::load_from_image(VMG_ vm_obj_id_t self,
                                             const char *ptr, size_t siz)
@@ -2291,9 +2291,9 @@ void CVmObjIterLookupTable::load_from_image(VMG_ vm_obj_id_t self,
         ext_ = 0;
     }
 
-    /* 
+    /*
      *   Allocate a new extension.  Make sure it's at least as large as the
-     *   current standard extension size.  
+     *   current standard extension size.
      */
     ext_ = (char *)G_mem->get_var_heap()
            ->alloc_mem(siz < VMOBJITERLOOKUPTABLE_EXT_SIZE
@@ -2302,9 +2302,9 @@ void CVmObjIterLookupTable::load_from_image(VMG_ vm_obj_id_t self,
     /* copy the image data to our extension */
     memcpy(ext_, ptr, siz);
 
-    /* 
+    /*
      *   save our image data pointer in the object table, so that we can
-     *   access it (without storing it ourselves) during a reload 
+     *   access it (without storing it ourselves) during a reload
      */
     G_obj_table->save_image_pointer(self, ptr, siz);
 
@@ -2313,7 +2313,7 @@ void CVmObjIterLookupTable::load_from_image(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   re-load from an image file 
+ *   re-load from an image file
  */
 void CVmObjIterLookupTable::reload_from_image(VMG_ vm_obj_id_t,
                                               const char *ptr, size_t siz)
@@ -2326,7 +2326,7 @@ void CVmObjIterLookupTable::reload_from_image(VMG_ vm_obj_id_t,
 }
 
 /*
- *   save 
+ *   save
  */
 void CVmObjIterLookupTable::save_to_file(VMG_ CVmFile *fp)
 {
@@ -2335,7 +2335,7 @@ void CVmObjIterLookupTable::save_to_file(VMG_ CVmFile *fp)
 }
 
 /*
- *   restore 
+ *   restore
  */
 void CVmObjIterLookupTable::restore_from_file(VMG_ vm_obj_id_t,
                                               CVmFile *fp,

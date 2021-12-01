@@ -42,9 +42,9 @@
  *   conventions, that we should attempt to load to get a mapping between
  *   the current native character set and the internal character set
  *   identified by 'internal_id'.
- *   
+ *
  *   The internal character set ID is a string of up to 4 characters.
- *   
+ *
  *   On DOS, the native character set is a DOS code page.  DOS code pages
  *   are identified by 3- or 4-digit identifiers; for example, code page
  *   437 is the default US ASCII DOS code page.  We generate the
@@ -52,16 +52,16 @@
  *   set identifier to the DOS code page number, then appending ".TCP" to
  *   the result.  So, to map between ISO Latin-1 (internal ID = "La1") and
  *   DOS code page 437, we would generate the filename "437La1.TCP".
- *   
+ *
  *   Note that this function should do only two things.  First, determine
  *   the current native character set that's in use.  Second, generate a
  *   filename based on the current native code page and the internal ID.
  *   This function is NOT responsible for figuring out the mapping or
  *   anything like that -- it's simply where we generate the correct
  *   filename based on local convention.
- *   
+ *
  *   'filename' is a buffer of at least OSFNMAX characters.
- *   
+ *
  *   'argv0' is the executable filename from the original command line.
  *   This parameter is provided so that the system code can look for
  *   mapping files in the original TADS executables directory, if desired.
@@ -76,7 +76,7 @@ void os_gen_charmap_filename(char *filename, char *internal_id, char *argv0)
 /*
  *   get a suitable seed for a random number generator; should use the
  *   system clock or some other source of an unpredictable and changing
- *   seed value 
+ *   seed value
  */
 void os_rand(long *seed)
 {
@@ -137,42 +137,42 @@ void os_flush(void)
  *   only needs to be implemented for operating systems that use
  *   event-driven drawing based on window invalidations; the Windows and
  *   Macintosh GUI's both use this method for drawing window contents.
- *   
+ *
  *   The purpose of this routine is to refresh the display prior to a
  *   potentially long-running computation, to avoid the appearance that the
  *   application is frozen during the computation delay.
- *   
+ *
  *   Platforms that don't need to process events in the main thread in order
  *   to draw their window contents do not need to do anything here.  In
  *   particular, text-mode implementations generally don't need to implement
  *   this routine.
- *   
+ *
  *   This routine doesn't absolutely need a non-empty implementation on any
  *   platform, but it will provide better visual feedback if implemented for
- *   those platforms that do use event-driven drawing.  
+ *   those platforms that do use event-driven drawing.
  */
 void os_update_display()
 {
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   os_plain() - Use plain ascii mode for the display.  If possible and
  *   necessary, turn off any text formatting effects, such as cursor
  *   positioning, highlighting, or coloring.  If this routine is called,
  *   the terminal should be treated as a simple text stream; users might
  *   wish to use this mode for things like text-to-speech converters.
- *   
+ *
  *   Purely graphical implementations that cannot offer a textual mode
  *   (such as Mac OS or Windows) can ignore this setting.
- *   
+ *
  *   If this routine is to be called, it must be called BEFORE os_init().
  *   The implementation should set a flag so that os_init() will know to
- *   set up the terminal for plain text output.  
+ *   set up the terminal for plain text output.
  */
-/* 
+/*
  *   some platforms (e.g. Mac OS) define this to be a null macro, so don't
- *   define a prototype in those cases 
+ *   define a prototype in those cases
  */
 void os_plain(void)
 {
@@ -180,10 +180,10 @@ void os_plain(void)
 /*
  *   Set non-stop mode.  This tells the OS layer that it should disable any
  *   MORE prompting it would normally do.
- *   
+ *
  *   This routine is needed only when the OS layer handles MORE prompting; on
  *   character-mode platforms, where the prompting is handled in the portable
- *   console layer, this can be a dummy implementation.  
+ *   console layer, this can be a dummy implementation.
  */
 void os_nonstop_mode(int flag)
 {
@@ -194,7 +194,7 @@ void os_nonstop_mode(int flag)
  *   milliseconds, then return.  On multi-tasking systems, this should use
  *   a system API to unschedule the current process for the desired delay;
  *   on single-tasking systems, this can simply sit in a wait loop until
- *   the desired interval has elapsed.  
+ *   the desired interval has elapsed.
  */
 void os_sleep_ms(long delay_in_milliseconds)
 {
@@ -205,7 +205,7 @@ void os_sleep_ms(long delay_in_milliseconds)
 #endif
 }
 
-/* 
+/*
  *   Pause prior to exit, if desired.  This is meant to be called by
  *   portable code just before the program is to be terminated; it can be
  *   implemented to show a prompt and wait for user acknowledgment before
@@ -214,7 +214,7 @@ void os_sleep_ms(long delay_in_milliseconds)
  *   operating system: this gives the implementation a chance to pause
  *   before exiting, so that the window doesn't just disappear
  *   unceremoniously.
- *   
+ *
  *   This is allowed to do nothing at all.  For regular character-mode
  *   systems, this routine usually doesn't do anything, because when the
  *   program exits, the terminal will simply return to the OS command
@@ -223,26 +223,26 @@ void os_sleep_ms(long delay_in_milliseconds)
  *   graphical systems where the window will remain open, even after the
  *   program exits, until the user explicitly closes the window, there's no
  *   need to do anything here.
- *   
+ *
  *   If this is implemented to pause, then this routine MUST show some kind
  *   of prompt to let the user know we're waiting.  In the simple case of a
  *   text-mode terminal window on a graphical OS, this should simply print
  *   out some prompt text ("Press a key to exit...") and then wait for the
  *   user to acknowledge the prompt (by pressing a key, for example).  For
  *   graphical systems, the prompt could be placed in the window's title
- *   bar, or status-bar, or wherever is appropriate for the OS.  
+ *   bar, or status-bar, or wherever is appropriate for the OS.
  */
 void os_expause(void)
 {
 }
 
-/* 
+/*
  *   Install/uninstall the break handler.  If possible, the OS code should
  *   set (if 'install' is true) or clear (if 'install' is false) a signal
  *   handler for keyboard break signals (control-C, etc, depending on
  *   local convention).  The OS code should set its own handler routine,
  *   which should note that a break occurred with an internal flag; the
- *   portable code uses os_break() from time to time to poll this flag.  
+ *   portable code uses os_break() from time to time to poll this flag.
  */
 void os_instbrk(int install)
 {
@@ -254,15 +254,15 @@ void os_instbrk(int install)
  *   routine will be invoked only if we're running as a stand-alone game,
  *   and the game author specified a non-standard saved-game extension
  *   when creating the stand-alone game.
- *   
+ *
  *   This routine is not required if the system does not use the standard,
  *   semi-portable os0.c implementation.  Even if the system uses the
  *   standard os0.c implementation, it can provide an empty routine here
  *   if the system code doesn't need to do anything special with this
  *   information.
- *   
+ *
  *   The extension is specified as a null-terminated string.  The
- *   extension does NOT include the leading period.  
+ *   extension does NOT include the leading period.
  */
 void os_set_save_ext(const char *ext)
 {
@@ -273,7 +273,7 @@ void os_set_save_ext(const char *ext)
  *   characters to and from the given local character set.  Fills in the
  *   buffer with the implementation-dependent name of the desired
  *   character set map.  See below for the character set ID codes.
- *   
+ *
  *   For example, on Windows, the implementation would obtain the
  *   appropriate active code page (which is simply a Windows character set
  *   identifier number) from the operating system, and build the name of
@@ -281,13 +281,13 @@ void os_set_save_ext(const char *ext)
  *   Macintosh, the implementation would look up the current script system
  *   and return the name of the Unicode mapping for that script system,
  *   such as "ROMAN" or "CENTEURO".
- *   
+ *
  *   If it is not possible to determine the specific character set that is
  *   in use, this function should return "asc7dflt" (ASCII 7-bit default)
  *   as the character set identifier on an ASCII system, or an appropriate
  *   base character set name on a non-ASCII system.  "asc7dflt" is the
  *   generic character set mapping for plain ASCII characters.
- *   
+ *
  *   The given buffer must be at least 32 bytes long; the implementation
  *   must limit the result it stores to 32 bytes.  (We use a fixed-size
  *   buffer in this interface for simplicity, and because there seems no
@@ -296,10 +296,10 @@ void os_set_save_ext(const char *ext)
  *   long.  Note that this function doesn't generate a filename, but
  *   simply a mapping name; in practice, a map name will be used to
  *   construct a mapping file name.)
- *   
+ *
  *   Because this function obtains the Unicode mapping name, there is no
  *   need to specify the internal character set to be used: the internal
- *   character set is Unicode.  
+ *   character set is Unicode.
  */
 /*
  *   Implementation note: when porting this routine, the convention that
@@ -311,7 +311,7 @@ void os_set_save_ext(const char *ext)
  *   these listings can be used as the basis of the mapping files that you
  *   include with your release.  For example, on Windows, the convention
  *   is to use the code page number to construct the map name, as in
- *   CP1252 or CP1250.  
+ *   CP1252 or CP1250.
  */
 void os_get_charmap(char *mapname, int charmap_id)
 {

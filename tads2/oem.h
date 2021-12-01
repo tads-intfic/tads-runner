@@ -1,10 +1,10 @@
 /* $Header: d:/cvsroot/tads/TADS2/OEMPROTO.H,v 1.2 1999/05/17 02:52:12 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1996, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -13,11 +13,11 @@ Function
   This file identifies the person who created this version of TADS.
   If you're porting TADS to a new machine, or you're customizing
   something, THIS MEANS YOU!
-  
+
   The OEM name defined herein is displayed in the version banner of
   each executable to make it easy to identify the source of a particular
   version of the system.
-  
+
   This file also specifies the OEM version number.  This version
   number identifies the revision level of a particular base version
   of the TADS source code as released by a particular OEM.
@@ -62,7 +62,7 @@ Modified
  *   distinguish it from versions produced by other people; you should use
  *   your name or email address to ensure uniqueness.  If the name is
  *   already defined (some people like to define it in the makefile), we
- *   won't redefine it here.  
+ *   won't redefine it here.
  */
 #ifndef TADS_OEM_NAME
 $$$ #define your own TADS_OEM_NAME here, similar to this:
@@ -74,14 +74,14 @@ $$$ #define your own TADS_OEM_NAME here, similar to this:
 /*
  *   NOTE - if you redistribute this source file, please leave the dollar
  *   signs intact above so that the next person who gets a copy gets a
- *   compiler error and thereby realizes that they need to update this. 
+ *   compiler error and thereby realizes that they need to update this.
  */
 
 /*
  *   OEM version level - increment for each new release based on the same
  *   original source code version.  Note that this is a string.  Some
  *   people prefer to define the OEM patch level in their makefiles, so we
- *   won't attempt to redefine it if it's already been defined.  
+ *   won't attempt to redefine it if it's already been defined.
  */
 #ifndef TADS_OEM_VERSION
 # define TADS_OEM_VERSION  "0"
@@ -89,7 +89,7 @@ $$$ #define your own TADS_OEM_NAME here, similar to this:
 
 /*
  *   Some external strings that must be defined for the run-time banner.
- *   Please refer to oem.c for the definitions of these strings. 
+ *   Please refer to oem.c for the definitions of these strings.
  */
 extern char G_tads_oem_app_name[];
 extern char G_tads_oem_dbg_name[];

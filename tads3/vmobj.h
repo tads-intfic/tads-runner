@@ -1,18 +1,18 @@
 /* $Header: d:/cvsroot/tads/tads3/VMOBJ.H,v 1.3 1999/07/11 00:46:58 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmobj.h - VM object memory manager
 Function
-  
+
 Notes
-  
+
 Modified
   10/20/98 MJRoberts  - Creation
 */
@@ -62,13 +62,13 @@ Modified
  *   register the metaclass.  This declaration must occur in the
  *   metaclass's header file, and must be OUTSIDE of the region protected
  *   against multiple inclusion.  The definition should look like this:
- *   
+ *
  *   VM_REGISTER_METACLASS("metaclass-string-name", CVmClassName)
- *   
+ *
  *   The string name must be the universally unique metaclass identifier
  *   string registered with the T3 VM Specification Maintainer.  The class
  *   name is the C++ class (derived from CVmObject).
- *   
+ *
  *   Each CVmObject subclass must define certain static construction
  *   methods in addition to the virtual methods defined as abstract in
  *   CVmObject.  See the comments on CVmObject for details.
@@ -79,15 +79,15 @@ Modified
 /*
  *   To get a pointer to an object (CVmObject *) given an object ID
  *   (vm_obj_id_t), use this:
- *   
+ *
  *   CVmObject *obj = vm_objp(vmg_ id);
- *   
+ *
  *   To allocate a new object:
- *   
+ *
  *   vm_obj_id_t id = vm_newid(vmg_ in_root_set);
  *.  CVmObject *obj = new (vmg_ id) CVmObjXxx(constructor params);
- *   
- *   The functions vm_objp() and vm_newid() are defined later in this file.  
+ *
+ *   The functions vm_objp() and vm_newid() are defined later in this file.
  */
 
 
@@ -95,21 +95,21 @@ Modified
 /*
  *   Garbage collector work increment.  This is the number of objects that
  *   the GC will process on each call to gc_pass_queue().
- *   
+ *
  *   The point of running the GC incrementally is to allow GC work to be
  *   interleaved with long-running user I/O operations (such as reading a
  *   line of text from the keyboard) in the foreground thread, so the work
  *   increment should be chosen so that each call to this routine
  *   completes quickly enough that the user will perceive no delay.
  *   However, making this number too small will introduce additional
- *   overhead by making an excessive number of function calls.  
+ *   overhead by making an excessive number of function calls.
  */
 const int VM_GC_WORK_INCREMENT = 500;
 
 
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   flag values for propDefined()
  */
 #define VMOBJ_PROPDEF_ANY           1
@@ -131,50 +131,50 @@ const int VM_GC_WORK_INCREMENT = 500;
  *   of stored data, this is simply a vtable pointer) and an extension
  *   pointer.  The extension pointer points to the variable-size second
  *   part of the object, which contains all of the additional instance
- *   data for the object.  
+ *   data for the object.
  */
 
 /* ------------------------------------------------------------------------ */
 /*
- *   
+ *
  *   The fixed-size parts, or object headers, are allocated from a set of
  *   arrays.  A master array has a pointer to the sub-arrays, and each
  *   sub-array has a fixed number of slots for the fixed-size parts.
  *   Thus, it's very fast to find an object header given an object ID.
- *   
+ *
  *   Because each fixed-size part has an abstract interface, we can have
  *   multiple implementations for the objects.  This would allow us, for
  *   example, to include native objects (with an appropriate interface) as
  *   though they were normal VM objects.  It also allows us to have
  *   different types of implementations for VM objects.
- *   
+ *
  *   The fixed-size object parts never move in memory, so we can refer to
  *   them with pointers.  We can efficiently re-use space as object
  *   headers are allocated and deleted, because a new object will always
  *   take up exactly the same size as a previous object whose space was
  *   freed.
- *   
+ *
  *   The fixed-size objects are always allocated within the page table,
  *   thus operator new is overridden to allocate memory within the page
- *   table.  
+ *   table.
  */
 /*
  *   In addition to the virtual methods listed, every object must define a
  *   data member as follows:
- *   
+ *
  *   public: static class CVmMetaclass *metaclass_reg_;
- *   
+ *
  *   This must be a static singleton instance of the CVmMetaclass subclass
  *   (see below) for the CVmObject subclass.  Each CVmObject subclass must
  *   have a corresponding CVmMetaclass subclass; the singleton member
  *   variable metaclass_reg_ provides the registration table entry that
  *   allows instances of this object to be dynamically linked from the
- *   image file.  
+ *   image file.
  */
 class CVmObject
 {
     friend class CVmVarHeap;
-    
+
 public:
     /* metaclass registration object (for the root object implementation) */
     static class CVmMetaclass *metaclass_reg_;
@@ -182,7 +182,7 @@ public:
     /*
      *   Default implementation for calling a static property.  We don't
      *   have any static properties at this level, so we'll simply return
-     *   false to indicate that the property wasn't evaluated.  
+     *   false to indicate that the property wasn't evaluated.
      */
     static int call_stat_prop(VMG_ vm_val_t *retval, const uchar **pc_ptr,
                               uint *argc, vm_prop_id_t);
@@ -191,12 +191,12 @@ public:
     virtual class CVmMetaclass *get_metaclass_reg() const
         { return metaclass_reg_; }
 
-    /* 
+    /*
      *   Get the image file version string for my metaclass object.  This is
      *   the version of the metaclass that the image file actually depends
      *   upon, which might be an earlier version than the one actually
      *   present in the implementation.  This can be used for varying
-     *   behavior to preserve compatibility with older versions.  
+     *   behavior to preserve compatibility with older versions.
      */
     const char *get_image_file_version(VMG0_) const;
 
@@ -205,30 +205,30 @@ public:
      *   version?  This returns true if the image file is dependent upon a
      *   version of the metaclass equal to or later than (higher than) the
      *   given version string.  The string should be given in the usual
-     *   metaclass format - "030001", for example.  
+     *   metaclass format - "030001", for example.
      */
     int image_file_version_ge(VMG_ const char *ver)
         { return strcmp(get_image_file_version(vmg0_), ver) >= 0; }
 
-    /* 
+    /*
      *   Is this object of the given metaclass?  Returns true if the
      *   object is an instance of 'meta' or inherits from the metaclass.
-     *   Each object class must override this.  
+     *   Each object class must override this.
      */
     virtual int is_of_metaclass(class CVmMetaclass *meta) const
         { return (meta == metaclass_reg_); }
 
-    /* 
+    /*
      *   Receive notification that this object is being deleted - the
      *   garbage collector calls this function when the object is
      *   unreachable.
-     *   
+     *
      *   Note that we don't use the real destructor, since we use our own
      *   memory management; instead, we have this virtual finalizer that
      *   we explicitly call when it's time to delete the object.  (This
      *   isn't entirely symmetrical with the overridden operator new, but
      *   the GC is the only code that can delete objects, and this saves
-     *   us the trouble of overriding operator delete for the object.)  
+     *   us the trouble of overriding operator delete for the object.)
      */
     virtual void notify_delete(VMG_ int in_root_set) = 0;
 
@@ -237,10 +237,10 @@ public:
      *   represent a class, or cannot be instanced, throw an error.  By
      *   default, objects cannot be instanced, so we'll simply throw an
      *   error.  If successful, leaves the new object in register R0.
-     *   
+     *
      *   Parameters to the constructor are passed on the VM stack; 'argc'
      *   gives the number of arguments on the stack.  This routine will
-     *   remove the arguments from the stack before returning.  
+     *   remove the arguments from the stack before returning.
      */
     virtual void create_instance(VMG_ vm_obj_id_t self,
                                  const uchar **pc_ptr, uint argc)
@@ -253,7 +253,7 @@ public:
      *   Determine if the object has a non-trivial finalizer.  Returns
      *   true if the object has a non-trivial finalizer, false if it has
      *   no finalizer or the finalizer is trivial and hence can be
-     *   ignored.  We'll return false by default.  
+     *   ignored.  We'll return false by default.
      */
     virtual int has_finalizer(VMG_ vm_obj_id_t /*self*/)
         { return FALSE; }
@@ -268,7 +268,7 @@ public:
 
     /*
      *   Determine if this is a class object.  This returns true if this
-     *   object is a class, false if it's an instance.  
+     *   object is a class, false if it's an instance.
      */
     virtual int is_class_object(VMG_ vm_obj_id_t /*self*/) const
         { return FALSE; }
@@ -278,14 +278,14 @@ public:
      *   Returns true if this object derives from the other object,
      *   directly or indirectly.  If this object derives from an object
      *   which in turn derives from the given object, then this object
-     *   derives (indirectly) from the given object.  
+     *   derives (indirectly) from the given object.
      */
     virtual int is_instance_of(VMG_ vm_obj_id_t obj);
 
-    /* 
+    /*
      *   Get the number of superclasses of the object, and get the nth
      *   superclass.  By default, we have one superclass, which is the
-     *   IntrinsicClass object that represents this metaclass.  
+     *   IntrinsicClass object that represents this metaclass.
      */
     virtual int get_superclass_count(VMG_ vm_obj_id_t /*self*/) const
         { return 1; }
@@ -296,7 +296,7 @@ public:
      *   Determine if the object has properties that can be enumerated.
      *   Returns true if so, false if not.  Note that this should return
      *   true for an object of a type that provides properties, even if
-     *   the instance happens to have zero properties.  
+     *   the instance happens to have zero properties.
      */
     virtual int provides_props(VMG0_) const { return FALSE; }
 
@@ -304,7 +304,7 @@ public:
      *   Enumerate properties of the object.  Invoke the callback for each
      *   property.  The callback is not permitted to make any changes to
      *   the object or its properties and should not invoke garbage
-     *   collection.  
+     *   collection.
      */
     virtual void enum_props(VMG_ vm_obj_id_t self,
                             void (*cb)(VMG_ void *ctx,
@@ -320,29 +320,29 @@ public:
                           vm_obj_id_t self, vm_prop_id_t prop,
                           const vm_val_t *val) = 0;
 
-    /* 
+    /*
      *   Get a property value.  We do not evaluate the property, but
      *   merely get the raw value; thus, if the property value is of type
      *   code, we simply retrieve the code offset pointer.  Returns true
      *   if the property was found, false if not.
-     *   
+     *
      *   If we find the object, we'll set *source_obj to the ID of the
      *   object in which we found the object.  If the property was
      *   supplied by this object directly, we'll simply set source_id to
      *   self; if we inherited the property from a superclass, we'll set
      *   *source_id to the ID of the superclass object that actually
      *   supplied the value.
-     *   
+     *
      *   If 'argc' is not null, this function can consume arguments from
      *   the run-time stack, and set *argc to zero to indicate that the
      *   arguments have been consumed.
-     *   
+     *
      *   If 'argc' is null, and evaluating the property would involve
      *   running system code (with or without consuming arguments), this
      *   function should return TRUE, but should NOT run the system code -
      *   instead, set val->typ to VM_NATIVE_CODE to indicate that the
      *   value is a "native code" value (i.e., evaluating it requires
-     *   executing system code).  
+     *   executing system code).
      */
     virtual int get_prop(VMG_ vm_prop_id_t prop, vm_val_t *val,
                          vm_obj_id_t self, vm_obj_id_t *source_obj,
@@ -353,10 +353,10 @@ public:
      *   invoke when calling the object as though it were a function.  If the
      *   object has a function interface, set up a FUNCPTR or CODEPTR value
      *   to point to the code to invoke.  Regular objects aren't invokable.
-     *   
+     *
      *   Returns true if this is an invokable object, false if not.  'val'
      *   can be a null pointer if the caller merely wishes to determine
-     *   whether or not this object is invokable.  
+     *   whether or not this object is invokable.
      */
     virtual int get_invoker(VMG_ vm_val_t *val) { return FALSE; }
 
@@ -369,31 +369,31 @@ public:
      *   finds an inherited definition of the property, as though
      *   orig_target_obj.prop (and anything overriding orig_target_obj.prop)
      *   were undefined.
-     *   
+     *
      *   In broad terms, the algorithm for this method is to do the same
      *   thing as get_prop(), but to ignore every definition of the property
      *   found in the class tree until after reaching and skipping
      *   orig_target_obj.prop.  Once orig_target_obj.prop is found, this
      *   method simply continues searching in the same manner as get_prop()
      *   and returns the next definition it finds.
-     *   
+     *
      *   'defining_obj' is the object containing the method currently
      *   running.  This is not necessarily 'self', because the method
      *   currently running might already have been inherited from a
      *   superclass of 'self'.
-     *   
+     *
      *   'orig_target_obj' is the object that was originally targeted for the
      *   get_prop() operation that invoked the calling method (or invoked the
      *   method that inherited the calling method, or so on).  This gives us
      *   the starting point in the search, so that we can continue the
      *   original inheritance tree search that started with get_prop().
-     *   
-     *   'argc' has the same meaning as for get_prop().  
-     *   
+     *
+     *   'argc' has the same meaning as for get_prop().
+     *
      *   Objects that cannot be subclassed via byte-code can ignore this
      *   method.  The base class implementation follows the inheritance chain
      *   of "modifier" objects, which allow byte-code methods to be plugged
-     *   in under the native code class tree.  
+     *   in under the native code class tree.
      */
     virtual int inh_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                          vm_obj_id_t self, vm_obj_id_t orig_target_obj,
@@ -404,50 +404,50 @@ public:
      *   Build a list of the properties directly defined on this object
      *   instance.  On return, retval must be filled in with the new list
      *   object.
-     *   
+     *
      *   Note that a self-reference must be pushed by the caller to protect
      *   against garbage collection of self while this routine is running.
-     *   
+     *
      *   Most object types do not define any properties in the instance, so
      *   this default implementation will simply return an empty list.
      *   Classes that can define properties in instances (such as
      *   TadsObjects), and the "intrinsic class" class that represents
-     *   classes, must override this to build their lists.  
+     *   classes, must override this to build their lists.
      */
     virtual void build_prop_list(VMG_ vm_obj_id_t self, vm_val_t *retval);
 
-    /* 
+    /*
      *   Mark all strongly-referenced objects.  Calls
-     *   obj_table->mark_refs() for each referenced object.  
+     *   obj_table->mark_refs() for each referenced object.
      */
     virtual void mark_refs(VMG_ uint state) = 0;
 
-    /* 
+    /*
      *   Remove stale weak references.  For each weakly-referenced object,
      *   check to see if the object is marked as reachable; if not, it's
-     *   about to be deleted, so forget the weak reference. 
+     *   about to be deleted, so forget the weak reference.
      */
     virtual void remove_stale_weak_refs(VMG0_) = 0;
 
     /*
      *   Receive notification that the undo manager is creating a new
-     *   savepoint.  
+     *   savepoint.
      */
     virtual void notify_new_savept() = 0;
 
-    /* 
+    /*
      *   apply an undo record created by this object; if the record has
      *   any additional data associated with it (allocated by the object
      *   when the undo record was created), this should also discard the
-     *   additional data 
+     *   additional data
      */
     virtual void apply_undo(VMG_ struct CVmUndoRecord *rec) = 0;
 
-    /* 
+    /*
      *   Discard any extra information associated with this undo record.
      *   Note that this will not be called if apply_undo() is called,
      *   since apply_undo() is expected to discard any extra information
-     *   itself after applying the record.  
+     *   itself after applying the record.
      */
     virtual void discard_undo(VMG_ struct CVmUndoRecord *) { }
 
@@ -455,7 +455,7 @@ public:
      *   Mark an object object reference.  If this object keeps strong
      *   references, this should mark any object contained in the undo
      *   record's saved value as referenced; if this object keeps only
-     *   weak references, this doesn't need to do anything. 
+     *   weak references, this doesn't need to do anything.
      */
     virtual void mark_undo_ref(VMG_ struct CVmUndoRecord *rec) = 0;
 
@@ -466,7 +466,7 @@ public:
      *   objects, this should check the object referenced in the undo
      *   record, if any, to determine if the object is about to be
      *   deleted, and if so clear the undo record (by setting the object
-     *   in the old value to 'invalid'). 
+     *   in the old value to 'invalid').
      */
     virtual void remove_stale_undo_weak_ref(VMG_
                                             struct CVmUndoRecord *rec) = 0;
@@ -476,13 +476,13 @@ public:
      *   specifically requests this by calling request_post_load_init().
      *   This routine is called exactly once for each initial program load,
      *   restart, or restore, and is called after ALL objects are loaded.
-     *   
+     *
      *   The purpose of this routine is to allow an object to perform
      *   initializations that depend upon other objects.  During the normal
      *   load/restore/reset methods, an object cannot assume that any other
      *   objects are already loaded, because the order of loading is
      *   arbitrary.  When this routine is called, it is guaranteed that all
-     *   objects are already loaded.  
+     *   objects are already loaded.
      */
     virtual void post_load_init(VMG_ vm_obj_id_t /*self*/)
     {
@@ -492,9 +492,9 @@ public:
     /*
      *   Load the object from an image file.  The object's data block is
      *   at the given address and has the given size.
-     *   
+     *
      *   The underlying memory is owned by the image file loader.  The
-     *   object must not attempt to deallocate this memory.  
+     *   object must not attempt to deallocate this memory.
      */
     virtual void load_from_image(VMG_ vm_obj_id_t self,
                                  const char *ptr, size_t siz) = 0;
@@ -505,18 +505,18 @@ public:
      *   since the object was loaded and restores its state as it was
      *   immediately after it was loaded from the image file.  By default, we
      *   do nothing.
-     *   
+     *
      *   NOTE 1: this routine can be implemented instead of reset_to_image().
      *   If an object doesn't have any other need to store a pointer to its
      *   image file data in its own extension, but the image file data is
      *   necessary to effect a reset, then this routine should be used, to
      *   reduce the size of the object's extension for non-image instances.
-     *   
+     *
      *   NOTE 2: in order to use this routine, the object MUST call the
      *   object table's save_image_pointer() routine during the initial
      *   loading (i.e., in the object's load_from_image()).  During a reset,
      *   the object table will only call this routine on objects whose image
-     *   pointers were previously saved with save_image_pointer().  
+     *   pointers were previously saved with save_image_pointer().
      */
     virtual void reload_from_image(VMG_ vm_obj_id_t self,
                                    const char *ptr, size_t siz) { }
@@ -525,9 +525,9 @@ public:
      *   Reset to the image file state.  Discards any changes made since the
      *   object was loaded and restores its state as it was immediately
      *   after it was loaded from the image file.  By default, we do nothing.
-     *   
+     *
      *   NOTE: this routine doesn't have to do anything if
-     *   reload_from_image() is implemented for the object.  
+     *   reload_from_image() is implemented for the object.
      */
     virtual void reset_to_image(VMG_ vm_obj_id_t /*self*/) { }
 
@@ -537,24 +537,24 @@ public:
      *   originally loaded from the image file.  Returns true if the object's
      *   internal state has been changed since loading, false if the object
      *   is in exactly the same state that's stored in the image file.
-     *   
+     *
      *   If this returns false, then it's not necessary to save the object to
      *   a saved state file, because the object's state can be restored
-     *   simply by resetting to the image file state.  
+     *   simply by resetting to the image file state.
      */
     virtual int is_changed_since_load() const { return FALSE; }
 
-    /* 
+    /*
      *   save this object to a file, so that it can be restored to its
-     *   current state via restore_from_file 
+     *   current state via restore_from_file
      */
     virtual void save_to_file(VMG_ class CVmFile *fp) = 0;
 
-    /* 
+    /*
      *   Restore the state of the object from a file into which state was
      *   previously stored via save_to_file.  This routine may need
      *   access to the memory manager because it may need to allocate
-     *   memory to make room for the variable data.  
+     *   memory to make room for the variable data.
      */
     virtual void restore_from_file(VMG_ vm_obj_id_t self,
                                    class CVmFile *fp,
@@ -568,8 +568,8 @@ public:
      *   provide different behavior; the string class, for example, may
      *   override this so that it compares equal to any string object or
      *   constant containing the same string text.
-     *   
-     *   'depth' has the same meaning as in calc_hash().  
+     *
+     *   'depth' has the same meaning as in calc_hash().
      */
     virtual int equals(VMG_ vm_obj_id_t self, const vm_val_t *val,
                        int /*depth*/) const
@@ -584,9 +584,9 @@ public:
      *   negative value if this object is less than the other object, or
      *   zero if this object equals the other object.  Throws an error if
      *   a magnitude comparison is not meaningful between the two objects.
-     *   
+     *
      *   By default, magnitude comparisons between objects are not
-     *   meaningful, so we throw an error. 
+     *   meaningful, so we throw an error.
      */
     virtual int compare_to(VMG_ vm_obj_id_t /*self*/, const vm_val_t *) const
     {
@@ -599,7 +599,7 @@ public:
 
     /*
      *   Calculate a hash value for the object.
-     *   
+     *
      *   'depth' is the recursion depth of the hash calculation.  Objects
      *   that can potentially contain cyclical references back to themselves,
      *   and which follow those references to calculate the hash value
@@ -607,29 +607,29 @@ public:
      *   VM_MAX_TREE_DEPTH_EQ, throwing VMERR_TREE_TOO_DEEP_EQ if so; and
      *   they must increment the depth counter in the recursive traversals.
      *   Objects that don't traverse into their contents can ignore the depth
-     *   counter.  
+     *   counter.
      */
     virtual uint calc_hash(VMG_ vm_obj_id_t self, int /*depth*/) const
     {
-        /* 
+        /*
          *   by default, use a 16-bit hash of our object ID as the hash
-         *   value 
+         *   value
          */
         return (uint)(((ulong)self & 0xffff)
                       ^ (((ulong)self & 0xffff0000) >> 16));
     }
-                   
 
-    /* 
+
+    /*
      *   Add a value to this object, returning the result in *result.  This
      *   may create a new object to hold the result, or may modify the
      *   existing object in place, depending on the subclass implementation.
      *   'self' is the object ID of this object.
-     *   
+     *
      *   Returns true if the add was implemented, false if not.  If the
      *   operation isn't implemented as a native op, don't throw an error -
      *   simply return false to tell the caller to try an overloaded operator
-     *   in byte code.  
+     *   in byte code.
      */
     virtual int add_val(VMG_ vm_val_t * /*result*/,
                         vm_obj_id_t /*self*/, const vm_val_t * /*val*/)
@@ -639,7 +639,7 @@ public:
      *   Subtract a value from this object, returning the result in
      *   *result.  This may create a new object to hold the result, or may
      *   modify the existing object in place, depending upon the subclass
-     *   implementation.  'self' is the object ID of this object.  
+     *   implementation.  'self' is the object ID of this object.
      */
     virtual int sub_val(VMG_ vm_val_t * /*result*/,
                         vm_obj_id_t /*self*/, const vm_val_t * /*val*/)
@@ -654,7 +654,7 @@ public:
     virtual int div_val(VMG_ vm_val_t * /* result*/,
                         vm_obj_id_t /*self*/, const vm_val_t * /*val*/)
         { return FALSE; }
-    
+
     /* get the arithmetic negative of self, returning the result in *result */
     virtual int neg_val(VMG_ vm_val_t * /* result*/, vm_obj_id_t /*self*/)
         { return FALSE; }
@@ -662,11 +662,11 @@ public:
     /*
      *   Index with overloading.  If the object implements native indexing,
      *   we'll invoke that; otherwise we'll check for operator[] and invoke
-     *   that if present; otherwise we'll throw an error.  
+     *   that if present; otherwise we'll throw an error.
      */
     void index_val_ov(VMG_ vm_val_t *result, vm_obj_id_t self,
                       const vm_val_t *index_val);
-    
+
 
     /* index the object, throwing an error if not implemented for the type */
     void index_val(VMG_ vm_val_t *result, vm_obj_id_t self,
@@ -683,7 +683,7 @@ public:
      *   default we'll return false to indicate this is not an implemented
      *   operator.  Subclasses that can be indexed (such as lists) should
      *   look up the element given by the index value, and store the value at
-     *   that index in *result.  
+     *   that index in *result.
      */
     virtual int index_val_q(VMG_ vm_val_t * /*result*/,
                             vm_obj_id_t /*self*/,
@@ -694,7 +694,7 @@ public:
      *   Assign to an indexed element of the object, with overloading.  If
      *   the object implements native indexing, we'll invoke that; otherwise
      *   we'll check for operator[]= and invoke that if present; otherwise
-     *   we'll throw an error. 
+     *   we'll throw an error.
      */
     void set_index_val_ov(VMG_ vm_val_t *new_container, vm_obj_id_t self,
                           const vm_val_t *index_val, const vm_val_t *new_val);
@@ -708,9 +708,9 @@ public:
      *   modified, so always create a new list object when an element is
      *   set; arrays, in contrast, can be directly modified, so will
      *   simply return 'self' in *new_container.
-     *   
+     *
      *   By default, we'll throw an error, since default objects cannot be
-     *   indexed.  
+     *   indexed.
      */
     void set_index_val(VMG_ vm_val_t *new_container, vm_obj_id_t self,
                        const vm_val_t *index_val, const vm_val_t *new_val)
@@ -719,10 +719,10 @@ public:
             err_throw(VMERR_CANNOT_INDEX_TYPE);
     }
 
-    /* 
+    /*
      *   Set an index element of an object, query mode.  Returns true (and
      *   performs the set-index operation) if this is a supported operator,
-     *   false if not.  
+     *   false if not.
      */
     virtual int set_index_val_q(VMG_ vm_val_t * /*new_container*/,
                                 vm_obj_id_t /*self*/,
@@ -734,11 +734,11 @@ public:
      *   Get the next iterator value.  If another value is available, fills
      *   in *val with the value and returns true.  If not, returns false
      *   without changing *val.
-     *   
+     *
      *   For an ordinary object, we call the method isNextAvailable(); if
      *   that returns true, we'll call getNext(), fill in *val with its
      *   return value, and return true, otherwise we'll return false.
-     *   
+     *
      *   The built-in iterator classes override this for better performance.
      */
     virtual int iter_next(VMG_ vm_obj_id_t self, vm_val_t *val);
@@ -746,10 +746,10 @@ public:
     /*
      *   Cast the value to integer.  If there's a suitable integer
      *   representation, return it; otherwise throw VMERR_NO_INT_CONV.
-     *   
+     *
      *   For a string, parse the string and return the integer value.  For a
      *   BigNumber, round to the nearest integer.  Most other types do not
-     *   have an integer representation.  
+     *   have an integer representation.
      */
     virtual long cast_to_int(VMG0_) const
     {
@@ -767,7 +767,7 @@ public:
      *   there's some other numeric type similar to integer or BigNumber that
      *   we can convert to, return that conversion; otherwise throw
      *   VMERR_NO_NUM_CONV.
-     *   
+     *
      *   Currently, the only types that count as numeric are integer (VM_INT)
      *   and BigNumber.  This interface is designed to be extensible if new
      *   numeric types are added in the future.  Basically, the idea is that
@@ -781,7 +781,7 @@ public:
      *   "double" type, that would rank between VM_INT and BigNumber, since
      *   even native hardware doubles are generally slower than native
      *   integers for computations, but they're still much faster than
-     *   BigNumber.  
+     *   BigNumber.
      */
     virtual void cast_to_num(VMG_ vm_val_t *val, vm_obj_id_t self) const
     {
@@ -792,24 +792,24 @@ public:
     /*
      *   Get a string representation of the object.  If necessary, this
      *   can create a new string object to represent the result.
-     *   
+     *
      *   Returns the string representation in portable string format: the
      *   first two bytes give the byte length of the rest of the string in
      *   portable UINT2 format, and immediately following the length
      *   prefix are the bytes of the string's contents.  The length prefix
      *   does not count the length prefix itself in the length of the
      *   string.
-     *   
+     *
      *   If a new string object is created, new_str must be set to a
      *   reference to the new string object.  If a pointer into our data
      *   is returned, we must set new_str to self.  If no object data are
      *   involved, new_str can be set to nil.
-     *   
+     *
      *   If it is not possible to create a string representation of the
      *   object, throw an error (VMERR_NO_STR_CONV).
-     *   
+     *
      *   By default, we'll throw an error indicating that the object
-     *   cannot be converted to a string.  
+     *   cannot be converted to a string.
      */
     virtual const char *cast_to_string(VMG_ vm_obj_id_t self,
                                        vm_val_t *new_str) const;
@@ -819,9 +819,9 @@ public:
      *   toString() call with a radix.  By default, we'll simply use the
      *   basic cast_to_string() processing, but objects representing numbers
      *   (e.g., BigNumber) should override this to respect the radix.
-     *   
-     *   'flags' is a combination of TOSTR_xxx bit flags: 
-     *   
+     *
+     *   'flags' is a combination of TOSTR_xxx bit flags:
+     *
      *.    TOSTR_UNSIGNED - interpret a VM_INT value as unsigned
      *.    TOSTR_ROUND - round a floating point value to the nearest integer
      */
@@ -842,7 +842,7 @@ public:
     /*
      *   Get the integer value of the object, if it has one.  Returns true if
      *   there's an integer value, false if not.
-     *   
+     *
      *   This differs from cast_to_int() in that we only convert values that
      *   are already scalar numbers.  In particular, we don't attempt to
      *   convert string values.  This is a weaker type of conversion than
@@ -855,7 +855,7 @@ public:
     /*
      *   Get the 'double' value of the object, if it has one.  Returns true
      *   if there's a double value, false if not.
-     *   
+     *
      *   This only converts values that are already scalar numbers.  We don't
      *   parse strings, for example.
      */
@@ -879,7 +879,7 @@ public:
      *   two bytes are the length prefix as a portable UINT2, and the
      *   subsequent bytes form a packed array of data holders in portable
      *   format).
-     *   
+     *
      *   Most object classes will return null for this, since they do not
      *   store lists.  By default, we return null.
      */
@@ -887,13 +887,13 @@ public:
 
     /*
      *   Is this a list-like object?  Returns true if the object has a length
-     *   and is indexable with index values 1..length. 
+     *   and is indexable with index values 1..length.
      */
     virtual int is_listlike(VMG_ vm_obj_id_t self);
 
-    /* 
+    /*
      *   For a list-like object, get the number of elements.  Returns -1 if
-     *   this isn't a list-like object after all. 
+     *   this isn't a list-like object after all.
      */
     virtual int ll_length(VMG_ vm_obj_id_t self);
 
@@ -903,9 +903,9 @@ public:
      *   returns a pointer to the string value in portable format (the
      *   first two bytes are the string prefix as a portable UINT2, and
      *   the bytes of the string's text immediately follow in UTF8 format).
-     *   
+     *
      *   Most object classes will return null for this, since they do not
-     *   store strings.  By default, we return null.  
+     *   store strings.  By default, we return null.
      */
     virtual const char *get_as_string(VMG0_) const { return 0; }
 
@@ -913,16 +913,16 @@ public:
      *   Rebuild the image data for the object.  This is used to write the
      *   program state to a new image file after executing the program for
      *   a while, such as after a 'preinit' step after compilation.
-     *   
+     *
      *   This should write the complete metaclass-specific record needed
      *   for an OBJS data block entry, not including the generic header.
-     *   
+     *
      *   On success, return the size in bytes of the data stored to the
      *   buffer; these bytes must be copied directly to the new image
      *   file.  If the given buffer isn't big enough, this should return
      *   the size needed and otherwise leave the buffer empty.  If the
      *   object doesn't need to be written at all, this should return
-     *   zero.  
+     *   zero.
      */
     virtual ulong rebuild_image(VMG_ char *, ulong)
         { return 0; }
@@ -933,10 +933,10 @@ public:
      *   data in a rebuilt image file, this should reserve space in the
      *   provided constant mapper object for the object's data in
      *   preparation for conversion.
-     *   
+     *
      *   Most objects cannot be converted to constant data, so the default
      *   here does nothing.  Those that can, such as strings and lists,
-     *   should override this.  
+     *   should override this.
      */
     virtual void reserve_const_data(VMG_ class CVmConstMapper *,
                                     vm_obj_id_t /*self*/)
@@ -953,7 +953,7 @@ public:
      *   address.  There is no default implementation of this routine,
      *   because it must be overridden by essentially all objects (at
      *   least, it must be overridden by objects that can be converted or
-     *   that can refer to objects that can be converted).  
+     *   that can refer to objects that can be converted).
      */
     virtual void convert_to_const_data(VMG_ class CVmConstMapper *,
                                        vm_obj_id_t /*self*/)
@@ -966,28 +966,28 @@ public:
      *   (VM_SSTRING, VM_LIST, etc); others can return VM_NIL to indicate
      *   that they have no conversion.  This will be called only when an
      *   object actually has been converted as indicated in a mapper
-     *   (CVmConstMapper) object.  We'll return NIL by default.  
+     *   (CVmConstMapper) object.  We'll return NIL by default.
      */
     virtual vm_datatype_t get_convert_to_const_data_type() const
         { return VM_NIL; }
-    
+
 
     /*
      *   Allocate memory for the fixed part from a memory manager.  We
      *   override operator new so that we can provide custom memory
      *   management for object headers.
-     *   
+     *
      *   To create an object, use a sequence like this:
-     *   
+     *
      *   obj_id = mem_mgr->get_obj_table()->alloc_obj(vmg_ in_root_set);
      *.  new (vmg_ obj_id) CVmObjString(subclass constructor params)
-     *   
+     *
      *   The caller need not store the result of 'new'; the caller
      *   identifies the object by the obj_id value.
-     *   
+     *
      *   Each CVmObject subclass should provide static methods that cover
      *   the above sequence, since it's a bit verbose to sprinkle
-     *   throughout client code.  
+     *   throughout client code.
      */
     void *operator new(size_t siz, VMG_ vm_obj_id_t obj_id);
 
@@ -995,7 +995,7 @@ protected:
     /*
      *   Find a modifier property.  This is an internal service routine that
      *   we use to traverse the hierarchy of modifier objects associated with
-     *   our intrinsic class hierarchy.  
+     *   our intrinsic class hierarchy.
      */
     int find_modifier_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                            vm_obj_id_t self, vm_obj_id_t orig_target_obj,
@@ -1012,15 +1012,15 @@ protected:
      *   non-null and it matches the given argument count, we'll set *argc
      *   to zero to indicate that we've consumed the arguments, and return
      *   false - get_prop() should in this case execute the native code
-     *   and return the appropriate result value.  
+     *   and return the appropriate result value.
      */
     static int get_prop_check_argc(vm_val_t *val, uint *argc,
                                    const CVmNativeCodeDesc *desc)
     {
-        /* 
+        /*
          *   if there's no 'argc', we can't execute the native code - we're
          *   simply being asked for a description of the method, not to
-         *   evaluate its result 
+         *   evaluate its result
          */
         if (argc == 0)
         {
@@ -1041,11 +1041,11 @@ protected:
         /* tell get_prop() to proceed with the native evaluation */
         return FALSE;
     }
-    
+
 #if 0
     /*
      *   Important note:
-     *   
+     *
      *   This function has been removed because we no longer consider it
      *   likely that we will ever wish to implement a relocating heap
      *   manager.  Given the large memory sizes of modern computers, and
@@ -1053,28 +1053,28 @@ protected:
      *   wisdom that heap fragmentation is actually a problem in practical
      *   applications, we no longer feel that maintaining the possibility of
      *   a relocating heap manager is justified.
-     *   
+     *
      *   Note that some code in the present implementation assumes that the
      *   heap is non-relocating, so if a relocating heap manager is ever
      *   implemented, those assumptions will have to be addressed.  For
      *   example, the CVmObjTads code stores direct object pointers inside
-     *   its objects, which is only possible with a non-relocating heap.  
+     *   its objects, which is only possible with a non-relocating heap.
      */
 
-    /* 
+    /*
      *   Adjust the extension pointer for a change - this must be called by
      *   the variable heap page when compacting the heap or when the object
      *   must be reallocated.
-     *   
+     *
      *   This routine can be called ONLY during garbage collection.  The
      *   heap manager is not allowed to move variable-size blocks at any
      *   other time.
-     *   
+     *
      *   This method is virtual because a given object could have more than
      *   one block allocated in the variable heap.  By default, we'll fix up
      *   the address of our extension if the block being moved (as
      *   identified by its old address) matches our existing extension
-     *   pointer.  
+     *   pointer.
      */
     virtual void move_var_part(void *old_pos, void *new_pos)
     {
@@ -1084,11 +1084,11 @@ protected:
     }
 #endif
 
-    /* 
+    /*
      *   Pointer to extension.  This pointer may be used in any way
      *   desired by the subclassed implementation of the CVmObject
      *   interface; normally, this pointer will contain the address of the
-     *   data associated with the object.  
+     *   data associated with the object.
      */
     char *ext_;
 
@@ -1136,7 +1136,7 @@ protected:
     int getp_is_transient(VMG_ vm_obj_id_t self, vm_val_t *retval,
                           uint *argc, vm_prop_id_t prop,
                           vm_obj_id_t *source_obj);
-    
+
     /* find the intrinsic class for the given modifier object */
     virtual vm_obj_id_t find_intcls_for_mod(VMG_ vm_obj_id_t self,
                                             vm_obj_id_t mod_obj);
@@ -1151,7 +1151,7 @@ protected:
 /*
  *   Function table indices for 'Object' intrinsic class methods.  Each of
  *   these gives the index in our function table for the property ID (as
- *   defined in the image file) corresponding to that method.  
+ *   defined in the image file) corresponding to that method.
  */
 const int VMOBJ_IDX_OF_KIND = 1;
 const int VMOBJ_IDX_SCLIST = 2;
@@ -1167,7 +1167,7 @@ const int VMOBJ_IDX_IS_TRANSIENT = 9;
 /*
  *   Each CVmObject subclass must define a singleton instance of
  *   CVmMetaclass that describes the class and instantiates objects of the
- *   class.  
+ *   class.
  */
 
 /*
@@ -1178,14 +1178,14 @@ const int VMOBJ_IDX_IS_TRANSIENT = 9;
  *   This information is used when saving our state to save information on
  *   an instance's metaclass, so that the instance can be re-created when
  *   the saved state is restored.
- *   
+ *
  *   The registration index is NOT persistent data.  The registration
  *   index of a particular metaclass can vary from execution to execution
  *   (although it will remain fixed throughout the lifetime of one set of
  *   VM globals, hence throughout an image file's execution).  The
  *   registration index allows us to find the registration table entry,
  *   which in turn will give us the metaclass global ID, which is suitable
- *   for persistent storage.  
+ *   for persistent storage.
  */
 
 class CVmMetaclass
@@ -1197,22 +1197,22 @@ public:
      *   Get the metaclass registration table index.  This gives the index
      *   of the metaclass in the system registration table.  This value is
      *   fixed during execution; it is set during startup, when the
-     *   registration table is being built, and never changes after that. 
+     *   registration table is being built, and never changes after that.
      */
     uint get_reg_idx() const { return meta_reg_idx_; }
-    
-    /* 
+
+    /*
      *   Get the metaclass name.  This is the universally unique
      *   identifier assigned to the metaclass, and is the name used to
-     *   dynamically link the image file to the metaclass.  
+     *   dynamically link the image file to the metaclass.
      */
     virtual const char *get_meta_name() const = 0;
 
-    /* 
+    /*
      *   Create an instance of the metaclass using arguments from the VM
      *   stack.  Returns the ID of the newly-created object.  If the class
      *   has a byte-code constructor, invoke the constructor using the
-     *   normal call-procedure protocol.  Leave the result in register R0. 
+     *   normal call-procedure protocol.  Leave the result in register R0.
      */
     virtual vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr,
                                           uint argc) = 0;
@@ -1225,25 +1225,25 @@ public:
      *   a way that it can subsequently be loaded from the image file with
      *   load_from_image().  In general, this routine only needs to do
      *   something like this:
-     *   
-     *   new (vmg_ id) CVmObjXxx(); 
+     *
+     *   new (vmg_ id) CVmObjXxx();
      */
     virtual void create_for_image_load(VMG_ vm_obj_id_t id) = 0;
 
     /*
      *   Create an instance of the metaclass with the given ID in
-     *   preparation for restoring the object from a saved state file. 
+     *   preparation for restoring the object from a saved state file.
      */
     virtual void create_for_restore(VMG_ vm_obj_id_t id) = 0;
 
-    /* 
-     *   Call a static property of the metaclass 
+    /*
+     *   Call a static property of the metaclass
      */
     virtual int call_stat_prop(VMG_ vm_val_t *result,
                                const uchar **pc_ptr, uint *argc,
                                vm_prop_id_t prop) = 0;
 
-    /* 
+    /*
      *   Set a static property (for setprop ops on the class itself).
      *   Returns true if the setprop succeeded, false if not.  This shouldn't
      *   throw an error if the property isn't settable on the class; simply
@@ -1252,7 +1252,7 @@ public:
      *   not a supported property at all, we want to continue on to check for
      *   setting a modifier property rather than throwing an error at this
      *   phase.)
-     *   
+     *
      *   'class_state' is the class state holder.  This is a direct pointer
      *   to the state data in the CVmObjClass object.  The callee can modify
      *   this directly, in which case the updated value will be stored (and
@@ -1278,7 +1278,7 @@ public:
      *   Get the number of superclasses of the metaclass, and get the
      *   super-metaclass at the given index.  All metaclasses have exactly
      *   one super-metaclass, except for the root object metaclass, which
-     *   has no super-metaclass.  
+     *   has no super-metaclass.
      */
     virtual int get_supermeta_count(VMG0_) const { return 1; }
     virtual vm_obj_id_t get_supermeta(VMG_ int idx) const;
@@ -1286,9 +1286,9 @@ public:
     /* determine if I'm an instance of the given object */
     virtual int is_meta_instance_of(VMG_ vm_obj_id_t obj) const;
 
-    /* 
+    /*
      *   set the metaclass registration table index - this can only be
-     *   done by vm_register_metaclass() during initialization 
+     *   done by vm_register_metaclass() during initialization
      */
     void set_metaclass_reg_index(uint idx) { meta_reg_idx_ = idx; }
 
@@ -1296,9 +1296,9 @@ public:
     virtual CVmMetaclass *get_supermeta_reg() const
         { return CVmObject::metaclass_reg_; }
 
-    /* 
+    /*
      *   get my class object - we'll look up our class object in the
-     *   metaclass registration table 
+     *   metaclass registration table
      */
     vm_obj_id_t get_class_obj(VMG0_) const;
 
@@ -1306,13 +1306,13 @@ private:
     /* system metaclass registration table index */
     uint meta_reg_idx_;
 };
-     
+
 
 /* ------------------------------------------------------------------------ */
 /*
  *   Root Object definition.  The root object can never be instantiated;
  *   it is defined purely to provide an object to represent as the root in
- *   the type system.  
+ *   the type system.
  */
 class CVmMetaclassRoot: public CVmMetaclass
 {
@@ -1335,9 +1335,9 @@ public:
     void create_for_restore(VMG_ vm_obj_id_t id)
         { err_throw(VMERR_BAD_STATIC_NEW); }
 
-    /* 
+    /*
      *   call a static property (for getprop on the class itself, e.g.
-     *   TadsObject.createInstanceOf()) 
+     *   TadsObject.createInstanceOf())
      */
     int call_stat_prop(VMG_ vm_val_t *result,
                        const uchar **pc_ptr, uint *argc,
@@ -1351,9 +1351,9 @@ public:
     int get_supermeta_count(VMG0_) const { return 0; }
     vm_obj_id_t get_supermeta(VMG_ int) const { return VM_INVALID_OBJ; }
 
-    /* 
+    /*
      *   determine if I'm an instance of the given object - the root
-     *   object is not a subclass of anything 
+     *   object is not a subclass of anything
      */
     virtual int is_meta_instance_of(VMG_ vm_obj_id_t obj) const
         { return FALSE; }
@@ -1364,7 +1364,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Object fixup table entry 
+ *   Object fixup table entry
  */
 struct obj_fixup_entry
 {
@@ -1379,10 +1379,10 @@ struct obj_fixup_entry
  *   Object ID Fixup Table.  This is used during state restoration to map
  *   from the saved state file's object numbering system to the new
  *   in-memory numbering system.
- *   
+ *
  *   The objects must be added to the table IN ASCENDING ORDER OF OLD ID.
  *   We assume this sorting order to perform a binary lookup when asked to
- *   map an ID.  
+ *   map an ID.
  */
 
 /* fixup table subarray size */
@@ -1397,11 +1397,11 @@ public:
     /* add a fixup to the table */
     void add_fixup(vm_obj_id_t old_id, vm_obj_id_t new_id);
 
-    /* 
+    /*
      *   Translate from the file numbering system to the new numbering
      *   system.  If the object isn't found, it must be a static object and
      *   hence doesn't require translation, so we'll return the original ID
-     *   unchanged.  
+     *   unchanged.
      */
     vm_obj_id_t get_new_id(VMG_ vm_obj_id_t old_id);
 
@@ -1445,7 +1445,7 @@ private:
 /*
  *   Global variable structure.  We maintain a linked list of these
  *   structures for miscellaneous global variables required by other
- *   subsystems.  
+ *   subsystems.
  */
 struct vm_globalvar_t
 {
@@ -1462,7 +1462,7 @@ struct vm_globalvar_t
 /*
  *   Global object page.  We keep a linked list of pages of globals that
  *   refer to objects that are always reachable but were not loaded from the
- *   image file.  
+ *   image file.
  */
 class CVmObjGlobPage
 {
@@ -1482,9 +1482,9 @@ public:
         delete nxt_;
     }
 
-    /* 
+    /*
      *   add an entry to this page; returns true on success, false if we're
-     *   too full to add another entry 
+     *   too full to add another entry
      */
     int add_entry(vm_obj_id_t obj)
     {
@@ -1512,13 +1512,13 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Object Header Manager 
+ *   Object Header Manager
  */
 
-/* 
+/*
  *   Number of objects in a page.  We constrain this to be a power of two
  *   to make certain calculations fast (in particular, so that division by
- *   and modulo the page count can be done as bit shifts and masks).  
+ *   and modulo the page count can be done as bit shifts and masks).
  */
 const unsigned int VM_OBJ_PAGE_CNT_LOG2 = 12;
 const unsigned int VM_OBJ_PAGE_CNT = (1 << VM_OBJ_PAGE_CNT_LOG2);
@@ -1530,12 +1530,12 @@ const unsigned int VM_OBJ_PAGE_CNT = (1 << VM_OBJ_PAGE_CNT_LOG2);
  *   a finalizable object that is Finalizer-Reachable or Unreachable, but
  *   not from any reachable object.  An Unreachable object cannot be
  *   reached from any Reachable or Finalizable object.
- *   
+ *
  *   We deliberately arrange the objects in a hierarchical order:
  *   Finalizer-Reachable is "more reachable" than Unreachable, and
  *   Reachable is more reachable than Finalizer-Reachable.  The numeric
  *   values of these states are arranged so that a higher number indicates
- *   stronger reachability.  
+ *   stronger reachability.
  */
 #define VMOBJ_UNREACHABLE   0x00
 #define VMOBJ_F_REACHABLE   0x01
@@ -1547,7 +1547,7 @@ const unsigned int VM_OBJ_PAGE_CNT = (1 << VM_OBJ_PAGE_CNT_LOG2);
  *   Reachable.  A Finalizable object is one which has been found during a
  *   garbage collection pass to be either F-Reachable or Unreachable, but
  *   which has not yet been finalized.  A Finalized object is one which
- *   has had its finalizer method invoked.  
+ *   has had its finalizer method invoked.
  */
 #define VMOBJ_UNFINALIZABLE 0x00
 #define VMOBJ_FINALIZABLE   0x01
@@ -1565,20 +1565,20 @@ struct CVmObjPageEntry
      */
     union
     {
-        /* 
+        /*
          *   If it's not in the free list, then it's a VM object.  We
          *   can't actually embed a true CVmObject here - that's an
          *   abstract type and we therefore can't directly instantiate it
          *   through embedding.  So, just allocate enough space for the
          *   object; the memory manager will claim this space (via
          *   operator new) and store the actual CVmObject here when the
-         *   slot is allocated to an object.  
+         *   slot is allocated to an object.
          */
         char obj_[sizeof(CVmObject)];
-        
-        /* 
+
+        /*
          *   if it's in the free list, we just have a pointer to the
-         *   previous element of the free list 
+         *   previous element of the free list
          */
         vm_obj_id_t prev_free_;
     } ptr_;
@@ -1592,23 +1592,23 @@ struct CVmObjPageEntry
     /* flag: the object is in the free list */
     unsigned int free_ : 1;
 
-    /* 
+    /*
      *   flag: the object is part of the root set (that is, there's a
      *   reference to this object from some static location outside of the
-     *   root set, such as in p-code or in a constant list) 
+     *   root set, such as in p-code or in a constant list)
      */
     unsigned int in_root_set_ : 1;
 
     /*
      *   Reachability state.  This indicates whether the object is
      *   reachable, reachable from finalizable objects only, or
-     *   unreachable.  This is set during garbage collection. 
+     *   unreachable.  This is set during garbage collection.
      */
     uint reachable_ : 2;
 
     /*
      *   Finalization state.  This indicates whether an object is
-     *   unfinalizable, finalizable, or finalized. 
+     *   unfinalizable, finalizable, or finalized.
      */
     uint finalize_state_ : 2;
 
@@ -1618,7 +1618,7 @@ struct CVmObjPageEntry
      *   objects when an undo savepoint is created - this means that this
      *   will be set for an object only if an undo savepoint has been
      *   created since the object was created.
-     *   
+     *
      *   When the undo mechanism is asked to create an undo record
      *   associated with an object, it will do nothing if the object is not
      *   part of the undo savepoint.  This means that we won't save undo
@@ -1626,14 +1626,14 @@ struct CVmObjPageEntry
      *   savepoint - keeping undo for such objects is unnecessary, since if
      *   we roll back to the savepoint, the object won't even be in
      *   existence any more and hence has no need to restore any of its
-     *   state.  
+     *   state.
      */
     uint in_undo_ : 1;
 
     /*
      *   Flag: the object is "transient."  A transient object does not
      *   participate in undo, is not saved or restored to a saved state, and
-     *   is not affected by restarting.  
+     *   is not affected by restarting.
      */
     uint transient_ : 1;
 
@@ -1650,7 +1650,7 @@ struct CVmObjPageEntry
      *   to have references to other objects.  For example, all Strings would
      *   set 'can_have_refs_' to false, and all TadsObjects would set it to
      *   true.
-     *   
+     *
      *   We set these flags to true by default, for the maximally
      *   conservative settings.  A metaclass can simply ignore these settings
      *   and be assured of correct GC behavior.  However, if a metaclass
@@ -1658,7 +1658,7 @@ struct CVmObjPageEntry
      *   should do so after instances are created, because doing so allows
      *   the garbage collector to reduce the amount of work it must do for
      *   the object.
-     *   
+     *
      *   'can_have_refs_' indicates if the object can ever contain references
      *   to other objects.  By default, this is always set to true, but a
      *   metaclass that is not capable of storing references to other objects
@@ -1666,13 +1666,13 @@ struct CVmObjPageEntry
      *   collector will avoid tracing into this object when tracing
      *   references, because it will know in advance that tracing into the
      *   object will have no effect.
-     *   
+     *
      *   'can_have_weak_refs_' indicates if the object can ever contain weak
      *   references to other objects.  By default, this is set to true, but a
      *   metaclass that never uses weak references can set it to false.  When
      *   this is set to false, the garbage collector can avoid notifying this
      *   object of the need to remove stale weak references.
-     *   
+     *
      *   IMPORTANT: We assume that a metaclass that cannot have
      *   references/weak references can ALSO never have the corresponding
      *   thing in its undo information.  It's hard to imagine a case where
@@ -1681,15 +1681,15 @@ struct CVmObjPageEntry
      *   But should such a case arise, the metaclass must indicate that it
      *   does have the possibility - in other words, if an object can have a
      *   given reference type in its undo, it must also say it can have that
-     *   type in its own data, by setting the appropriate flag here.  
+     *   type in its own data, by setting the appropriate flag here.
      */
     uint can_have_refs_ : 1;
     uint can_have_weak_refs_ : 1;
 
-    /* 
+    /*
      *   An entry is deletable if it's unreachable and has been finalized.
      *   If the entry is marked as free, it's already been deleted, hence
-     *   is certainly deletable. 
+     *   is certainly deletable.
      */
     int is_deletable() const
     {
@@ -1698,33 +1698,33 @@ struct CVmObjPageEntry
                     && finalize_state_ == VMOBJ_FINALIZED));
     }
 
-    /* 
+    /*
      *   Determine if the object should participate in undo.  An object
      *   participates in undo if it existed as of the most recent savepoint,
-     *   and the object is not transient. 
+     *   and the object is not transient.
      */
     int is_in_undo() const { return in_undo_ && !transient_; }
 
     /*
      *   A "saveable" object is one which must be written to a saved state
      *   file.
-     *   
+     *
      *   To be saveable, an object must not be free, must not be transient,
      *   must be fully reachable, and must have been modified since loading
      *   (or simply have been created dynamically, since all an object that
      *   was created dynamically has inherently been modified since the
      *   program was loaded, as it didn't even exist when the program was
      *   loaded).
-     *   
+     *
      *   Do not save objects that are only reachable through a finalizer;
      *   assume that these objects do not figure into the persistent VM
      *   state, but are still around merely because they have some external
      *   resource deallocation to which they must yet tend.
-     *   
+     *
      *   Do not save objects that are in the root set and which haven't been
      *   modified since loading.  We always reset before restoring to the
      *   initial image file state, so there's no need to save data for any
-     *   object that's simply in its initial image file state.  
+     *   object that's simply in its initial image file state.
      */
     int is_saveable() const
     {
@@ -1741,7 +1741,7 @@ struct CVmObjPageEntry
      *   object is persistent if it is not transient, and either it is
      *   saveable (in which case it will be explicitly saved and restored),
      *   or it is merely in the root set (in which case it is always
-     *   present).  
+     *   present).
      */
     int is_persistent() const
     {
@@ -1762,16 +1762,16 @@ public:
     /* initialize */
     void init(VMG0_);
 
-    /* 
+    /*
      *   Clear the object table.  This deletes the garbage collected objects,
-     *   but leaves the table itself intact. 
+     *   but leaves the table itself intact.
      */
     void clear_obj_table(VMG0_);
 
-    /* 
+    /*
      *   Destroy the table - call this rather BEFORE using operator delete
      *   directly.  After this routine is called, the object table can be
-     *   deleted.  
+     *   deleted.
      */
     void delete_obj_table(VMG0_);
 
@@ -1790,7 +1790,7 @@ public:
      *   allocations of values that won't be stored on the stack, this can
      *   be used to ensure that the intermediate allocations aren't
      *   collected as unreferenced before the group of operations is
-     *   completed.  Returns previous status for later restoration.  
+     *   completed.  Returns previous status for later restoration.
      */
     int enable_gc(VMG_ int enable);
 
@@ -1822,21 +1822,21 @@ public:
     void alloc_obj_with_id(vm_obj_id_t id, int in_root_set,
                            int can_have_refs, int can_have_weak_refs);
 
-    /* 
+    /*
      *   Collect all garbage.  This runs an entire garbage collection pass
      *   to completion with a single call.  This can be used for
      *   simplicity when the caller does not require incremental operation
      *   of the garbage collector.
-     *   
+     *
      *   This function actually performs two garbage collection passes to
      *   ensure that all collectible objects are collected.  We perform
      *   one pass to detect finalizable objects, then finalize all objects
      *   that we can, then make one more pass to sweep up all of the
-     *   finalized objects that can be deleted.  
+     *   finalized objects that can be deleted.
      */
     void gc_full(VMG0_);
 
-    /* 
+    /*
      *   Incremental garbage collection.  Call gc_pass_init() to
      *   initialize the pass.  Call gc_pass_continue() repeatedly to
      *   perform incremental collection; this routine runs for a short
@@ -1847,7 +1847,7 @@ public:
      *   gc_pass_continue() if necessary to finish its work, so the caller
      *   need not keep invoking gc_pass_continue() if it runs out of work
      *   to interleave with the garbage collector.
-     *   
+     *
      *   Once garbage collection is started, it must be finished before
      *   any other VM activity occurs.  So, after a call to
      *   gc_pass_init(), the caller is not allowed to perform any other VM
@@ -1874,14 +1874,14 @@ public:
      *   false if it not.  A true return means that the object can be
      *   deleted at any time.  This can be used by weak referencers to
      *   determine if objects they are referencing are about to be
-     *   deleted, and thus that the weak reference must be forgotten.  
+     *   deleted, and thus that the weak reference must be forgotten.
      */
     int is_obj_deletable(vm_obj_id_t obj) const
     {
-        /* 
+        /*
          *   If it's not a valid object, consider it deletable, since it
          *   has indeed already been deleted; otherwise, it's deletable if
-         *   its object table entry is deletable.  
+         *   its object table entry is deletable.
          */
         return (obj == VM_INVALID_OBJ
                 || get_entry(obj)->is_deletable());
@@ -1892,7 +1892,7 @@ public:
      *   record.  If the object is marked as having no possibility of
      *   containing references to other objects, we won't bother invoking
      *   the object's tracing method, as we can be assured that the undo
-     *   records won't contain any references either.  
+     *   records won't contain any references either.
      */
     void mark_obj_undo_rec(VMG_ vm_obj_id_t obj,
                            struct CVmUndoRecord *undo_rec)
@@ -1900,21 +1900,21 @@ public:
         /* get the object entry */
         CVmObjPageEntry *entry = get_entry(obj);
 
-        /* 
+        /*
          *   if the object can have any references, mark any references the
          *   object makes from the undo record; if the object can't have any
          *   references, assume its undo records cannot either, in which
-         *   case there should be nothing to mark 
+         *   case there should be nothing to mark
          */
         if (entry->can_have_refs_)
             entry->get_vm_obj()->mark_undo_ref(vmg_ undo_rec);
     }
 
-    /* 
+    /*
      *   Remove stale weak undo references for an object.  If the object is
      *   marked as having no possibility of weak references, we won't bother
      *   invoking the object's weak undo reference remover method, since we
-     *   know it won't do anything.  
+     *   know it won't do anything.
      */
     void remove_obj_stale_undo_weak_ref(VMG_ vm_obj_id_t obj,
                                         struct CVmUndoRecord *undo_rec)
@@ -1922,9 +1922,9 @@ public:
         /* get the object entry */
         CVmObjPageEntry *entry = get_entry(obj);
 
-        /* 
+        /*
          *   if the object can have weak references, notify it; if not,
-         *   there's no need to do anything 
+         *   there's no need to do anything
          */
         if (entry->can_have_weak_refs_)
             entry->get_vm_obj()->remove_stale_undo_weak_ref(vmg_ undo_rec);
@@ -1933,7 +1933,7 @@ public:
     /*
      *   Determine if the given object is part of the latest undo savepoint.
      *   Returns true if an undo savepoint has been created since the object
-     *   was created, false if not.  
+     *   was created, false if not.
      */
     int is_obj_in_undo(vm_obj_id_t obj) const
     {
@@ -1945,7 +1945,7 @@ public:
      *   Determine if a vm_val_t contains a reference to a deletable object.
      *   This is a simple convenience routine.  This returns true only if
      *   the value contains a valid object reference, and the object is
-     *   currently deletable.  
+     *   currently deletable.
      */
     int is_obj_deletable(const vm_val_t *val) const
     {
@@ -1961,7 +1961,7 @@ public:
      *   non-saveable object might still be a persistent object - if the
      *   object is a root set object and hasn't been modified since
      *   loading, it's still peristent even though it doesn't get written
-     *   to the saved state file.  
+     *   to the saved state file.
      */
     int is_obj_saveable(vm_obj_id_t obj) const
     {
@@ -1974,7 +1974,7 @@ public:
      *   returns true, the object will survive saving and restoring the
      *   machine state; if not, the object will not be present after the
      *   machine state is restored.  This can be used to test if a weak
-     *   reference should be included in a saved state file.  
+     *   reference should be included in a saved state file.
      */
     int is_obj_persistent(vm_obj_id_t obj) const
     {
@@ -2019,19 +2019,19 @@ public:
 
     /*
      *   Mark the given object as referenced, and recursively mark all of
-     *   the objects to which it refers as referenced.  
+     *   the objects to which it refers as referenced.
      */
     void mark_all_refs(vm_obj_id_t obj, uint state)
         { add_to_gc_queue(obj, state); }
 
     /*
      *   Receive notification from the undo manager that we're starting a
-     *   new savepoint.  We'll simply notify all of the objects of this. 
+     *   new savepoint.  We'll simply notify all of the objects of this.
      */
     void notify_new_savept();
 
     /*
-     *   Apply an undo record 
+     *   Apply an undo record
      */
     void apply_undo(VMG_ struct CVmUndoRecord *rec);
 
@@ -2044,9 +2044,9 @@ public:
      *   more OBJS blocks in the given output file.  This can be used to
      *   dump the program state to a new image file after running
      *   'preinit' or a similar compile-time pre-initialization procedure.
-     *   
+     *
      *   'meta_dep_idx' is the index in the metaclass dependency table of
-     *   the metaclass to be written.  
+     *   the metaclass to be written.
      */
     void rebuild_image(VMG_ int meta_dep_idx, class CVmImageWriter *writer,
                        class CVmConstMapper *mapper);
@@ -2054,7 +2054,7 @@ public:
     /*
      *   Scan all objects and add metaclass entries to the metaclass
      *   dependency table for any metaclasses of which there are existing
-     *   instances. 
+     *   instances.
      */
     void add_metadeps_for_instances(VMG0_);
 
@@ -2062,7 +2062,7 @@ public:
      *   Scan all active objects and convert objects to constant data
      *   where possible.  Certain object metaclasses, such as strings and
      *   lists, can be represented in a rebuilt image file as constant
-     *   data; this routine makes all of these conversions. 
+     *   data; this routine makes all of these conversions.
      */
     void rebuild_image_convert_const_data(VMG_
                                           class CVmConstMapper *const_mapper);
@@ -2070,7 +2070,7 @@ public:
     /*
      *   Get the maximum object ID that has ever been allocated.  This
      *   establishes an upper bound on the object ID's that can be found
-     *   among the active objects.  
+     *   among the active objects.
      */
     vm_obj_id_t get_max_used_obj_id() const
         { return pages_used_ * VM_OBJ_PAGE_CNT; }
@@ -2078,9 +2078,9 @@ public:
     /* determine if an object ID refers to a valid object */
     int is_obj_id_valid(vm_obj_id_t obj) const
     {
-        /* 
+        /*
          *   the object is valid as long as it's not free, and the ID is
-         *   within the valid range 
+         *   within the valid range
          */
         return (obj != VM_INVALID_OBJ
                 && obj < get_max_used_obj_id()
@@ -2091,7 +2091,7 @@ public:
      *   Get the object state.  This is intended primarily as a debugging
      *   and testing aid for the VM itself; this value should be of no
      *   interest to normal programs.  Returns a value suitable for use
-     *   with CVmBifT3Test::get_obj_gc_state().  
+     *   with CVmBifT3Test::get_obj_gc_state().
      */
     ulong get_obj_internal_state(vm_obj_id_t id) const
     {
@@ -2099,12 +2099,12 @@ public:
         if (id >= get_max_used_obj_id())
             return 0xF000;
 
-        /* 
+        /*
          *   return the state as a combination of these bits:
-         *   
+         *
          *   free ? 0 : 1
          *.  Unreachable=0x00, F-Reachable=0x10, Reachable=0x20
-         *.  Unfinalizable=0x000, Finalizable=0x100, Finalized=0x200 
+         *.  Unfinalizable=0x000, Finalizable=0x100, Finalized=0x200
          */
         return ((get_entry(id)->free_ ? 0 : 1)
                 + (((ulong)get_entry(id)->reachable_) << 4)
@@ -2114,23 +2114,23 @@ public:
     /*
      *   Reset to the initial image file state.  Discards all objects not
      *   in the root set, skipping finalizers, and resets all objects to
-     *   their initial image file state.  
+     *   their initial image file state.
      */
     void reset_to_image(VMG0_);
 
-    /* 
+    /*
      *   Save state to a file.  We write out each object's state to the
-     *   file so that the state can be restored later. 
+     *   file so that the state can be restored later.
      */
     void save(VMG_ class CVmFile *fp);
 
-    /* 
+    /*
      *   Restore state from a previously saved file.  Returns zero on
      *   success, or a VMERR_xxx code on failure.
-     *   
+     *
      *   This routine creates an object fixup table, and returns it in
      *   *fixups.  The caller is responsible for deleting this object if a
-     *   non-null pointer is returned in *fixups.  
+     *   non-null pointer is returned in *fixups.
      */
     int restore(VMG_ class CVmFile *fp, class CVmObjFixup **fixups);
 
@@ -2140,7 +2140,7 @@ public:
      *   else) to save the loaded image location for the object.  For each
      *   object that calls this routine, we will call the object's
      *   reload_from_image() method during a reset to initial image file
-     *   state.  
+     *   state.
      */
     void save_image_pointer(vm_obj_id_t obj, const char *ptr, size_t siz);
 
@@ -2150,7 +2150,7 @@ public:
      *   program load, restart, or restore operation.  The post_load_init()
      *   method will not be called until the load/restart/restore operation
      *   has loaded every object, so the method can be used to perform any
-     *   initialization that depends upon other objects being loaded.  
+     *   initialization that depends upon other objects being loaded.
      */
     void request_post_load_init(vm_obj_id_t obj);
 
@@ -2169,19 +2169,19 @@ public:
      *   objects to ensure that initialization dependencies are handled in
      *   the correct order, regardless of the order in which the objects were
      *   loaded.
-     *   
+     *
      *   Post-load initialization is guaranteed to be executed exactly once
      *   per load/restart/restore cycle.  When this routine is called, we
      *   check to see if the target object has already been initialized
      *   during this operation, and we do nothing if so.  If we do invoke the
      *   target object's post_load_init(), then this will be the only
      *   invocation for this operation.
-     *   
+     *
      *   Circular dependencies are prohibited.  If object A's
      *   post_load_init() method calls this to initialize object B, we will
      *   invoke object B's post_load_init().  If object B in turn calls this
      *   routine to initialize object A, we will observe that object A is
-     *   already in the process of being initialized and throw an error.  
+     *   already in the process of being initialized and throw an error.
      */
     void ensure_post_load_init(VMG_ vm_obj_id_t obj);
 
@@ -2189,7 +2189,7 @@ public:
      *   Add an object to the list of machine globals.  An object added to
      *   this list will never be deleted.  If the object is in the root set
      *   (which means it was loaded from the image file), this has no effect,
-     *   since a root object is inherently global.  
+     *   since a root object is inherently global.
      */
     void add_to_globals(vm_obj_id_t obj);
 
@@ -2199,14 +2199,14 @@ public:
      *   garbage collection.  Global variables are meant for use by other
      *   subsystems, so that other subsystems can include their own static
      *   and global variables in the root set.
-     *   
+     *
      *   Global variables aren't affected by RESTORE, RESTART, or UNDO (like
      *   the stack, global variables are transient).
-     *   
+     *
      *   The caller can use delete_global_var() to delete the variable when
      *   done with it.  Any global variable that's never explicitly deleted
      *   will be automatically deleted when the object table itself is
-     *   destroyed.  
+     *   destroyed.
      */
     vm_globalvar_t *create_global_var();
     void delete_global_var(vm_globalvar_t *var);
@@ -2231,18 +2231,18 @@ private:
     {
         return &pages_[id >> VM_OBJ_PAGE_CNT_LOG2][id & (VM_OBJ_PAGE_CNT - 1)];
     }
-    
+
     /* delete an entry */
     void delete_entry(VMG_ vm_obj_id_t id, CVmObjPageEntry *entry);
 
     /* allocate a new page of objects */
     void alloc_new_page();
 
-    /* 
+    /*
      *   initialize a newly-allocated object table entry -- removes the
      *   entry from the free list, marks the entry as allocated, marks it
      *   in or out of the root set as appropriate, and initializes its GC
-     *   status as appropriate 
+     *   status as appropriate
      */
     void init_entry_for_alloc(vm_obj_id_t id, CVmObjPageEntry *entry,
                               int in_root_set, int can_have_refs,
@@ -2251,7 +2251,7 @@ private:
     /*
      *   Mark an object as referenced for the garbage collector and add it
      *   to the garbage collector's work queue.  If the object is already
-     *   marked as referenced, this does nothing. 
+     *   marked as referenced, this does nothing.
      */
     void add_to_gc_queue(vm_obj_id_t id, uint state)
     {
@@ -2262,16 +2262,16 @@ private:
     /* add an object to the gc work queue given the object header entry */
     void add_to_gc_queue(vm_obj_id_t id, CVmObjPageEntry *entry, uint state)
     {
-        /* 
+        /*
          *   If it's not already referenced somehow, add it to the queue.  If
          *   it's marked as referenced, it's already in the queue (or it's
          *   already been in the queue and it's been processed).
-         *   
+         *
          *   If the object can't have references to other objects, don't add
          *   it to the queue - simply elevate its reachability state.  We put
          *   objects in the queue in order to trace into the objects they
          *   reference, so an object that can't reference any other objects
-         *   doesn't need to go in the queue.  
+         *   doesn't need to go in the queue.
          */
         if (entry->can_have_refs_ && entry->reachable_ == VMOBJ_UNREACHABLE)
         {
@@ -2279,7 +2279,7 @@ private:
             entry->next_obj_ = gc_queue_head_;
             gc_queue_head_ = id;
 
-            /* 
+            /*
              *   Since the entry is unreachable, and unreachable is the
              *   lowest reachability state, we know that 'state' is at least
              *   as reachable, so we can just set the new state without even
@@ -2289,33 +2289,33 @@ private:
         }
         else
         {
-            /* 
+            /*
              *   Elevate the reachability state.  Never reduce an object's
              *   reachability state: Finalizer-Reachable is higher than
              *   Unreachable, and Reachable is higher than
              *   Finalizer-Reachable.
-             *   
+             *
              *   In other words, if an object is already marked Reachable,
              *   never reduce its state to Finalizer-Reachable just because
              *   we find that it can also be reached from a
              *   Finalizer-Reachable object, when we already know that it
-             *   can be reached from a root-set object.  
+             *   can be reached from a root-set object.
              */
             if (state > entry->reachable_)
                 entry->reachable_ = state;
         }
     }
 
-    /* 
+    /*
      *   Add an object to the finalizer work queue.  An object can only be
      *   in one queue - it can't be in both the finalizer queue and the
-     *   main gc work queue.  
+     *   main gc work queue.
      */
     void add_to_finalize_queue(vm_obj_id_t id, CVmObjPageEntry *entry)
     {
         /* mark the object as finalizer-reachable */
         entry->reachable_ = VMOBJ_F_REACHABLE;
-        
+
         /* link it into the finalize list */
         entry->next_obj_ = finalize_queue_head_;
         finalize_queue_head_ = id;
@@ -2326,7 +2326,7 @@ private:
      *   collection.  We run gc after a certain number of consecutive
      *   allocations to ensure that allocation-intensive operations don't
      *   fill up memory if we can avoid it by removing unreferenced
-     *   objects.  
+     *   objects.
      */
     void alloc_check_gc(VMG_ int do_count)
     {
@@ -2343,7 +2343,7 @@ private:
 
     /*
      *   Run a garbage collection in preparation to allocate memory.  Runs
-     *   one garbage collection pass then one finalizer pass.  
+     *   one garbage collection pass then one finalizer pass.
      */
     void gc_before_alloc(VMG0_);
 
@@ -2362,24 +2362,24 @@ private:
     /* continue a GC pass */
     int gc_pass_continue(VMG_ int trace_transient);
 
-    /* 
+    /*
      *   set the initial GC conditions for an object -- this puts the
      *   object into the appropriate queue and sets the appropriate
      *   reachability state in preparation for the start of the next GC
-     *   pass 
+     *   pass
      */
     void gc_set_init_conditions(vm_obj_id_t id,
                                 struct CVmObjPageEntry *entry)
     {
-        /* 
+        /*
          *   Mark the object as unreachable -- at the start of each GC pass,
          *   all non-root-set objects must be marked unreachable.  (It
          *   doesn't matter how we mark root set objects, so we simply mark
-         *   everything as reachable to avoid an unnecessary test.)  
+         *   everything as reachable to avoid an unnecessary test.)
          */
         entry->reachable_ = VMOBJ_UNREACHABLE;
 
-        /* 
+        /*
          *   If it's in the root set, add it to the GC work queue -- all
          *   root-set objects must be in the work queue and marked as
          *   reachable at the start of each GC pass.
@@ -2391,12 +2391,12 @@ private:
     /* hash table of objects requested post_load_init() service */
     class CVmHashTable *post_load_init_table_;
 
-    /* 
+    /*
      *   Head of global object page list.  The global objects are objects
      *   that are always reachable but which weren't necessarily loaded from
      *   the image file; these objects must be treated as dynamically
      *   created for purposes such as saving, but must never be deleted as
-     *   long as they are globally reachable.  
+     *   long as they are globally reachable.
      */
     CVmObjGlobPage *globals_;
 
@@ -2405,7 +2405,7 @@ private:
 
     /*
      *   Master page table.  This is an array of pointers to pages.  Each
-     *   page contains a fixed number of slots for fixed-size parts.  
+     *   page contains a fixed number of slots for fixed-size parts.
      */
     CVmObjPageEntry **pages_;
 
@@ -2431,27 +2431,27 @@ private:
     /* head of finalizer queue */
     vm_obj_id_t finalize_queue_head_;
 
-    /* 
+    /*
      *   Allocations since last garbage collection.  We increment this on
      *   each allocation, and reset it to zero each time we collect
      *   garbage.  When we've performed too many allocations since the
-     *   last garbage collection, we force a gc pass. 
+     *   last garbage collection, we force a gc pass.
      */
     uint allocs_since_gc_;
 
-    /* 
+    /*
      *   Bytes allocated since the last garbage collection pass.  We add each
      *   heap allocation request to this, and zero it each time we collect
      *   garbage.  This lets us trigger an early collection pass (before we'd
      *   collect based on object count) if a lot of large objects are being
      *   thrown around, to ensure that our OS-level working set doesn't grow
-     *   too fast due to rapid creation of large unreachable objects.  
+     *   too fast due to rapid creation of large unreachable objects.
      */
     ulong bytes_since_gc_;
 
     /*
      *   Maximum number of objects and heap bytes allocated before we run the
-     *   garbage collector.  
+     *   garbage collector.
      */
     uint max_allocs_between_gc_;
     ulong max_bytes_between_gc_;
@@ -2464,7 +2464,7 @@ private:
 /*
  *   An image data pointer.  The object table uses this structure to save
  *   the image data location for a given object when the object requests
- *   that this information be saved.  
+ *   that this information be saved.
  */
 struct vm_image_ptr
 {
@@ -2477,12 +2477,12 @@ struct vm_image_ptr
 };
 
 /*
- *   Maximum number of image pointers stored per image pointer page 
+ *   Maximum number of image pointers stored per image pointer page
  */
 const size_t VM_IMAGE_PTRS_PER_PAGE = 400;
 
 /*
- *   A page of image pointers.  
+ *   A page of image pointers.
  */
 struct vm_image_ptr_page
 {
@@ -2499,7 +2499,7 @@ struct vm_image_ptr_page
  *   The variable-size parts are stored in a heap separately from the object
  *   headers.  Because the variable-size objects can expand or contract
  *   dynamically, objects in the heap can move to new addresses.
- *   
+ *
  *   A particular block of memory in the heap is referenced by zero or one
  *   object at any given time; a heap block is never shared among multiple
  *   objects.  Furthermore, the only thing that can directly reference a
@@ -2507,18 +2507,18 @@ struct vm_image_ptr_page
  *   pointer).  Hence, we manage the variable heap directly through the
  *   object headers: when an object becomes unreferenced, we explicitly free
  *   the associated variable part.
- *   
+ *
  *   It is possible for a single object to allocate more than one heap
  *   block.  In practice, most objects will allocate only one heap block (if
  *   they allocate a heap block at all), but there is no reason an object
  *   can't allocate more than one block.
- *   
+ *
  *   Note that polymorphism in the variable parts is handled via the fixed
  *   part.  Because the fixed part is responsible for interactions with the
  *   variable part, each fixed part implementation will be mated to a
  *   particular variable part implementation.  These implementations may
  *   themselves be polymorphic, of course, but this isn't directly necessary
- *   in the base class.  
+ *   in the base class.
  */
 
 /*
@@ -2528,29 +2528,29 @@ class CVmVarHeap
 {
 public:
     virtual ~CVmVarHeap() { }
-    
+
     /*
      *   Initialize.  The global object table is valid at this point, and
-     *   will remain valid until after terminate() is called.  
+     *   will remain valid until after terminate() is called.
      */
     virtual void init(VMG0_) = 0;
 
     /*
      *   Terminate.  The global object table will remain valid until after
      *   this function returns.
-     *   
+     *
      *   The object table is expected to free each object's variable part
      *   explicitly, so this function need not deallocate the memory used
-     *   by variable parts.  
+     *   by variable parts.
      */
     virtual void terminate() = 0;
-    
-    /* 
+
+    /*
      *   Allocate a variable-size part.  'siz' is the size requested in
      *   bytes, and 'obj' is a pointer to the object header.  The object
      *   header will never move in memory, so this pointer is valid for as
      *   long as the object remains allocated, hence the heap manager can
-     *   store the header pointer with the memory block if desired.  
+     *   store the header pointer with the memory block if desired.
      */
     virtual void *alloc_mem(size_t siz, CVmObject *obj) = 0;
 
@@ -2561,15 +2561,15 @@ public:
      *   copy of the data in the original block, but the block should be
      *   resized to at least 'siz' bytes.  Returns a pointer to the new
      *   block, which may move to a new memory location.
-     *   
+     *
      *   If we move the memory to a new location, we are responsible for
      *   freeing the old block of memory that the variable part occupied,
      *   if necessary.
-     *   
+     *
      *   We do not need to worry about informing the object header of any
      *   change to the address of the variable part; the caller is
      *   responsible for making any necessary changes in the object header
-     *   based on our return value.  
+     *   based on our return value.
      */
     virtual void *realloc_mem(size_t siz, void *varpart,
                               CVmObject *obj) = 0;
@@ -2577,32 +2577,32 @@ public:
     /*
      *   Free an object in the heap.  The object header may no longer be
      *   valid after this function returns, so the heap manager should not
-     *   store the object header pointer after this function returns.  
+     *   store the object header pointer after this function returns.
      */
     virtual void free_mem(void *varpart) = 0;
 
 #if 0
-    /* 
+    /*
      *   This is not currently used by the heap implementation (and doesn't
      *   even have any theoretical reason to exist at the moment, since the
      *   adoption of a non-moveable heap policy and the removal of
      *   move_var_part()), so it's been removed to avoid the unnecessary
-     *   overhead of calling an empty method. 
+     *   overhead of calling an empty method.
      */
-    
+
     /*
      *   Receive notification of the completion of a garbage collection
      *   pass.  If the heap manager is capable of closing gaps in memory
      *   by moving objects around, this is a good time to perform this
      *   work, since we have just deleted all unreachable objects.
-     *   
+     *
      *   If any object moves during processing here, we must call the
      *   associated CVmObject's move_var_part() routine to tell it about
      *   its new location.
-     *   
+     *
      *   This routine isn't required to do anything at all.  It's simply
      *   provided as a notification for heap managers that can take
-     *   advantage of the opportunity to compact the heap.  
+     *   advantage of the opportunity to compact the heap.
      */
     virtual void finish_gc_pass() = 0;
 #endif
@@ -2626,7 +2626,7 @@ struct CVmVarHeapMallocHdr
 };
 
 /*
- *   heap implementation 
+ *   heap implementation
  */
 class CVmVarHeapMalloc: public CVmVarHeap
 {
@@ -2659,16 +2659,16 @@ public:
     {
         CVmVarHeapMallocHdr *hdr;
 
-        /* 
+        /*
          *   get the original header, which immediately precedes the
-         *   original variable part in memory 
+         *   original variable part in memory
          */
         hdr = ((CVmVarHeapMallocHdr *)varpart) - 1;
 
-        /* 
+        /*
          *   Reallocate it - the header is the actual memory block as far
          *   as malloc was concerned, so realloc that.  Note that we must
-         *   add in the space needed for our header in the resized block.  
+         *   add in the space needed for our header in the resized block.
          */
         hdr = (CVmVarHeapMallocHdr *)
               t3realloc(hdr, siz + sizeof(CVmVarHeapMallocHdr));
@@ -2685,30 +2685,30 @@ public:
     {
         CVmVarHeapMallocHdr *hdr;
 
-        /* 
+        /*
          *   get the original header, which immediately precedes the
-         *   original variable part in memory 
+         *   original variable part in memory
          */
         hdr = ((CVmVarHeapMallocHdr *)varpart) - 1;
 
-        /* 
+        /*
          *   free the header, which is the actual memory block as far as
-         *   malloc was concerned 
+         *   malloc was concerned
          */
         t3free(hdr);
     }
 
 #if 0
     /* removed with the removal of move_var_part() */
-    
-    /* 
+
+    /*
      *   complete garbage collection pass - we don't have to do anything
      *   here, since we can't move objects around to consolidate free
-     *   space 
+     *   space
      */
     void finish_gc_pass() { }
 #endif
-    
+
 private:
 };
 
@@ -2719,21 +2719,21 @@ private:
  *   back on malloc for allocating large objects.  Small-block allocations
  *   and frees are fast, require very little memory overhead, and minimize
  *   heap fragmentation by packing large blocks of fixed-size items into
- *   arrays, then suballocating out of free lists built from the arrays.  
+ *   arrays, then suballocating out of free lists built from the arrays.
  */
 
 /*
  *   Each item we allocate from a small-object array has a header that
  *   points back to the array's master list.  This is necessary so that we
  *   can put the object back in the appropriate free list when it is
- *   deleted.  
+ *   deleted.
  */
 struct CVmVarHeapHybrid_hdr
 {
-    /* 
+    /*
      *   the block interface that allocated this object -- we use this
      *   when we free the object so that we can call the free() routine in
-     *   the block manager that originally did the allocation 
+     *   the block manager that originally did the allocation
      */
     class CVmVarHeapHybrid_block *block;
 
@@ -2744,7 +2744,7 @@ struct CVmVarHeapHybrid_hdr
 /*
  *   Hybrid heap allocator - sub-block interface.  Each small-object cell
  *   list is represented by one of these objects, as is the fallback
- *   malloc allocator.  
+ *   malloc allocator.
  */
 class CVmVarHeapHybrid_block
 {
@@ -2761,7 +2761,7 @@ public:
      *   Reallocate memory.  If necessary, allocate new memory, copy the
      *   data to the new memory, and delete the old memory.  We receive
      *   the heap manager as an argument so that we can call it to
-     *   allocate new memory if necessary.  
+     *   allocate new memory if necessary.
      */
     virtual void *realloc(struct CVmVarHeapHybrid_hdr *mem, size_t siz,
                           class CVmObject *obj) = 0;
@@ -2771,7 +2771,7 @@ public:
 };
 
 /*
- *   Malloc suballocator 
+ *   Malloc suballocator
  */
 class CVmVarHeapHybrid_malloc: public CVmVarHeapHybrid_block
 {
@@ -2780,10 +2780,10 @@ public:
     virtual struct CVmVarHeapHybrid_hdr *alloc(size_t siz)
     {
         CVmVarHeapHybrid_hdr *ptr;
-        
+
         /* adjust the size to add in the required header */
         siz = osrndsz(siz + sizeof(CVmVarHeapHybrid_hdr));
-        
+
         /* allocate directly via the default system heap manager */
         ptr = (CVmVarHeapHybrid_hdr *)t3malloc(siz);
 
@@ -2806,7 +2806,7 @@ public:
                           CVmObject *)
     {
         CVmVarHeapHybrid_hdr *ptr;
-        
+
         /* adjust the new size to add in the required header */
         siz = osrndsz(siz + sizeof(CVmVarHeapHybrid_hdr));
 
@@ -2825,7 +2825,7 @@ public:
  *   Small-object array list head.  We suballocate small objects from
  *   these arrays.  We maintain one of these objects for each distinct
  *   cell size; this object manages all of the storage for blocks of the
- *   cell size.  
+ *   cell size.
  */
 class CVmVarHeapHybrid_head: public CVmVarHeapHybrid_block
 {
@@ -2835,7 +2835,7 @@ public:
     {
         /* remember our memory manager */
         mem_mgr_ = mem_mgr;
-        
+
         /* remember our cell size and number of items per array */
         cell_size_ = cell_size;
         page_count_ = page_count;
@@ -2843,7 +2843,7 @@ public:
         /* we have nothing in our free list yet */
         first_free_ = 0;
     }
-    
+
     /* allocate an object from my pool, expanding the pool if necessary */
     CVmVarHeapHybrid_hdr *alloc(size_t siz);
 
@@ -2873,27 +2873,27 @@ private:
 
 /*
  *   Small-object array list block.  We dynamically allocate these array
- *   blocks as needed to hold blocks of a particular size.  
+ *   blocks as needed to hold blocks of a particular size.
  */
 struct CVmVarHeapHybrid_array
 {
     /* next array in the master list */
     CVmVarHeapHybrid_array *next_array;
 
-    /* 
+    /*
      *   memory for allocation (we over-allocate the structure to make
-     *   room for some number of our fixed-size cells) 
+     *   room for some number of our fixed-size cells)
      */
     char mem[1];
 };
 
 /*
- *   heap implementation 
+ *   heap implementation
  */
 class CVmVarHeapHybrid: public CVmVarHeap
 {
     friend class CVmVarHeapHybrid_head;
-    
+
 public:
     CVmVarHeapHybrid(CVmObjTable *objtab);
     ~CVmVarHeapHybrid();
@@ -2915,26 +2915,26 @@ public:
 
 #if 0
     /* removed with the removal of move_var_part() */
-    
-    /* 
+
+    /*
      *   complete garbage collection pass - we don't have to do anything
      *   here, since we can't move objects around to consolidate free
-     *   space 
+     *   space
      */
     void finish_gc_pass() { }
 #endif
-    
+
 private:
-    /* 
+    /*
      *   Head of list of arrays.  We keep this list so that we can delete
      *   all of the arrays when we delete this heap manager object itself.
      */
     CVmVarHeapHybrid_array *first_array_;
 
-    /* 
+    /*
      *   Array of cell-based subheap managers.  This array will be ordered
      *   from smallest to largest, so we can search it for the best fit to
-     *   a requested size. 
+     *   a requested size.
      */
     CVmVarHeapHybrid_head **cell_heaps_;
 
@@ -2944,7 +2944,7 @@ private:
     /*
      *   Our fallback malloc heap manager.  We'll use this allocator for
      *   any blocks that we can't allocate from one of our cell-based
-     *   memory managers. 
+     *   memory managers.
      */
     CVmVarHeapHybrid_malloc *malloc_heap_;
 
@@ -2955,7 +2955,7 @@ private:
 /* ------------------------------------------------------------------------ */
 /*
  *   Memory Manager - this is the primary interface to the object memory
- *   subsystem.  
+ *   subsystem.
  */
 class CVmMemory
 {
@@ -2983,7 +2983,7 @@ private:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Allocate a new object ID 
+ *   Allocate a new object ID
  */
 inline vm_obj_id_t vm_new_id(VMG_ int in_root_set)
 {
@@ -2992,7 +2992,7 @@ inline vm_obj_id_t vm_new_id(VMG_ int in_root_set)
 }
 
 /*
- *   Allocate a new object ID, setting GC characteristics 
+ *   Allocate a new object ID, setting GC characteristics
  */
 inline vm_obj_id_t vm_new_id(VMG_ int in_root_set, int can_have_refs,
                              int can_have_weak_refs)
@@ -3003,7 +3003,7 @@ inline vm_obj_id_t vm_new_id(VMG_ int in_root_set, int can_have_refs,
 }
 
 /*
- *   Given an object ID, get a pointer to the object 
+ *   Given an object ID, get a pointer to the object
  */
 inline CVmObject *vm_objp(VMG_ vm_obj_id_t id)
 {
@@ -3020,14 +3020,14 @@ inline CVmObject *vm_objp(VMG_ vm_obj_id_t id)
     (vm_val_cast_ok(cls, vv) ? (cls *)vm_objp(vmg_ (vv)->val.obj) : 0)
 
 /*
- *   Will a dynamic cast of a vm_val_t to the given object type succeed? 
+ *   Will a dynamic cast of a vm_val_t to the given object type succeed?
  */
 #define vm_val_cast_ok(cls, vv) \
     ((vv)->typ == VM_OBJ && \
      vm_objp(vmg_ ((vv)->val.obj))->is_of_metaclass(cls::metaclass_reg_))
 
 /*
- *   Cast a vm_obj_id_t to a given object type 
+ *   Cast a vm_obj_id_t to a given object type
  */
 #define vm_objid_cast(cls, id) \
     (id != VM_INVALID_OBJ \

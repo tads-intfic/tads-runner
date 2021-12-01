@@ -1,16 +1,16 @@
 /* $Header: d:/cvsroot/tads/tads3/tctok.h,v 1.5 1999/07/11 00:46:59 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   tctok.h - TADS3 compiler tokenizer and preprocessor
 Function
-  
+
 Notes
   The tokenizer is layered with the preprocessor, so that the preprocessor
   can deal with include files, macro expansion, and preprocessor directives.
@@ -36,7 +36,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Constants 
+ *   Constants
  */
 
 /* maximum length of a symbol name, in characters */
@@ -45,7 +45,7 @@ const size_t TOK_SYM_MAX_LEN = 80;
 /*
  *   Maximum buffer required to hold a symbol, in bytes.  Each UTF-8
  *   character may take up three bytes, plus we need a null terminator
- *   byte. 
+ *   byte.
  */
 const size_t TOK_SYM_MAX_BUFFER = (3*TOK_SYM_MAX_LEN + 1);
 
@@ -55,13 +55,13 @@ const size_t TOK_MAX_IF_NESTING = 100;
 /* maximum number of parameters per macro */
 const int TOK_MAX_MACRO_ARGS = 128;
 
-/* 
+/*
  *   Special token flag characters - these are a characters that can't
  *   occur in an input file (we guarantee this by converting any
  *   occurrences of this character to a space on reading input).  We use
  *   these to flag certain special properties of tokens in the input
  *   buffer.
- *   
+ *
  *   We use ASCII characters in the control range (0x01 (^A) through 0x1A
  *   (^Z), excluding 0x09 (tab), 0x0A (LF), 0x0D (CR), and 0x0C (Page
  *   Feed); a well-formed source file would never use any of these
@@ -69,13 +69,13 @@ const int TOK_MAX_MACRO_ARGS = 128;
  *   we'll always translate these to a space if we find them in input; but
  *   choosing characters that *should* never occur in valid input will
  *   ensure that we never alter the meaning of valid source by this
- *   translation.  
+ *   translation.
  */
 
-/* 
+/*
  *   macro parameter flag - we use this in the internal storage of a
  *   #define expansion to flag where the formal parameters are mentioned,
- *   so that we can substitute the actuals when expanding the macro 
+ *   so that we can substitute the actuals when expanding the macro
  */
 const char TOK_MACRO_FORMAL_FLAG = 0x01;
 
@@ -84,7 +84,7 @@ const char TOK_MACRO_FORMAL_FLAG = 0x01;
  *   token has been fully expanded in the course of a particular macro
  *   expansion, we'll insert this byte before the token; on subsequent
  *   re-scans, whenever we see this flag, we'll realize that the token
- *   needs no further consideration of expansion. 
+ *   needs no further consideration of expansion.
  */
 const char TOK_FULLY_EXPANDED_FLAG = 0x02;
 
@@ -97,7 +97,7 @@ const char TOK_FULLY_EXPANDED_FLAG = 0x02;
  *   macro about to be expanded.  If we find such a flag matching the
  *   symbol about to be expanded, we'll know the symbol has already been
  *   fully expanded on a previous scan and thus must not be expanded
- *   again.  
+ *   again.
  */
 const char TOK_MACRO_EXP_END = 0x03;
 
@@ -108,25 +108,25 @@ const char TOK_MACRO_EXP_END = 0x03;
  *   not to try to read another line when it reaches the end of the
  *   current line.  This flag serves this purpose: when the tokenizer
  *   encounters one of these flags, it will simply return end-of-file
- *   until the caller explicitly reads a new source line. 
+ *   until the caller explicitly reads a new source line.
  */
 const char TOK_END_PP_LINE = 0x04;
 
 /*
  *   "#foreach" marker flag.  This marks the presence of a #foreach token in
  *   a macro's expansion.  We leave the text of the expansion area intact,
- *   but we replace the #foreach token with this marker character.  
+ *   but we replace the #foreach token with this marker character.
  */
 const char TOK_MACRO_FOREACH_FLAG = 0x05;
 
-/* 
+/*
  *   "#argcount" marker flag.  This marks the presence of a #argcount token
- *   in a macro's expansion.  
+ *   in a macro's expansion.
  */
 const char TOK_MACRO_ARGCOUNT_FLAG = 0x06;
 
 /*
- *   "#ifempty" and #ifnempty" marker flags 
+ *   "#ifempty" and #ifnempty" marker flags
  */
 const char TOK_MACRO_IFEMPTY_FLAG = 0x07;
 const char TOK_MACRO_IFNEMPTY_FLAG = 0x08;
@@ -141,7 +141,7 @@ const char TOK_MACRO_IFNEMPTY_FLAG = 0x08;
  *   changes to the internal format, future interpreters will have to
  *   recognize older versions so that they can make the necessary
  *   translations.  By embedding the version information in the table, we
- *   make this recognition possible.  
+ *   make this recognition possible.
  */
 #define TCTOK_MACRO_FORMAT_VERSION   1
 
@@ -150,13 +150,13 @@ const char TOK_MACRO_IFNEMPTY_FLAG = 0x08;
 /*
  *   Macro table.  This is a virtualized version of our basic hash table, to
  *   allow specialized versions that provide views on top of other table
- *   structures.  
+ *   structures.
  */
 class CTcMacroTable
 {
 public:
     virtual ~CTcMacroTable() { }
-    
+
     /* add an entry */
     virtual void add(CVmHashEntry *entry) = 0;
 
@@ -176,7 +176,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   #if state 
+ *   #if state
  */
 enum tok_if_t
 {
@@ -189,7 +189,7 @@ enum tok_if_t
 };
 
 /*
- *   #if stack entry 
+ *   #if stack entry
  */
 struct tok_if_info_t
 {
@@ -203,7 +203,7 @@ struct tok_if_info_t
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Token Types 
+ *   Token Types
  */
 
 enum tc_toktyp_t
@@ -357,7 +357,7 @@ enum tc_toktyp_t
  *   needed after reading more tokens and flushing the line buffer.  We'll
  *   copy needed text into our source blocks, which we keep in memory
  *   throughout the compilation, so that we can be certain we can
- *   reference these strings at any time.  
+ *   reference these strings at any time.
  */
 
 /* size of a source block */
@@ -399,7 +399,7 @@ private:
 /* ------------------------------------------------------------------------ */
 /*
  *   String Buffer.  We use these buffers for reading input lines and
- *   expanding macros.  
+ *   expanding macros.
  */
 class CTcTokString
 {
@@ -427,7 +427,7 @@ public:
         {
             /* increase to the next 4k increment */
             buf_size_ = (siz + 4095 + 1) & ~4095;
-            
+
             /* allocate or re-allocate the buffer */
             if (buf_ == 0)
                 buf_ = (char *)t3malloc(buf_size_);
@@ -478,9 +478,9 @@ public:
         /* make sure we have enough space */
         ensure_space(buf_len_ + len);
 
-        /* 
+        /*
          *   move the existing text (including the null terminator) up in the
-         *   buffer to make room for the prepended text 
+         *   buffer to make room for the prepended text
          */
         memmove(buf_ + len, buf_, buf_len_ + 1);
 
@@ -491,17 +491,17 @@ public:
         buf_len_ += len;
     }
 
-    /* 
+    /*
      *   Append a string to the buffer, enclosing the text in single or
      *   double quote (as given by 'qu', which must be either '"' or '\'')
      *   and backslash-escaping any occurrences of the same quote character
-     *   found within the string.  
+     *   found within the string.
      */
     void append_qu(char qu, const char *p) { append_qu(qu, p, strlen(p)); }
     void append_qu(char qu, const char *p, size_t len)
     {
         const char *start;
-        
+
         /* append the open quote */
         append(&qu, 1);
 
@@ -509,7 +509,7 @@ public:
         while (len != 0)
         {
             size_t rem;
-            
+
             /* skip to the next quote */
             for (start = p, rem = len ; rem != 0 && *p != qu ; ++p, --rem) ;
 
@@ -543,9 +543,9 @@ public:
         /* check to see if there's anything after the insertion point */
         if ((size_t)ofs >= buf_len_)
         {
-            /* 
+            /*
              *   there's nothing after the insertion point, so this is simply
-             *   equivalent to 'append' - go do the append, and we're done 
+             *   equivalent to 'append' - go do the append, and we're done
              */
             append(p, len);
             return;
@@ -554,9 +554,9 @@ public:
         /* ensure there's space for the added text */
         ensure_space(buf_len_ + len);
 
-        /* 
+        /*
          *   Move the existing text after the insertion point just far enough
-         *   to make room for the new text.  Include the null terminator.  
+         *   to make room for the new text.  Include the null terminator.
          */
         memmove(buf_ + ofs + len, buf_ + ofs, buf_len_ - ofs + 1);
 
@@ -598,10 +598,10 @@ public:
     virtual char *get_buf() const { return buf_; }
     size_t get_buf_size() const { return buf_size_; }
 
-    /* 
+    /*
      *   Set the text length - use this after copying directly into the
      *   buffer to set the length, excluding the null terminator.  We'll
-     *   add a null terminator at the given length.  
+     *   add a null terminator at the given length.
      */
     virtual void set_text_len(size_t len)
     {
@@ -629,10 +629,10 @@ protected:
  *   String buffer subclass for a non-allocated string that merely
  *   references another buffer.  This can be used anywhere a CTcString is
  *   required, but does not require any allocation.
- *   
+ *
  *   These objects can only be used in 'const' contexts: the underlying
  *   buffer cannot be changed or expanded, since we do not own the
- *   underlying buffer.  
+ *   underlying buffer.
  */
 class CTcTokStringRef: public CTcTokString
 {
@@ -675,7 +675,7 @@ public:
 /* ------------------------------------------------------------------------ */
 /*
  *   String embedding context.  This keeps track of the token structure for
- *   embedded expressions within strings using << >>. 
+ *   embedded expressions within strings using << >>.
  */
 struct tok_embed_level
 {
@@ -708,7 +708,7 @@ struct tok_embed_ctx
         level = 0;
         s = 0;
     }
-    
+
     void start_expr(wchar_t qu, int triple, int report);
 
     void end_expr()
@@ -758,14 +758,14 @@ struct tok_embed_ctx
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Token 
+ *   Token
  */
 class CTcToken
 {
 public:
     CTcToken() { }
     CTcToken(tc_toktyp_t typ) : typ_(typ) { }
-    
+
     /* get/set the token type */
     tc_toktyp_t gettyp() const { return typ_; }
     void settyp(tc_toktyp_t typ) { typ_ = typ; }
@@ -773,7 +773,7 @@ public:
     /* get/set the fully-expanded flag */
     int get_fully_expanded() const { return fully_expanded_; }
     void set_fully_expanded(int flag) { fully_expanded_ = flag; }
-    
+
     /* get/set the text pointer */
     const char *get_text() const { return text_; }
     size_t get_text_len() const { return text_len_; }
@@ -791,9 +791,9 @@ public:
         int_val_ = val;
     }
 
-    /* 
+    /*
      *   compare the text to the given string - returns true if the text
-     *   matches, false if not 
+     *   matches, false if not
      */
     int text_matches(const char *txt, size_t len) const
     {
@@ -817,8 +817,8 @@ public:
 private:
     /* token type */
     tc_toktyp_t typ_;
-    
-    /* 
+
+    /*
      *   Pointer to the token's text.  This is a pointer into the
      *   tokenizer's symbol table or into the token list itself, so this
      *   pointer is valid as long as the tokenizer and its token list are
@@ -830,16 +830,16 @@ private:
     /* integer value - valid when the token type is TOKT_INT */
     ulong int_val_;
 
-    /* 
+    /*
      *   flag: the token has been fully expanded, and should not be
-     *   expanded further on any subsequent rescan for macros 
+     *   expanded further on any subsequent rescan for macros
      */
     uint fully_expanded_ : 1;
 };
 
-/* 
+/*
  *   Token list entry.  This is a generic linked list element containing a
- *   token.  
+ *   token.
  */
 class CTcTokenEle: public CTcToken
 {
@@ -867,7 +867,7 @@ protected:
  *   allocating and freeing of these resources, we keep a pool of these
  *   objects around so that we can re-use them as needed.  We'll
  *   dynamically expand the pool as necessary, so this doesn't impose any
- *   pre-set limits; it simply avoids lots of memory allocation activity. 
+ *   pre-set limits; it simply avoids lots of memory allocation activity.
  */
 class CTcMacroRsc
 {
@@ -878,7 +878,7 @@ public:
         next_avail_ = 0;
         next_ = 0;
     }
-    
+
     /* buffer for expansion of the whole line */
     CTcTokString line_exp_;
 
@@ -899,16 +899,16 @@ public:
 /* ------------------------------------------------------------------------ */
 /*
  *   Abstract token source interface.  This is used to allow external code
- *   to inject their own substreams into the main token stream.  
+ *   to inject their own substreams into the main token stream.
  */
 class CTcTokenSource
 {
 public:
     virtual ~CTcTokenSource() { }
 
-    /* 
+    /*
      *   Get the next token from the source.  Returns null if there are no
-     *   more tokens.  
+     *   more tokens.
      */
     virtual const CTcToken *get_next_token() = 0;
 
@@ -934,10 +934,10 @@ protected:
     /* the enclosing external token source */
     CTcTokenSource *enclosing_src_;
 
-    /* 
+    /*
      *   the current token in effect enclosing this source - this is the
      *   token that comes immediately after the source's tokens, because a
-     *   source is inserted before the current token 
+     *   source is inserted before the current token
      */
     CTcToken enclosing_curtok_;
 };
@@ -954,15 +954,15 @@ enum newline_spacing_mode_t
     /* delete: a newline and immediately following whitespace are deleted */
     NEWLINE_SPACING_DELETE = 0,
 
-    /* 
+    /*
      *   collapse: a newline and immediately following whitespace are
-     *   replaced with a single space character 
+     *   replaced with a single space character
      */
     NEWLINE_SPACING_COLLAPSE = 1,
 
-    /* 
+    /*
      *   preserve: newlines and subsequent whitespace are preserved exactly
-     *   as written in the source code 
+     *   as written in the source code
      */
     NEWLINE_SPACING_PRESERVE = 2
 };
@@ -972,12 +972,12 @@ enum newline_spacing_mode_t
 /*
  *   Tokenizer.  This object reads a file and constructs a representation
  *   of the file as a token list in memory.  The tokenizer interprets
- *   preprocessor directives and expands macros.  
+ *   preprocessor directives and expands macros.
  */
 class CTcTokenizer
 {
     friend class CTcHashEntryPpDefine;
-    
+
 public:
     /*
      *   Create the tokenizer and start reading from the given file.  The
@@ -994,11 +994,11 @@ public:
      *   Reset the tokenizer.  Deletes the current source object and all
      *   saved token text.  This can be used after compilation of a unit
      *   is completed and the intermediate parser state can be completely
-     *   discarded. 
+     *   discarded.
      */
     void reset();
 
-    /* 
+    /*
      *   Set the source file.  'src_filename' is the fully-resolved local
      *   filename of the source file; 'orig_name' is the original name as
      *   given on the command line, in the makefile, or wherever it came
@@ -1006,7 +1006,7 @@ public:
      *   information to the debugger indicating the name as it was originally
      *   given; this is more useful than the resolved filename, because we
      *   might want to run the debugger on another machine with a different
-     *   local directory structure.  
+     *   local directory structure.
      */
     int set_source(const char *src_filename, const char *orig_name);
 
@@ -1016,7 +1016,7 @@ public:
 
     void set_source_buf(const char *buf, size_t len);
 
-    /* 
+    /*
      *   Add a #include directory to the include path.  We search the
      *   include path in the order in which they were defined.
      */
@@ -1026,20 +1026,20 @@ public:
      *   Set preprocess-only mode.  In this mode, we'll retain
      *   preprocessor directives that will be needed if the preprocessed
      *   result is itself compiled; for example, we'll retain #line,
-     *   #pragma C, #error, and #pragma message directives. 
+     *   #pragma C, #error, and #pragma message directives.
      */
     void set_mode_pp_only(int flag) { pp_only_mode_ = flag; }
 
     /*
      *   Set list-includes mode.  In this mode, we'll simply scan source
      *   files and write to the standard output a list of the names of all
-     *   of the #include files.  
+     *   of the #include files.
      */
     void set_list_includes_mode(int flag) { list_includes_mode_ = flag; }
 
-    /* 
+    /*
      *   Get/set the test-report mode.  In this mode, we'll expand __FILE__
-     *   macros with the root name only.  
+     *   macros with the root name only.
      */
     int get_test_report_mode() const { return test_report_mode_; }
     void set_test_report_mode(int flag) { test_report_mode_ = flag; }
@@ -1053,30 +1053,30 @@ public:
     /* get the next token, reading a new line of source if necessary */
     tc_toktyp_t next();
 
-    /* 
+    /*
      *   Un-get the current token and back up to the previous token.  The
      *   previous token becomes the current token, and the current token is
      *   saved on an internal stack to be fetched again after the returned
      *   token.
-     *   
+     *
      *   With no arguments, this backs up to the internally stored previous
      *   token.  This allows callers to look ahead by one token without
      *   making a list of saved tokens.
-     *   
+     *
      *   With an argument, this backs up to a prior token saved by the
      *   caller.  This can be used to back up arbitrarily many tokens - it's
      *   up to the caller to save ungettable tokens and push them back into
      *   the stream.  Tokens must be ungotten in reverse order (e.g., get A,
      *   B, C, D, unget D, C, B, A).  Note that the argument is the PREVIOUS
      *   token to restore, not the current token.
-     *   
+     *
      *   Tokens un-got with this routine are accessible only to next(), not
-     *   to any of the lower-level token readers.  
+     *   to any of the lower-level token readers.
      */
     void unget();
     void unget(const CTcToken *prv);
 
-    /* 
+    /*
      *   Push a token into the token stream.  The given token becomes the
      *   next token to be retrieved.  This doesn't affect the current token.
      */
@@ -1085,10 +1085,10 @@ public:
     /* get the current token */
     const class CTcToken *getcur() const { return &curtok_; }
 
-    /* 
+    /*
      *   Copy the current token.  This makes a copy of the token's text in
      *   tokenizer source memory, to ensure that the reference to the text
-     *   buffer the caller is keeping will remain valid forever. 
+     *   buffer the caller is keeping will remain valid forever.
      */
     const class CTcToken *copycur();
 
@@ -1100,16 +1100,16 @@ public:
     int cur_tok_matches(const char *txt)
         { return cur_tok_matches(txt, strlen(txt)); }
 
-    /* 
+    /*
      *   Try looking ahead to match a pair of symbols.  If the current token
      *   is a TOKT_SYM token matching sym1, read the next token to see if
      *   it's another TOKT_SYM matching sym2.  If so, skip the second token
      *   and return true.  If not, unget tthe second (so the original token
-     *   is current again) and return false.  
+     *   is current again) and return false.
      */
     int look_ahead(const char *sym1, const char *sym2);
 
-    /* 
+    /*
      *   peek ahead - same as look_ahead, but doesn't skip anything even on
      *   successfully matching the token pair
      */
@@ -1119,18 +1119,18 @@ public:
      *   Set an external token source.  We'll read tokens from this source
      *   until it is exhausted, at which point we'll revert to the enclosing
      *   source.
-     *   
+     *
      *   The new source is inserted before the current token, so the current
      *   token will become current once again when this source is exhausted.
      *   We'll automatically advance to the next token, which (unless we
      *   have an ungotten token stashed) will go to the first token in the
-     *   new source.  
+     *   new source.
      */
     void set_external_source(CTcTokenSource *src)
     {
-        /* 
+        /*
          *   store the old source in the new source, so we can restore the
-         *   old source when we have exhausted the new source 
+         *   old source when we have exhausted the new source
          */
         src->set_enclosing_source(ext_src_, &curtok_);
 
@@ -1144,10 +1144,10 @@ public:
     /* clear all external sources, returning to the real token stream */
     void clear_external_sources();
 
-    /* 
+    /*
      *   assume that we should have found '>>' sequence after an embedded
      *   expression in a string - used by parsers to resynchronize after
-     *   an apparent syntax error 
+     *   an apparent syntax error
      */
     void assume_missing_str_cont();
 
@@ -1190,11 +1190,11 @@ public:
         *linenum = last_linenum_;
     }
 
-    /* 
+    /*
      *   set the current file descriptor and line number -- this can be
      *   used to force the line position to a previously-saved value
      *   (during code generation, for example) for error-reporting and
-     *   debug-record purposes 
+     *   debug-record purposes
      */
     void set_line_info(class CTcTokFileDesc *desc, long linenum)
     {
@@ -1202,25 +1202,25 @@ public:
         last_linenum_ = linenum;
     }
 
-    /* 
+    /*
      *   Parse a preprocessor constant expression.  We always parse out of
      *   the macro expansion buffer (expbuf_), but the caller must set p_
      *   to point to the starting point on the expansion line prior to
      *   calling this routine.
-     *   
+     *
      *   If 'read_first' is true, we'll read a token into curtok_ before
      *   parsing; otherwise, we'll assume the caller has already primed
      *   the pump by reading the first token.
-     *   
+     *
      *   If 'last_on_line' is true, we'll flag an error if anything is
      *   left on the line after we finish parsing the expression.
-     *   
+     *
      *   If 'add_line_ending' is true, we'll add an end-of-line marker to
      *   the expansion buffer, so that the tokenizer won't attempt to read
      *   past the end of the line.  Since a preprocessor expression must
      *   be contained entirely on a single logical line, we must never try
      *   to read past the end of the current line when parsing a
-     *   preprocessor expression.  
+     *   preprocessor expression.
      */
     int pp_parse_expr(class CTcConstVal *result,
                       int read_first, int last_on_line, int add_line_ending);
@@ -1228,11 +1228,11 @@ public:
     /* log an error, optionally with parameters */
     static void log_error(int errnum, ...);
 
-    /* 
+    /*
      *   log an error with the current token text as the parameter,
      *   suitable for a "%.*s" format list entry (hence we'll provide two
      *   parameters: an integer with the length of the token text, and a
-     *   pointer to the token text string) 
+     *   pointer to the token text string)
      */
     void log_error_curtok(int errnum);
 
@@ -1252,7 +1252,7 @@ public:
     void log_error_or_warning_with_tok(tc_severity_t sev, int errnum,
                                        const CTcToken *tok);
 
-    /* 
+    /*
      *   log then throw a fatal error (this is different from an internal
      *   error in that it indicates an unrecoverable error in the input;
      *   an internal error indicates that something is wrong with the
@@ -1260,10 +1260,10 @@ public:
      */
     static void throw_fatal_error(int errnum, ...);
 
-    /* 
+    /*
      *   log then throw an internal error (internal errors are always
      *   fatal: these indicate that something has gone wrong in the
-     *   compiler, and are equivalent to an assert failure) 
+     *   compiler, and are equivalent to an assert failure)
      */
     static void throw_internal_error(int errnum, ...);
 
@@ -1284,27 +1284,27 @@ public:
         return old_tab;
     }
 
-    /* 
+    /*
      *   look up a token as a keyword; returns true and fills in 'kw' with
      *   the keyword token ID if the token is in fact a keyword, or
-     *   returns false if it's not a keyword 
+     *   returns false if it's not a keyword
      */
     int look_up_keyword(const CTcToken *tok, tc_toktyp_t *kw);
 
-    /* 
+    /*
      *   Get the next token on the line, filling in the token object.
      *   Advances the pointer to the character immediately following the
      *   token.
-     *   
+     *
      *   If the token is a string, and the string contains backslash
      *   sequences, we'll modify the source string by translating each
      *   backslash sequences; for example, a "\n" sequence is changed into an
      *   ASCII 10.
-     *   
+     *
      *   'expanding' indicates whether or not we're in the initial macro
      *   expansion pass.  If this is true, we'll suppress error messages
      *   during this pass, as we'll encounter the same tokens again when we
-     *   parse the expanded form of the line.  
+     *   parse the expanded form of the line.
      */
     static tc_toktyp_t next_on_line(utf8_ptr *p, CTcToken *tok,
                                     tok_embed_ctx *ec, int expanding);
@@ -1312,27 +1312,27 @@ public:
     /*
      *   Get the text of an operator token.  Returns a pointer to a
      *   constant, static, null-terminated string, suitable for use in
-     *   error messages.  
+     *   error messages.
      */
     static const char *get_op_text(tc_toktyp_t op);
 
-    /* 
+    /*
      *   Store text in the source list.  Text stored here is available
      *   throughout compilation.  This routine automatically reserves the
-     *   space needed, so do not call 'reserve' or 'commit' separately.  
+     *   space needed, so do not call 'reserve' or 'commit' separately.
      */
     const char *store_source(const char *txt, size_t len);
 
     /* reserve space for text in the source list */
     void reserve_source(size_t len);
 
-    /* 
+    /*
      *   Store a piece of text into pre-reserved space in the source list.
      *   This can be used to build up a string from several pieces.  You must
      *   call 'reserve' first to allocate the space, and you must explicitly
      *   add a null terminator at the end of the string.  Do not call
      *   'commit'; this automatically commits the space as each substring is
-     *   added. 
+     *   added.
      */
     const char *store_source_partial(const char *txt, size_t len);
 
@@ -1340,7 +1340,7 @@ public:
      *   Get the index of the next source file descriptor that will be
      *   created.  The linker can use this information to fix up
      *   references to file descriptors in an object file when loading
-     *   multiple object files.  
+     *   multiple object files.
      */
     int get_next_filedesc_index() const { return next_filedesc_id_; }
 
@@ -1357,10 +1357,10 @@ public:
     /* get the head of the master source file descriptor list */
     class CTcTokFileDesc *get_first_filedesc() const { return desc_head_; }
 
-    /* 
+    /*
      *   Create a new file descriptor and add it to the master list.  This
      *   creates the new descriptor unconditionally, even if a descriptor
-     *   for the same source file already exists. 
+     *   for the same source file already exists.
      */
     class CTcTokFileDesc *create_file_desc(const char *fname, size_t len)
         { return get_file_desc(fname, len, TRUE, fname, len); }
@@ -1368,17 +1368,17 @@ public:
     /*
      *   Set the string capture file.  Once this is set, we'll write the
      *   contents of each string token that we encounter to this file,
-     *   with a newline after each token.  
+     *   with a newline after each token.
      */
     void set_string_capture(osfildef *fp);
 
     /* write macros to a file, for debugger use */
     void write_macros_to_file_for_debug(class CVmFile *fp);
 
-    /* 
+    /*
      *   Load macros from a file.  If any errors occur, we'll flag them
      *   through the error handler object and return a non-zero value.
-     *   Returns zero on success.  
+     *   Returns zero on success.
      */
     int load_macros_from_file(class CVmStream *fp,
                               class CTcTokLoadMacErr *err_handler);
@@ -1395,26 +1395,26 @@ public:
      *   inserted at the current read pointer, so that the next token we
      *   fetch will come from the start of the inserted text.  If 'expand' is
      *   true, we'll expand macros in the text; if not, we'll insert the text
-     *   exactly as is with no macro expansion.  
+     *   exactly as is with no macro expansion.
      */
     void stuff_text(const char *txt, size_t len, int expand);
 
 private:
     /* skip whitespace and token markers */
     static void skip_ws_and_markers(utf8_ptr *p);
-    
-    /* 
+
+    /*
      *   get the next token on the line; if we go past the end of the
-     *   string buffer, we'll return EOF 
+     *   string buffer, we'll return EOF
      */
     static tc_toktyp_t next_on_line(const CTcTokString *srcbuf, utf8_ptr *p,
                                     CTcToken *tok, tok_embed_ctx *ec,
                                     int expanding);
 
-    /* 
+    /*
      *   get the next token on the current line, updating the internal
      *   character position pointer to point just past the token, and filling
-     *   in the internal current token object with the toen data 
+     *   in the internal current token object with the toen data
      */
     tc_toktyp_t next_on_line()
         { return next_on_line(&p_, &curtok_, 0, FALSE); }
@@ -1423,47 +1423,47 @@ private:
     tc_toktyp_t next_on_line_xlat(tok_embed_ctx *ec)
         { return next_on_line_xlat(&p_, &curtok_, ec); }
 
-    /* 
+    /*
      *   get the next token, translating strings and storing string and
-     *   symbol text in the source block list 
+     *   symbol text in the source block list
      */
     tc_toktyp_t next_on_line_xlat_keep();
 
-    /* 
+    /*
      *   get the next token on the line, translating strings to internal
-     *   format 
+     *   format
      */
     tc_toktyp_t next_on_line_xlat(utf8_ptr *p, CTcToken *tok,
                                   tok_embed_ctx *ec);
 
-    /* 
+    /*
      *   translate a string to internal format by converting escape
-     *   sequences; overwrites the original buffer 
+     *   sequences; overwrites the original buffer
      */
     tc_toktyp_t xlat_string(utf8_ptr *p, CTcToken *tok, tok_embed_ctx *ec);
 
-    /* 
+    /*
      *   translate a string into a given buffer; if 'force_embed_end' is
      *   true, we'll act as though we're continuing the string after the
      *   '>>' after an embedded expression, no matter what the actual
-     *   input looks like 
+     *   input looks like
      */
     tc_toktyp_t xlat_string_to(char *dst, utf8_ptr *p, CTcToken *tok,
                                tok_embed_ctx *ec, int force_embed_end);
 
-    /* 
+    /*
      *   Translate a string, saving the translated version in the source
      *   block list.  If 'force_end_embed' is true, we'll act as though we
      *   were looking at '>>' (or, more precisely, we'll act as though
      *   '>>' immediately preceded the current input), regardless of what
-     *   the actual input looks like.  
+     *   the actual input looks like.
      */
     tc_toktyp_t xlat_string_to_src(tok_embed_ctx *ec, int force_end_embed);
 
-    /* 
+    /*
      *   is the given token type "safe" (i.e., stored in the tokenizer source
      *   list, so that its text pointer is permanently valid; non-safe tokens
-     *   have valid text pointers only until the next token fetch) 
+     *   have valid text pointers only until the next token fetch)
      */
     int is_tok_safe(tc_toktyp_t typ);
 
@@ -1473,18 +1473,18 @@ private:
     /* delete current source file, including all including parents */
     void delete_source();
 
-    /* 
+    /*
      *   Read the next line; processes comments, but does not expand macros
      *   or parse preprocessor directives.  This always reads into linebuf_;
      *   the return value is the offset within linebuf_ of the new text.  A
-     *   return value of -1 indicates that we're at end of file.  
+     *   return value of -1 indicates that we're at end of file.
      */
     int read_line(int append);
 
-    /* 
+    /*
      *   Set the source read pointer to the start of a new line, given the
      *   CTcTokString object containing the buffer, and the offset within
-     *   that buffer. 
+     *   that buffer.
      */
     void start_new_line(CTcTokString *str, int ofs)
     {
@@ -1498,11 +1498,11 @@ private:
     /* unsplice text from the current line and make it the next line */
     void unsplice_line(const char *new_line_start);
 
-    /* 
+    /*
      *   Commit space in the source list - this is used when text is directly
      *   stored after reserving space.  The size reserved may be greater than
      *   the size committed, because it is sometimes more efficient to make a
-     *   guess that may overestimate the amount we actually end up needing.  
+     *   guess that may overestimate the amount we actually end up needing.
      */
     void commit_source(size_t len);
 
@@ -1533,11 +1533,11 @@ private:
     int expand_macros_curline(int read_more, int allow_defined,
                               int append_to_expbuf);
 
-    /* 
+    /*
      *   Expand the macros in the given text, filling in the given
      *   CTcTokString with the results.  The expansion will clear out any
      *   existing text in the result buffer.  Returns zero on success, or
-     *   non-zero on error.  
+     *   non-zero on error.
      */
     int expand_macros(class CTcTokString *dest, const char *str, size_t len)
     {
@@ -1561,10 +1561,10 @@ private:
                      size_t macro_srcbuf_ofs, CTcHashEntryPp *entry,
                      int read_more, int allow_defined, int *expanded);
 
-    /* 
+    /*
      *   Remove our special expansion flags from an expanded macro buffer.
      *   This can be called after all expansion has been completed to clean
-     *   up the buffer for human consumption. 
+     *   up the buffer for human consumption.
      */
     void remove_expansion_flags(CTcTokString *buf);
 
@@ -1586,10 +1586,10 @@ private:
     /* release a macro expansion resource */
     void release_macro_rsc(class CTcMacroRsc *rsc);
 
-    /* 
+    /*
      *   Parse the actual parameters to a macro.  Fills in argofs[] and
      *   arglen[] with the offsets (from srcbuf->get_buf()) and lengths,
-     *   respectively, of each actual parameter's text. 
+     *   respectively, of each actual parameter's text.
      */
     int parse_macro_actuals(const class CTcTokString *srcbuf, utf8_ptr *src,
                             const CTcHashEntryPp *macro_entry,
@@ -1691,11 +1691,11 @@ private:
     /* process a #pragma sourceTextGroup directive */
     void pragma_source_text_group();
 
-    /* 
+    /*
      *   Determine if we're in a false #if branch.  If we're inside a #if
      *   block, and the state is either IF_NO, IF_DONE, or ELSE_NO, or
      *   we're inside a #if nested within any negative branch, we're in a
-     *   not-taken branch of a #if block.  
+     *   not-taken branch of a #if block.
      */
     int in_false_if() const
     {
@@ -1728,14 +1728,14 @@ private:
     /* pop the current #if level */
     void pop_if();
 
-    /* 
+    /*
      *   Find or create a descriptor for the given filename.  'fname' is
      *   the full file system path specifying the file.  'orig_fname' is
      *   the filename as originally specified by the user, if different;
      *   in the case of #include files, this indicates the name that was
      *   specified in the directive itself, whereas 'fname' is the actual
      *   filename that resulted from searching the include path for the
-     *   given name. 
+     *   given name.
      */
     class CTcTokFileDesc *get_file_desc(const char *fname, size_t fname_len,
                                         int always_create,
@@ -1756,13 +1756,13 @@ private:
      *   preprocessor directives intact in the source, since they'll be
      *   needed in a subsequent compilation of the preprocessed source.
      *   For example, we'll leave #line directives, #pragma C, #error, and
-     *   #pragma message directives in the preprocessed result.  
+     *   #pragma message directives in the preprocessed result.
      */
     unsigned int pp_only_mode_ : 1;
 
-    /* 
+    /*
      *   Flag: in test reporting mode.  In this mode, we'll expand __FILE__
-     *   macros with the root name only. 
+     *   macros with the root name only.
      */
     unsigned int test_report_mode_ : 1;
 
@@ -1770,13 +1770,13 @@ private:
      *   Flag: in preprocess-for-includes mode.  In this mode, we'll do
      *   nothing except run the preprocessor and generate a list of the
      *   header files that are included, along with header files they
-     *   include, and so on.  
+     *   include, and so on.
      */
     unsigned int list_includes_mode_ : 1;
 
-    /* 
+    /*
      *   flag: we're parsing a preprocessor constant expression (for a
-     *   #if, for example; this doesn't apply to simple macro expansion) 
+     *   #if, for example; this doesn't apply to simple macro expansion)
      */
     unsigned int in_pp_expr_ : 1;
 
@@ -1786,10 +1786,10 @@ private:
     /* resource loader */
     class CResLoader *res_loader_;
 
-    /* 
+    /*
      *   name of our default character set - this is generally specified
      *   by the user (on the compiler command line, for example), or
-     *   obtained from the operating system 
+     *   obtained from the operating system
      */
     char *default_charset_;
 
@@ -1818,11 +1818,11 @@ private:
     class CTcTokFileDesc *desc_head_;
     class CTcTokFileDesc *desc_tail_;
 
-    /* 
+    /*
      *   array of file descriptors (we keep the list in both an array and
      *   a linked list, since we need both sequential and indexed access;
      *   this isn't a lot of trouble since we never need to remove an
-     *   entry from the list) 
+     *   entry from the list)
      */
     class CTcTokFileDesc **desc_list_;
 
@@ -1838,19 +1838,19 @@ private:
     /* pointer to current position in current line */
     utf8_ptr p_;
 
-    /* 
+    /*
      *   The CTcTokString object containing the current line.  This is the
      *   buffer object we're currently reading from, and will be either
-     *   linebuf_ or expbuf_.  p_ always points into this buffer.  
+     *   linebuf_ or expbuf_.  p_ always points into this buffer.
      */
     CTcTokString *curbuf_;
 
     /* raw file input buffer */
     CTcTokString linebuf_;
 
-    /* 
+    /*
      *   unsplice buffer - we'll put any unspliced text into this buffer,
-     *   then read it back at the next read_line() 
+     *   then read it back at the next read_line()
      */
     CTcTokString unsplicebuf_;
 
@@ -1860,7 +1860,7 @@ private:
     /* macro definition parsing buffer */
     CTcTokString defbuf_;
 
-    /* 
+    /*
      *   Flag: in a string.  If this is '\0', we're not in a string;
      *   otherwise, this is the quote character that ends the string.
      */
@@ -1878,10 +1878,10 @@ private:
     /* embedded expression context for the main token stream */
     tok_embed_ctx main_in_embedding_;
 
-    /* 
+    /*
      *   #if state stack.  if_sp_ is the index of the next nesting slot;
      *   if if_sp_ is zero, it means that we're not in a #if at all.
-     *   
+     *
      *   Separately, the if_false_level_ is the level of #if's contained
      *   within a false #if branch.  This is separate because, once we're
      *   in a false #if branch, everything within it is false.
@@ -1911,12 +1911,12 @@ private:
     /* head of allocated list of unget token slots */
     CTcTokenEle *unget_head_;
 
-    /* 
+    /*
      *   Last unget token.  This is a pointer into the unget list, to the
      *   element containing the last ungotten token.  The next next() will
      *   reinstate this token and move the pointer back into the list; the
      *   next unget() will move the pointer forward and fill in the next
-     *   element.  This is null if there are no ungotten tokens.  
+     *   element.  This is null if there are no ungotten tokens.
      */
     CTcTokenEle *unget_cur_;
 
@@ -1926,11 +1926,11 @@ private:
     /* symbol table for #define symbols */
     class CTcMacroTable *defines_;
 
-    /* 
+    /*
      *   symbol table for symbols explicitly undefined; we keep track of
      *   these so that we can exclude anything ever undefined from the debug
      *   macro records, since only static global macros can be handled in the
-     *   debug records 
+     *   debug records
      */
     class CVmHashTable *undefs_;
 
@@ -1943,9 +1943,9 @@ private:
     /* head of list of available macro resources */
     class CTcMacroRsc *macro_res_avail_;
 
-    /* 
+    /*
      *   string capture file - if this is non-null, we'll capture all of
-     *   the strings we read to this file, one string per line 
+     *   the strings we read to this file, one string per line
      */
     class CVmDataSource *string_fp_;
 
@@ -1960,18 +1960,18 @@ private:
 /*
  *   Error handler interface.  Callers of load_macros_from_file() in
  *   CTcTokenizer must provide an implementation of this interface to handle
- *   errors that occur while loading macros.  
+ *   errors that occur while loading macros.
  */
 class CTcTokLoadMacErr
 {
 public:
-    /* 
+    /*
      *   Flag an error.  The error codes are taken from the following list:
-     *   
+     *
      *   1 - a macro name symbol in the file is too long (it exceeds the
      *   maximum symbol length for the preprocessor)
-     *   
-     *   2 - a formal parameter name is too long 
+     *
+     *   2 - a formal parameter name is too long
      */
     virtual void log_error(int err) = 0;
 };
@@ -1979,7 +1979,7 @@ public:
 /* ------------------------------------------------------------------------ */
 /*
  *   Tokenizer File Descriptor.  Each unique source file has a separate
- *   file descriptor, which keeps track of the file's name. 
+ *   file descriptor, which keeps track of the file's name.
  */
 class CTcTokFileDesc
 {
@@ -1998,15 +1998,15 @@ public:
     /* get the original filename string */
     const char *get_orig_fname() const { return orig_fname_; }
 
-    /* 
+    /*
      *   get the filename as a double-quoted string (backslashes and
-     *   double-quotes will be escaped with backslashes) 
+     *   double-quotes will be escaped with backslashes)
      */
     const char *get_dquoted_fname() const { return dquoted_fname_; }
 
-    /* 
+    /*
      *   get the root filename (i.e., with no path prefix) as a
-     *   double-quoted string 
+     *   double-quoted string
      */
     const char *get_dquoted_rootname() const { return dquoted_rootname_; }
 
@@ -2026,47 +2026,47 @@ public:
     /* get the original descriptor for this file in the list */
     CTcTokFileDesc *get_orig() const { return orig_; }
 
-    /* 
+    /*
      *   get the list index of the original entry (returns my own list
-     *   index if I am the original entry) 
+     *   index if I am the original entry)
      */
     int get_orig_index() const
         { return orig_ == 0 ? index_ : orig_->get_index(); }
 
-    /* 
+    /*
      *   Add a source line position to our list.  We keep an index of the
      *   byte-code address for each executable source line, so that
      *   debuggers can find the compiled code corresponding to a source
      *   location.  The image builder gives us this information during the
      *   linking process.  The address is the absolute location in the
      *   image file of the executable code for the given source line (the
-     *   first line in the file is numbered 1).  
+     *   first line in the file is numbered 1).
      */
     void add_source_line(ulong linenum, ulong line_addr);
 
-    /* 
+    /*
      *   Enumerate the source lines, calling the callback for each one.
      *   We will only enumerate source lines which actually have an
      *   associated code location - source lines that generated no
      *   executable code are skipped.  We'll enumerate the lines in
      *   ascending order of line number, and each line number will appear
-     *   only once.  
+     *   only once.
      */
     void enum_source_lines(void (*cbfunc)(void *ctx, ulong linenum,
                                           ulong byte_code_addr),
                            void *cbctx);
-    
+
 private:
     /* index in the master list */
     int index_;
-    
+
     /* filename string - this is the actual file system filename */
     char *fname_;
 
-    /* 
+    /*
      *   original filename string, if different from fname_ - this is the
      *   filename as specified by the user, before it was adjusted with
-     *   include paths or other extra location information 
+     *   include paths or other extra location information
      */
     char *orig_fname_;
 
@@ -2085,12 +2085,12 @@ private:
     /* next descriptor in the master descriptor list */
     CTcTokFileDesc *next_;
 
-    /* 
+    /*
      *   The original file descriptor with the same filename.  If we
      *   create multiple descriptors for the same filename (because, for
      *   example, the same header is included in several different object
      *   files), we'll keep track of the original descriptor for the file
-     *   in all of the copies. 
+     *   in all of the copies.
      */
     CTcTokFileDesc *orig_;
 
@@ -2104,7 +2104,7 @@ private:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Tokenizer Input Stream 
+ *   Tokenizer Input Stream
  */
 class CTcTokStream
 {
@@ -2116,7 +2116,7 @@ public:
 
     /* delete the stream */
     ~CTcTokStream();
-    
+
     /* get/set the associated file descriptor */
     class CTcTokFileDesc *get_desc() const { return desc_; }
     void set_desc(class CTcTokFileDesc *desc) { desc_ = desc; }
@@ -2160,13 +2160,13 @@ public:
 private:
     /* file descriptor associated with this file */
     class CTcTokFileDesc *desc_;
-    
+
     /* the underlying source reader */
     class CTcSrcObject *src_;
 
-    /* 
+    /*
      *   the enclosing stream - this is the stream that #include'd the
-     *   current stream 
+     *   current stream
      */
     CTcTokStream *parent_;
 
@@ -2191,7 +2191,7 @@ private:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Keyword Hash Table Entry 
+ *   Keyword Hash Table Entry
  */
 class CTcHashEntryKw: public CVmHashEntryCS
 {
@@ -2213,7 +2213,7 @@ private:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   basic #define symbol table entry 
+ *   basic #define symbol table entry
  */
 class CTcHashEntryPp: public CVmHashEntryCS
 {
@@ -2240,10 +2240,10 @@ public:
     /* certain special macros (__LINE__, __FILE__) aren't undef'able */
     virtual int is_undefable() const { return TRUE; }
 
-    /* 
+    /*
      *   most macros are real symbols, created by #define's, but some are
      *   special pseudo-macros, like __LINE__ and __FILE__, that the
-     *   preprocessor provides 
+     *   preprocessor provides
      */
     virtual int is_pseudo() const { return FALSE; }
 
@@ -2256,10 +2256,10 @@ public:
     /* do we have a variable number of arguments? */
     int has_varargs() const { return has_varargs_; }
 
-    /* 
+    /*
      *   get the minimum number of allowed arguments - if we have varargs,
      *   this is one less than the number of formals listed, since the last
-     *   formal can correspond to any number of actuals, including zero 
+     *   formal can correspond to any number of actuals, including zero
      */
     int get_min_argc() const { return has_varargs_ ? argc_ - 1 : argc_; }
 
@@ -2289,12 +2289,12 @@ protected:
     /* flag: the macro has a parameter list */
     uint has_args_ : 1;
 
-    /* 
+    /*
      *   flag: the parameter list takes a variable number of arguments; if
      *   this is set, then argc_ is one greater than the minimum number of
      *   arguments required, and the last formal receives the varying part
      *   of the actual parameter list, which can contain zero or more
-     *   actuals 
+     *   actuals
      */
     uint has_varargs_ : 1;
 };
@@ -2305,12 +2305,12 @@ protected:
 class CTcHashEntryPpDefine: public CTcHashEntryPp
 {
 public:
-    /* 
+    /*
      *   Create the hash entry.  argc is the number of arguments to the
      *   macro, and argv is an array of pointers to null-terminated
      *   strings with the argument names, in the order defined in the
      *   macro.
-     *   
+     *
      *   If has_args is false, the macro does not take a parameter list at
      *   all.  Note that it is possible for has_args to be true and argc
      *   to be zero, because a macro can be defined to take an argument
@@ -2319,10 +2319,10 @@ public:
      *   list: in the former case, the empty parens are required, and are
      *   removed from the input stream and replaced with the macro's
      *   expansion.
-     *   
+     *
      *   We'll make a copy of the argument list vector, strings, and
      *   expansion text, so the caller is free to forget all of that after
-     *   creating the entry instance.  
+     *   creating the entry instance.
      */
     CTcHashEntryPpDefine(const textchar_t *str, size_t len, int copy,
                          int has_args, int argc, int has_varargs,
@@ -2331,11 +2331,11 @@ public:
 
     ~CTcHashEntryPpDefine();
 
-    /* 
+    /*
      *   Get the expansion text and its length.  This is the parsed version
      *   of the expansion, with occurrences of the formal parameters replaced
      *   by TOK_MACRO_FORMAL_FLAG sequences, and the various '#' sequences
-     *   replaced by their corresponding flags. 
+     *   replaced by their corresponding flags.
      */
     const char *get_expansion() const { return expan_; }
     size_t get_expan_len() const { return expan_len_; }
@@ -2396,9 +2396,9 @@ private:
     /* get our expansion base text */
     const char *get_base_text() const
     {
-        /* 
+        /*
          *   if we're in test-report mode, use the root name only;
-         *   otherwise, use the full name with path 
+         *   otherwise, use the full name with path
          */
         if (tok_->get_last_desc() == 0)
             return "";
@@ -2432,7 +2432,7 @@ private:
 
 
 /*
- *   Hash entry for preprocessor arguments 
+ *   Hash entry for preprocessor arguments
  */
 class CTcHashEntryPpArg: public CVmHashEntryCS
 {
@@ -2457,7 +2457,7 @@ private:
 /*
  *   Previously-included file list entry.  Each time we include a file,
  *   we'll add an entry to a list of files; in the future, we'll consult
- *   this list to ensure that we don't include the same file again. 
+ *   this list to ensure that we don't include the same file again.
  */
 struct tctok_incfile_t
 {
@@ -2471,7 +2471,7 @@ struct tctok_incfile_t
 /* ------------------------------------------------------------------------ */
 /*
  *   Include path list entry.  This structure defines one include path; we
- *   maintain a list of these structures.  
+ *   maintain a list of these structures.
  */
 struct tctok_incpath_t
 {

@@ -8,9 +8,9 @@ static char RCSid[] =
 Name
   vmfref.cpp - stack frame reference object
 Function
-  
+
 Notes
-  
+
 Modified
   02/18/10 MJRoberts  - Creation
 */
@@ -35,18 +35,18 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Stack frame descriptor 
+ *   Stack frame descriptor
  */
 
 
 /*
- *   statics 
+ *   statics
  */
 static CVmMetaclassFrameDesc desc_metaclass_reg_obj;
 CVmMetaclass *CVmObjFrameDesc::metaclass_reg_ = &desc_metaclass_reg_obj;
 
-/* 
- *   function table 
+/*
+ *   function table
  */
 int (CVmObjFrameDesc::
     *CVmObjFrameDesc::func_table_[])
@@ -63,7 +63,7 @@ int (CVmObjFrameDesc::
 };
 
 /*
- *   construction 
+ *   construction
  */
 CVmObjFrameDesc::CVmObjFrameDesc(VMG_ vm_obj_id_t fref,
                                  int frame_idx, uint ret_ofs)
@@ -74,7 +74,7 @@ CVmObjFrameDesc::CVmObjFrameDesc(VMG_ vm_obj_id_t fref,
 }
 
 /*
- *   create 
+ *   create
  */
 vm_obj_id_t CVmObjFrameDesc::create(
     VMG_ vm_obj_id_t fref, int frame_idx, uint ret_ofs)
@@ -90,7 +90,7 @@ vm_obj_id_t CVmObjFrameDesc::create(
 }
 
 /*
- *   allocate our extension 
+ *   allocate our extension
  */
 vm_framedesc_ext *CVmObjFrameDesc::alloc_ext(
     VMG_ vm_obj_id_t fref, int frame_idx, uint ret_ofs)
@@ -117,7 +117,7 @@ vm_framedesc_ext *CVmObjFrameDesc::alloc_ext(
 }
 
 /*
- *   notify of deletion 
+ *   notify of deletion
  */
 void CVmObjFrameDesc::notify_delete(VMG_ int)
 {
@@ -140,7 +140,7 @@ void CVmObjFrameDesc::mark_refs(VMG_ uint state)
 
 
 /*
- *   load from the image file 
+ *   load from the image file
  */
 void CVmObjFrameDesc::load_from_image(VMG_ vm_obj_id_t self,
                                       const char *ptr, size_t siz)
@@ -148,15 +148,15 @@ void CVmObjFrameDesc::load_from_image(VMG_ vm_obj_id_t self,
     /* load our image data */
     load_image_data(vmg_ self, ptr, siz);
 
-    /* 
+    /*
      *   save our image data pointer in the object table, so that we can
-     *   access it (without storing it ourselves) during a reload 
+     *   access it (without storing it ourselves) during a reload
      */
     G_obj_table->save_image_pointer(self, ptr, siz);
 }
 
 /*
- *   reload from the image 
+ *   reload from the image
  */
 void CVmObjFrameDesc::reload_from_image(VMG_ vm_obj_id_t self,
                                         const char *ptr, size_t siz)
@@ -166,7 +166,7 @@ void CVmObjFrameDesc::reload_from_image(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   load or reload our image data 
+ *   load or reload our image data
  */
 void CVmObjFrameDesc::load_image_data(VMG_ vm_obj_id_t self,
                                       const char *ptr, size_t siz)
@@ -195,7 +195,7 @@ void CVmObjFrameDesc::save_to_file(VMG_ class CVmFile *fp)
 }
 
 /*
- *   restore 
+ *   restore
  */
 void CVmObjFrameDesc::restore_from_file(VMG_ vm_obj_id_t self,
                                         class CVmFile *fp,
@@ -273,7 +273,7 @@ int CVmObjFrameDesc::find_local(VMG_ const textchar_t *name, size_t namelen,
 }
 
 /*
- *   find a local variable in our frame by name, given a VM string value 
+ *   find a local variable in our frame by name, given a VM string value
  */
 int CVmObjFrameDesc::find_local(VMG_ const vm_val_t *nval,
                                CVmDbgFrameSymPtr *symp)
@@ -292,7 +292,7 @@ int CVmObjFrameDesc::find_local(VMG_ const vm_val_t *nval,
 }
 
 /*
- *   Get the value of a local by name 
+ *   Get the value of a local by name
  */
 int CVmObjFrameDesc::get_local_val(VMG_ vm_val_t *result, const vm_val_t *name)
 {
@@ -309,7 +309,7 @@ int CVmObjFrameDesc::get_local_val(VMG_ vm_val_t *result, const vm_val_t *name)
 }
 
 /*
- *   Set the value of a local by name 
+ *   Set the value of a local by name
  */
 int CVmObjFrameDesc::set_local_val(VMG_ const vm_val_t *name,
                                    const vm_val_t *new_val)
@@ -326,8 +326,8 @@ int CVmObjFrameDesc::set_local_val(VMG_ const vm_val_t *name,
     return TRUE;
 }
 
-/* 
- *   index the frame: this looks up a variable's value by name 
+/*
+ *   index the frame: this looks up a variable's value by name
  */
 int CVmObjFrameDesc::index_val_q(VMG_ vm_val_t *result,
                                  vm_obj_id_t self,
@@ -350,8 +350,8 @@ int CVmObjFrameDesc::index_val_q(VMG_ vm_val_t *result,
     return TRUE;
 }
 
-/* 
- *   assign an indexed value: this sets a variable's value by name 
+/*
+ *   assign an indexed value: this sets a variable's value by name
  */
 int CVmObjFrameDesc::set_index_val_q(VMG_ vm_val_t *new_container,
                                     vm_obj_id_t self,
@@ -378,8 +378,8 @@ int CVmObjFrameDesc::set_index_val_q(VMG_ vm_val_t *new_container,
     return TRUE;
 }
 
-/* 
- *   get a property 
+/*
+ *   get a property
  */
 int CVmObjFrameDesc::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                               vm_obj_id_t self, vm_obj_id_t *source_obj,
@@ -439,7 +439,7 @@ int CVmObjFrameDesc::getp_get_self(VMG_ vm_obj_id_t self, vm_val_t *retval,
 }
 
 /*
- *   property evaluator - set 'definingobj' from the frame 
+ *   property evaluator - set 'definingobj' from the frame
  */
 int CVmObjFrameDesc::getp_get_defobj(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                      uint *argc)
@@ -457,7 +457,7 @@ int CVmObjFrameDesc::getp_get_defobj(VMG_ vm_obj_id_t self, vm_val_t *retval,
 }
 
 /*
- *   property evaluator - set 'targetobj' from the frame 
+ *   property evaluator - set 'targetobj' from the frame
  */
 int CVmObjFrameDesc::getp_get_targobj(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                       uint *argc)
@@ -475,7 +475,7 @@ int CVmObjFrameDesc::getp_get_targobj(VMG_ vm_obj_id_t self, vm_val_t *retval,
 }
 
 /*
- *   property evaluator - get 'targetprop' from the frame 
+ *   property evaluator - get 'targetprop' from the frame
  */
 int CVmObjFrameDesc::getp_get_targprop(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                        uint *argc)
@@ -493,7 +493,7 @@ int CVmObjFrameDesc::getp_get_targprop(VMG_ vm_obj_id_t self, vm_val_t *retval,
 }
 
 /*
- *   property evaluator - get 'invokee' from the frame 
+ *   property evaluator - get 'invokee' from the frame
  */
 int CVmObjFrameDesc::getp_get_invokee(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                       uint *argc)
@@ -512,7 +512,7 @@ int CVmObjFrameDesc::getp_get_invokee(VMG_ vm_obj_id_t self, vm_val_t *retval,
 
 /*
  *   property evaluator - get a lookup table of the local variables, with
- *   their current values, keyed by name 
+ *   their current values, keyed by name
  */
 int CVmObjFrameDesc::getp_get_vars(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                    uint *argc)
@@ -562,20 +562,20 @@ int CVmObjFrameDesc::getp_get_vars(VMG_ vm_obj_id_t self, vm_val_t *retval,
             sym.get_str_val(vmg_ &key);
             G_stk->push(&key);
 
-            /* 
+            /*
              *   If this entry isn't already in the table, add it.  Don't
              *   bother if it already exists: we work from inner to outer
              *   scopes, and inner scopes hide things in outer scopes, so if
              *   we find an entry in the table already it means that it was
              *   an inner-scope entry that hides the one we're processing
-             *   now.  
+             *   now.
              */
             vm_val_t val;
             if (!tab->index_check(vmg_ &val, &key))
             {
                 /* get the value */
                 fr->get_local_val(vmg_ &val, &sym);
-                
+
                 /* add the entry to the table */
                 tab->add_entry(vmg_ &key, &val);
             }
@@ -603,17 +603,17 @@ int CVmObjFrameDesc::getp_get_vars(VMG_ vm_obj_id_t self, vm_val_t *retval,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Stack frame reference 
+ *   Stack frame reference
  */
 
 /*
- *   statics 
+ *   statics
  */
 static CVmMetaclassFrameRef ref_metaclass_reg_obj;
 CVmMetaclass *CVmObjFrameRef::metaclass_reg_ = &ref_metaclass_reg_obj;
 
 /*
- *   construction 
+ *   construction
  */
 CVmObjFrameRef::CVmObjFrameRef(VMG_ vm_val_t *fp,
                                const uchar *entry)
@@ -621,10 +621,10 @@ CVmObjFrameRef::CVmObjFrameRef(VMG_ vm_val_t *fp,
     /* set up a function pointer */
     CVmFuncPtr f(entry);
 
-    /* 
+    /*
      *   figure the total number of variable snapshot slots we need to
      *   allocate: this is the number of local variables plus the number of
-     *   actual arguments 
+     *   actual arguments
      */
     int nlocals = f.get_local_cnt();
     int nparams = G_interpreter->get_argc_from_frame(vmg_ fp);
@@ -644,9 +644,9 @@ CVmObjFrameRef::CVmObjFrameRef(VMG_ vm_val_t *fp,
     for (int i = 0 ; i < nlocals + nparams ; ++i)
         ext->vars[i].set_nil();
 
-    /* 
+    /*
      *   save the method context variables - these are immutable, so we can
-     *   save them immediately 
+     *   save them immediately
      */
     ext->self = *G_interpreter->get_self_val_from_frame(vmg_ fp);
     ext->defobj = G_interpreter->get_defining_obj_from_frame(vmg_ fp);
@@ -655,7 +655,7 @@ CVmObjFrameRef::CVmObjFrameRef(VMG_ vm_val_t *fp,
 }
 
 /*
- *   create 
+ *   create
  */
 vm_obj_id_t CVmObjFrameRef::create(
     VMG_ vm_val_t *fp, const uchar *entry)
@@ -671,7 +671,7 @@ vm_obj_id_t CVmObjFrameRef::create(
 }
 
 /*
- *   allocate our extension 
+ *   allocate our extension
  */
 vm_frameref_ext *CVmObjFrameRef::alloc_ext(VMG_ int nlocals, int nparams)
 {
@@ -699,7 +699,7 @@ vm_frameref_ext *CVmObjFrameRef::alloc_ext(VMG_ int nlocals, int nparams)
 }
 
 /*
- *   notify of deletion 
+ *   notify of deletion
  */
 void CVmObjFrameRef::notify_delete(VMG_ int)
 {
@@ -744,7 +744,7 @@ void CVmObjFrameRef::mark_refs(VMG_ uint state)
 
 
 /*
- *   load from the image file 
+ *   load from the image file
  */
 void CVmObjFrameRef::load_from_image(VMG_ vm_obj_id_t self,
                                      const char *ptr, size_t siz)
@@ -752,15 +752,15 @@ void CVmObjFrameRef::load_from_image(VMG_ vm_obj_id_t self,
     /* load our image data */
     load_image_data(vmg_ self, ptr, siz);
 
-    /* 
+    /*
      *   save our image data pointer in the object table, so that we can
-     *   access it (without storing it ourselves) during a reload 
+     *   access it (without storing it ourselves) during a reload
      */
     G_obj_table->save_image_pointer(self, ptr, siz);
 }
 
 /*
- *   reload from the image 
+ *   reload from the image
  */
 void CVmObjFrameRef::reload_from_image(VMG_ vm_obj_id_t self,
                                        const char *ptr, size_t siz)
@@ -770,7 +770,7 @@ void CVmObjFrameRef::reload_from_image(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   load or reload our image data 
+ *   load or reload our image data
  */
 void CVmObjFrameRef::load_image_data(VMG_ vm_obj_id_t self,
                                      const char *ptr, size_t siz)
@@ -783,10 +783,10 @@ void CVmObjFrameRef::load_image_data(VMG_ vm_obj_id_t self,
     /* allocate the extension */
     vm_frameref_ext *ext = alloc_ext(vmg_ nlocals, nparams);
 
-    /* 
+    /*
      *   Since stack frames are inherently transient, a saved frame ref
      *   object can't point back to a live stack frame, so on restore we have
-     *   to assume that our stack frame is inactive.  
+     *   to assume that our stack frame is inactive.
      */
     ext->fp = 0;
 
@@ -829,14 +829,14 @@ void CVmObjFrameRef::load_image_data(VMG_ vm_obj_id_t self,
 void CVmObjFrameRef::save_to_file(VMG_ class CVmFile *fp)
 {
     char buf[VMB_DATAHOLDER];
-    
+
     /* get our extension */
     vm_frameref_ext *ext = get_ext();
-    
-    /* 
+
+    /*
      *   If our frame is still active, make a snapshot of the variables.  The
      *   stack frame itself is inherently transient, so we can only save the
-     *   snapshot version.  
+     *   snapshot version.
      */
     if (ext->fp != 0)
         make_snapshot(vmg0_);
@@ -869,14 +869,14 @@ void CVmObjFrameRef::save_to_file(VMG_ class CVmFile *fp)
 }
 
 /*
- *   restore 
+ *   restore
  */
 void CVmObjFrameRef::restore_from_file(VMG_ vm_obj_id_t self,
                                        class CVmFile *fp,
                                        class CVmObjFixup *fixups)
 {
     char buf[VMB_DATAHOLDER];
-    
+
     /* read the variables counts */
     int nlocals = fp->read_int2();
     int nparams = fp->read_int2();
@@ -884,10 +884,10 @@ void CVmObjFrameRef::restore_from_file(VMG_ vm_obj_id_t self,
     /* allocate the extension */
     vm_frameref_ext *ext = alloc_ext(vmg_ nlocals, nparams);
 
-    /* 
+    /*
      *   Since stack frames are inherently transient, a saved frame ref
      *   object can't point back to a live stack frame, so on restore we have
-     *   to assume that our stack frame is inactive. 
+     *   to assume that our stack frame is inactive.
      */
     get_ext()->fp = 0;
 
@@ -907,11 +907,11 @@ void CVmObjFrameRef::restore_from_file(VMG_ vm_obj_id_t self,
     ext->defobj = (vm_obj_id_t)fp->read_uint4();
     if (ext->defobj != VM_INVALID_OBJ)
         ext->defobj = fixups->get_new_id(vmg_ ext->defobj);
-    
+
     ext->targobj = (vm_obj_id_t)fp->read_uint4();
     if (ext->targobj != VM_INVALID_OBJ)
         ext->targobj = fixups->get_new_id(vmg_ ext->targobj);
-    
+
     ext->targprop = (vm_prop_id_t)fp->read_uint2();
 
     fp->read_bytes(buf, VMB_DATAHOLDER);
@@ -933,7 +933,7 @@ void CVmObjFrameRef::restore_from_file(VMG_ vm_obj_id_t self,
  *   After loading, resolve the entry pointer.  We need to wait until loading
  *   is complete to do this, since the entry pointer might refer to another
  *   object, in which case the other object needs to be loaded before we can
- *   resolve a pointer to it.  
+ *   resolve a pointer to it.
  */
 void CVmObjFrameRef::post_load_init(VMG_ vm_obj_id_t self)
 {
@@ -949,7 +949,7 @@ void CVmObjFrameRef::post_load_init(VMG_ vm_obj_id_t self)
  *   Invalidate the frame.  The VM calls this just before our frame exits.
  *   We make a snapshot of the local variables in the frame, then we set our
  *   frame pointer to null to indicate that we no longer have an active frame
- *   in the stack.  
+ *   in the stack.
  */
 void CVmObjFrameRef::inval_frame(VMG0_)
 {
@@ -957,14 +957,14 @@ void CVmObjFrameRef::inval_frame(VMG0_)
     {
         /* make a snapshot of the frame */
         make_snapshot(vmg0_);
-        
+
         /* forget our frame pointer */
         get_ext()->fp = 0;
     }
 }
 
 /*
- *   make a snapshot of the local variables in the frame 
+ *   make a snapshot of the local variables in the frame
  */
 void CVmObjFrameRef::make_snapshot(VMG0_)
 {
@@ -972,7 +972,7 @@ void CVmObjFrameRef::make_snapshot(VMG0_)
     vm_val_t *v;
     vm_frameref_ext *ext = get_ext();
     vm_val_t *fp = ext->fp;
-    
+
     /* make a copy of each local */
     for (i = 0, v = ext->vars ; i < ext->nlocals ; ++i, ++v)
         *v = *G_interpreter->get_local_from_frame(vmg_ fp, i);
@@ -982,7 +982,7 @@ void CVmObjFrameRef::make_snapshot(VMG0_)
         *v = *G_interpreter->get_param_from_frame(vmg_ fp, i);
 }
 
-/* 
+/*
  *   index the frame: this looks up a variable by integer frame index
  */
 int CVmObjFrameRef::index_val_q(VMG_ vm_val_t *result,
@@ -995,17 +995,17 @@ int CVmObjFrameRef::index_val_q(VMG_ vm_val_t *result,
     /* check the type */
     if (index_val->typ == VM_INT)
     {
-        /* 
+        /*
          *   It's a direct index into the frame.  Make sure the value is in
-         *   range.  
+         *   range.
          */
         int n = index_val->val.intval;
         if (n < 0 || n >= ext->nlocals + ext->nparams)
             err_throw(VMERR_INDEX_OUT_OF_RANGE);
 
-        /*  
+        /*
          *   If we have an active stack frame, read the value from the stack;
-         *   otherwise read it from the snapshot array.  
+         *   otherwise read it from the snapshot array.
          */
         if (ext->fp != 0)
         {
@@ -1039,7 +1039,7 @@ int CVmObjFrameRef::index_val_q(VMG_ vm_val_t *result,
     return TRUE;
 }
 
-/* 
+/*
  *   assign an indexed value: this sets a variable's value by index
  */
 int CVmObjFrameRef::set_index_val_q(VMG_ vm_val_t *new_container,
@@ -1053,17 +1053,17 @@ int CVmObjFrameRef::set_index_val_q(VMG_ vm_val_t *new_container,
     /* check the type */
     if (index_val->typ == VM_INT)
     {
-        /* 
+        /*
          *   It's a direct index into the frame.  Make sure the value is in
-         *   range.  
+         *   range.
          */
         int n = index_val->val.intval;
         if (n < 0 || n >= ext->nlocals + ext->nparams)
             err_throw(VMERR_INDEX_OUT_OF_RANGE);
 
-        /*  
+        /*
          *   If we have an active stack frame, read the value from the stack;
-         *   otherwise read it from the snapshot array.  
+         *   otherwise read it from the snapshot array.
          */
         if (ext->fp != 0)
         {
@@ -1105,7 +1105,7 @@ int CVmObjFrameRef::set_index_val_q(VMG_ vm_val_t *new_container,
  *   used with the [] operator to index the FrameRef object to retrieve or
  *   assign the value of the local.  For a regular local, this is simply the
  *   same as the local variable number in the frame.  For a parameter, this
- *   is 'n + nlocals', where 'n' is the parameter number in the frame.  
+ *   is 'n + nlocals', where 'n' is the parameter number in the frame.
  */
 int CVmObjFrameRef::get_var_frame_index(const CVmDbgFrameSymPtr *symp)
 {
@@ -1123,14 +1123,14 @@ int CVmObjFrameRef::get_var_frame_index(const CVmDbgFrameSymPtr *symp)
 }
 
 /*
- *   Get the value of a local given the variable descriptor 
+ *   Get the value of a local given the variable descriptor
  */
 void CVmObjFrameRef::get_local_val(VMG_ vm_val_t *result,
                                    const CVmDbgFrameSymPtr *sym)
 {
-    /* 
+    /*
      *   if we have an active stack frame, get the value from the frame;
-     *   otherwise get the value from our local snapshot 
+     *   otherwise get the value from our local snapshot
      */
     vm_frameref_ext *ext = get_ext();
     if (ext->fp != 0)
@@ -1140,19 +1140,19 @@ void CVmObjFrameRef::get_local_val(VMG_ vm_val_t *result,
     }
     else
     {
-        /* 
+        /*
          *   There's no frame, so we must retrieve the value from the
          *   snapshot.  First, get the value of the local or parameter.  Our
          *   snapshot array consists of all of the locals followed by all of
          *   the parameters, so local N is at vars[N] and parameter N is at
-         *   vars[nlocals + N].  
+         *   vars[nlocals + N].
          */
         vm_val_t *v = &ext->vars[sym->get_var_num()
                                  + (sym->is_param() ? ext->nlocals : 0)];
 
-        /* 
+        /*
          *   If it's a context local, index the local by the context index.
-         *   Otherwise the value is simply the value in the snapshot array.  
+         *   Otherwise the value is simply the value in the snapshot array.
          */
         if (sym->is_ctx_local())
             v->ll_index(vmg_ result, sym->get_ctx_arr_idx());
@@ -1162,14 +1162,14 @@ void CVmObjFrameRef::get_local_val(VMG_ vm_val_t *result,
 }
 
 /*
- *   Set the value of a local given the variable descriptor 
+ *   Set the value of a local given the variable descriptor
  */
 void CVmObjFrameRef::set_local_val(VMG_ const CVmDbgFrameSymPtr *sym,
                                    const vm_val_t *new_val)
 {
-    /* 
+    /*
      *   if we have an active stack frame, get the value from the frame;
-     *   otherwise get the value from our local snapshot 
+     *   otherwise get the value from our local snapshot
      */
     vm_frameref_ext *ext = get_ext();
     if (ext->fp != 0)
@@ -1179,19 +1179,19 @@ void CVmObjFrameRef::set_local_val(VMG_ const CVmDbgFrameSymPtr *sym,
     }
     else
     {
-        /* 
+        /*
          *   There's no frame, so we must retrieve the value from the
          *   snapshot.  First, get the value of the local or parameter.  Our
          *   snapshot array consists of all of the locals followed by all of
          *   the parameters, so local N is at vars[N] and parameter N is at
-         *   vars[nlocals + N].  
+         *   vars[nlocals + N].
          */
         vm_val_t *v = &ext->vars[sym->get_var_num()
                                  + (sym->is_param() ? ext->nlocals : 0)];
 
-        /* 
+        /*
          *   If it's a context local, index the local by the context index.
-         *   Otherwise the value is simply the value in the snapshot array.  
+         *   Otherwise the value is simply the value in the snapshot array.
          */
         if (sym->is_ctx_local())
         {
@@ -1212,7 +1212,7 @@ void CVmObjFrameRef::set_local_val(VMG_ const CVmDbgFrameSymPtr *sym,
 
 
 /*
- *   Get 'self' from the frame 
+ *   Get 'self' from the frame
  */
 void CVmObjFrameRef::get_self(VMG_ vm_val_t *result)
 {
@@ -1228,7 +1228,7 @@ void CVmObjFrameRef::get_self(VMG_ vm_val_t *result)
 }
 
 /*
- *   Get 'definingobj' from the frame 
+ *   Get 'definingobj' from the frame
  */
 void CVmObjFrameRef::get_defobj(VMG_ vm_val_t *result)
 {
@@ -1240,7 +1240,7 @@ void CVmObjFrameRef::get_defobj(VMG_ vm_val_t *result)
 }
 
 /*
- *   Get 'targetobj' from the frame 
+ *   Get 'targetobj' from the frame
  */
 void CVmObjFrameRef::get_targobj(VMG_ vm_val_t *result)
 {
@@ -1252,7 +1252,7 @@ void CVmObjFrameRef::get_targobj(VMG_ vm_val_t *result)
 }
 
 /*
- *   Get 'targetprop' from the frame 
+ *   Get 'targetprop' from the frame
  */
 void CVmObjFrameRef::get_targprop(VMG_ vm_val_t *result)
 {
@@ -1270,7 +1270,7 @@ void CVmObjFrameRef::get_targprop(VMG_ vm_val_t *result)
 }
 
 /*
- *   Get 'invokee' from the frame 
+ *   Get 'invokee' from the frame
  */
 void CVmObjFrameRef::get_invokee(VMG_ vm_val_t *result)
 {
@@ -1282,7 +1282,7 @@ void CVmObjFrameRef::get_invokee(VMG_ vm_val_t *result)
 }
 
 /*
- *   Create a method context object 
+ *   Create a method context object
  */
 void CVmObjFrameRef::create_loadctx_obj(VMG_ vm_val_t *result)
 {

@@ -3,9 +3,9 @@
 Name
   vmisaac.cpp - T3 VM ISAAC random number generator implementation
 Function
-  
+
 Notes
-  
+
 Modified
   04/11/10 MJRoberts  - Creation
 */
@@ -69,10 +69,10 @@ void isaac_gen_group(isaacctx *ctx)
     ctx->a = a;
 }
 
-/* 
+/*
  *   Initialize.  If flag is true, then use the contents of ctx->rsl[] to
  *   initialize ctx->mm[]; otherwise, we'll use a fixed starting
- *   configuration.  
+ *   configuration.
  */
 void isaac_init(isaacctx *ctx, int flag)
 {
@@ -99,7 +99,7 @@ void isaac_init(isaacctx *ctx, int flag)
         isaac_mix(a, b, c, d, e, f, g, h);
     }
 
-    if (flag) 
+    if (flag)
     {
         /* initialize using the contents of ctx->rsl[] as the seed */
         for (i = 0 ; i < ISAAC_RANDSIZ ; i += 8)
@@ -135,12 +135,12 @@ void isaac_init(isaacctx *ctx, int flag)
     /* fill in the first set of results */
     isaac_gen_group(ctx);
 
-    /* prepare to use the first set of results */    
+    /* prepare to use the first set of results */
     ctx->cnt = ISAAC_RANDSIZ;
 }
 
 /*
- *   Get the internal state 
+ *   Get the internal state
  */
 size_t isaac_get_state(isaacctx *ctx, char *buf)
 {
@@ -166,7 +166,7 @@ size_t isaac_get_state(isaacctx *ctx, char *buf)
 }
 
 /*
- *   Set the internal state 
+ *   Set the internal state
  */
 void isaac_set_state(isaacctx *ctx, const char *buf)
 {

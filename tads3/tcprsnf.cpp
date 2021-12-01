@@ -3,11 +3,11 @@ static char RCSid[] =
     "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -43,7 +43,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Object file readers 
+ *   Object file readers
  */
 void CTcSymObjBase::load_refs_from_obj_file(
     CVmFile *, const char *, tctarg_obj_id_t *, tctarg_prop_id_t *)
@@ -54,7 +54,7 @@ void CTcSymObjBase::load_refs_from_obj_file(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Object file writers 
+ *   Object file writers
  */
 int CTcSymbolBase::write_to_obj_file(CVmFile *)
 {
@@ -99,7 +99,7 @@ int CTcSymBifBase::write_to_obj_file(CVmFile *)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Symbol file writers 
+ *   Symbol file writers
  */
 int CTcSymbolBase::write_to_sym_file(CVmFile *)
 {
@@ -135,7 +135,7 @@ int CTcSymMetaclassBase::write_to_sym_file(CVmFile *)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   build the dictionary 
+ *   build the dictionary
  */
 void CTcSymObjBase::build_dictionary()
 {

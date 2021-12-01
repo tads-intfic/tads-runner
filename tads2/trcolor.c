@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/TRCOLOR.C,v 1.2 1999/05/17 02:52:13 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1993, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -152,7 +152,7 @@ int main(int argc, char **argv)
             case 0120:                                        /* down arrow */
                 hilite(colors[cur], FALSE);
                 if ((colors[cur] += 16) >= 128) colors[cur] -= 128;
-                hilite(colors[cur], TRUE);              
+                hilite(colors[cur], TRUE);
                 hilitetitle(cur, title[cur], colors[cur], TRUE);
                 break;
 
@@ -180,7 +180,7 @@ int main(int argc, char **argv)
             /* unhilite current color */
             hilitetitle(cur, title[cur], colors[cur], FALSE);
             hilite(colors[cur], FALSE);
-            
+
             /* select new color and hilite it */
             if (++cur >= COLORCNT) cur = 0;
             hilitetitle(cur, title[cur], colors[cur], TRUE);
@@ -205,7 +205,7 @@ int main(int argc, char **argv)
                 printf("Error - unable to create TRCOLOR.DAT\n");
                 exit(1);
             }
-            
+
             for (i = 0 ; i < COLORCNT ; ++i)
                 fprintf(fp, "%d\n", colors[i]);
             fclose(fp);

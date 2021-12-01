@@ -1,16 +1,16 @@
-/* 
+/*
  *   Copyright (c) 2012 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmtzobj.h - CVmObjTimeZone object
 Function
-  
+
 Notes
-  
+
 Modified
   02/06/12 MJRoberts  - Creation
 */
@@ -30,7 +30,7 @@ Modified
  *   The image file data simply contains the name of the time zone, as an
  *   ASCII string, with a one-byte length prefix.  The block is arranged as
  *   follows:
- *   
+ *
  *.    UBYTE name_length
  *.    ASCII name
  */
@@ -59,7 +59,7 @@ struct vm_tzobj_ext
 class CVmObjTimeZone: public CVmObject
 {
     friend class CVmMetaclassTimeZone;
-    
+
 public:
     /* metaclass registration object */
     static class CVmMetaclass *metaclass_reg_;
@@ -80,7 +80,7 @@ public:
     static int is_CVmObjTimeZone_obj(VMG_ vm_obj_id_t obj)
         { return vm_objp(vmg_ obj)->is_of_metaclass(metaclass_reg_); }
 
-    /* 
+    /*
      *   Parse TimeZone constructor arguments, returning a CVmTimeZone cache
      *   object if the arguments match, throwing an error if not.  Doesn't
      *   actually create a TimeZone object; simply finds the underlying cache
@@ -96,9 +96,9 @@ public:
     /* create from a given CVmTimeZone object */
     static vm_obj_id_t create(VMG_ class CVmTimeZone *tz);
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -119,12 +119,12 @@ public:
     int get_prop(VMG_ vm_prop_id_t prop, vm_val_t *val,
                  vm_obj_id_t self, vm_obj_id_t *source_obj, uint *argc);
 
-    /* 
+    /*
      *   receive savepoint notification - we don't keep any
-     *   savepoint-relative records, so we don't need to do anything here 
+     *   savepoint-relative records, so we don't need to do anything here
      */
     void notify_new_savept() { }
-    
+
     /* we're immutable, so there's no undo to mess with */
     void apply_undo(VMG_ struct CVmUndoRecord *) { }
     void discard_undo(VMG_ struct CVmUndoRecord *) { }
@@ -171,7 +171,7 @@ protected:
     /* create with contents */
     CVmObjTimeZone(VMG_ class CVmTimeZone *tz);
 
-    /* 
+    /*
      *   parse a zone name by GMT offset, specified as a string in +-hhmm or
      *   +-hh[:mm[:ss]] format, with the given prefix
      */
@@ -201,7 +201,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjTimeZone metaclass registration table object 
+ *   CVmObjTimeZone metaclass registration table object
  */
 class CVmMetaclassTimeZone: public CVmMetaclass
 {
@@ -226,7 +226,7 @@ public:
     /* create dynamically using stack arguments */
     vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr, uint argc)
         { return CVmObjTimeZone::create_from_stack(vmg_ pc_ptr, argc); }
-    
+
     /* call a static property */
     int call_stat_prop(VMG_ vm_val_t *result,
                        const uchar **pc_ptr, uint *argc,
@@ -240,6 +240,6 @@ public:
 #endif /* VMTZOBJ_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjTimeZone)

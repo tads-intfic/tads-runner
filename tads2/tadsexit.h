@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 1992, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -40,7 +40,7 @@ Modified
 /*
  *   TADS datatypes usable by user-exit functions.  These types are
  *   returned by tads_tostyp, and used in tads_push for the 'type'
- *   argument.  
+ *   argument.
  */
 #define TADS_NUMBER    1                         /* a number (long integer) */
 #define TADS_SSTRING   3                 /* constant (single-quoted) string */
@@ -53,19 +53,19 @@ Modified
  *   the tads_popstr() function.  Note that a string descriptor is NOT a
  *   pointer to a C-style null-terminated string; instead, you must use
  *   the tads_strlen() and tads_strptr() functions to get the length and
- *   text pointer from a descriptor.  
+ *   text pointer from a descriptor.
  */
 typedef char osfar_t *tads_strdesc;
 
 
 /*
- *   tadsufdef: run-time system callback function vector.  
+ *   tadsufdef: run-time system callback function vector.
  */
 struct tadsufdef
 {
     /* type of top of stack */
     int          (osfar_t *tadsuftyp)(void osfar_t *);
-    
+
     /* pop a number */
     long         (osfar_t *tadsufnpo)(void osfar_t *);
 
@@ -74,19 +74,19 @@ struct tadsufdef
 
     /* discard top item of stack */
     void         (osfar_t *tadsufdsc)(void osfar_t *);
-    
+
     /* push a number */
     void         (osfar_t *tadsufnpu)(void osfar_t *, long);
-    
+
     /* push TADS string (allocated with tads_stralo) */
     void         (osfar_t *tadsufspu)(void osfar_t *, unsigned char osfar_t *);
-    
+
     /* push a C-style null-terminated string */
     void         (osfar_t *tadsufcspu)(void osfar_t *, char osfar_t *);
 
     /* allocate new string */
     char osfar_t *(osfar_t *tadsufsal)(void osfar_t *, int);
-    
+
     /* push a logical value */
     void         (osfar_t *tadsuflpu)(void osfar_t *, int);
 };
@@ -118,7 +118,7 @@ typedef struct tadsuxdef tadsuxdef;
 
 /*
  *   return the datatype (TADS_xxx) of the value on top of the stack
- *   (i.e., the next value that will be returned by tads_pop) 
+ *   (i.e., the next value that will be returned by tads_pop)
  */
 #define tads_tostyp(ctx) ((*tads_vec(ctx)->tadsuftyp)(ctx))
 
@@ -138,7 +138,7 @@ typedef struct tadsuxdef tadsuxdef;
 #define tads_popstr(ctx) ((*tads_vec(ctx)->tadsufspo)(ctx))
 
 /*
- *   Get the length of a string retrieved with tads_popstr().  
+ *   Get the length of a string retrieved with tads_popstr().
  */
 #define tads_strlen(ctx, str) (tads_c2u(str, 0) + (tads_c2u(str, 1) << 8) - 2)
 
@@ -152,19 +152,19 @@ typedef struct tadsuxdef tadsuxdef;
 
 /*
  *   pop next item off stack and discard it (use to remove TADS_TRUE and
- *   TADS_NIL values from the stack) 
+ *   TADS_NIL values from the stack)
  */
 #define tads_pop(ctx) ((*tads_vec(ctx)->tadsufdsc)(ctx))
 
 /*
- *   Push a number onto the stack.  
+ *   Push a number onto the stack.
  */
 #define tads_pushnum(ctx, num) ((*tads_vec(ctx)->tadsufnpu)(ctx, (long)(num)))
 
 /*
  *   Push a C-style string onto the stack.  The string must be a normal
  *   C-style null-terminated string.  It should not have been allocated
- *   with tads_stralo(). 
+ *   with tads_stralo().
  */
 #define tads_pushcstr(ctx, cstr) ((*tads_vec(ctx)->tadsufcspu)(ctx, str))
 
@@ -182,7 +182,7 @@ typedef struct tadsuxdef tadsuxdef;
 #define tads_stralo(ctx, len) ((*tads_vec(ctx)->tadsufsal)(ctx, (int)(len)))
 
 /*
- *   Push a string allocated with tads_stralo().  
+ *   Push a string allocated with tads_stralo().
  */
 #define tads_pushastr(ctx, str) ((*tads_vec(ctx)->tadsufspu)(ctx, str))
 

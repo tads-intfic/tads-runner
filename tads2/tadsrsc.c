@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/TADSRSC.C,v 1.2 1999/05/17 02:52:13 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1992, 1998 by Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -190,20 +190,20 @@ static void procop(osfildef *fpout, opdef *op, ulong *first_xfcn)
         memcpy(buf + 1, "HTML", 3);
         break;
     }
-    
+
     /* set up the rest of the header */
     if (osfwb(fpout, buf, buf[0] + 1)) errexit("error writing resource", 1);
     sizpos = osfpos(fpout);               /* remember where size field goes */
     oswp4(buf, 0);
     if (osfwb(fpout, buf, 4)) errexit("error writing resource", 1);
-    
+
     /* set up the header */
     oswp2(buf, fsiz);
     buf[2] = strlen(op->opres);
     strcpy(buf + 3, op->opres);
     if (osfwb(fpout, buf, (uint)(buf[2] + 3)))
         errexit("error writing resource", 1);
-    
+
     /* copy the resource to the output */
     copybytes(fpin, fpout, fsiz);
 
@@ -256,7 +256,7 @@ static void show_list_item(int *showed_heading, char *type_name,
         /* show the header */
         rscptf("Type   Size       Name\n"
                "----------------------------------------------------------\n");
-        
+
         /* note that we've displayed the header now */
         *showed_heading = TRUE;
     }
@@ -282,7 +282,7 @@ struct idx_t
 };
 
 /*
- *   Allocate an index entry 
+ *   Allocate an index entry
  */
 static struct idx_t *alloc_idx_entry(ulong ofs, ulong siz,
                                      char *nam, ushort namlen,
@@ -306,7 +306,7 @@ static struct idx_t *alloc_idx_entry(ulong ofs, ulong siz,
 }
 
 /*
- *   Add an item to an index list 
+ *   Add an item to an index list
  */
 static void add_idx_entry(struct idx_t **list, ulong *out_res_cnt,
                           ulong *out_total_name_len, ulong ofs, ulong siz,
@@ -321,7 +321,7 @@ static void add_idx_entry(struct idx_t **list, ulong *out_res_cnt,
 
     /* allocate a new entry */
     entry = alloc_idx_entry(ofs, siz, nam, namlen, src_op, src_idx);
-    
+
     /* link it into the list */
     entry->nxt = *list;
     *list = entry;
@@ -330,7 +330,7 @@ static void add_idx_entry(struct idx_t **list, ulong *out_res_cnt,
 /*
  *   Process an HTML resource list.  If 'old_htmlres' is true, it
  *   indicates that the input file is pointing to an old resource map;
- *   otherwise, we need to construct a brand new one.  
+ *   otherwise, we need to construct a brand new one.
  */
 static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
                           int *copyrsc, int *showed_heading, int old_htmlres)
@@ -356,7 +356,7 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
     /*
      *   Scan the oplist for an HTML resource.  If there aren't any, we
      *   don't need to modify the HTMLRES list, so tell the caller to copy
-     *   this resource unchanged.  
+     *   this resource unchanged.
      */
     for (op = oplist, found = FALSE ; op != 0 ; op = op->opnxt)
     {
@@ -368,10 +368,10 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
         }
     }
 
-    /* 
+    /*
      *   If we didn't find any operations on this resource, and we're not
      *   simply listing resources or we don't have an old resource to
-     *   list, tell the caller to copy it unchanged.  
+     *   list, tell the caller to copy it unchanged.
      */
     if (!found && (fpout != 0 || !old_htmlres))
     {
@@ -406,16 +406,16 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
             ushort name_siz;
             ulong  res_siz;
             ulong  res_ofs;
-            
+
             /* read the entry information */
             if (osfrb(fp, buf, 10))
                 listexit(fp,
                          "unable to read HTMLRES index table entry (prefix)");
-            
+
             /* get the resource size */
             res_ofs = osrp4(buf);
             res_siz = osrp4(buf + 4);
-            
+
             /* read the name */
             name_siz = osrp2(buf + 8);
             if (name_siz > sizeof(buf))
@@ -423,7 +423,7 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
             if (osfrb(fp, buf, name_siz))
                 listexit(fp,
                          "unable to read HTMLRES index table entry (name)");
-            
+
             /* build this entry */
             *p = alloc_idx_entry(res_ofs, res_siz, buf, name_siz, 0, 0);
         }
@@ -435,7 +435,7 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
             for (i = 0, p = in_list ; i < in_entry_cnt ; ++i, ++p)
                 show_list_item(showed_heading, "HTML",
                                (*p)->siz, (*p)->nam, (*p)->namlen);
-            
+
             /* there's no more processing to do */
             goto done;
         }
@@ -443,20 +443,20 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
         /*
          *   The resources start at the end of the index table - note the
          *   location of the end of the input table, since it's the base
-         *   address relative to which the resource offsets are stated.  
+         *   address relative to which the resource offsets are stated.
          */
         in_res_base = osfpos(fp);
 
         /*
          *   Go through the resource table in the input file.  Find each
          *   one in the op list.  If it's not in the op list, we'll copy
-         *   it to the output file.  
+         *   it to the output file.
          */
         for (i = 0, p = in_list ; i < in_entry_cnt ; ++i, ++p)
         {
             int remove_res = FALSE;
             int add_res = FALSE;
-            
+
             /* see if we can find this entry in the op list */
             for (prev_op = 0, op = oplist ; op != 0 ;
                  prev_op = op, op = op->opnxt)
@@ -466,12 +466,12 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
                     && strlen(op->opres) == (*p)->namlen
                     && !memicmp(op->opres, (*p)->nam, (*p)->namlen))
                 {
-                    /* 
+                    /*
                      *   if we're adding this resource (not replacing it),
                      *   warn that it's already in the file, and ignore
                      *   this op; if we're removing it or replacing it,
                      *   simply delete this entry from the input list so
-                     *   it doesn't get copied to the output.  
+                     *   it doesn't get copied to the output.
                      */
                     if (!(op->opflag & OPFDEL))
                     {
@@ -480,7 +480,7 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
                                "present\n"
                                "  -- old version will be kept (use -replace "
                                "to replace it)\n", op->opres);
-                        
+
                         /* remove it from the processing list */
                         remove_res = TRUE;
                     }
@@ -489,10 +489,10 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
                         /* we are deleting it; see if we're also adding it */
                         if (op->opflag & OPFADD)
                         {
-                            /* 
+                            /*
                              *   we're replacing this resource - take this
                              *   op out of the main list and put it into
-                             *   the add list 
+                             *   the add list
                              */
                             remove_res = TRUE;
                             add_res = TRUE;
@@ -515,15 +515,15 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
                         free(*p);
                         *p = 0;
                     }
-                    
+
                     /* no need to look further in the operations list */
                     break;
                 }
             }
-            
+
             /*
              *   If desired, remove this resource from the main list, and
-             *   add it into the list of resources to add.  
+             *   add it into the list of resources to add.
              */
             if (remove_res)
             {
@@ -532,7 +532,7 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
                     oplist = op->opnxt;
                 else
                     prev_op->opnxt = op->opnxt;
-                
+
                 /* if desired, add it to the additions list */
                 if (add_res)
                 {
@@ -557,22 +557,22 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
 
     /*
      *   Move all of the HTML resources marked as additions in the main
-     *   operations list into the additions list. 
+     *   operations list into the additions list.
      */
     for (prev_op = 0, op = oplist ; op != 0 ; op = next_op)
     {
         /* note the next op, in case we move this one to the other list */
         next_op = op->opnxt;
-        
-        /* 
+
+        /*
          *   if it's an HTML resource to be added, move it to the
-         *   additions list 
+         *   additions list
          */
         if (op->oprestype == RESTYPE_HTML && (op->opflag & OPFADD) != 0)
         {
             /* show what we're doing */
             show_op("adding", op->opres, strlen(op->opres), op->oprestype);
-            
+
             /* unlink it from the main list */
             if (prev_op == 0)
                 oplist = op->opnxt;
@@ -583,17 +583,17 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
             op->opnxt = add_list;
             add_list = op;
 
-            /* 
+            /*
              *   note that we don't want to advance the 'prev_op' pointer,
              *   since we just removed this item - the previous item is
-             *   still the same as it was on the last iteration 
+             *   still the same as it was on the last iteration
              */
         }
         else
         {
-            /* 
+            /*
              *   we're leaving this op in the original list - it's now the
-             *   previous op in the main list 
+             *   previous op in the main list
              */
             prev_op = op;
         }
@@ -603,7 +603,7 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
      *   Figure out what we'll be putting in the HTMLRES list: we'll add
      *   each surviving entry from the input file, plus all of the items
      *   in the add list, plus all of the HTML items in the main list that
-     *   are marked for addition.  
+     *   are marked for addition.
      */
     out_res_cnt = 0;
     out_total_name_len = 0;
@@ -616,11 +616,11 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
                           0, 0, (*p)->nam, (*p)->namlen, 0, *p);
     }
 
-    /* 
+    /*
      *   Count items in the additions list.  Note that every HTML resource
      *   marked for addition is in the additions list, since we moved all
      *   such resources out of the main list and into the additions list
-     *   earlier.  
+     *   earlier.
      */
     for (op = add_list ; op != 0 ; op = op->opnxt)
         add_idx_entry(&out_list, &out_res_cnt, &out_total_name_len,
@@ -634,7 +634,7 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
     /*
      *   Reserve space in the output file for the index table.  We need
      *   eight bytes for the index table prefix, then ten bytes per entry
-     *   plus the name sizes. 
+     *   plus the name sizes.
      */
     out_hdr_siz = 8 + (10 * out_res_cnt) + out_total_name_len;
 
@@ -644,18 +644,18 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
     if (osfwb(fpout, buf, 8))
         listexit(fp, "unable to write HTMLRES prefix");
 
-    /* 
+    /*
      *   Reserve space for the headers.  Don't actually write them yet,
      *   since we don't know the actual locations and sizes of the
      *   entries; for now, simply reserve the space, so that we can come
      *   back here later and write the actual headers.  Note that we
      *   deduct the eight bytes we've already written from the amount of
-     *   filler to put in.  
+     *   filler to put in.
      */
     for (rem = out_hdr_siz - 8 ; rem != 0 ; )
     {
         ulong amt;
-        
+
         /* write out a buffer full */
         amt = (rem > sizeof(buf) ? sizeof(buf) : rem);
         if (osfwb(fpout, buf, amt))
@@ -665,34 +665,34 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
         rem -= amt;
     }
 
-    /* 
+    /*
      *   note the current position in the output file - this is the base
-     *   address of the resources 
+     *   address of the resources
      */
     out_res_base = osfpos(fpout);
 
     /*
-     *   Write the resources.  
+     *   Write the resources.
      */
     for (cur = out_list ; cur != 0 ; cur = cur->nxt)
     {
-        /* 
+        /*
          *   note the current file position as an offset from the resource
          *   base in the output file - this is the offset that we need to
-         *   store in the index entry for this object 
+         *   store in the index entry for this object
          */
         cur->ofs = osfpos(fpout) - out_res_base;
-        
-        /* 
+
+        /*
          *   Copy the resource to the output.  If it comes from the input
          *   file, copy from there, otherwise go out and find the external
-         *   file and copy its contents. 
+         *   file and copy its contents.
          */
         if (cur->src_op != 0)
         {
             osfildef *fpext;
             ulong fsiz;
-            
+
             /* it comes from an external file - open the file */
             fpext = osfoprb(cur->src_op->opfile, OSFTGAME);
             if (fpext == 0)
@@ -717,10 +717,10 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
         }
         else
         {
-            /* 
+            /*
              *   it comes from the input resource file - seek to the start
              *   of the resource in the input file, and copy the data to
-             *   the output file 
+             *   the output file
              */
             osfseek(fp, in_res_base + cur->src_idx->ofs, OSFSK_SET);
             copybytes(fp, fpout, cur->src_idx->siz);
@@ -735,7 +735,7 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
 
     /*
      *   Now that we've written all of the resources and know their actual
-     *   layout in the file, we can go back and write the index table. 
+     *   layout in the file, we can go back and write the index table.
      */
     osfseek(fpout, out_hdr_pos + 8, OSFSK_SET);
     for (cur = out_list ; cur != 0 ; cur = cur->nxt)
@@ -754,7 +754,7 @@ static opdef *prochtmlres(osfildef *fp, osfildef *fpout, opdef *oplist,
     /*
      *   We're done building the resource; now all we need to do is go
      *   back and write the ending position of the resource in the
-     *   resource header.  
+     *   resource header.
      */
     osfseek(fpout, out_hdr_pos - 4, OSFSK_SET);
     oswp4(buf, out_endpos);
@@ -780,9 +780,9 @@ done:
         free(in_list);
     }
 
-    /* 
+    /*
      *   delete everything in the additions list, since we're done with
-     *   them now 
+     *   them now
      */
     for (op = add_list ; op != 0 ; op = next_op)
     {
@@ -818,15 +818,15 @@ static opdef *rscproc(osfildef *fp, osfildef *fpout, opdef *oplist)
     int    found_htmlres = FALSE;
     char  *file_type;
 
-    /* 
+    /*
      *   if we're reading an existing file, check it header; otherwise,
-     *   write out a brand new file header 
+     *   write out a brand new file header
      */
     if (fp != 0)
     {
-        /* 
+        /*
          *   the input file exists -- check file and version headers, and
-         *   get flags and timestamp 
+         *   get flags and timestamp
          */
         if (osfrb(fp, buf, (int)(sizeof(FIOFILHDR) + sizeof(FIOVSNHDR) + 2)))
             listexit(fp, "error reading file header");
@@ -867,7 +867,7 @@ static opdef *rscproc(osfildef *fp, osfildef *fpout, opdef *oplist)
         tblock = localtime(&timer);
         strcpy(datebuf, asctime(tblock));
     }
-        
+
     if (fpout)
     {
         if (osfwb(fpout, buf,
@@ -883,7 +883,7 @@ static opdef *rscproc(osfildef *fp, osfildef *fpout, opdef *oplist)
                "Date compiled: %s\n", file_type, datebuf);
 
     /*
-     *   Process the input file, if there is one 
+     *   Process the input file, if there is one
      */
     for ( ; fp != 0 ; )
     {
@@ -897,11 +897,11 @@ static opdef *rscproc(osfildef *fp, osfildef *fpout, opdef *oplist)
 
         memcpy(nambuf, buf + 1, (size_t)buf[0]);
         nambuf[buf[0]] = '\0';
-        
+
         endpos_ofs = 1 + buf[0];
         endpos = osrp4(buf + endpos_ofs);
         siz = endpos - startpos;
-        
+
         /* see what kind of resource we have, and do the right thing */
         if (!strcmp((char *)nambuf, "$EOF"))
         {
@@ -953,9 +953,9 @@ static opdef *rscproc(osfildef *fp, osfildef *fpout, opdef *oplist)
                         /* note that this resource has now been processed */
                         op->opflag |= OPFDONE;
 
-                        /* 
+                        /*
                          *   if it's already here, and we're not deleting
-                         *   it, warn that the old one will stay around 
+                         *   it, warn that the old one will stay around
                          */
                         if (!(op->opflag & OPFDEL))
                         {
@@ -970,10 +970,10 @@ static opdef *rscproc(osfildef *fp, osfildef *fpout, opdef *oplist)
                         }
                         else
                         {
-                            /* 
+                            /*
                              *   we're deleting this resource; if adding
                              *   it back in (i.e., replacing it), process
-                             *   the add operation now 
+                             *   the add operation now
                              */
                             if (op->opflag & OPFADD)
                             {
@@ -981,9 +981,9 @@ static opdef *rscproc(osfildef *fp, osfildef *fpout, opdef *oplist)
                                 show_op("replacing", op->opres,
                                         strlen(op->opres), op->oprestype);
 
-                                /* 
+                                /*
                                  *   add the external file, replacing the
-                                 *   one in the input file 
+                                 *   one in the input file
                                  */
                                 procop(fpout, op, &first_xfcn);
                             }
@@ -1011,17 +1011,17 @@ static opdef *rscproc(osfildef *fp, osfildef *fpout, opdef *oplist)
             /* note that we've found a user resource */
             found_user_rsc = TRUE;
         }
-        
+
         if (fpout != 0 && copyrsc)
         {
             osfseek(fp, startpos, OSFSK_SET);
             copyres(fp, fpout, siz, endpos_ofs);
         }
-        
+
         /* skip to the next resource */
         osfseek(fp, endpos, OSFSK_SET);
     }
-    
+
     /* add the HTML resources if we haven't already */
     if (!found_htmlres)
         oplist = prochtmlres(fp, fpout, oplist, &copyrsc,
@@ -1068,9 +1068,9 @@ static opdef *rscproc(osfildef *fp, osfildef *fpout, opdef *oplist)
         }
     }
 
-    /* 
+    /*
      *   return the final oplist (it may have been changed during
-     *   processing) 
+     *   processing)
      */
     return oplist;
 }
@@ -1078,24 +1078,24 @@ static opdef *rscproc(osfildef *fp, osfildef *fpout, opdef *oplist)
 /*
  *   Operation parsing context.  Certain options affect subsquent
  *   operations; we use this structure to keep track of the current
- *   settings from past arguments.  
+ *   settings from past arguments.
  */
 typedef struct
 {
     /*
      *   Type to use for resources.  If this is RESTYPE_DFLT, it means
-     *   that we need to infer the type from the filename suffix.  
+     *   that we need to infer the type from the filename suffix.
      */
     int restype;
 
-    /* 
-     *   operations to perform - a combination of OPFADD and OPFDEL 
+    /*
+     *   operations to perform - a combination of OPFADD and OPFDEL
      */
     int flag;
 
-    /* 
+    /*
      *   context flag: if true, it means that we just parsed a -type
-     *   option, so the next argument is the type name 
+     *   option, so the next argument is the type name
      */
     int doing_type;
 } opctxdef;
@@ -1104,7 +1104,7 @@ typedef struct
  *   Get the resource type of a file.  If an explicit resource type is
  *   specified in the resource type argument, we'll use that; otherwise
  *   (i.e., the resource type argument is RESTYPE_DFLT), we'll look at the
- *   filename suffix to determine the type.  
+ *   filename suffix to determine the type.
  */
 static int get_file_restype(int restype, char *fname)
 {
@@ -1114,10 +1114,10 @@ static int get_file_restype(int restype, char *fname)
         char *p;
         char *lastdot;
 
-        /* 
+        /*
          *   No specified type - infer type from the filename.  If the
          *   filename ends in .bin, .com, or has no '.', we'll assume it's
-         *   an XFCN; otherwise, it's an HTML resource.  
+         *   an XFCN; otherwise, it's an HTML resource.
          */
         for (p = fname, lastdot = 0 ; *p ; ++p)
         {
@@ -1135,9 +1135,9 @@ static int get_file_restype(int restype, char *fname)
     }
     else
     {
-        /* 
+        /*
          *   an explicit resource type has been specified - use it without
-         *   regard to the filename 
+         *   regard to the filename
          */
         return restype;
     }
@@ -1146,7 +1146,7 @@ static int get_file_restype(int restype, char *fname)
 
 /*
  *   Process a directory, adding an operation for each file in the
- *   directory 
+ *   directory
  */
 static opdef *addopdir(opdef *cur, char *nam, opctxdef *opctx)
 {
@@ -1174,7 +1174,7 @@ static opdef *addopdir(opdef *cur, char *nam, opctxdef *opctx)
             /* build the full name */
             os_build_full_path(fullname, sizeof(fullname), nam, fname);
 
-            /* 
+            /*
              *   If it's a file, process it; ignore subdirectories.  Also
              *   skip hidden and system files.  $$$ We could easily recurse
              *   here to process subdirectories, but it's unclear how we
@@ -1188,7 +1188,7 @@ static opdef *addopdir(opdef *cur, char *nam, opctxdef *opctx)
                 /* build the full name of the resource, using the URL prefix */
                 char fullurl[OSFNMAX];
                 sprintf(fullurl, "%s%s", dir_prefix, fname);
-                
+
                 /* build a new node and link it into the list */
                 newop = (opdef *)malloc(sizeof(opdef) + strlen(fullurl)
                                         + strlen(fullname) + 2);
@@ -1199,7 +1199,7 @@ static opdef *addopdir(opdef *cur, char *nam, opctxdef *opctx)
                 strcpy(newop->opres, fullurl);
                 newop->opfile = newop->opres + strlen(newop->opres) + 1;
                 strcpy(newop->opfile, fullname);
-                
+
                 /* it's the new head of the list */
                 cur = newop;
             }
@@ -1231,7 +1231,7 @@ static int parse_res_type(char *p)
 }
 
 /*
- *   Add an operation from a command line argument 
+ *   Add an operation from a command line argument
  */
 static opdef *addop(opdef *cur, char *nam, opctxdef *opctx)
 {
@@ -1244,18 +1244,18 @@ static opdef *addop(opdef *cur, char *nam, opctxdef *opctx)
     /* see if we're parsing a -type argument */
     if (opctx->doing_type)
     {
-        /* 
+        /*
          *   parse the type name, and store it as the type for following
          *   resources
          */
         opctx->restype = parse_res_type(nam);
-        
+
         /* we're done parsing the -type argument */
         opctx->doing_type = FALSE;
 
-        /* 
+        /*
          *   we're done parsing this argument - we haven't added any
-         *   operations, so return old list head 
+         *   operations, so return old list head
          */
         return cur;
     }
@@ -1266,9 +1266,9 @@ static opdef *addop(opdef *cur, char *nam, opctxdef *opctx)
         /* see what we have */
         if (!stricmp(nam, "-type"))
         {
-            /* 
+            /*
              *   note that we're doing a type, so we parse it on the next
-             *   argument 
+             *   argument
              */
             opctx->doing_type = TRUE;
         }
@@ -1294,9 +1294,9 @@ static opdef *addop(opdef *cur, char *nam, opctxdef *opctx)
             errexit("", 1);
         }
 
-        /* 
+        /*
          *   done parsing this option - we didn't add a new operation, so
-         *   return the current list head 
+         *   return the current list head
          */
         return cur;
     }
@@ -1305,46 +1305,46 @@ static opdef *addop(opdef *cur, char *nam, opctxdef *opctx)
     for (p = nam ; *p && *p != '=' ; ++p);
     if (*p == '=')
     {
-        /* 
+        /*
          *   We found an '=', so an explicit resource name follows - use
          *   the given string as the resource name rather than basing the
          *   resource name on the filename.  First, overwrite the '=' with
-         *   a null byte so that the filename string is terminated.  
+         *   a null byte so that the filename string is terminated.
          */
         *p = '\0';
 
         /* skip the '=' (now the null byte, of course) */
         ++p;
 
-        /* 
+        /*
          *   skip any spaces after the '='; leave p pointing to the start
-         *   of the resource name 
+         *   of the resource name
          */
         while (t_isspace(*p))
             ++p;
     }
     else
     {
-        /* 
+        /*
          *   A resource name wasn't specified - synthesize a resource name
          *   based on the filename by converting from the local file system
-         *   name to a relative URL 
+         *   name to a relative URL
          */
         os_cvt_dir_url(resname, sizeof(resname), nam);
 
         /* point p to the synthesized resource name */
         p = resname;
     }
-    
+
     /*
      *   If we're adding a directory, rather than returning a single op
      *   for the directory, expand the directory into ops for for all of
-     *   the files in the directory. 
+     *   the files in the directory.
      */
     if (osfmode(nam, TRUE, &fmode, &fattr)
         && (fmode & OSFMODE_DIR) != 0)
         return addopdir(cur, nam, opctx);
-    
+
     /* allocate space and set up new op */
     newop = (opdef *)malloc(sizeof(opdef) + strlen(p) + strlen(nam) + 2);
 
@@ -1391,7 +1391,7 @@ int main(int argc, char **argv)
         /* check if it's an option - if not, stop looking */
         if (argv[curarg][0] != '-')
             break;
-        
+
         /* check the option */
         if (!stricmp(argv[curarg], "-create"))
         {
@@ -1404,7 +1404,7 @@ int main(int argc, char **argv)
             errexit("", 1);
         }
     }
-    
+
     /* get the file name */
     infile = argv[curarg++];
     strcpy(inbuf, infile);
@@ -1418,16 +1418,16 @@ int main(int argc, char **argv)
     }
     else if ((fpin = osfoprb(inbuf, OSFTGAME)) == 0)
     {
-        /* 
+        /*
          *   not creating, so the file must already exist - it doesn't, so
-         *   issue an error and quit 
+         *   issue an error and quit
          */
         errexit("unable to open resource file", 1);
     }
 
-    /* 
+    /*
      *   if no operations are desired, and we're not creating a new file,
-     *   just list the existing file's contents and quit 
+     *   just list the existing file's contents and quit
      */
     if (curarg == argc && fpin != 0)
     {
@@ -1441,7 +1441,7 @@ int main(int argc, char **argv)
      *   file named on the command line; otherwise, create a temporary
      *   file that we'll write to while working and then rename to the
      *   original input filename after we've finished with the original
-     *   input file.  
+     *   input file.
      */
     if (do_create)
     {
@@ -1471,10 +1471,10 @@ int main(int argc, char **argv)
         osfildef *argfp;
         int       l;
         char     *p;
-        
+
         if (!(argfp = osfoprt(argv[curarg]+1, OSFTTEXT)))
             errexit("unable to open response file", 1);
-        
+
         for (;;)
         {
             if (!osfgets(buf, sizeof(buf), argfp)) break;
@@ -1501,16 +1501,16 @@ int main(int argc, char **argv)
         if (!(oplist->opflag & OPFDONE))
             rscptf("warning: resource \"%s\" not found\n", oplist->opres);
     }
-    
+
     /* close files */
     if (fpin != 0)
         osfcls(fpin);
     if (fpout != 0)
         osfcls(fpout);
-    
-    /* 
+
+    /*
      *   if we didn't create a new file, remove the original input file
-     *   and rename the temp file to the original file name 
+     *   and rename the temp file to the original file name
      */
     if (!do_create)
     {

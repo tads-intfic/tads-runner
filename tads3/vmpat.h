@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 2002 by Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -14,7 +14,7 @@ Function
   compiled pattern in repeated searches than to recompile the expression
   each time it's needed.
 Notes
-  
+
 Modified
   08/27/02 MJRoberts  - Creation
 */
@@ -33,9 +33,9 @@ Modified
 /*
  *   Our serialized data stream, in both the image file and a saved file,
  *   consists of:
- *   
+ *
  *   DATAHOLDER src_val
- *   
+ *
  *   'src_val' is the source value - this is the string that was compiled to
  *   create the pattern.
  */
@@ -45,7 +45,7 @@ Modified
  *   Our in-memory extension consists of a simple structure with a pointer
  *   to the compiled pattern data (the re_compiled_pattern structure) and
  *   the original string value that was used to create the pattern (we hold
- *   onto the original string mostly for debugging purposes).  
+ *   onto the original string mostly for debugging purposes).
  */
 struct vmobj_pat_ext
 {
@@ -58,7 +58,7 @@ struct vmobj_pat_ext
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Pattern intrinsic class 
+ *   Pattern intrinsic class
  */
 class CVmObjPattern: public CVmObject
 {
@@ -85,9 +85,9 @@ public:
     static vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr,
                                          uint argc);
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -121,7 +121,7 @@ public:
     void notify_new_savept() { }
     void apply_undo(VMG_ struct CVmUndoRecord *) { }
     void mark_undo_ref(VMG_ struct CVmUndoRecord *) { }
-    void remove_stale_undo_weak_ref(VMG_ struct CVmUndoRecord *) { }    
+    void remove_stale_undo_weak_ref(VMG_ struct CVmUndoRecord *) { }
 
     /* mark references */
     void mark_refs(VMG_ uint);
@@ -170,7 +170,7 @@ protected:
 
     /* get my extension data */
     vmobj_pat_ext *get_ext() const { return (vmobj_pat_ext *)ext_; }
-    
+
     /* property evaluator - undefined property */
     int getp_undef(VMG_ vm_obj_id_t, vm_val_t *, uint *) { return FALSE; }
 
@@ -184,7 +184,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Registration table object 
+ *   Registration table object
  */
 class CVmMetaclassPattern: public CVmMetaclass
 {
@@ -222,7 +222,7 @@ public:
 #endif /* VMPAT_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjPattern)
 

@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmiter.cpp - T3 iterator metaclass
 Function
-  
+
 Notes
-  
+
 Modified
   04/22/00 MJRoberts  - Creation
 */
@@ -34,11 +34,11 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Base Iterator metaclass 
+ *   Base Iterator metaclass
  */
 
 /*
- *   statics 
+ *   statics
  */
 
 /* metaclass registration object */
@@ -58,8 +58,8 @@ int (CVmObjIter::
     &CVmObjIter::getp_get_cur_val
 };
 
-/* 
- *   get a property 
+/*
+ *   get a property
  */
 int CVmObjIter::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                          vm_obj_id_t self, vm_obj_id_t *source_obj,
@@ -82,11 +82,11 @@ int CVmObjIter::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Indexed Iterator metaclass 
+ *   Indexed Iterator metaclass
  */
 
 /*
- *   statics 
+ *   statics
  */
 
 /* metaclass registration object */
@@ -118,7 +118,7 @@ vm_obj_id_t CVmObjIterIdx::create_for_coll(VMG_ const vm_val_t *coll,
 }
 
 /*
- *   constructor 
+ *   constructor
  */
 CVmObjIterIdx::CVmObjIterIdx(VMG_ const vm_val_t *coll,
                              long first_valid_index, long last_valid_index)
@@ -130,9 +130,9 @@ CVmObjIterIdx::CVmObjIterIdx(VMG_ const vm_val_t *coll,
     /* save the collection value */
     vmb_put_dh(ext_, coll);
 
-    /* 
+    /*
      *   set the current index to the first index minus 1, so that we start
-     *   with the first element when we make our first call to getNext() 
+     *   with the first element when we make our first call to getNext()
      */
     set_cur_index_no_undo(first_valid_index - 1);
 
@@ -145,7 +145,7 @@ CVmObjIterIdx::CVmObjIterIdx(VMG_ const vm_val_t *coll,
 }
 
 /*
- *   notify of deletion 
+ *   notify of deletion
  */
 void CVmObjIterIdx::notify_delete(VMG_ int)
 {
@@ -162,7 +162,7 @@ int CVmObjIterIdx::getp_get_cur_val(VMG_ vm_obj_id_t self, vm_val_t *retval,
 {
     long idx;
     static CVmNativeCodeDesc desc(0);
-    
+
     /* check arguments */
     if (get_prop_check_argc(retval, argc, &desc))
         return TRUE;
@@ -237,7 +237,7 @@ int CVmObjIterIdx::getp_get_next(VMG_ vm_obj_id_t self, vm_val_t *retval,
 }
 
 /*
- *   get the next iteration item 
+ *   get the next iteration item
  */
 int CVmObjIterIdx::iter_next(VMG_ vm_obj_id_t self, vm_val_t *val)
 {
@@ -265,7 +265,7 @@ int CVmObjIterIdx::iter_next(VMG_ vm_obj_id_t self, vm_val_t *val)
 
 
 /*
- *   Retrieve an indexed value from my collection 
+ *   Retrieve an indexed value from my collection
  */
 void CVmObjIterIdx::get_indexed_val(VMG_ long idx, vm_val_t *retval)
 {
@@ -291,21 +291,21 @@ void CVmObjIterIdx::get_indexed_val(VMG_ long idx, vm_val_t *retval)
         break;
 
     default:
-        /* 
+        /*
          *   Anything else is an error.  We really should never be able to
          *   get here, since the only way to instantiate an iterator should
          *   be via the collection object's createIter() method; so if we
          *   get here it must be an internal error, hence we could probably
          *   assert failure here.  Nonetheless, just throw an error, since
-         *   this will make for a more pleasant indication of the problem.  
+         *   this will make for a more pleasant indication of the problem.
          */
         err_throw(VMERR_CANNOT_INDEX_TYPE);
         break;
     }
 }
 
-/* 
- *   property evaluator - is next value available? 
+/*
+ *   property evaluator - is next value available?
  */
 int CVmObjIterIdx::getp_is_next_avail(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                       uint *argc)
@@ -315,9 +315,9 @@ int CVmObjIterIdx::getp_is_next_avail(VMG_ vm_obj_id_t self, vm_val_t *retval,
     if (get_prop_check_argc(retval, argc, &desc))
         return TRUE;
 
-    /* 
+    /*
      *   if the current index plus one is less than or equal to the last
-     *   valid index, another item is available 
+     *   valid index, another item is available
      */
     retval->set_logical(get_cur_index() + 1 <= get_last_valid());
 
@@ -325,8 +325,8 @@ int CVmObjIterIdx::getp_is_next_avail(VMG_ vm_obj_id_t self, vm_val_t *retval,
     return TRUE;
 }
 
-/* 
- *   property evaluator - reset to first item 
+/*
+ *   property evaluator - reset to first item
  */
 int CVmObjIterIdx::getp_reset_iter(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                    uint *argc)
@@ -348,7 +348,7 @@ int CVmObjIterIdx::getp_reset_iter(VMG_ vm_obj_id_t self, vm_val_t *retval,
 }
 
 /*
- *   Set the current index value, saving undo if necessary 
+ *   Set the current index value, saving undo if necessary
  */
 void CVmObjIterIdx::set_cur_index(VMG_ vm_obj_id_t self, long idx)
 {
@@ -356,18 +356,18 @@ void CVmObjIterIdx::set_cur_index(VMG_ vm_obj_id_t self, long idx)
     if (G_undo != 0 && !(get_flags() & VMOBJITERIDX_UNDO))
     {
         vm_val_t dummy;
-        
-        /* 
+
+        /*
          *   Add the undo record.  Note that the only information we need
          *   to store is the index value, so we can store this as the key
-         *   value - supply a dummy payload, since we have no use for it. 
+         *   value - supply a dummy payload, since we have no use for it.
          */
         dummy.set_nil();
         G_undo->add_new_record_int_key(vmg_ self, get_cur_index(), &dummy);
 
-        /* 
+        /*
          *   set the undo bit so we don't save redundant undo for this
-         *   savepoint 
+         *   savepoint
          */
         set_flags(get_flags() | VMOBJITERIDX_UNDO);
     }
@@ -377,24 +377,24 @@ void CVmObjIterIdx::set_cur_index(VMG_ vm_obj_id_t self, long idx)
 }
 
 /*
- *   apply undo 
+ *   apply undo
  */
 void CVmObjIterIdx::apply_undo(VMG_ CVmUndoRecord *rec)
 {
-    /* 
+    /*
      *   the integer key in the undo record is my saved index value (and
-     *   is the only thing in an indexed iterator that can ever change) 
+     *   is the only thing in an indexed iterator that can ever change)
      */
     set_cur_index_no_undo(rec->id.intval);
 }
 
 /*
- *   mark references 
+ *   mark references
  */
 void CVmObjIterIdx::mark_refs(VMG_ uint state)
 {
     vm_val_t coll;
-    
+
     /* if my collection is an object, mark it as referenced */
     get_coll_val(&coll);
     if (coll.typ == VM_OBJ)
@@ -402,7 +402,7 @@ void CVmObjIterIdx::mark_refs(VMG_ uint state)
 }
 
 /*
- *   load from an image file 
+ *   load from an image file
  */
 void CVmObjIterIdx::load_from_image(VMG_ vm_obj_id_t self,
                                     const char *ptr, size_t siz)
@@ -414,9 +414,9 @@ void CVmObjIterIdx::load_from_image(VMG_ vm_obj_id_t self,
         ext_ = 0;
     }
 
-    /* 
+    /*
      *   Allocate a new extension.  Make sure it's at least as large as
-     *   the current standard extension size.  
+     *   the current standard extension size.
      */
     ext_ = (char *)G_mem->get_var_heap()
            ->alloc_mem(siz < VMOBJITERIDX_EXT_SIZE
@@ -433,7 +433,7 @@ void CVmObjIterIdx::load_from_image(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   reload from an image file 
+ *   reload from an image file
  */
 void CVmObjIterIdx::reload_from_image(VMG_ vm_obj_id_t,
                                       const char *ptr, size_t siz)
@@ -447,7 +447,7 @@ void CVmObjIterIdx::reload_from_image(VMG_ vm_obj_id_t,
 
 
 /*
- *   save 
+ *   save
  */
 void CVmObjIterIdx::save_to_file(VMG_ CVmFile *fp)
 {
@@ -456,7 +456,7 @@ void CVmObjIterIdx::save_to_file(VMG_ CVmFile *fp)
 }
 
 /*
- *   restore 
+ *   restore
  */
 void CVmObjIterIdx::restore_from_file(VMG_ vm_obj_id_t,
                                       CVmFile *fp, CVmObjFixup *fixups)

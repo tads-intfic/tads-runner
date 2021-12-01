@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/OSGEN.C,v 1.3 1999/07/11 00:46:30 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1990, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -27,7 +27,7 @@ Function
     USE_TIMERAND  - implement os_rand using localtime() as a seed
     USE_NULLSTAT  - use a do-nothing os_status function
     USE_NULLSCORE - use a do-nothing os_score function
-    RUNTIME       - enable character-mode console implementation  
+    RUNTIME       - enable character-mode console implementation
     USE_STATLINE  - implement os_status and os_score using character-mode
                     status line implementation
     USE_OVWCHK    - implements default saved file overwrite check
@@ -50,7 +50,7 @@ Function
 Notes
 
 Modified
-  01/01/98 MJRoberts     - moved certain osgen.c routines to osnoui.c  
+  01/01/98 MJRoberts     - moved certain osgen.c routines to osnoui.c
   04/24/93 JEras         - add os_locate() for locating tads-related files
   04/12/92 MJRoberts     - add os_strsc (string score) function
   03/26/92 MJRoberts     - add os_setcolor function
@@ -83,7 +83,7 @@ Modified
 
 #if defined(TURBO) || defined(DJGPP)
 #include "io.h"
-#endif    
+#endif
 
 #include "lib.h"
 #include "tio.h"
@@ -103,7 +103,7 @@ static void ossdosb();
 /*
  *   Screen size variables.  The underlying system-specific "oss" code must
  *   initialize these during startup and must keep them up-to-date if the
- *   screen size ever changes.  
+ *   screen size ever changes.
  */
 int G_oss_screen_width = 80;
 int G_oss_screen_height = 24;
@@ -115,22 +115,22 @@ int G_oss_screen_height = 24;
 void ossdspn(int y, int x, int color, char *p);
 
 /*
- *   The special character codes for controlling color. 
+ *   The special character codes for controlling color.
  */
 
-/* 
+/*
  *   Set text attributes: the next byte has the new text attributes value,
  *   with 1 added to it to ensure it's never zero.  (A zero in the buffer has
  *   a special meaning, so we want to ensure we never have an incidental
  *   zero.  Zero happens to be a valid attribute value, though, so we have to
  *   encode attributes to avoid this possibility.  Our simple "plus one"
- *   encoding ensures we satisfy the never-equals-zero rule.)  
+ *   encoding ensures we satisfy the never-equals-zero rule.)
  */
 #define OSGEN_ATTR            1
 
-/* 
+/*
  *   explicit colored text: this is followed by two bytes giving the
- *   foreground and background colors as OSGEN_COLOR_xxx codes 
+ *   foreground and background colors as OSGEN_COLOR_xxx codes
  */
 #define OSGEN_COLOR           2
 
@@ -145,11 +145,11 @@ void ossdspn(int y, int x, int color, char *p);
 int os_chkovw(char *filename)
 {
     FILE *fp;
-    
+
     if ((fp = fopen( filename, "r" )) != 0)
     {
         char buf[128];
-        
+
         fclose(fp);
         os_printz("That file already exists.  Overwrite it? (y/n) >");
         os_gets((uchar *)buf, sizeof(buf));
@@ -160,9 +160,9 @@ int os_chkovw(char *filename)
 }
 #endif /* USE_OVWCHK */
 
-/* 
+/*
  *   non-stop mode does nothing in character-mode implementations, since the
- *   portable console layer handles MORE mode 
+ *   portable console layer handles MORE mode
  */
 void os_nonstop_mode(int flag)
 {
@@ -173,13 +173,13 @@ void os_nonstop_mode(int flag)
  *   Ports can implement os_flush and os_gets as calls to the stdio routines
  *   of the same name, and os_printz and os_print using the stdio routine
  *   printf, by defining USE_STDIO.  These definitions can be used for any
- *   port for which the standard C run-time library is available.  
+ *   port for which the standard C run-time library is available.
  */
 
 #ifdef USE_STDIO
 
 /*
- *   print a null-terminated string the console 
+ *   print a null-terminated string the console
  */
 void os_printz(const char *str)
 {
@@ -188,7 +188,7 @@ void os_printz(const char *str)
 }
 
 /*
- *   print a counted-length string, which isn't necessarily null-terminated 
+ *   print a counted-length string, which isn't necessarily null-terminated
  */
 void os_print(const char *str, size_t len)
 {
@@ -199,16 +199,16 @@ void os_print(const char *str, size_t len)
 /*
  *   os_flush forces output of anything buffered for standard output.  It
  *   is generally used prior to waiting for a key (so the normal flushing
- *   may not occur, as it does when asking for a line of input).  
+ *   may not occur, as it does when asking for a line of input).
  */
 void os_flush(void)
 {
     fflush( stdout );
 }
 
-/* 
+/*
  *   update the display - since we're using text mode, there's nothing we
- *   need to do 
+ *   need to do
  */
 void os_update_display(void)
 {
@@ -219,7 +219,7 @@ void os_update_display(void)
  *   string from the keyboard, echoing it and allowing any editing
  *   appropriate to the system, and return the null-terminated string as
  *   the function's value.  The closing newline should NOT be included in
- *   the string.  
+ *   the string.
  */
 uchar *os_gets(uchar *s, size_t bufl)
 {
@@ -228,7 +228,7 @@ uchar *os_gets(uchar *s, size_t bufl)
 
 /*
  *   The default stdio implementation does not support reading a line of
- *   text with timeout.  
+ *   text with timeout.
  */
 int os_gets_timeout(unsigned char *buf, size_t bufl,
                     unsigned long timeout, int resume_editing)
@@ -237,7 +237,7 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
     return OS_EVT_NOTIMEOUT;
 }
 
-/* 
+/*
  *   since we don't support os_gets_timeout(), we don't need to do anything
  *   in the cancel routine
  */
@@ -248,7 +248,7 @@ void os_gets_cancel(int reset)
 
 /*
  *   Get an event - stdio version.  This version does not accept a timeout
- *   value, and can only get a keystroke.  
+ *   value, and can only get a keystroke.
  */
 int os_get_event(unsigned long timeout, int use_timeout,
                  os_event_info_t *info)
@@ -308,16 +308,16 @@ int os_init(int *argc, char *argv[], const char *prompt,
 }
 
 /*
- *   uninitialize 
+ *   uninitialize
  */
 void os_uninit(void)
 {
 }
 
-/* 
+/*
  *   os_term should perform any necessary cleaning up, then terminate the
  *   program.  The int argument is a return code to be passed to the
- *   caller, generally 0 for success and other for failure.  
+ *   caller, generally 0 for success and other for failure.
  */
 void os_term(int rc)
 {
@@ -326,11 +326,11 @@ void os_term(int rc)
 #endif /* USE_NULLINIT */
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   Ports can define USE_NULLPAUSE if no pause is required on exit.
- *   
+ *
  *   Ports needing an exit pause, and can simply print a message (with
- *   os_print) and wait for a key (with os_getc) can define USE_EXPAUSE.  
+ *   os_print) and wait for a key (with os_getc) can define USE_EXPAUSE.
  */
 
 #ifdef USE_NULLPAUSE
@@ -388,9 +388,9 @@ static osfar_t int S_statline_savecol;
 /* saved text column when we're drawing in status line */
 static osfar_t int text_lastcol;
 
-/* 
+/*
  *   first line of text area - the status line is always one line high, so
- *   this is always simply 1 
+ *   this is always simply 1
  */
 static osfar_t int text_line = 1;
 
@@ -399,20 +399,20 @@ static osfar_t int score_column = 0;
 
 /*
  *   Define some macros in terms of "oss" globals that tell us the size of
- *   the screen.  
- *   
+ *   the screen.
+ *
  *   max_line is the maximum row number of the text area, as a zero-based row
  *   number.  The text area goes from the second row (row 1) to the bottom of
  *   the screen, so this is simply the screen height minus one.
- *   
+ *
  *   max_column is the maximum column number of the text area, as a
  *   zero-based column number.  The text area goes from the first column
  *   (column 0) to the rightmost column, so this is simply the screen width
  *   minus one.
- *   
+ *
  *   text_line and text_column are the starting row and column number of the
  *   text area.  These are always row 1, column 0.
- *   
+ *
  *   sdesc_line and sdesc_column are the starting row and column of the
  *   status line.  These are always row 0, column 0.
  */
@@ -427,7 +427,7 @@ static osfar_t int score_column = 0;
  *   Status line buffer.  Each time we display text to the status line,
  *   we'll keep track of the text here.  This allows us to refresh the
  *   status line whenever we overwrite it (during scrollback mode, for
- *   example).  
+ *   example).
  */
 static osfar_t char S_statbuf[OS_MAXWIDTH + 1];
 
@@ -439,19 +439,19 @@ static osfar_t char *S_statptr = S_statbuf;
  *   The special run-time version displays a status line and the ldesc before
  *   each command line is read.  To accomplish these functions, we need to
  *   redefine os_gets and os_print with our own special functions.
- *   
+ *
  *   Note that os_init may have to modify some of these values to suit, and
- *   should set up the screen appropriately.  
+ *   should set up the screen appropriately.
  */
 void os_status(int stat)
 {
     /* if we're leaving the status line, restore the old main text column */
     if (stat != status_mode && (status_mode == 1 || status_mode == 2))
     {
-        /* 
+        /*
          *   we're leaving status-line (or post-status-line) mode - restore
          *   the main text column that was in effect before we drew the
-         *   status line 
+         *   status line
          */
         text_lastcol = S_statline_savecol;
     }
@@ -462,29 +462,29 @@ void os_status(int stat)
     /* check the mode */
     if (status_mode == 1)
     {
-        /* 
+        /*
          *   we're entering the status line - start writing at the start
-         *   of the status line 
+         *   of the status line
          */
         S_statptr = S_statbuf;
 
-        /* 
+        /*
          *   clear out any previously-saved status line text, since we're
-         *   starting a new status line 
+         *   starting a new status line
          */
         *S_statptr = '\0';
 
-        /* 
+        /*
          *   remember the current text area display column so that we can
-         *   restore it when we finish with the status line 
+         *   restore it when we finish with the status line
          */
         S_statline_savecol = text_lastcol;
     }
     else if (status_mode == 2)
     {
-        /* 
+        /*
          *   entering post-status-line mode - remember the text column so
-         *   that we can restore it when we return to normal mode 
+         *   that we can restore it when we return to normal mode
          */
         S_statline_savecol = text_lastcol;
     }
@@ -512,10 +512,10 @@ void os_strsc(const char *p)
     /* start out in the initial score column */
     x = score_column;
 
-    /* 
+    /*
      *   if we have a string, save the new value; if the string pointer is
      *   null, it means that we should redraw the string with the previous
-     *   value 
+     *   value
      */
     if (p != 0)
         strcpy(lastbuf, p);
@@ -561,29 +561,29 @@ void os_score(int cur, int turncount)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Scrollback 
+ *   Scrollback
  */
 # ifdef USE_SCROLLBACK
 
 /*
  *   Pointers for scrollback buffers.
- *   
+ *
  *   We store the text that has been displayed to the screen in a fixed
  *   buffer.  We allocate out of the buffer circularly; when we reach the end
  *   of the buffer, we wrap around and allocate out of the beginning of the
  *   buffer, freeing old records as necessary to make space.
- *   
+ *
  *   'scrbuf' is a pointer to the buffer.  'scrbuf_free' is a pointer to the
- *   next byte of the buffer available to be allocated.  
+ *   next byte of the buffer available to be allocated.
  */
 static osfar_t char *scrbuf;
 static osfar_t unsigned scrbufl;
 
-/* 
+/*
  *   Head/tail of linked list of scrollback lines.  Lines are separated by
  *   null bytes.  Note that 'scrbuf_tail' is a pointer to the START of the
  *   last line in the buffer (which is usually the line still under
- *   construction).  
+ *   construction).
  */
 static char *scrbuf_head;
 static char *scrbuf_tail;
@@ -600,16 +600,16 @@ static osfar_t int os_top_line;
 /* current column in the scrollback buffer */
 static osfar_t int sb_column;
 
-/* 
+/*
  *   Current screen color - this is the color to use for the blank areas of
  *   the screen.  We use this to clear areas of the screen, to fill in blank
  *   areas left over after scrolling, and as the default background color to
  *   display for characters with a "transparent" background.
- *   
+ *
  *   Note that osssb_screen_color is an OSGEN_COLOR_xxx value, and
  *   osssb_oss_screen_color is the corresponding ossxxx color code for a
  *   character with that background color.  We keep both values for
- *   efficiency.  
+ *   efficiency.
  */
 static osfar_t int osssb_screen_color;
 static osfar_t int osssb_oss_screen_color;
@@ -625,16 +625,16 @@ static osfar_t int osssb_sol_bg;
 static osfar_t int osssb_sol_attrs;
 
 /*
- *   Receive notification of a screen size change. 
+ *   Receive notification of a screen size change.
  */
 void osssb_on_resize_screen()
 {
-    /* 
+    /*
      *   Note the page length of the main text area - this is the distance
      *   between 'more' prompts.  Use the screen height, minus one for the
      *   status line, minus two extra lines so we keep a line of context at
      *   the top of the screen while leaving a line for a "more" prompt at
-     *   the bottom.  
+     *   the bottom.
      */
     G_os_pagelength = (G_oss_screen_height > 3
                        ? G_oss_screen_height - 3
@@ -646,7 +646,7 @@ void osssb_on_resize_screen()
 
 /*
  *   Initialize the scrollback buffer - allocates memory for the buffer.
- *   
+ *
  *   Important: when this routine is called, the text_color global variable
  *   MUST be initialized to the ossdsp-style color code to use for the
  *   default text area.
@@ -702,7 +702,7 @@ void osssbini(unsigned int size)
 }
 
 /*
- *   delete the scrollback buffer 
+ *   delete the scrollback buffer
  */
 void osssbdel(void)
 {
@@ -712,7 +712,7 @@ void osssbdel(void)
 }
 
 /*
- *   advance to the next byte of the scrollback buffer 
+ *   advance to the next byte of the scrollback buffer
  */
 static char *ossadvsp(char *p)
 {
@@ -728,7 +728,7 @@ static char *ossadvsp(char *p)
 }
 
 /*
- *   decrement to the previous byte of the buffer 
+ *   decrement to the previous byte of the buffer
  */
 static char *ossdecsp(char *p)
 {
@@ -744,7 +744,7 @@ static char *ossdecsp(char *p)
 }
 
 /*
- *   Add a byte to the scrollback buffer 
+ *   Add a byte to the scrollback buffer
  */
 static void osssb_add_byte(char c)
 {
@@ -754,15 +754,15 @@ static void osssb_add_byte(char c)
     /* advance the free pointer */
     scrbuf_free = ossadvsp(scrbuf_free);
 
-    /* 
+    /*
      *   if the free pointer has just collided with the start of the oldest
-     *   line, delete the oldest line 
+     *   line, delete the oldest line
      */
     if (scrbuf_free == scrbuf_head)
     {
-        /* 
+        /*
          *   delete the oldest line to make room for the new data, by
-         *   advancing the head pointer to just after the next null byte 
+         *   advancing the head pointer to just after the next null byte
          */
         while (*scrbuf_head != '\0')
             scrbuf_head = ossadvsp(scrbuf_head);
@@ -777,16 +777,16 @@ static void osssb_add_byte(char c)
 
 /*
  *   Add an appropriate color code to the scrollback buffer to yield the
- *   current color setting. 
+ *   current color setting.
  */
 static void osssb_add_color_code()
 {
     /* if we have any attributes, add an attribute code */
     if (osssb_cur_attrs != 0)
     {
-        /* 
+        /*
          *   add the attribute, encoded with our plus-one rule (to avoid
-         *   storing zero bytes as attribute arguments) 
+         *   storing zero bytes as attribute arguments)
          */
         osssb_add_byte(OSGEN_ATTR);
         osssb_add_byte((char)(osssb_cur_attrs + 1));
@@ -805,7 +805,7 @@ static void osssb_add_color_code()
 
 /*
  *   Scan a character, counting its contribution to the display column in the
- *   scrollback. 
+ *   scrollback.
  */
 static void osssb_scan_char(char **p, int *col)
 {
@@ -815,9 +815,9 @@ static void osssb_scan_char(char **p, int *col)
     case '\n':
     case '\r':
     case '\0':
-        /* 
+        /*
          *   these are all one-byte character sequences that don't contribute
-         *   to the display column - simply skip the input byte 
+         *   to the display column - simply skip the input byte
          */
         ++(*p);
         break;
@@ -833,9 +833,9 @@ static void osssb_scan_char(char **p, int *col)
         break;
 
     default:
-        /* 
+        /*
          *   anything else is a one-byte display character, so count its
-         *   contribution to the display column and skip the byte 
+         *   contribution to the display column and skip the byte
          */
         ++(*col);
         ++(*p);
@@ -844,7 +844,7 @@ static void osssb_scan_char(char **p, int *col)
 }
 
 /*
- *   Start a new line in the scrollback buffer 
+ *   Start a new line in the scrollback buffer
  */
 static void osssb_new_line()
 {
@@ -871,12 +871,12 @@ static void osssb_new_line()
 
 /*
  *   Add text to the scrollback buffer.  Returns the number of lines that the
- *   added text spans.  
+ *   added text spans.
  */
 static int ossaddsb(const char *p, size_t len)
 {
     int line_cnt;
-    
+
     /* if there's no scrollback buffer, ignore it */
     if (scrbuf == 0)
         return 0;
@@ -888,7 +888,7 @@ static int ossaddsb(const char *p, size_t len)
      *   Copy the text into the screen buffer, respecting the circular nature
      *   of the screen buffer.  If the given text wraps lines, enter an
      *   explicit carriage return into the text to ensure that users can
-     *   correctly count lines.  
+     *   correctly count lines.
      */
     while(len != 0)
     {
@@ -896,9 +896,9 @@ static int ossaddsb(const char *p, size_t len)
         switch(*p)
         {
         case OSGEN_ATTR:
-            /* 
+            /*
              *   switch to the new attributes (decoding from the plus-one
-             *   storage code) 
+             *   storage code)
              */
             osssb_cur_attrs = ((unsigned char)*(p+1)) - 1;
             break;
@@ -932,7 +932,7 @@ static int ossaddsb(const char *p, size_t len)
              *   We have a plain carriage return, which indicates that we
              *   should go back to the start of the current line and
              *   overwrite it.  (This is most likely to occur for the
-             *   "[More]" prompt.)  Go back to the first column.  
+             *   "[More]" prompt.)  Go back to the first column.
              */
             sb_column = 0;
 
@@ -944,9 +944,9 @@ static int ossaddsb(const char *p, size_t len)
             osssb_cur_bg = osssb_sol_bg;
             osssb_cur_attrs = osssb_sol_attrs;
 
-            /* 
+            /*
              *   since we're back at the start of the line, add a color code
-             *   if necessary 
+             *   if necessary
              */
             osssb_add_color_code();
 
@@ -979,12 +979,12 @@ static int ossaddsb(const char *p, size_t len)
             p += 3;
             len -= 3;
 
-            /* 
+            /*
              *   done (this doesn't print, so it has no effect on the column
-             *   position or wrapping) 
+             *   position or wrapping)
              */
             break;
-            
+
         default:
             /* for anything else, simply store the byte in the buffer */
             osssb_add_byte(*p);
@@ -1011,12 +1011,12 @@ static int ossaddsb(const char *p, size_t len)
         }
     }
 
-    /* 
+    /*
      *   Always make sure we have a null terminator after each addition, in
      *   case we need to look at the buffer before this line is finished.
      *   However, since we're just tentatively writing the null terminator,
      *   back up the free pointer to point to it after we write it, so that
-     *   the next character we write will go here.  
+     *   the next character we write will go here.
      */
     osssb_add_byte(0);
     scrbuf_free = ossdecsp(scrbuf_free);
@@ -1034,29 +1034,29 @@ static int ossaddsb(const char *p, size_t len)
  *   counts backwards from the bottom of the screen, where it assumes we are
  *   right now).  Figure out if the current buffer will go to the end of the
  *   screen.
- *   
+ *
  *   This routine adds the given text to the screen buffer, then adds as many
  *   blank lines as are necessary to fill the screen to the bottom line.  buf
  *   is the buffer to add; p is a pointer into the buffer corresponding to
- *   screen position (x,y).  
+ *   screen position (x,y).
  */
 static void ossaddsbe(char *buf, char *p, int x, int y)
 {
     int extra_lines;
     int actual_lines;
 
-    /* 
+    /*
      *   compute the number of blank lines we need to add - we need one blank
-     *   line for each line on the screen beyond the display position 
+     *   line for each line on the screen beyond the display position
      */
     extra_lines = max_line - y;
 
     /* add the text */
     actual_lines = ossaddsb(buf, strlen(buf));
 
-    /* 
+    /*
      *   if we added more than one line already, those count against the
-     *   extra lines we need to add 
+     *   extra lines we need to add
      */
     extra_lines -= (actual_lines - 1);
 
@@ -1133,13 +1133,13 @@ static void scrdsp(char *p, int y)
             /* go back to start of buffer */
             q = buf;
             break;
-            
+
         default:
             /* add this byte to our buffer */
             *q++ = *p;
             break;
         }
-        
+
         /* advance to next character no matter what happened */
         p = ossadvsp(p);
 
@@ -1197,7 +1197,7 @@ static void scrdspscr(char *p)
 /*
  *   Advance a buffer pointer until it's pointing to the start of the next
  *   line.  Returns true if we advanced the pointer, false if we were already
- *   at the end of the buffer.  
+ *   at the end of the buffer.
  */
 static int osssb_next_line(char **p)
 {
@@ -1217,7 +1217,7 @@ static int osssb_next_line(char **p)
 }
 
 /*
- *   Move a buffer pointer backward to the start of the current line. 
+ *   Move a buffer pointer backward to the start of the current line.
  */
 static char *osssb_to_start(char *p)
 {
@@ -1232,9 +1232,9 @@ static char *osssb_to_start(char *p)
             return ossadvsp(p);
     }
 
-    /* 
+    /*
      *   return the pointer (which is at the start of the first line if we
-     *   got here) 
+     *   got here)
      */
     return p;
 }
@@ -1242,7 +1242,7 @@ static char *osssb_to_start(char *p)
 /*
  *   Move a buffer pointer backward to the start of the previous line.
  *   Returns true if we moved the pointer, false if we were already in the
- *   first line.  
+ *   first line.
  */
 static int osssb_prev_line(char **p)
 {
@@ -1263,8 +1263,8 @@ static int osssb_prev_line(char **p)
     return TRUE;
 }
 
-/* 
- *   move forward by a number of lines, and redisplays the sreen 
+/*
+ *   move forward by a number of lines, and redisplays the sreen
  */
 static void scrfwd(int n)
 {
@@ -1272,9 +1272,9 @@ static void scrfwd(int n)
     if (scrtop == scrlast)
         return;
 
-    /* 
+    /*
      *   Move forward by the requested amount.  Stop if we reach the top of
-     *   the bottom-most screen.  
+     *   the bottom-most screen.
      */
     while (n != 0)
     {
@@ -1297,8 +1297,8 @@ static void scrfwd(int n)
     scrdspscr(scrtop);
 }
 
-/* 
- *   move back by a number of lines, redisplaying the screen 
+/*
+ *   move back by a number of lines, redisplaying the screen
  */
 static void scrback(int n)
 {
@@ -1309,16 +1309,16 @@ static void scrback(int n)
     /* keep going until we satisfy the request */
     while (n != 0 && scrtop != scrbuf_head)
     {
-        /* 
+        /*
          *   back up one line - if we can't (because we're already at the
-         *   first line), stop trying 
+         *   first line), stop trying
          */
         if (!osssb_prev_line(&scrtop))
             break;
 
         /* back up one at the bottom */
         osssb_prev_line(&scrbot);
-        
+
         /* that's one less to look for */
         --n;
 
@@ -1327,7 +1327,7 @@ static void scrback(int n)
     }
 
     /* redisplay the screen */
-    scrdspscr(scrtop); 
+    scrdspscr(scrtop);
 }
 
 /*
@@ -1448,20 +1448,20 @@ int osssbmode(int mode_line)
     if (scrbuf == 0)
         return 1;
 
-    /* 
+    /*
      *   if we're not in scrollback mode, enter scrollback mode; otherwise,
-     *   return to normal mode 
+     *   return to normal mode
      */
     if (scrtop == 0)
     {
         int y;
         int i;
         char buf[135];
-        
+
         /*
          *   Enter scrollback mode.  Figure out what scrtop should be, and
          *   put up the scrollback status line.  If insufficient saved text
-         *   is around for scrollback mode, return 1.  
+         *   is around for scrollback mode, return 1.
          */
         for (os_top_line = os_line_count, scrtop = scrbuf_tail,
              y = max_line ; y > text_line ; --y, --os_top_line)
@@ -1475,9 +1475,9 @@ int osssbmode(int mode_line)
             }
         }
 
-        /* 
+        /*
          *   if the top of the screen is the very first line in the buffer,
-         *   there's still not enough scrollback information 
+         *   there's still not enough scrollback information
          */
         if (scrtop == scrbuf_head)
         {
@@ -1519,11 +1519,11 @@ int osssbmode(int mode_line)
             ossdspn(sdesc_line, sdesc_column, sdesc_color, " ");
             ossdspn(sdesc_line, sdesc_column + 1, sdesc_color, S_statbuf);
 
-            /* 
+            /*
              *   refresh the right-hand side with the score part - do this
              *   by drawing the score with a special turn counter of -1 to
              *   indicate that we just want to refresh the previous score
-             *   value 
+             *   value
              */
             os_score(-1, -1);
         }
@@ -1594,7 +1594,7 @@ void ossdspn(int y, int x, int color, char *p)
             /* two-byte escape sequence */
             esc_len = 2;
             goto skip_esc;
-            
+
         skip_esc:
             /* end the buffer here and display what we have so far */
             *q = '\0';
@@ -1602,7 +1602,7 @@ void ossdspn(int y, int x, int color, char *p)
 
             /* adjust the column position for the display */
             x += strlen(p);
-            
+
             /* advance past what we've displayed plus the escape sequence */
             p = q + esc_len;
             break;
@@ -1646,7 +1646,7 @@ int ossdsph(int y, int x, int color, char *p)
             osssb_cur_bg = *(q+2);
             esc_len = 3;
             goto change_color;
-            
+
         change_color:
             /* display the part up to the escape code in the old color */
             *q = '\0';
@@ -1689,10 +1689,10 @@ void os_plain(void)
     /* set the 'plain' mode flag */
     os_f_plain = 1;
 
-    /* 
+    /*
      *   if we're running without a stdin, turn off pagination - since the
      *   user won't be able to respond to [more] prompts, there's no reason
-     *   to show them 
+     *   to show them
      */
     if (oss_eof_on_stdin())
         G_os_moremode = FALSE;
@@ -1706,10 +1706,10 @@ void os_printz(const char *str)
 
 void os_print(const char *str, size_t len)
 {
-    /* 
+    /*
      *   save the output in the scrollback buffer if we're displaying to
      *   the main text area (status_mode == 0) and we're not in plain
-     *   stdio mode (in which case there's no scrollback support) 
+     *   stdio mode (in which case there's no scrollback support)
      */
     if (status_mode == 0 && !os_f_plain)
         ossaddsb(str, len);
@@ -1719,8 +1719,8 @@ void os_print(const char *str, size_t len)
     {
     case 2:
         /* we're in the post-status-line mode - suppress all output */
-        break; 
-        
+        break;
+
     case 0:
         /* normal main text area mode */
         {
@@ -1728,13 +1728,13 @@ void os_print(const char *str, size_t len)
             size_t rem;
             char *dst;
             char buf[128];
-            
+
             /* scan the buffer */
             for (p = str, rem = len, dst = buf ; ; ++p, --rem)
             {
-                /* 
+                /*
                  *   if we're out of text, or the buffer is full, or we're at
-                 *   a newline or carriage return, flush the buffer 
+                 *   a newline or carriage return, flush the buffer
                  */
                 if (rem == 0
                     || dst == buf + sizeof(buf) - 2
@@ -1814,11 +1814,11 @@ void os_print(const char *str, size_t len)
             const char *p;
             int i;
 
-            /* 
+            /*
              *   Skip leading newlines at the start of the statusline output.
              *   Only do this if we don't already have anything buffered,
              *   since a newline after some other text indicates the end of
-             *   the status line and thus can't be ignored.  
+             *   the status line and thus can't be ignored.
              */
             p = str;
             rem = len;
@@ -1828,10 +1828,10 @@ void os_print(const char *str, size_t len)
                 for ( ; rem != 0 && *p == '\n' ; ++p, --rem) ;
             }
 
-            /* 
+            /*
              *   Add this text to our private copy, so that we can refresh
              *   the display later if necessary.  If we reach a newline,
-             *   stop.  
+             *   stop.
              */
             for ( ; (rem != 0 && *p != '\n'
                      && S_statptr < S_statbuf + sizeof(S_statbuf)) ;
@@ -1872,7 +1872,7 @@ void os_print(const char *str, size_t len)
             /* display the string */
             ossdspn(sdesc_line, sdesc_column + 1, sdesc_color, S_statbuf);
         }
-        
+
         /* done */
         break;
     }
@@ -1976,7 +1976,7 @@ uchar *ossnxtcmd(uchar *hst)
 /*
  *   Input buffer state.  This information is defined statically because
  *   os_gets_timeout() can carry the information from invocation to
- *   invocation when input editing is interrupted by a tmieout. 
+ *   invocation when input editing is interrupted by a tmieout.
  */
 static osfar_t char S_gets_internal_buf[256];       /* internal save buffer */
 static osfar_t char *S_gets_buf = S_gets_internal_buf;  /* current save buf */
@@ -1987,7 +1987,7 @@ static osfar_t int S_gets_x, S_gets_y;             /* saved cursor position */
 
 # ifdef USE_HISTORY
 /* save buffer for line being edited before history recall began */
-static osfar_t char S_hist_sav_internal[256]; 
+static osfar_t char S_hist_sav_internal[256];
 static osfar_t char *S_hist_sav = S_hist_sav_internal;
 static osfar_t size_t S_hist_sav_siz = sizeof(S_hist_sav_internal);
 # endif /* USE_HISTORY */
@@ -1999,19 +1999,19 @@ extern void safe_strcpy(char *dst, size_t dstlen, const char *src);
  *   Flag: input is already in progress.  When os_gets_timeout() returns
  *   with OS_EVT_TIMEOUT, it sets this flag to true.  os_gets_cancel() sets
  *   this flag to false.
- *   
+ *
  *   When os_gets_timeout() is called again, it checks this flag to see if
  *   the input session was cancelled; if not, the routine knows that the
  *   partially-edited input line is already displayed where it left off,
  *   because the display has not been modified since the interrupted call to
- *   os_gets_timeout() returned.  
+ *   os_gets_timeout() returned.
  */
 static osfar_t int S_gets_in_progress = FALSE;
 
 /* ------------------------------------------------------------------------ */
 /*
  *   Display a string from the given character position.  This does NOT
- *   scroll the screen.  
+ *   scroll the screen.
  */
 static void ossdsp_str(int y, int x, int color,
                        unsigned char *str, size_t len)
@@ -2021,7 +2021,7 @@ static void ossdsp_str(int y, int x, int color,
     {
         size_t cur;
         unsigned char oldc;
-        
+
         /* display as much as will fit on the current line */
         cur = max_column - x + 1;
         if (cur > len)
@@ -2053,7 +2053,7 @@ static void ossdsp_str(int y, int x, int color,
 
 /*
  *   Display a string from the given character position, scrolling the
- *   screen if necessary. 
+ *   screen if necessary.
  */
 static void ossdsp_str_scr(int *y, int *x, int color,
                            unsigned char *str, size_t len)
@@ -2101,7 +2101,7 @@ static void ossdsp_str_scr(int *y, int *x, int color,
 }
 
 /*
- *   Delete a character in the buffer, updating the display. 
+ *   Delete a character in the buffer, updating the display.
  */
 static void oss_gets_delchar(unsigned char *buf, unsigned char *p,
                              unsigned char **eol, int x, int y)
@@ -2112,16 +2112,16 @@ static void oss_gets_delchar(unsigned char *buf, unsigned char *p,
         --*eol;
         if (p != *eol)
             memmove(p, p + 1, *eol - p);
-        
-        /* 
+
+        /*
          *   replace the last character with a blank, so that we overwrite
-         *   its presence on the display 
+         *   its presence on the display
          */
         **eol = ' ';
-        
+
         /* re-display the changed part of the string */
         ossdsp_str(y, x, text_color, p, *eol - p + 1);
-        
+
         /* null-terminate the shortened buffer */
         **eol = '\0';
     }
@@ -2129,7 +2129,7 @@ static void oss_gets_delchar(unsigned char *buf, unsigned char *p,
 
 /*
  *   Backspace in the buffer, updating the display and adjusting the cursor
- *   position. 
+ *   position.
  */
 static void oss_gets_backsp(unsigned char *buf, unsigned char **p,
                             unsigned char **eol, int *x, int *y)
@@ -2139,7 +2139,7 @@ static void oss_gets_backsp(unsigned char *buf, unsigned char **p,
     {
         /* move our insertion point back one position */
         --*p;
-        
+
         /* the line is now one character shorter */
         --*eol;
 
@@ -2153,26 +2153,26 @@ static void oss_gets_backsp(unsigned char *buf, unsigned char **p,
             *x = max_column;
             --*y;
         }
-        
-        /* 
+
+        /*
          *   replace the trailing character with a space, so that we
-         *   overwrite its screen position with a blank 
+         *   overwrite its screen position with a blank
          */
         **eol = ' ';
 
-        /* 
+        /*
          *   display the string from the current position, so that we update
-         *   the display for the moved characters 
+         *   the display for the moved characters
          */
         ossdsp_str(*y, *x, text_color, *p, *eol - *p + 1);
-        
+
         /* null-terminate the shortened buffer */
         **eol = '\0';
     }
 }
 
 /*
- *   Move the cursor left by the number of characters. 
+ *   Move the cursor left by the number of characters.
  */
 static void oss_gets_csrleft(int *y, int *x, size_t len)
 {
@@ -2191,7 +2191,7 @@ static void oss_gets_csrleft(int *y, int *x, size_t len)
 }
 
 /*
- *   Move the cursor right by the number of characters.  
+ *   Move the cursor right by the number of characters.
  */
 static void oss_gets_csrright(int *y, int *x, size_t len)
 {
@@ -2211,15 +2211,15 @@ static void oss_gets_csrright(int *y, int *x, size_t len)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   cancel interrupted input 
+ *   cancel interrupted input
  */
 void os_gets_cancel(int reset)
 {
     int x, y;
 
-    /* 
+    /*
      *   if we interrupted a previous line, apply display effects as though
-     *   the user had pressed return 
+     *   the user had pressed return
      */
     if (S_gets_in_progress)
     {
@@ -2227,18 +2227,18 @@ void os_gets_cancel(int reset)
         x = S_gets_x;
         y = S_gets_y;
         oss_gets_csrright(&y, &x, strlen(S_gets_buf + S_gets_ofs));
-        
+
         /* add a newline, scrolling if necessary */
         if (y == max_line)
             ossscr(text_line, text_column, max_line, max_column,
                    osssb_oss_screen_color);
-        
+
         /* set the cursor to the new position */
         ossloc(y, x);
-        
+
         /* move to the left column for the next display */
         text_lastcol = 0;
-        
+
         /* copy the buffer to the screen save buffer, adding a newline */
         ossaddsbe(S_gets_buf, S_gets_buf + strlen(S_gets_buf), x, y);
         if (y == max_line)
@@ -2247,7 +2247,7 @@ void os_gets_cancel(int reset)
         /* we no longer have an input in progress */
         S_gets_in_progress = FALSE;
     }
-    
+
     /* if we're resetting, clear our saved buffer */
     if (reset)
         S_gets_buf[0] = '\0';
@@ -2274,15 +2274,15 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
     if (os_f_plain)
     {
         size_t len;
-        
+
         /* we don't support the timeout feature in plain mode */
         if (use_timeout)
             return OS_EVT_NOTIMEOUT;
 
-        /* 
+        /*
          *   get input from stdio, and translate the result code - if gets()
          *   returns null, it indicates an error of some kind, so return an
-         *   end-of-file indication 
+         *   end-of-file indication
          */
         if (fgets((char *)buf, bufl, stdin) == 0)
             return OS_EVT_EOF;
@@ -2310,10 +2310,10 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
      *   timeout expires.  This is simply the current system clock time plus
      *   the timeout interval.  Since we might need to process a series of
      *   events, we'll need to know how much time remains at each point we
-     *   get a new event.  
+     *   get a new event.
      */
     end_time = os_get_sys_clock_ms() + timeout;
-    
+
     /* set up at the last output position, after the prompt */
     x = text_lastcol;
     y = max_line;
@@ -2321,12 +2321,12 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
 
     /*
      *   If we have saved input state from a previous interrupted call,
-     *   restore it now.  Otherwise, initialize everything.  
+     *   restore it now.  Otherwise, initialize everything.
      */
     if (S_gets_buf[0] != '\0' || S_gets_in_progress)
     {
         size_t len;
-        
+
         /* limit the restoration length to the new buffer length */
         len = strlen((char *)buf);
         if (len > bufl - 1)
@@ -2341,19 +2341,19 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
         /* null-terminate the text */
         *eol = '\0';
 
-        /* 
+        /*
          *   if we cancelled the previous input, we must re-display the
          *   buffer under construction, since we have displayed something
-         *   else in between and have re-displayed the prompt 
+         *   else in between and have re-displayed the prompt
          */
         if (!S_gets_in_progress)
         {
             /* re-display the buffer */
             ossdsp_str_scr(&y, &x, text_color, buf, len);
 
-            /* 
+            /*
              *   move back to the original insertion point, limiting the
-             *   move to the available buffer size for the new caller 
+             *   move to the available buffer size for the new caller
              */
             if (S_gets_ofs < (int)len)
                 oss_gets_csrleft(&y, &x, len - S_gets_ofs);
@@ -2362,7 +2362,7 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
         }
         else
         {
-            /* 
+            /*
              *   input is still in progress, so the old text is still on the
              *   screen - simply move to the original cursor position
              */
@@ -2392,7 +2392,7 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
         unsigned char c;
         os_event_info_t event_info;
         int event_type;
-        
+
         /* move to the proper position on the screen */
         ossloc(y, x);
 
@@ -2404,9 +2404,9 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
             /* note the current system clock time */
             cur_clock = os_get_sys_clock_ms();
 
-            /* 
+            /*
              *   if we're past the timeout expiration time already,
-             *   interrupt with timeout now 
+             *   interrupt with timeout now
              */
             if (cur_clock >= end_time)
                 goto timeout_expired;
@@ -2414,7 +2414,7 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
             /* note the interval remaining to the timeout expiration */
             timeout = end_time - cur_clock;
         }
-        
+
         /* get an event */
         event_type = os_get_event(timeout, use_timeout, &event_info);
 
@@ -2422,12 +2422,12 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
         switch(event_type)
         {
         case OS_EVT_KEY:
-            /* 
+            /*
              *   Keystroke event.  First, translate the key from the "raw"
              *   keystroke that os_get_event() returns to the "processed"
              *   (CMD_xxx) representation.  This lets the oss layer map
              *   special keystrokes to generic editing commands in a
-             *   system-specific manner.  
+             *   system-specific manner.
              */
             oss_raw_key_to_cmd(&event_info);
 
@@ -2453,7 +2453,7 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
             return OS_EVT_TIMEOUT;
 
         case OS_EVT_NOTIMEOUT:
-            /* 
+            /*
              *   we can't handle events with timeouts, so we can't provide
              *   line reading with timeouts, either
              */
@@ -2467,12 +2467,12 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
             /* ignore any other events */
             continue;
         }
-            
-        /* 
+
+        /*
          *   Check the character we got.  Note that we must interpret
          *   certain control characters explicitly, because os_get_event()
          *   returns raw keycodes (untranslated into CMD_xxx codes) for
-         *   control characters.  
+         *   control characters.
          */
         switch(c)
         {
@@ -2492,7 +2492,7 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
             /*
              *   Scroll the screen to account for the carriage return,
              *   position the cursor at the end of the new line, and
-             *   null-terminate the line.  
+             *   null-terminate the line.
              */
             ossloc(y, x);
             if (y == max_line)
@@ -2515,11 +2515,11 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
                 uchar *q;
                 int    advtail;
                 int    saveflag = 1;         /* assume we will be saving it */
-                
+
                 if (q = ossprvcmd(histhead))
                 {
                     uchar *p = buf;
-                    
+
                     while (*p == *q && *p != '\0' && *q != '\0')
                     {
                         ++p;
@@ -2541,12 +2541,12 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
                             advtail = 1;
                         }
                     }
-                    
+
                     /*
                      *   If we have encroached on space that was already
                      *   occupied, throw away the entire command we have
                      *   partially trashed; to do so, advance the tail
-                     *   pointer to the next null byte.  
+                     *   pointer to the next null byte.
                      */
                     if (advtail)
                     {
@@ -2564,7 +2564,7 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
              *   that we add an extra carriage return if we were already
              *   on the max_line, since we scrolled the screen in this
              *   case; otherwise, ossaddsbe will add all the blank lines
-             *   that are necessary.  
+             *   that are necessary.
              */
             ossaddsbe((char *)buf, (char *)p, x, y);
             if (y == max_line)
@@ -2588,7 +2588,7 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
             case CMD_SCR:
                 {
                     char *old_scrbuf_free;
-                    
+
                     /*
                      *   Add the contents of the line buffer, plus any blank
                      *   lines, to the screen buffer, filling the screen to
@@ -2597,7 +2597,7 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
                      *   buffer back out of the scrollback buffer when we're
                      *   done - this is just temporary so that the current
                      *   command shows up in the buffer while we're in
-                     *   scrollback mode and is redrawn when we're done.  
+                     *   scrollback mode and is redrawn when we're done.
                      */
                     old_scrbuf_free = scrbuf_free;
                     ossaddsbe((char *)buf, (char *)p, x, y);
@@ -2684,13 +2684,13 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
                 oss_gets_delchar(buf, p, &eol, x, y);
                 break;
 
-#ifdef UNIX               
+#ifdef UNIX
             case CMD_WORDKILL:
                 {
                     /* remove spaces preceding word */
                     while (p >= buf && *p <= ' ')
                         oss_gets_backsp(buf, &p, &eol, &x, &y);
-                    
+
                     /* remove previous word (i.e., until we get a space) */
                     while (p >= buf && *p > ' ')
                         oss_gets_backsp(buf, &p, &eol, &x, &y);
@@ -2730,14 +2730,14 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
                 /*
                  *   We're at the start of the line now; fall through for
                  *   KILL, UP, and DOWN to the code which deletes to the
-                 *   end of the line.  
+                 *   end of the line.
                  */
             case CMD_DEOL:
                 if (p < eol)
                 {
-                    /* 
+                    /*
                      *   write spaces to the end of the line, to clear out
-                     *   the screen display of the old characters 
+                     *   the screen display of the old characters
                      */
                     if (p != eol)
                     {
@@ -2860,14 +2860,14 @@ uchar *os_gets(unsigned char *buf, size_t bufl)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Highlighting and colors 
+ *   Highlighting and colors
  */
 
 #ifdef STD_OS_HILITE
 
 #ifdef RUNTIME
 /*
- *   Set text attributes 
+ *   Set text attributes
  */
 void os_set_text_attr(int attr)
 {
@@ -2881,7 +2881,7 @@ void os_set_text_attr(int attr)
     if (osssb_cur_attrs == attr)
         return;
 
-    /* 
+    /*
      *   add the attribute sequence to the scrollback buffer (encoding with
      *   our plus-one code, to avoid storing null bytes)
      */
@@ -2896,7 +2896,7 @@ void os_set_text_attr(int attr)
 }
 
 /*
- *   Translate a color from the os_color_t encoding to an OSGEN_xxx color.  
+ *   Translate a color from the os_color_t encoding to an OSGEN_xxx color.
  */
 static char osgen_xlat_color_t(os_color_t color)
 {
@@ -2933,11 +2933,11 @@ static char osgen_xlat_color_t(os_color_t color)
     unsigned char r, g, b;
     unsigned long best_dist;
 
-    /* 
+    /*
      *   If it's parameterized, map it by shifting the parameter code (in
      *   the high-order 8 bits of the os_color_t) to our single-byte code,
      *   which is defined as exactly the same code as the os_color_t values
-     *   but shifted into the low-order 8 bits.  
+     *   but shifted into the low-order 8 bits.
      */
     if (os_color_is_param(color))
         return (char)((color >> 24) & 0xFF);
@@ -2980,11 +2980,11 @@ static char osgen_xlat_color_t(os_color_t color)
 
 /*
  *   Set the text colors.
- *   
+ *
  *   The foreground and background colors apply to subsequent characters
  *   displayed via os_print() (etc).  If the background color is set to zero,
  *   it indicates "transparent" drawing: subsequent text is displayed with
- *   the "screen" color.  
+ *   the "screen" color.
  */
 void os_set_text_color(os_color_t fg, os_color_t bg)
 {
@@ -3006,7 +3006,7 @@ void os_set_text_color(os_color_t fg, os_color_t bg)
 }
 
 /*
- *   Set the screen color 
+ *   Set the screen color
  */
 void os_set_screen_color(os_color_t color)
 {
@@ -3019,9 +3019,9 @@ void os_set_screen_color(os_color_t color)
     osssb_oss_screen_color = ossgetcolor(OSGEN_COLOR_TEXT,
                                          osgen_xlat_color_t(color), 0, 0);
 
-    /* 
+    /*
      *   recalculate the current text color, since it will be affected by the
-     *   background change if its background is transparent 
+     *   background change if its background is transparent
      */
     text_color = ossgetcolor(osssb_cur_fg, osssb_cur_bg, osssb_cur_attrs,
                              osssb_screen_color);
@@ -3064,7 +3064,7 @@ void os_set_screen_color(os_color_t color)
 #endif /* STD_OS_HILITE */
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   clear the screen, deleting all scrollback information
  */
 #ifdef STD_OSCLS
@@ -3095,7 +3095,7 @@ void oscls(void)
  *   pertain to HTML features.  Note that new sysinfo codes may be added
  *   in the future which may be relevant to non-html versions, so the
  *   sysinfo codes should be checked from time to time to ensure that new
- *   codes relevant to this system version are handled correctly here.  
+ *   codes relevant to this system version are handled correctly here.
  */
 int os_get_sysinfo(int code, void *param, long *result)
 {
@@ -3112,7 +3112,7 @@ int os_get_sysinfo(int code, void *param, long *result)
         /* we're a character-mode text-only interpreter */
         *result = SYSINFO_ICLASS_TEXT;
         return TRUE;
-        
+
     case SYSINFO_HTML:
     case SYSINFO_JPEG:
     case SYSINFO_PNG:
@@ -3140,9 +3140,9 @@ int os_get_sysinfo(int code, void *param, long *result)
     case SYSINFO_MNG_TRANS:
     case SYSINFO_MNG_ALPHA:
     case SYSINFO_BANNERS:
-        /* 
+        /*
          *   we don't support any of these features - set the result to 0
-         *   to indicate this 
+         *   to indicate this
          */
         *result = 0;
 
@@ -3161,13 +3161,13 @@ int os_get_sysinfo(int code, void *param, long *result)
  *   anything with this information, and in fact most platforms won't even
  *   have a way of letting the game author set the saved game extension,
  *   so this trivial implementation is suitable for most systems.
- *   
+ *
  *   The purpose of setting a saved game extension is to support platforms
  *   (such as Windows) where the filename suffix is used to associate
  *   document files with applications.  Each stand-alone executable
  *   generated on such platforms must have a unique saved game extension,
  *   so that the system can associate each game's saved position files
- *   with that game's executable.  
+ *   with that game's executable.
  */
 void os_set_save_ext(const char *ext)
 {
@@ -3185,7 +3185,7 @@ const char *os_get_save_ext()
 /*
  *   Set the game title.  Most platforms have no use for this information,
  *   so they'll just ignore it.  This trivial implementation simply
- *   ignores the title. 
+ *   ignores the title.
  */
 #ifdef USE_NULL_SET_TITLE
 

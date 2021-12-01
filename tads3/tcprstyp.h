@@ -1,10 +1,10 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -14,7 +14,7 @@ Function
   the main parser include file to reduce the amount of the parser that
   has to be included simply for the type definitions.
 Notes
-  
+
 Modified
   04/09/00 MJRoberts  - Creation
 */
@@ -55,7 +55,7 @@ enum tc_constval_type_t
  *   order of these entries must not be changed.  If new entries are to be
  *   added, they must be added at the end of the list, and existing
  *   entries must not be deleted (instead, make an existing entry
- *   obsolete, but leave its slot occupied).  
+ *   obsolete, but leave its slot occupied).
  */
 enum tc_symtype_t
 {
@@ -103,7 +103,7 @@ enum tc_symtype_t
 /*
  *   Object metaclasses.  These are the *internal* identifiers we use for the
  *   T3 metaclasses that the compiler knows about.
- *   
+ *
  *   These identifiers don't correspond to anything at run-time or in the VM
  *   - they're not "dependency table index" values (see the T3 VM spec), for
  *   example.  These are simply identifiers we use internally to keep track
@@ -114,7 +114,7 @@ enum tc_symtype_t
  *   of additional metaclasses, for which we'll happily generate code for
  *   *run-time* instantiation.  But for static instantiation, we only can -
  *   and only need to - generate code for this small set of metaclasses of
- *   which the compiler itself is aware.  
+ *   which the compiler itself is aware.
  */
 enum tc_metaclass_t
 {
@@ -137,7 +137,7 @@ enum tc_metaclass_t
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CTcPrsNode::adjust_for_dyn() information structure 
+ *   CTcPrsNode::adjust_for_dyn() information structure
  */
 struct tcpn_dyncomp_info
 {
@@ -154,16 +154,16 @@ struct tcpn_dyncomp_info
         this->speculative = speculative;
         this->stack_level = stack_level;
     }
-    
+
     /* true -> debugger evaluation */
     int debugger;
 
     /* true -> speculative evaluation mode */
     int speculative;
 
-    /* 
+    /*
      *   stack level - 0 is the active level, 1 is the first enclosing level,
-     *   and so on 
+     *   and so on
      */
     int stack_level;
 };

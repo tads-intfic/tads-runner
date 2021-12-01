@@ -8,9 +8,9 @@ static char RCSid[] =
 Name
   vmop.cpp - TADS 3 VM opcode definitions
 Function
-  
+
 Notes
-  
+
 Modified
   03/14/12 MJRoberts  - Creation
 */
@@ -21,7 +21,7 @@ Modified
 
 
 /*
- *   Get the size of an opcode 
+ *   Get the size of an opcode
  */
 size_t CVmOpcodes::get_op_size(const uchar *op)
 {
@@ -29,10 +29,10 @@ size_t CVmOpcodes::get_op_size(const uchar *op)
     {
     case OPC_PUSHSTRI:
         return 3 + osrp2(op+1);
-        
+
     case OPC_SWITCH:
         return 1 + 2 + (VMB_DATAHOLDER + 2)*osrp2(op+1) + 2;
-        
+
     case OPC_NAMEDARGTAB:
         return 1 + 2 + osrp2(op+1);
 
@@ -65,7 +65,7 @@ const uchar CVmOpcodes::op_siz[] =
     1,                                             /* 0x0E - OPC_MAKELSTPAR */
     5,                                               /* 0x0F - OPC_PUSHENUM */
     5,                                             /* 0x10 - OPC_PUSHBIFPTR */
-    
+
     1,                                                     /* 0x11 - unused */
     1,                                                     /* 0x12 - unused */
     1,                                                     /* 0x13 - unused */
@@ -81,7 +81,7 @@ const uchar CVmOpcodes::op_siz[] =
     1,                                                     /* 0x1D - unused */
     1,                                                     /* 0x1E - unused */
     1,                                                     /* 0x1F - unused */
-    
+
     1,                                                    /* 0x20 - OPC_NEG */
     1,                                                   /* 0x21 - OPC_BNOT */
     1,                                                    /* 0x22 - OPC_ADD */
@@ -99,7 +99,7 @@ const uchar CVmOpcodes::op_siz[] =
     1,                                                    /* 0x2E - OPC_INC */
     1,                                                    /* 0x2F - OPC_DEC */
     1,                                                   /* 0x31 - OPC_LSHR */
-    
+
     1,                                                     /* 0x31 - unused */
     1,                                                     /* 0x32 - unused */
     1,                                                     /* 0x33 - unused */
@@ -115,14 +115,14 @@ const uchar CVmOpcodes::op_siz[] =
     1,                                                     /* 0x3D - unused */
     1,                                                     /* 0x3E - unused */
     1,                                                     /* 0x3F - unused */
-    
+
     1,                                                     /* 0x40 - OPC_EQ */
     1,                                                     /* 0x41 - OPC_NE */
     1,                                                     /* 0x42 - OPC_LT */
     1,                                                     /* 0x43 - OPC_LE */
     1,                                                     /* 0x44 - OPC_GT */
     1,                                                     /* 0x45 - OPC_GE */
-    
+
     1,                                                     /* 0x46 - unused */
     1,                                                     /* 0x47 - unused */
     1,                                                     /* 0x48 - unused */
@@ -133,28 +133,28 @@ const uchar CVmOpcodes::op_siz[] =
     1,                                                     /* 0x4D - unused */
     1,                                                     /* 0x4E - unused */
     1,                                                     /* 0x4F - unused */
-    
+
     1,                                                 /* 0x50 - OPC_RETVAL */
     1,                                                 /* 0x51 - OPC_RETNIL */
     1,                                                /* 0x52 - OPC_RETTRUE */
     1,                                                     /* 0x53 - unused */
     1,                                                    /* 0x54 - OPC_RET */
-    
+
     1,                                                     /* 0x55 - unused */
-    
+
     4,                                            /* 0x56 - OPC_NAMEDARGPTR */
     0,                   /* 0x57 - OPC_NAMEDARGTAB - variable-size operands */
-    
+
     6,                                                   /* 0x58 - OPC_CALL */
     2,                                                /* 0x59 - OPC_PTRCALL */
-    
+
     1,                                                     /* 0x5A - unused */
     1,                                                     /* 0x5B - unused */
     1,                                                     /* 0x5C - unused */
     1,                                                     /* 0x5D - unused */
     1,                                                     /* 0x5E - unused */
     1,                                                     /* 0x5F - unused */
-    
+
     3,                                                /* 0x60 - OPC_GETPROP */
     4,                                               /* 0x61 - OPC_CALLPROP */
     2,                                            /* 0x62 - OPC_PTRCALLPROP */
@@ -169,12 +169,12 @@ const uchar CVmOpcodes::op_siz[] =
     5,                                           /* 0x6B - OPC_CALLPROPLCL1 */
     3,                                              /* 0x6C - OPC_GETPROPR0 */
     4,                                             /* 0x6D - OPC_CALLPROPR0 */
-    
+
     1,                                                     /* 0x6E - unused */
     1,                                                     /* 0x6F - unused */
     1,                                                     /* 0x70 - unused */
     1,                                                     /* 0x71 - unused */
-    
+
     4,                                                /* 0x72 - OPC_INHERIT */
     2,                                             /* 0x73 - OPC_PTRINHERIT */
     8,                                             /* 0x74 - OPC_EXPINHERIT */
@@ -182,11 +182,11 @@ const uchar CVmOpcodes::op_siz[] =
     1,                                                /* 0x76 - OPC_VARARGC */
     4,                                               /* 0x77 - OPC_DELEGATE */
     2,                                            /* 0x78 - OPC_PTRDELEGATE */
-    
+
     1,                                                     /* 0x79 - unused */
     1,                                                      /* 0x7A - SWAP2 */
     3,                                                      /* 0x7B - SWAPN */
-    
+
     1,                                               /* 0x7C - OPC_GETARGN0 */
     1,                                               /* 0x7D - OPC_GETARGN1 */
     1,                                               /* 0x7E - OPC_GETARGN2 */
@@ -205,11 +205,11 @@ const uchar CVmOpcodes::op_siz[] =
     1,                                                  /* 0x8B - OPC_GETR0 */
     3,                                              /* 0x8C - OPC_GETDBARGC */
     1,                                                   /* 0x8D - OPC_SWAP */
-    
+
     2,                                             /* 0x8E - OPC_PUSHCTXELE */
-    
+
     1,                                                       /* 0x8F - DUP2 */
-    
+
     0,                     /* 0x90 - OPC_SWITCH - variable-size instruction */
     3,                                                    /* 0x91 - OPC_JMP */
     3,                                                     /* 0x92 - OPC_JT */
@@ -229,7 +229,7 @@ const uchar CVmOpcodes::op_siz[] =
     3,                                                   /* 0xA0 - OPC_JR0T */
     3,                                                   /* 0xA1 - OPC_JR0F */
     5,                                               /* 0xA2 - OPC_ITERNEXT */
-    
+
     2,                                               /* 0xA3 - GETSETLCL1R0 */
     2,                                                 /* 0xA4 - GETSETLCL1 */
     1,                                                      /* 0xA5 - DUPR0 */
@@ -237,14 +237,14 @@ const uchar CVmOpcodes::op_siz[] =
     1,                                                     /* 0xA7 - unused */
     1,                                                     /* 0xA8 - unused */
     1,                                                     /* 0xA9 - unused */
-    
+
     1,                                                   /* 0xAA - GETLCLN0 */
     1,                                                   /* 0xAB - GETLCLN1 */
     1,                                                   /* 0xAC - GETLCLN2 */
     1,                                                   /* 0xAD - GETLCLN3 */
     1,                                                   /* 0xAE - GETLCLN4 */
     1,                                                   /* 0xAF - GETLCLN5 */
-    
+
     5,                                                    /* 0xB0 - OPC_SAY */
     3,                                              /* 0xB1 - OPC_BUILTIN_A */
     3,                                              /* 0xB2 - OPC_BUILTIN_B */
@@ -255,20 +255,20 @@ const uchar CVmOpcodes::op_siz[] =
     0,          /* 0xB7 - OPC_CALLEXT (reserved; not currently implemented) */
     1,                                                  /* 0xB8 - OPC_THROW */
     1,                                                 /* 0xB9 - OPC_SAYVAL */
-    
+
     1,                                                  /* 0xBA - OPC_INDEX */
     3,                                            /* 0xBB - OPC_IDXLCL1INT8 */
     2,                                               /* 0xBC - OPC_IDXLINT8 */
     1,                                                     /* 0xBD - unused */
-    
+
     1,                                                     /* 0xBE - unused */
     1,                                                     /* 0xBF - unused */
-    
+
     3,                                                   /* 0xC0 - OPC_NEW1 */
     5,                                                   /* 0xC1 - OPC_NEW2 */
     3,                                                 /* 0xC2 - OPC_TRNEW1 */
     5,                                                 /* 0xC3 - OPC_TRNEW2 */
-    
+
     1,                                                     /* 0xC4 - unused */
     1,                                                     /* 0xC5 - unused */
     1,                                                     /* 0xC6 - unused */
@@ -281,7 +281,7 @@ const uchar CVmOpcodes::op_siz[] =
     1,                                                     /* 0xCD - unused */
     1,                                                     /* 0xCE - unused */
     1,                                                     /* 0xCF - unused */
-    
+
     3,                                                 /* 0xD0 - OPC_INCLCL */
     3,                                                 /* 0xD1 - OPC_DECLCL */
     3,                                               /* 0xD2 - OPC_ADDILCL1 */
@@ -294,12 +294,12 @@ const uchar CVmOpcodes::op_siz[] =
     3,                                                /* 0xD9 - OPC_NILLCL2 */
     2,                                                /* 0xDA - OPC_ONELCL1 */
     3,                                                /* 0xDB - OPC_ONELCL2 */
-    
+
     1,                                                     /* 0xDC - unused */
     1,                                                     /* 0xDD - unused */
     1,                                                     /* 0xDE - unused */
     1,                                                     /* 0xDF - unused */
-    
+
     2,                                                /* 0xE0 - OPC_SETLCL1 */
     3,                                                /* 0xE1 - OPC_SETLCL2 */
     2,                                                /* 0xE2 - OPC_SETARG1 */
@@ -311,18 +311,18 @@ const uchar CVmOpcodes::op_siz[] =
     7,                                             /* 0xE8 - OPC_OBJSETPROP */
     5,                                               /* 0xE9 - OPC_SETDBLCL */
     5,                                               /* 0xEA - OPC_SETDBARG */
-    
+
     1,                                                /* 0xEB - OPC_SETSELF */
     1,                                                /* 0xEC - OPC_LOADCTX */
     1,                                               /* 0xED - OPC_STORECTX */
     2,                                              /* 0xEE - OPC_SETLCL1R0 */
     3,                                           /* 0xEF - OPC_SETINDLCL1I8 */
-    
+
     1,                                                     /* 0xF0 - unused */
-    
+
     1,                                                     /* 0xF1 - OPC_BP */
     1,                                                    /* 0xF2 - OPC_NOP */
-    
+
     1,                                                     /* 0xF3 - unused */
     1,                                                     /* 0xF4 - unused */
     1,                                                     /* 0xF5 - unused */

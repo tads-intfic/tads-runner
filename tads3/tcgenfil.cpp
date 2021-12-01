@@ -3,11 +3,11 @@ static char RCSid[] =
 "";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -42,11 +42,11 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Data streams 
+ *   Data streams
  */
 
 /*
- *   Write the stream, its anchors, and its fixups to an object file.  
+ *   Write the stream, its anchors, and its fixups to an object file.
  */
 void CTcDataStream::write_to_object_file(CVmFile *fp)
 {
@@ -54,10 +54,10 @@ void CTcDataStream::write_to_object_file(CVmFile *fp)
     CTcStreamAnchor *anchor;
     long cnt;
 
-    /* 
+    /*
      *   First, write the data stream bytes.  Write the length prefix
      *   followed by the data.  Just blast the whole thing out in one huge
-     *   byte stream, one page at a time.  
+     *   byte stream, one page at a time.
      */
     fp->write_uint4(ofs_);
 
@@ -66,9 +66,9 @@ void CTcDataStream::write_to_object_file(CVmFile *fp)
     {
         size_t cur;
 
-        /* 
+        /*
          *   write out one whole page, or the balance of the current page if
-         *   we have less than a whole page remaining 
+         *   we have less than a whole page remaining
          */
         cur = TCCS_PAGE_SIZE;
         if (ofs + cur > ofs_)
@@ -93,7 +93,7 @@ void CTcDataStream::write_to_object_file(CVmFile *fp)
      *   code to write the anchor and fixup information in-line here for
      *   efficiency - there will normally be a large number of these tiny
      *   objects, so anything we can do to improve the speed of this loop
-     *   will help quite a lot in the overall write performance.)  
+     *   will help quite a lot in the overall write performance.)
      */
     for (anchor = first_anchor_ ; anchor != 0 ; anchor = anchor->nxt_)
     {
@@ -102,10 +102,10 @@ void CTcDataStream::write_to_object_file(CVmFile *fp)
         /* write the stream offset */
         oswp4(buf, anchor->get_ofs());
 
-        /* 
+        /*
          *   If the anchor has an external fixup list, write the symbol's
          *   name to the file; otherwise write a zero length to indicate that
-         *   we have an internal fixup list.  
+         *   we have an internal fixup list.
          */
         if (anchor->get_fixup_owner_sym() == 0)
         {
@@ -129,7 +129,7 @@ void CTcDataStream::write_to_object_file(CVmFile *fp)
 }
 
 /*
- *   Read a stream from an object file 
+ *   Read a stream from an object file
  */
 void CTcDataStream::load_object_file(CVmFile *fp,
                                      const textchar_t *fname)
@@ -172,9 +172,9 @@ void CTcDataStream::load_object_file(CVmFile *fp,
      *   anchor offsets in the object file reflect a base stream offset of
      *   zero, but we could be loading the stream after a bunch of other data
      *   have already been loaded into the stream.
-     *   
+     *
      *   First, read the number of anchors, then loop through the anchors and
-     *   read each one.  
+     *   read each one.
      */
     for (anchor_cnt = fp->read_uint4() ; anchor_cnt != 0 ;
          --anchor_cnt)
@@ -204,11 +204,11 @@ void CTcDataStream::load_object_file(CVmFile *fp,
             owner_sym = G_prs->get_global_symtab()->find(buf, sym_len);
             if (owner_sym == 0)
             {
-                /* 
+                /*
                  *   the owner symbol doesn't exist - this is an internal
                  *   inconsistency in the object file, because the anchor
                  *   symbol must always be defined in the same file and hence
-                 *   should have been loaded already; complain and go on 
+                 *   should have been loaded already; complain and go on
                  */
                 G_tcmain->log_error(0, 0, TC_SEV_ERROR,
                                     TCERR_OBJFILE_INT_SYM_MISSING,
@@ -246,11 +246,11 @@ void CTcDataStream::load_object_file(CVmFile *fp,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Absolute address fixups 
+ *   Absolute address fixups
  */
 
 /*
- *   Write a fixup list to an object file 
+ *   Write a fixup list to an object file
  */
 void CTcAbsFixup::
     write_fixup_list_to_object_file(CVmFile *fp, CTcAbsFixup *list_head)
@@ -282,7 +282,7 @@ void CTcAbsFixup::
 }
 
 /*
- *   Read a fixup list from an object file 
+ *   Read a fixup list from an object file
  */
 void CTcAbsFixup::
     load_fixup_list_from_object_file(CVmFile *fp,
@@ -311,9 +311,9 @@ void CTcAbsFixup::
         if (stream == 0)
             continue;
 
-        /* 
+        /*
          *   the fixup offset is relative to the starting offset of the
-         *   stream for the current object file - adjust it accordingly 
+         *   stream for the current object file - adjust it accordingly
          */
         fixup_ofs += stream->get_object_file_start_ofs();
 
@@ -324,11 +324,11 @@ void CTcAbsFixup::
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Object/property ID fixups 
+ *   Object/property ID fixups
  */
 
 /*
- *   Write a fixup list to an object file 
+ *   Write a fixup list to an object file
  */
 void CTcIdFixup::write_to_object_file(CVmFile *fp, CTcIdFixup *head)
 {
@@ -357,7 +357,7 @@ void CTcIdFixup::write_to_object_file(CVmFile *fp, CTcIdFixup *head)
 }
 
 /*
- *   Read an object ID fixup list from an object file 
+ *   Read an object ID fixup list from an object file
  */
 void CTcIdFixup::load_object_file(CVmFile *fp,
                                   const void *xlat,
@@ -433,11 +433,11 @@ void CTcIdFixup::load_object_file(CVmFile *fp,
             new_id = old_id;
         }
 
-        /* 
+        /*
          *   If we're keeping object fixups in the new file, create a fixup
          *   for the reference.  Note that the fixup is for the new ID, not
          *   the old ID, because we've already translated the value in the
-         *   stream to the new ID.  
+         *   stream to the new ID.
          */
         if (fixup_list_head != 0)
             CTcIdFixup::add_fixup(fixup_list_head, stream, ofs, new_id);

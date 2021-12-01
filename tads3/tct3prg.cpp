@@ -3,11 +3,11 @@ static char RCSid[] =
     "$Header: d:/cvsroot/tads/tads3/TCT3STM.CPP,v 1.1 1999/07/11 00:46:57 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -48,16 +48,16 @@ Modified
 
 /*
  *   given the offset of the start of an object in the compiled object
- *   stream, get the offset of the first property 
+ *   stream, get the offset of the first property
  */
 ulong CTPNStmObject::get_stream_first_prop_ofs(CTcDataStream *stream,
                                                ulong obj_ofs)
 {
-    /* 
+    /*
      *   the property table follows the superclass table, which follows
      *   the tads-object header; the superclass table contains 4 bytes per
      *   superclass (we can obtain the superclass count from the stream
-     *   data) 
+     *   data)
      */
     return obj_ofs + TCT3_TADSOBJ_SC_OFS
         + (get_stream_sc_cnt(stream, obj_ofs) * 4);
@@ -70,9 +70,9 @@ ulong CTPNStmObject::get_stream_first_prop_ofs(CTcDataStream *stream,
 ulong CTPNStmObject::get_stream_prop_ofs(CTcDataStream *stream,
                                          ulong obj_ofs, uint idx)
 {
-    /* 
+    /*
      *   calculate the offset to the selected property from the start of
-     *   the property table 
+     *   the property table
      */
     return get_stream_first_prop_ofs(stream, obj_ofs)
         + (TCT3_TADSOBJ_PROP_SIZE * idx);
@@ -80,7 +80,7 @@ ulong CTPNStmObject::get_stream_prop_ofs(CTcDataStream *stream,
 
 /*
  *   given the offset of the start of an object in the compiled object
- *   stream, get the number of properties in the stream data 
+ *   stream, get the number of properties in the stream data
  */
 uint CTPNStmObject::get_stream_prop_cnt(CTcDataStream *stream,
                                         ulong obj_ofs)
@@ -92,21 +92,21 @@ uint CTPNStmObject::get_stream_prop_cnt(CTcDataStream *stream,
 /*
  *   given the offset of the start of an object in the compiled object
  *   stream, set the number of properties in the stream data, adjusting
- *   the data size in the metaclass header to match 
+ *   the data size in the metaclass header to match
  */
 size_t CTPNStmObject::set_stream_prop_cnt(CTcDataStream *stream,
                                           ulong obj_ofs, uint prop_cnt)
 {
     size_t data_size;
-    
+
     /* the property count is at offset 2 in the tads-object header */
     stream->write2_at(obj_ofs + TCT3_TADSOBJ_HEADER_OFS + 2, prop_cnt);
 
-    /* 
+    /*
      *   calculate the new data size to store in the metaclass header --
      *   this is the size of the tads-object header, plus the size of the
      *   superclass table (4 bytes per superclass), plus the size of the
-     *   property table 
+     *   property table
      */
     data_size = TCT3_TADSOBJ_HEADER_SIZE
                 + (get_stream_sc_cnt(stream, obj_ofs) * 4)
@@ -120,7 +120,7 @@ size_t CTPNStmObject::set_stream_prop_cnt(CTcDataStream *stream,
 }
 
 /*
- *   Get the object flags from an object in a compiled stream 
+ *   Get the object flags from an object in a compiled stream
  */
 uint CTPNStmObject::get_stream_obj_flags(CTcDataStream *stream,
                                          ulong obj_ofs)
@@ -130,21 +130,21 @@ uint CTPNStmObject::get_stream_obj_flags(CTcDataStream *stream,
 }
 
 /*
- *   Set the object flags in an object in a compiled stream 
+ *   Set the object flags in an object in a compiled stream
  */
 void CTPNStmObject::set_stream_obj_flags(CTcDataStream *stream,
                                          ulong obj_ofs, uint flags)
 {
-    /* 
+    /*
      *   write the new flags - they're at offset 4 in the tads-object
-     *   header 
+     *   header
      */
     stream->write2_at(obj_ofs + TCT3_TADSOBJ_HEADER_OFS + 4, flags);
 }
 
 /*
  *   given the offset of the start of an object in the compiled object
- *   stream, get the number of superclasses in the stream data 
+ *   stream, get the number of superclasses in the stream data
  */
 uint CTPNStmObject::get_stream_sc_cnt(CTcDataStream *stream,
                                       ulong obj_ofs)
@@ -155,14 +155,14 @@ uint CTPNStmObject::get_stream_sc_cnt(CTcDataStream *stream,
 
 /*
  *   given the stream offset of the start of an object in the compiled
- *   object stream, change a superclass object ID 
+ *   object stream, change a superclass object ID
  */
 void CTPNStmObject::set_stream_sc(CTcDataStream *stream, ulong obj_ofs,
                                   uint sc_idx, vm_obj_id_t new_sc)
 {
-    /* 
+    /*
      *   set the superclass - it's at offset 6 in the object data, plus
-     *   four bytes (UINT4) per index slot 
+     *   four bytes (UINT4) per index slot
      */
     stream->write2_at(obj_ofs + TCT3_TADSOBJ_HEADER_OFS + 6 + (sc_idx * 4),
                       new_sc);
@@ -171,13 +171,13 @@ void CTPNStmObject::set_stream_sc(CTcDataStream *stream, ulong obj_ofs,
 /*
  *   given the offset of the start of an object in the compiled object
  *   stream, get the property ID of the property at a given index in the
- *   property table 
+ *   property table
  */
 vm_prop_id_t CTPNStmObject::get_stream_prop_id(CTcDataStream *stream,
                                                ulong obj_ofs, uint prop_idx)
 {
     ulong prop_ofs;
-    
+
     /* get the property's data offset */
     prop_ofs = get_stream_prop_ofs(stream, obj_ofs, prop_idx);
 
@@ -188,7 +188,7 @@ vm_prop_id_t CTPNStmObject::get_stream_prop_id(CTcDataStream *stream,
 /*
  *   given the offset of the start of an object in the compiled object
  *   stream, get the datatype of the property at the given index in the
- *   property table 
+ *   property table
  */
 vm_datatype_t CTPNStmObject::
    get_stream_prop_type(CTcDataStream *stream, ulong obj_ofs, uint prop_idx)
@@ -197,7 +197,7 @@ vm_datatype_t CTPNStmObject::
 
     /* get the property's data holder offset */
     dh_ofs = get_stream_prop_val_ofs(stream, obj_ofs, prop_idx);
-    
+
     /* the type is the first byte of the serialized data holder */
     return (vm_datatype_t)stream->get_byte_at(dh_ofs);
 }
@@ -205,7 +205,7 @@ vm_datatype_t CTPNStmObject::
 /*
  *   given the offset of the start of an object in the compiled object
  *   stream, get the stream offset of the serialized DATAHOLDER structure
- *   for the property at the given index in the property table 
+ *   for the property at the given index in the property table
  */
 ulong CTPNStmObject::get_stream_prop_val_ofs(CTcDataStream *stream,
                                              ulong obj_ofs, uint prop_idx)
@@ -223,7 +223,7 @@ ulong CTPNStmObject::get_stream_prop_val_ofs(CTcDataStream *stream,
 /*
  *   given the offset of the start of an object in the compiled object
  *   stream, get the property ID of the property at a given index in the
- *   property table 
+ *   property table
  */
 void CTPNStmObject::set_stream_prop_id(CTcDataStream *stream,
                                        ulong obj_ofs, uint prop_idx,

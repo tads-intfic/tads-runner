@@ -1,11 +1,11 @@
 #charset "us-ascii"
 #pragma once
 
-/* 
+/*
  *   Copyright (c) 1999, 2006 Michael J. Roberts
- *   
+ *
  *   This file is part of TADS 3
- *   
+ *
  *   This header defines the tads-gen intrinsic function set.  This function
  *   set provides some miscellaneous functions, including data conversions,
  *   object iteration, regular expressions, and state persistence operations.
@@ -25,7 +25,7 @@ intrinsic 'tads-gen/030008'
 
     /*
      *   Get the given parameter to the current function.  'idx' is 1 for the
-     *   first argument in left-to-right order, 2 for the second, and so on. 
+     *   first argument in left-to-right order, 2 for the second, and so on.
      */
     getArg(idx);
 
@@ -37,7 +37,7 @@ intrinsic 'tads-gen/030008'
      *   desired.  If this isn't specified, ObjAll is assumed.  This is used
      *   in conjunction with nextObj() to iterate over all objects in memory,
      *   or all objects of a given class.
-     *   
+     *
      *   Note that firstObj-nextObj loops can retrieve objects that aren't
      *   otherwise reachable, because unreachable objects are only removed
      *   from memory when the garbage collector runs, which happens
@@ -51,7 +51,7 @@ intrinsic 'tads-gen/030008'
      *   Get the next object in memory after the given object, optionally of
      *   the given class and optionally limiting to instances, classes, or
      *   both.  This is used to continue an iteration started with
-     *   firstObj().  
+     *   firstObj().
      */
     nextObj(obj, cls?, flags?);
 
@@ -62,19 +62,19 @@ intrinsic 'tads-gen/030008'
      *   different properties, so some applications might have reasons to
      *   prefer a particular algorithm.  For general purposes, any of them
      *   should produce good results.
-     *   
+     *
      *   The interpreter automatically makes a call to randomize() (the
      *   no-arguments version) when it starts up, unless the user specifies
      *   the "-norand" option when launching the interpreter.  For most
      *   programs, this means that you'll never have to make your own call to
      *   randomize() - you can just call rand() when you need random numbers.
-     *   
+     *
      *   This function performs several tasks, depending on how you invoke
      *   it:
-     *   
+     *
      *.    randomize() - selects the default RNG algorithm (ISAAC), and seeds
      *.          the RNG with truly random data from the operating system.
-     *   
+     *
      *.    randomize(nil) - retrieves the current state of the RNG.  Returns
      *.          a list: [id, state], where 'id' is the ID of the currently
      *.          selected RNG algorithm, and 'state' is a value containing
@@ -83,7 +83,7 @@ intrinsic 'tads-gen/030008'
      *.          value is opaque, meaning that it's not meant to be used
      *.          directly; the only thing you should do with it it save it
      *.          for later if you should want to restore this state later.
-     *   
+     *
      *.    randomize([id, state]) - if you pass in a list that obtained from
      *.          an earlier call to randomize(nil), the RNG will be returned
      *.          to its state at the time of the randomize(nil) call.  This
@@ -92,15 +92,15 @@ intrinsic 'tads-gen/030008'
      *.          this, a series of calls to rand() will return the same
      *.          sequence of numbers that were returned after the call to
      *.          randomize(nil).
-     *   
+     *
      *.    randomize(id) - selects the RNG algorithm identified by 'id'
      *.          (an RNG_Xxx value).  This doesn't change the state of
      *.          the generator; it simply selects the algorithm.
-     *   
+     *
      *.    randomize(id, nil) - selects the RNG algorithm identified by
      *.          'id' (an RNG_Xxx value), and seeds the generator with
      *.          truly random data obtained from the operating system.
-     *   
+     *
      *.    randomize(id, val) - selects the RNG algorithm identified by
      *.          'id' (an RNG_Xxx value), and seeds the generator with
      *.          the initial value 'val'.  This can be either an integer
@@ -111,7 +111,7 @@ intrinsic 'tads-gen/030008'
      *.          seed value.  This can be useful for things like testing,
      *.          where you want a sequence of numbers that's statistically
      *.          random, but which can be reproduced on demand.
-     *   
+     *
      *   Most programs that require random numbers want a truly unpredictable
      *   series of numbers - that is, numbers that have a statistically
      *   random distribution, with no discernible patterns, and which will be
@@ -131,7 +131,7 @@ intrinsic 'tads-gen/030008'
      *   same sequence of numbers.  The trick is to randomize its initial
      *   conditions - and what makes it tricky is that we can't just turn to
      *   rand(), since it's the thing we're trying to randomize!
-     *   
+     *
      *   This is where the "seed" values come in.  randomize() and
      *   randomize(id, nil) ask the operating system for truly random data to
      *   use for the initial conditions.  The degree of entropy in this OS
@@ -142,7 +142,7 @@ intrinsic 'tads-gen/030008'
      *   you run, rand() will be starting from a different initial state.
      *   This makes for a different series of numbers from rand() on each
      *   run.
-     *   
+     *
      *   Note that it's not necessary (or desirable) to call randomize()
      *   every time you want a random number.  Once you seed the RNG, rand()
      *   is all you need to call.  It can be slow to gather the true random
@@ -155,7 +155,7 @@ intrinsic 'tads-gen/030008'
      *   entropy don't always change quickly, so it's better to use them
      *   infrequently, such as just once at the start of program execution,
      *   than to use them as a routine source of random numbers.
-     *   
+     *
      *   The fixed seed values, with randomize(id, val), do something a
      *   little different.  Rather than making the RNG produce different
      *   sequences on each run, a fixed seed makes rand() generate the same
@@ -163,7 +163,7 @@ intrinsic 'tads-gen/030008'
      *   statistically random, but each time you run the program, you'll get
      *   the same seaquence.  (The sequence is a function of the seed value.
      *   You'll get a different sequence for each different seed value.)
-     *   
+     *
      *   Why would you want a fixed series of rand() results?  One big reason
      *   is testing.  One popular way to test software is regression testing,
      *   where you run the program and compare its output to a reference
@@ -185,21 +185,21 @@ intrinsic 'tads-gen/030008'
     /*
      *   Select a random number or a random value.  This uses the current
      *   random number algorithm as selected via randomize().
-     *   
+     *
      *   If no arguments are supplied, the result is a random integer
      *   distributed evenly over the full range of the 32-bit integer type.
      *   The result can be positive or negative.
-     *   
+     *
      *   If exactly one argument is supplied, the result depends on the type
      *   of the argument:
-     *   
+     *
      *   - Integer: the function returns an integer from 0 to one less than
      *   the argument value.  For example, rand(10) returns a number from 0
      *   to 9 inclusive.
-     *   
+     *
      *   - List: the function randomly selects one of the values from the
      *   list and returns it.
-     *   
+     *
      *   - String: the function generates a random string by replacing each
      *   character of the argument string with a randomly chosen character,
      *   selected from a specific range specified by the argument character.
@@ -207,14 +207,14 @@ intrinsic 'tads-gen/030008'
      *   lower-case letter from a to z, each 'A' is replaced by a capital
      *   letter, and each 'd' is replaced by a random digit 0 to 9.  See the
      *   System Manual for the full list of the character codes.
-     *   
+     *
      *   If more than one argument is supplied, the function randomly selects
      *   one of the arguments and returns it.  Note that this is an ordinary
      *   function call, so all of the arguments are evaluated, triggering any
      *   side effects of those evaluations.
-     *   
+     *
      *   In all cases, the random numbers are uniformly distributed, meaning
-     *   that each possible return value has equal probability.  
+     *   that each possible return value has equal probability.
      */
     rand(...);
 
@@ -231,17 +231,17 @@ intrinsic 'tads-gen/030008'
      *   with commas separating elements; or any of the built-in object types
      *   with default string conversions (ByteArray, StringBuffer, FileName,
      *   Date, TimeZone, FileName, etc).
-     *   
+     *
      *   Note that when working with BigNumber values, you might prefer to
      *   use BigNumber.formatString(), as that gives you more control over
      *   the formatting style.
-     *   
+     *
      *   'radix' is only meaningful with numeric values (integers and
      *   BigNumbers).  For BigNumbers, only whole integer values can be
      *   displayed in a non-decimal radix; if the number has a fractional
      *   part, the radix will be ignored and the number will be shown in
      *   decimal.
-     *   
+     *
      *   'isSigned' indicates whether or not the value should be treated as
      *   "signed", meaning that negative values are represented with a "-"
      *   sign followed by the absolute value.  If 'isSigned' is nil, a
@@ -254,39 +254,39 @@ intrinsic 'tads-gen/030008'
      *   types other than integer don't have distinct signed and unsigned
      *   interpretations, so 'isSigned' isn't meaningful with most other
      *   types.  With BigNumber in particular, the only effect is to omit the
-     *   "-" sign for negative values.  
+     *   "-" sign for negative values.
      */
     toString(val, radix?, isSigned?);
 
     /*
      *   Convert the given value to an integer.
-     *   
+     *
      *   If 'val' is a string, the function parses the string's contents as
      *   an integer in the numeric base given by 'radix, which can be any
      *   integer from 2 to 36.  If 'radix' is omitted or nil, the default is
      *   base 10 (decimal).  The value is returned as an integer.  If the
      *   number represented by the string is too large for a 32-bit integer,
      *   a numeric overflow error occurs.
-     *   
+     *
      *   If 'val' is true, or the string 'true', the return value is 1.  If
      *   'val' is nil, or the string 'nil', the return value is 0.  Leading
      *   and trailing spaces are ignored for these strings.
-     *   
+     *
      *   If 'val' is a BigNumber value, the value is rounded to the whole
      *   number, and returned as an integer value.  A numeric overflow error
      *   occurs if the number is out of range for a 32-bit integer.  (If you
      *   want to round a BigNumber to the nearest integer and get the result
      *   as another BigNumber value, use the getWhole() method of the
      *   BigNumber.)
-     *   
+     *
      *   See also toNumber(), which can also parse floating point values and
-     *   whole numbers too large for the ordinary integer type.  
+     *   whole numbers too large for the ordinary integer type.
      */
     toInteger(val, radix?);
 
-    /* 
+    /*
      *   Get the current local time.
-     *   
+     *
      *   If timeType is GetTimeDateAndTime (or is omitted), this returns the
      *   calendar date and wall-clock time, as a list: [year, month,
      *   dayOfMonth, dayOfWeek, dayOfYear, hour, minute, second, timer].
@@ -302,7 +302,7 @@ intrinsic 'tads-gen/030008'
      *   midnight UTC.  (This is the Epoch that Unix-like systems use, so it
      *   appears frequently in computer timekeeping systems.)  See the Date
      *   class for more comprehensive date/time handling.
-     *   
+     *
      *   If timeType is GetTimeTicks, this return the number of milliseconds
      *   since an arbitrary starting time.  The first call to get this
      *   information sets the starting time, so it will return zero;
@@ -313,7 +313,7 @@ intrinsic 'tads-gen/030008'
      *   runs continuously for more than this, the timer value will roll
      *   around to zero at each 24.8 day multiple.  So, it's possible for
      *   this function to return a smaller value than on a previous
-     *   invocation, if the two invocations straddle a 24.8-day boundary.  
+     *   invocation, if the two invocations straddle a 24.8-day boundary.
      */
     getTime(timeType?);
 
@@ -327,7 +327,7 @@ intrinsic 'tads-gen/030008'
      *   value of zero doesn't indicate failure - rather, it indicates a
      *   successful match of the pattern to zero characters.  This is
      *   possible for a pattern with a zero-or-more closure, such as 'x*' or
-     *   'x?'.)  
+     *   'x?'.)
      */
     rexMatch(pat, str, index?);
 
@@ -341,7 +341,7 @@ intrinsic 'tads-gen/030008'
      *   pattern isn't found, returns nil.  If a match is found, the return
      *   value is a list: [index, length, string], where index is the
      *   starting character index of the match, length is the length in
-     *   characters of the match, and string is the text of the match.  
+     *   characters of the match, and string is the text of the match.
      */
     rexSearch(pat, str, index?);
 
@@ -359,7 +359,7 @@ intrinsic 'tads-gen/030008'
      *   list: [index, length, string], where index is the character index
      *   within the matched or searched string of the start of the group
      *   match, length is the character length of the group match, and string
-     *   is the text of the group match.  
+     *   is the text of the group match.
      */
     rexGroup(groupNum);
 
@@ -368,7 +368,7 @@ intrinsic 'tads-gen/030008'
      *   as a regular expression string or as a RexPattern object) within the
      *   given string, and replace one or more occurrences of the pattern
      *   with the given replacement text.
-     *   
+     *
      *   The search pattern can also be given as a *list* of search patterns.
      *   In this case, we'll search for each of the patterns and replace each
      *   one with the corresponding replacement text.  If the replacement is
@@ -378,18 +378,18 @@ intrinsic 'tads-gen/030008'
      *   replaced by empty strings; any extra replacements are simply
      *   ignored.  If the replacement is a single value rather than a list,
      *   each pattern is replaced by that single replacement value.
-     *   
+     *
      *   'flags' is a combination of the ReplaceXxx bit flags, using '|'.  If
      *   the flags include ReplaceAll, all occurrences of the pattern are
      *   replaced; otherwise only the first occurrence is replaced.
-     *   
+     *
      *   ReplaceOnce and ReplaceAll are mutually exclusive; they mean,
      *   respectively, that only the first occurrence of the match should be
      *   replaced, or that every occurrence should be replaced.  ReplaceOnce
      *   and ReplaceAll are ignored if a 'limit' value is specified (this is
      *   true even if 'limit' is nil, which means that all occurrences are
      *   replaced).
-     *   
+     *
      *   If ReplaceIgnoreCase is included, the capitalization of the match
      *   pattern is ignored, so letters in the pattern match both their
      *   upper- and lower-case equivalents.  Otherwise the case will be
@@ -401,7 +401,7 @@ intrinsic 'tads-gen/030008'
      *   changed to all upper-case; if there's a mix of cases in the match,
      *   the first letter of the replacement is capitalized and the rest are
      *   left in lower-case.
-     *   
+     *
      *   The ReplaceSerial flag controls how the search proceeds when
      *   multiple patterns are specified.  By default, we search for each one
      *   of the patterns, and replace the leftmost match.  If ReplaceOnce is
@@ -416,11 +416,11 @@ intrinsic 'tads-gen/030008'
      *   first pattern, we start over with the result and search for the
      *   second pattern, replacing one or all occurrences of it.  We repeat
      *   this for each pattern.
-     *   
+     *
      *   If the flags are omitted entirely, the default is ReplaceAll (which
      *   means replace all occurrences, exact case matches only, parallel
      *   searching).
-     *   
+     *
      *   'index', if provided, is the starting character index of the search;
      *   instances of the pattern before this index will be ignored.  Returns
      *   the result string with all of the desired replacements.  When an
@@ -428,18 +428,18 @@ intrinsic 'tads-gen/030008'
      *   string is not rescanned for further occurrences of the text, so
      *   there's no danger of infinite recursion; instead, scanning proceeds
      *   from the next character after the replacement text.
-     *   
+     *
      *   'limit', if specified, is an integer indicating the maximum number
      *   of matches to replace, or nil to replace all matches.  If the limit
      *   is reached before all matches have been replaced, no further
      *   replacements are performed.  If this parameter is specified, it
      *   overrides any ReplaceOnce or ReplaceAll flag.
-     *   
+     *
      *   The replacement text can use "%n" sequences to substitute group
      *   matches from the input into the output.  %1 is replaced by the match
      *   to the first group, %2 the second, and so on.  %* is replaced by the
      *   entire matched input.  (Because of the special meaning of "%", you
-     *   must use "%%" to include a percent sign in the replacement text.)  
+     *   must use "%%" to include a percent sign in the replacement text.)
      */
     rexReplace(pat, str, replacement, flags?, index?, limit?);
 
@@ -460,7 +460,7 @@ intrinsic 'tads-gen/030008'
      *   (The system automatically limits the UNDO log's total memory
      *   consumption, according to local system parameters.  This function
      *   requires at least one savepoint to be present, because otherwise it
-     *   could create an inconsistent state.)  
+     *   could create an inconsistent state.)
      */
     undo();
 
@@ -469,7 +469,7 @@ intrinsic 'tads-gen/030008'
      *   VM's internal state-save mechanism to store the current state of all
      *   persistent objects in the given file.  Any existing file is
      *   overwritten.
-     *   
+     *
      *   'metatab' is an optional LookupTable containing string key/value
      *   pairs to be saved with the file as descriptive metadata.  The
      *   interpreter and other tools can display this information to the user
@@ -478,7 +478,7 @@ intrinsic 'tads-gen/030008'
      *   determine what to include; the list can include any information
      *   relevant to the game that would be helpful when reviewing saved
      *   position files, such as the room name, score, turn count, chapter
-     *   name, etc.  
+     *   name, etc.
      */
     saveGame(filename, metatab?);
 
@@ -486,14 +486,14 @@ intrinsic 'tads-gen/030008'
      *   Restore a previously saved state file.  This loads the states of all
      *   persistent objects stored in the given file.  The file must have
      *   been saved by the current version of the current running program; if
-     *   not, an exception is thrown.  
+     *   not, an exception is thrown.
      */
     restoreGame(filename);
 
     /*
      *   Restart the program from the beginning.  This resets all persistent
      *   objects to their initial state, as they were when the program was
-     *   first started.  
+     *   first started.
      */
     restartGame();
 
@@ -502,7 +502,7 @@ intrinsic 'tads-gen/030008'
      *   comparable with the ordinary "<" and ">" operators.  Note that
      *   because this is an ordinary function call, all of the arguments are
      *   evaluated (which means any side effects of these evaluations will be
-     *   triggered).  
+     *   triggered).
      */
     max(val1, ...);
 
@@ -511,7 +511,7 @@ intrinsic 'tads-gen/030008'
      *   comparable with the ordinary "<" and ">" operators.  Note that
      *   because this is an ordinary function call, all of the arguments are
      *   evaluated (which means any side effects of these evaluations will be
-     *   triggered).  
+     *   triggered).
      */
     min(val1, ...);
 
@@ -526,7 +526,7 @@ intrinsic 'tads-gen/030008'
      *   can be used to create a string from a list of Unicode characters
      *   that you've been manipulating as a character array, which is
      *   sometimes a more convenient or efficient way to do certain types of
-     *   string handling than using the actual string type.  
+     *   string handling than using the actual string type.
      */
     makeString(val, repeatCount?);
 
@@ -537,7 +537,7 @@ intrinsic 'tads-gen/030008'
      *   arguments required by the function, optionalArgs is the additional
      *   number of arguments that can be optionally provided to the function,
      *   and isVarargs is true if the function takes any number of additional
-     *   ("varying") arguments, nil if not.  
+     *   ("varying") arguments, nil if not.
      */
     getFuncParams(func);
 
@@ -545,10 +545,10 @@ intrinsic 'tads-gen/030008'
      *   Convert the given value to a number.  This is similar to
      *   toInteger(), but can parse strings containing floating point numbers
      *   and whole numbers too large for ordinary integers.
-     *   
+     *
      *   If 'val' is an integer or BigNumber value, the return value is
      *   simply 'val'.
-     *   
+     *
      *   If 'val' is a string, the function parses the string's contents as a
      *   number in the given 'radix', which can be any integer from 2 to 36.
      *   If 'radix' is omitted, the default is 10 for decimal.  If the radix
@@ -563,10 +563,10 @@ intrinsic 'tads-gen/030008'
      *   the first non-number character it encounters, so no error will occur
      *   if the string contains text following the number.  If the text
      *   doesn't contain any number characters at all, the result is zero.
-     *   
+     *
      *   If val is true or the string 'true', return 1; if nil or the string
      *   'nil', returns 0.  Leading and trailing spaces are ignored in the
-     *   string versions of these values.  
+     *   string versions of these values.
      */
     toNumber(val, radix?);
 
@@ -576,7 +576,7 @@ intrinsic 'tads-gen/030008'
      *   containing a mix of plain text and substitution parameters, and a
      *   set of values to plug in to the substitution parameters, and returns
      *   a new string containing the formatted result.
-     *   
+     *
      *   'format' is the format string.  Most characters of the format string
      *   are simply copied verbatim to the result.  However, each '%' in the
      *   format string begins a substitution parameter; the '%' is followed
@@ -588,13 +588,13 @@ intrinsic 'tads-gen/030008'
      *   second '%' corresponds to the second additional argument, and so on.
      *   You can override the default argument position of a '%' using the
      *   '$' qualifier - see below.
-     *   
+     *
      *   The arguments following 'format' are the values to be substituted
      *   for the '%' parameters in the format string.
-     *   
+     *
      *   The return value is a string containing the formatted result.
-     *   
-     *   See the System Manual for the list of '%' codes.  
+     *
+     *   See the System Manual for the list of '%' codes.
      */
     sprintf(format, ...);
 
@@ -611,7 +611,7 @@ intrinsic 'tads-gen/030008'
      *   or a BigNumber; the return value is the absolute value of the
      *   argument, and has the same type as the argument.  (The absolute
      *   value of a positive number X (or zero) is X; the absolute value of a
-     *   negative number X is -X.) 
+     *   negative number X is -X.)
      */
     abs(num);
 
@@ -629,7 +629,7 @@ intrinsic 'tads-gen/030008'
      *   first converted to strings using the same rules that "+" uses when
      *   combining a string with a non-string.  If there are no arguments,
      *   the result is an empty string.
-     *   
+     *
      *   This function is essentially the same as concatenating a series of
      *   values with the "+" operator, but it's more efficient with three or
      *   more values, since the "+" operator has to be applied successively
@@ -649,19 +649,19 @@ intrinsic 'tads-gen/030008'
      *   position just after the last character of the string).  If 'index'
      *   is omitted, the default is to search the entire string from the end,
      *   which is equivalent to passing 0 or str.length()+1 for 'index'.
-     *   
+     *
      *   If a match is found, the return value is a list: [index, length,
      *   string], where index is the starting character index of the match,
      *   length is the length in characters of the match, and string is the
      *   text of the match.
-     *   
+     *
      *   This does the same work as rexSearch(), but searches the string
      *   backwards, from the end to the start.  The match must end before the
      *   starting index, which allows for repeated searches: simply pass the
      *   match index from the previous search as the 'index' value for the
      *   next search to find the next earlier match that doesn't overlap the
      *   previous match.
-     *   
+     *
      *   The meanings of the <FirstBegin> and <FirstEnd> flags for a reverse
      *   search are essentially the mirror image of their meanings in a
      *   regular forward search.  This is easiest to understand by thinking
@@ -688,7 +688,7 @@ intrinsic 'tads-gen/030008'
 #define ObjAll        (ObjInstances | ObjClasses)
 
 /*
- *   rexReplace() flags 
+ *   rexReplace() flags
  */
 #define ReplaceAll         0x0001
 #define ReplaceIgnoreCase  0x0002
@@ -697,7 +697,7 @@ intrinsic 'tads-gen/030008'
 #define ReplaceOnce        0x0010
 
 /*
- *   getTime() flags 
+ *   getTime() flags
  */
 #define GetTimeDateAndTime  1
 #define GetTimeTicks        2
@@ -707,19 +707,19 @@ intrinsic 'tads-gen/030008'
  */
 
 /*
- *   
+ *
  *   RNG_ISAAC - ISAAC is the default generator.  It's designed for both
  *   cryptographic application and more mainstream uses.  Crypto applications
  *   generally have more stringent requirements for an RNG than ordinary
  *   applications.  ISAAC does well with the usual statistical tests for RNGs
  *   and is reasonably fast.
- *   
+ *
  *   ISAAC's preferred format for a fixed seed is a string value.
  */
 #define RNG_ISAAC    1
 
 
-/*   
+/*
  *   RNG_LCG - LCG stands for Linear Congruential Generator, which generates
  *   numbers using a simple linear formula.  This is the old standby of
  *   computer RNGs; it's the sort that comes standard with C compilers.
@@ -727,7 +727,7 @@ intrinsic 'tads-gen/030008'
  *   statistical properties and a number of known weaknesses.  The TADS LCG
  *   uses the method described in Knuth, The Art of Computer Programming,
  *   volume 2, p170.
- *   
+ *
  *   The LCG's preferred format for a fixed seed is an integer value.
  */
 #define RNG_LCG      2
@@ -739,7 +739,7 @@ intrinsic 'tads-gen/030008'
  *   remedy most of the known shortcomings of linear congruential generators
  *   and other earlier RNGs.  It's fast and does well on standard statistical
  *   tests.
- *   
+ *
  *   MT's preferred format for a fixed seed is a string value.
  */
 #define RNG_MT19937  3

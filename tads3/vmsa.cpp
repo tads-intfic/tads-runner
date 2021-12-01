@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -20,7 +20,7 @@ Function
   Certain functions are needed only in special VM versions that support,
   for example, rebuilding of an image file after running 'preinit'.
 Notes
-  
+
 Modified
   07/21/99 MJRoberts  - Creation
 */

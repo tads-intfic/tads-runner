@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/LERMSG.C,v 1.2 1999/05/17 02:52:12 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1993 by Steve McAdams.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   lermsg.c - Library ERorr message handling routines
 Function
-  
+
 Notes
-  
+
 Modified
   01/04/93 SMcAdams - Creation from TADS errmsg.c
 */
@@ -35,7 +35,7 @@ Modified
 errcxdef *lerini()
 {
   errcxdef *errcx;                                         /* error context */
-  
+
   /* allocate an error context */
   if (!(errcx = ltk_suballoc(sizeof(errcxdef))))
   {

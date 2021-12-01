@@ -1,16 +1,16 @@
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmpool.cpp - constant pool - in-memory (non-swapping) implementation
 Function
-  
+
 Notes
-  
+
 Modified
   10/20/98 MJRoberts  - Creation
 */
@@ -26,12 +26,12 @@ Modified
 /*
  *   In-memory pool implementation.  This pool implementation pre-loads
  *   all available pages in the pool and keeps the complete pool in memory
- *   at all times. 
+ *   at all times.
  */
 
 /*
  *   delete the pool's resources - this is called from our destructor, and
- *   can also be called explicitly to reset the pool 
+ *   can also be called explicitly to reset the pool
  */
 void CVmPoolInMem::terminate_nv()
 {
@@ -40,7 +40,7 @@ void CVmPoolInMem::terminate_nv()
 }
 
 /*
- *   free pages that we allocated from the backing store 
+ *   free pages that we allocated from the backing store
  */
 void CVmPoolInMem::free_backing_pages()
 {
@@ -52,10 +52,10 @@ void CVmPoolInMem::free_backing_pages()
     if (backing_store_ == 0)
         return;
 
-    /* 
+    /*
      *   Run through the page array and delete each allocated page.  Since
      *   we allocate pages through the backing store, delete pages through
-     *   the backing store.  
+     *   the backing store.
      */
     for (i = 0, info = pages_, ofs = 0 ; i < page_slots_ ;
          ++i, ++info, ofs += page_size_)
@@ -73,14 +73,14 @@ void CVmPoolInMem::free_backing_pages()
 }
 
 /*
- *   initialize 
+ *   initialize
  */
 void CVmPoolInMem::attach_backing_store(CVmPoolBackingStore *backing_store)
 {
     size_t ofs;
     size_t i;
     CVmPool_pg *info;
-    
+
     /* do the normal initialization to allocate the page slots */
     CVmPoolPaged::attach_backing_store(backing_store);
 
@@ -90,7 +90,7 @@ void CVmPoolInMem::attach_backing_store(CVmPoolBackingStore *backing_store)
     {
         /* determine how much memory we really need for this page */
         info->siz = backing_store_->vmpbs_get_page_size(ofs, page_size_);
-        
+
         /* allocate and load the page */
         info->mem = backing_store_->vmpbs_alloc_and_load_page(
             ofs, page_size_, info->siz);
@@ -98,7 +98,7 @@ void CVmPoolInMem::attach_backing_store(CVmPoolBackingStore *backing_store)
 }
 
 /*
- *   Detach from the backing store 
+ *   Detach from the backing store
  */
 void CVmPoolInMem::detach_backing_store()
 {

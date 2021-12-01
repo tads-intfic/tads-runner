@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -20,7 +20,7 @@ Function
   one set is required or allowed in a given executable, so we can omit
   this version when linking with the HTML TADS code).
 Notes
-  
+
 Modified
   10/08/99 MJRoberts  - Creation
 */
@@ -34,7 +34,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Debugging routines for memory management 
+ *   Debugging routines for memory management
  */
 
 #ifdef T3_DEBUG

@@ -2,11 +2,11 @@
 $Header: d:/cvsroot/tads/TADS2/LIB.H,v 1.2 1999/05/17 02:52:12 MJRoberts Exp $
 */
 
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -105,9 +105,9 @@ typedef int            eword;
 # define NOREG(arglist) osnoreg arglist ;
 #endif /* OSANSI */
 
-/* 
+/*
  *   Linting directives.  You can define these before including this file
- *   if you have a fussy compiler.  
+ *   if you have a fussy compiler.
  */
 #ifdef LINT
 # ifndef NOTREACHED
@@ -145,7 +145,7 @@ void varused();
 
 /*
  *   Define our own version of isspace(), so that we don't try to interpret
- *   anything outside of the normal ASCII set as spaces. 
+ *   anything outside of the normal ASCII set as spaces.
  */
 #define t_isspace(c) \
     (((unsigned char)(c)) <= 127 && isspace((unsigned char)(c)))

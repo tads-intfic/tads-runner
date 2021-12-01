@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -37,7 +37,7 @@ Modified
 #include "charmap.h"
 
 /*
- *   formatted text-only file prompt 
+ *   formatted text-only file prompt
  */
 int CVmConsole::askfile(VMG_ const char *prompt, size_t prompt_len,
                         char *reply, size_t replen,
@@ -51,14 +51,14 @@ int CVmConsole::askfile(VMG_ const char *prompt, size_t prompt_len,
 
     /* flush any pending output */
     flush(vmg_ VM_NL_INPUT);
-    
+
     /* translate the prompt to the local UI character set */
     prompt_ui_len = G_cmap_to_ui->map_utf8(prompt_ui, sizeof(prompt_ui) - 1,
                                            prompt, prompt_len, 0);
-    
+
     /* null-terminate the translated prompt */
     prompt_ui[prompt_ui_len] = '\0';
-    
+
     /* let the system handle it */
     result = os_askfile(prompt, fname, sizeof(fname),
                         dialog_type, file_type);
@@ -68,12 +68,12 @@ int CVmConsole::askfile(VMG_ const char *prompt, size_t prompt_len,
     {
         char *dst;
         size_t dstlen;
-        
-        /* 
+
+        /*
          *   The result string is in the local UI character set, so we
          *   must translate it to UTF-8 for the caller.  Note that we
          *   reserve one byte of the result buffer for the null
-         *   terminator.  
+         *   terminator.
          */
         dst = reply;
         dstlen = replen - 1;

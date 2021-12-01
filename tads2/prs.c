@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/PRS.C,v 1.2 1999/05/17 02:52:13 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -56,13 +56,13 @@ static prsndef *prsxexp(prscxdef *ctx, int inlist);
 void prsdef(prscxdef *ctx, tokdef *tok, int typ)
 {
     toktdef *tab;
-    
+
     tab = (typ == TOKSTLABEL ? ctx->prscxgtab : ctx->prscxstab);
-    
+
     if (tok->toktyp == TOKTSYMBOL && tok->toksym.tokstyp == TOKSTUNK)
     {
         if (!tab) errsig(ctx->prscxerr, ERR_UNDFSYM);
-                         
+
         /* see if it's been defined since we last looked */
         if (!(*tab->toktfsea)(tab, tok->toknam, tok->toklen,
                               tok->tokhash, &tok->toksym))
@@ -93,7 +93,7 @@ void prsdef(prscxdef *ctx, tokdef *tok, int typ)
         case TOKSTEXTERN:
             tok->toksym.toksval = ctx->prscxextc++;
             break;
-            
+
         case TOKSTLABEL:
             tok->toksym.toksval = emtglbl(ctx->prscxemt);
             break;
@@ -153,19 +153,19 @@ prpnum prsrqpr(prscxdef *ctx)
 {
     tokdef *tok = &ctx->prscxtok->tokcxcur;
     prpnum  ret;
-        
+
     /* make sure we get a symbol */
     if (tok->toktyp != TOKTSYMBOL)
         errsig(ctx->prscxerr, ERR_REQSYM);
-    
+
     /* if it's an undefined symbol, make it a property id */
     if (tok->toksym.tokstyp == TOKSTUNK)
         prsdef(ctx, tok, TOKSTPROP);
-    
+
     /* make sure we have a property */
     if (tok->toksym.tokstyp != TOKSTPROP)
         errsig(ctx->prscxerr, ERR_REQPRP);
-    
+
     ret = tok->toksym.toksval;
     toknext(ctx->prscxtok);
     return(ret);
@@ -194,7 +194,7 @@ void prssigreq(prscxdef *ctx, int t)
         { TOKTEQ, "'='" },
         { 0, (char *)0 }
     };
-                    
+
     for (i = 0 ; toklist[i].toknam ; ++i)
     {
         if (toklist[i].tokid == t)
@@ -212,7 +212,7 @@ void prssigreq(prscxdef *ctx, int t)
 void prsreq(prscxdef *ctx, int t)
 {
     tokdef *tok = &ctx->prscxtok->tokcxcur;
-    
+
     if (tok->toktyp != t)
         prssigreq(ctx, t);
     toknext(ctx->prscxtok);
@@ -256,7 +256,7 @@ static prsndef *prsalo(prscxdef *ctx, int subnodes)
         siz += (subnodes * sizeof(prsndef *));
     else
         siz += sizeof(tokdef);
-    
+
     return((prsndef *)prsbalo(ctx, siz));
 }
 
@@ -266,7 +266,7 @@ ushort prsxsst(prscxdef *ctx)
     /* make sure there's space for the length prefix (a ushort) */
     if (ctx->prscxnrem < 2)
         errsig(ctx->prscxerr, ERR_NONODE);
-    
+
     ctx->prscxsofs = ctx->prscxnode - &ctx->prscxpool[0];
     ctx->prscxnode += 2;
     ctx->prscxnrem -= 2;
@@ -280,7 +280,7 @@ void prsxsad(prscxdef *ctx, char *p, ushort len)
     /* make sure there's room for the extra bytes */
     if (ctx->prscxnrem < len)
         errsig(ctx->prscxerr, ERR_NONODE);
-    
+
     memcpy(ctx->prscxnode, p, (size_t)len);
     ctx->prscxnode += len;
     ctx->prscxnrem -= len;
@@ -292,13 +292,13 @@ void prsxsend(prscxdef *ctx)
 {
     ushort siz;
     ushort rounded;
-    
+
     /* figure total size of string, including padding for alignment */
     siz = ctx->prscxslen;
-    
+
     /* write length at beginning of string */
     oswp2(&ctx->prscxpool[ctx->prscxsofs], siz);
-    
+
     /* if desired, write the string to the strings file */
     if (ctx->prscxstrfile != 0)
     {
@@ -326,28 +326,28 @@ void prsxsend(prscxdef *ctx)
 static prsndef *prslst(prscxdef *ctx)
 {
     prsndef *node = (prsndef *)0;
-    
+
     for (;;)
     {
         if (ctx->prscxtok->tokcxcur.toktyp == TOKTRBRACK) break;
         node = prsnew2(ctx, TOKTRBRACK, prsxexp(ctx, TRUE), node);
-        
+
         /* allow optional comma (just skip it if one is present) */
         if (ctx->prscxtok->tokcxcur.toktyp == TOKTCOMMA)
             toknext(ctx->prscxtok);
     }
     toknext(ctx->prscxtok);                       /* skip the right bracket */
-    
+
     /* if it's an empty list, make an empty list token for it */
     if (!node)
     {
         tokdef t;
-        
+
         t.toktyp = TOKTLIST;
         t.tokofs = 0;
         node = prsnew0(ctx, &t);
     }
-    
+
     return(node);
 }
 
@@ -356,7 +356,7 @@ prsndef *prsnew4(prscxdef *ctx, int t, prsndef *n1, prsndef *n2,
                  prsndef *n3, prsndef *n4)
 {
     prsndef *n = prsalo(ctx, 4);
-    
+
     n->prsntyp = t;
     n->prsnnlf = 4;
     n->prsnv.prsnvn[0] = n1;
@@ -370,7 +370,7 @@ prsndef *prsnew4(prscxdef *ctx, int t, prsndef *n1, prsndef *n2,
 prsndef *prsnew3(prscxdef *ctx, int t, prsndef *n1, prsndef *n2, prsndef *n3)
 {
     prsndef *n = prsalo(ctx, 3);
-    
+
     n->prsntyp = t;
     n->prsnnlf = 3;
     n->prsnv.prsnvn[0] = n1;
@@ -383,7 +383,7 @@ prsndef *prsnew3(prscxdef *ctx, int t, prsndef *n1, prsndef *n2, prsndef *n3)
 prsndef *prsnew2(prscxdef *ctx, int t, prsndef *n1, prsndef *n2)
 {
     prsndef *n = prsalo(ctx, 2);
-    
+
     n->prsntyp = t;
     n->prsnnlf = 2;
     n->prsnv.prsnvn[0] = n1;
@@ -406,7 +406,7 @@ prsndef *prsnew1(prscxdef *ctx, int t, prsndef *n)
 prsndef *prsnew0(prscxdef *ctx, tokdef *tokp)
 {
     prsndef *n = prsalo(ctx, 0);
-    
+
     n->prsntyp = 0;                                           /* value node */
     n->prsnnlf = 0;
     OSCPYSTRUCT(n->prsnv.prsnvt, *tokp);
@@ -539,7 +539,7 @@ static prsndef *prsxbin(prscxdef *ctx, prsbdef *binctx)
     prsndef *n;
     int      t;
     int     *lp;
-    
+
     n = (*binctx->prsblf)(ctx, binctx->prsbctx);
     do
     {
@@ -550,7 +550,7 @@ static prsndef *prsxbin(prscxdef *ctx, prsbdef *binctx)
             /*
              *   if inside a list, check to see if this is a binary
              *   operator that can also server as a unary operator -- if
-             *   so, interpret it as a unary operator and warn about it 
+             *   so, interpret it as a unary operator and warn about it
              */
             if (ctx->prscxflg & PRSCXFLST)
             {
@@ -590,7 +590,7 @@ static prsndef *prsxbin(prscxdef *ctx, prsbdef *binctx)
         else
             break;
     } while (binctx->prsbrpt);
-    
+
     return(n);
 }
 
@@ -598,20 +598,20 @@ static prsndef *prsxarg(prscxdef *ctx)
 {
     prsndef *n;
     int      t;
-    
+
     /* arguments are assignments:  just under comma-expressions */
     n = prsxbin(ctx, prs_cmode(ctx) ? &prsb_asi_C : &prsb_asi);
-    
+
     t = ctx->prscxtok->tokcxcur.toktyp;
     toknext(ctx->prscxtok);
     switch(t)
     {
     case TOKTRPAR:
         return(n);
-        
+
     case TOKTCOMMA:
         return(prsnew2(ctx, TOKTRPAR, n, prsxarg(ctx)));
-        
+
     default:
         errsig(ctx->prscxerr, ERR_REQARG);
         NOTREACHEDV(prsndef *);
@@ -625,7 +625,7 @@ static prsndef *prsxatm(prscxdef *ctx)
     tokdef  *tok = &ctx->prscxtok->tokcxcur;
     tokdef   newtok;
     prpnum   pr;
-    
+
     switch(tok->toktyp)
     {
     case TOKTPOUND:
@@ -646,17 +646,17 @@ static prsndef *prsxatm(prscxdef *ctx)
             newtok.tokofs = pr;
             return(prsnew0(ctx, &newtok));
         }
-        
+
     case TOKTLPAR:
         toknext(ctx->prscxtok);
         n = prsxexp(ctx, FALSE);
         prsreq(ctx, TOKTRPAR);
         return(n);
-        
+
     case TOKTLBRACK:
         toknext(ctx->prscxtok);
         return(prslst(ctx));
-        
+
     case TOKTNUMBER:
     case TOKTNIL:
     case TOKTTRUE:
@@ -666,16 +666,16 @@ static prsndef *prsxatm(prscxdef *ctx)
         n = prsnew0(ctx, tok);
         toknext(ctx->prscxtok);
         return n;
-        
+
     case TOKTSYMBOL:
         /* create a new terminal node for the symbol */
         n = prsnew0(ctx, tok);
         toknext(ctx->prscxtok);
 
-        /* 
+        /*
          *   if it was 'inherited', and there's another symbol name
          *   following, we have the explicit superclass notation - parse
-         *   it 
+         *   it
          */
         if (n->prsnv.prsnvt.toksym.tokstyp == TOKSTINHERIT
             && tok->toktyp == TOKTSYMBOL)
@@ -692,7 +692,7 @@ static prsndef *prsxatm(prscxdef *ctx)
 
         /* return the new node */
         return n;
-        
+
     default:
         errsig(ctx->prscxerr, ERR_REQOPN);
         return 0;
@@ -706,7 +706,7 @@ static prsndef *prsxmem(prscxdef *ctx)
     tokdef  *tok;
     tokdef   newtok;
     prpnum   prop;
-    
+
     n1 = prsxatm(ctx);
     for ( ;; )
     {
@@ -744,7 +744,7 @@ static prsndef *prsxmem(prscxdef *ctx)
                 n1 = prsnew2(ctx, TOKTDOT, n1, n2);
 
             break;
-            
+
         case TOKTLBRACK:
             if (ctx->prscxflg & PRSCXFLST) return(n1);
             toknext(ctx->prscxtok);
@@ -752,7 +752,7 @@ static prsndef *prsxmem(prscxdef *ctx)
             n1 = prsnew2(ctx, TOKTLBRACK, n1, n2);
             prsreq(ctx, TOKTRBRACK);
             break;
-            
+
         case TOKTLPAR:
             if (toknext(ctx->prscxtok) == TOKTRPAR)
             {
@@ -762,13 +762,13 @@ static prsndef *prsxmem(prscxdef *ctx)
             else
                 n1 = prsnew2(ctx, TOKTLPAR, n1, prsxarg(ctx));
             break;
-            
+
         case TOKTINC:
         case TOKTDEC:
             n1 = prsnew1(ctx, tok->toktyp + 1, n1);
             toknext(ctx->prscxtok);
             return(n1);
-            
+
         default:
             return(n1);
         }
@@ -779,7 +779,7 @@ static prsndef *prsxmem(prscxdef *ctx)
 static prsndef *prsxun(prscxdef *ctx, prsbdef *binctx)
 {
     int      t;
-    
+
     VARUSED(binctx);
 
     t = ctx->prscxtok->tokcxcur.toktyp;
@@ -810,7 +810,7 @@ static prsndef *prsxun(prscxdef *ctx, prsbdef *binctx)
 static prsndef *prsxcnd(prscxdef *ctx, prsbdef *binctx)
 {
     prsndef *n1, *n2;
-    
+
     VARUSED(binctx);
 
     n1 = prsxbin(ctx, prs_cmode(ctx) ? &prsb_or_C : &prsb_or);
@@ -831,7 +831,7 @@ static prsndef *prsxexp(prscxdef *ctx, int inlist)
 {
     ushort   oldflg = ctx->prscxflg;
     prsndef *retval;
-    
+
     if (inlist)
     {
         ctx->prscxflg |= PRSCXFLST;
@@ -842,7 +842,7 @@ static prsndef *prsxexp(prscxdef *ctx, int inlist)
         ctx->prscxflg &= ~PRSCXFLST;
         retval = prsxbin(ctx, prs_cmode(ctx) ? &prsb_cma_C : &prsb_cma);
     }
-    
+
     ctx->prscxflg = oldflg;
     return(retval);
 }
@@ -858,7 +858,7 @@ static prsndef *prsfold(prscxdef *ctx, prsndef *node)
     int       typ1, typ2;
     long      val1, val2;
     prsndef  *ncur;
-    
+
     can_fold = TRUE;                       /* assume we can do some folding */
 
     /* if this is a list-construction node, special handling is needed */
@@ -874,14 +874,14 @@ static prsndef *prsfold(prscxdef *ctx, prsndef *node)
                  && typ != TOKTNIL && typ != TOKTTRUE && typ != TOKTPOUND
                  && typ != TOKTSYMBOL))
                 can_fold = FALSE;              /* not constant - can't fold */
-            
+
             if (typ == TOKTSYMBOL
                 && (ncur->prsnv.prsnvn[0]->prsnv.prsnvt.toksym.tokstyp
                     == TOKSTLOCAL
                     || ncur->prsnv.prsnvn[0]->prsnv.prsnvt.toksym.tokstyp
                     == TOKSTSELF))
                 can_fold = FALSE;
-            
+
             if (ncur->prsnv.prsnvn[0]->prsnnlf == 0 && typ == TOKTSYMBOL)
                 prsdef(ctx, &ncur->prsnv.prsnvn[0]->prsnv.prsnvt,
                        TOKSTFWDOBJ);
@@ -892,15 +892,15 @@ static prsndef *prsfold(prscxdef *ctx, prsndef *node)
             emtlidef *lst;
             prsndef  *retval;
             emtledef *ele;
-            
+
             lst = (emtlidef *)prsbalo(ctx, (uint)(sizeof(emtlidef) +
                                                  (i - 1) * sizeof(emtledef)));
             t.toktyp = TOKTLIST;
             t.tokofs = ((uchar *)lst) - &ctx->prscxpool[0];
             retval = prsnew0(ctx, &t);
-            
+
             lst->emtlicnt = i;
-            
+
             for (ele = &lst->emtliele[0] ; node ;
                    node = node->prsnv.prsnvn[1], ++ele)
             {
@@ -912,7 +912,7 @@ static prsndef *prsfold(prscxdef *ctx, prsndef *node)
                 case TOKTPOUND:
                     ele->emtleval = ncur->prsnv.prsnvt.tokofs;
                     break;
-                    
+
                 case TOKTSYMBOL:
                     switch(ncur->prsnv.prsnvt.toksym.tokstyp)
                     {
@@ -935,7 +935,7 @@ static prsndef *prsfold(prscxdef *ctx, prsndef *node)
                     }
                     ele->emtleval = ncur->prsnv.prsnvt.toksym.toksval;
                     break;
-                    
+
                 default:
                     ele->emtleval = ncur->prsnv.prsnvt.tokval;
                     break;
@@ -946,10 +946,10 @@ static prsndef *prsfold(prscxdef *ctx, prsndef *node)
         }
         return(node);
     }
-    
+
     /*
      *   If we have sub-nodes, try to fold them.  If they fold down to
-     *   leaf nodes, we can try to apply the expression to them. 
+     *   leaf nodes, we can try to apply the expression to them.
      */
     for (i = node->prsnnlf, n = &node->prsnv.prsnvn[0] ; i ; ++n, --i)
     {
@@ -970,18 +970,18 @@ static prsndef *prsfold(prscxdef *ctx, prsndef *node)
         tok1 = &node->prsnv.prsnvn[0]->prsnv.prsnvt;
         typ1 = tok1->toktyp;
         val1 = tok1->tokval;
-        
+
         switch(node->prsntyp)
         {
         case TOKTPLUS:
             break;
-            
+
         case TOKTMINUS:
             if (typ1 != TOKTNUMBER)
                 errsig(ctx->prscxerr, ERR_INVOP);
             tok1->tokval = -val1;
             break;
-            
+
         case TOKTNOT:
             if (!prsvlog(typ1))
                 errsig(ctx->prscxerr, ERR_INVOP);
@@ -994,12 +994,12 @@ static prsndef *prsfold(prscxdef *ctx, prsndef *node)
                 errsig(ctx->prscxerr, ERR_INVOP);
             tok1->tokval = ~val1;
             break;
-            
+
         default:
             return(node);
         }
         break;
-        
+
     case 2:
         tok1 = &node->prsnv.prsnvn[0]->prsnv.prsnvt;
         tok2 = &node->prsnv.prsnvn[1]->prsnv.prsnvt;
@@ -1007,7 +1007,7 @@ static prsndef *prsfold(prscxdef *ctx, prsndef *node)
         val2 = tok2->tokval;
         typ1 = tok1->toktyp;
         typ2 = tok2->toktyp;
-        
+
         switch(node->prsntyp)
         {
         case TOKTOR:
@@ -1028,7 +1028,7 @@ static prsndef *prsfold(prscxdef *ctx, prsndef *node)
             if (typ1 == TOKTSSTRING || typ1 == TOKTLIST || typ2 == TOKTLIST)
                 return(node);
             /* FALLTHROUGH */
-            
+
         case TOKTEQ:
         case TOKTNE:
         case TOKTGT:
@@ -1107,19 +1107,19 @@ static prsndef *prsfold(prscxdef *ctx, prsndef *node)
             case TOKTGE:
                 typ1 = (val1 >= val2 ? TOKTTRUE : TOKTNIL);
                 break;
-                
+
             default:
                 return(node);
             }
             tok1->toktyp = typ1;
             tok1->tokval = val1;
             break;
-            
+
         default:
             return(node);
         }
         break;
-        
+
     case 3:
         tok1 = &node->prsnv.prsnvn[0]->prsnv.prsnvt;
         if (!prsvlog(tok1->toktyp)) errsig(ctx->prscxerr, ERR_INVOP);
@@ -1127,7 +1127,7 @@ static prsndef *prsfold(prscxdef *ctx, prsndef *node)
             return(node->prsnv.prsnvn[1]);
         else
             return(node->prsnv.prsnvn[2]);
-        
+
     default:
         return(node);
     }
@@ -1140,7 +1140,7 @@ static prsndef *prsfold(prscxdef *ctx, prsndef *node)
 prsndef *prsxini(prscxdef *ctx)
 {
     prsndef *node;
-    
+
     node = prsxbin(ctx, (prs_cmode(ctx) ? &prsb_asi_C : &prsb_asi));
     return(prsfold(ctx, node));                           /* fold constants */
 }
@@ -1163,15 +1163,15 @@ void prsxgen(prscxdef *ctx)
 }
 
 /*
- *   Check a parse tree for speculative execution problems.  
+ *   Check a parse tree for speculative execution problems.
  */
 static void prs_check_spec(prscxdef *ctx, prsndef *expr)
 {
     int i;
-    
-    /* 
+
+    /*
      *   check the type of this node - if it's an assignment or a function
-     *   call, prohibit it 
+     *   call, prohibit it
      */
     if (expr->prsnnlf == 0)
     {
@@ -1181,10 +1181,10 @@ static void prs_check_spec(prscxdef *ctx, prsndef *expr)
             switch(expr->prsnv.prsnvt.toksym.tokstyp)
             {
             case TOKSTPROP:
-                /* 
+                /*
                  *   convert this to a speculative evaluation property, so
                  *   that the emitter knows to emit the correct opcode for
-                 *   it 
+                 *   it
                  */
                 expr->prsnv.prsnvt.toksym.tokstyp = TOKSTPROPSPEC;
                 break;
@@ -1231,21 +1231,21 @@ static void prs_check_spec(prscxdef *ctx, prsndef *expr)
         case TOKTRPAR:
             /* assignments and function calls are all prohibited */
             errsig(ctx->prscxerr, ERR_BADSPECEXPR);
-            
+
         case TOKTDOT:
             /* property lookup - only allow no argument version */
             if (expr->prsnnlf == 3)
                 errsig(ctx->prscxerr, ERR_BADSPECEXPR);
-            
+
             /* replace with data-only (no method call) version */
             expr->prsntyp = TOKTDOTSPEC;
             break;
-            
+
         default:
             /* other expressions are acceptable */
             break;
         }
-        
+
         /* go through all subnodes of this node */
         for (i = 0 ; i < expr->prsnnlf ; ++i)
             prs_check_spec(ctx, expr->prsnv.prsnvn[i]);
@@ -1254,7 +1254,7 @@ static void prs_check_spec(prscxdef *ctx, prsndef *expr)
 
 /*
  *   Parse an expression and generate code for it using speculative
- *   evaluation rules 
+ *   evaluation rules
  */
 void prsxgen_spec(prscxdef *ctx)
 {
@@ -1274,7 +1274,7 @@ void prsxgen_spec(prscxdef *ctx)
 
 /*
  *   Parse an expression and generate code, checking the expression for a
- *   possibly incorrect assigment if in C mode. 
+ *   possibly incorrect assigment if in C mode.
  */
 void prsxgen_pia(prscxdef *ctx)
 {
@@ -1306,14 +1306,14 @@ uchar prsbopl[] =
 void prsgexp(prscxdef *ctx, prsndef *n)
 {
     int cnt;
-    
+
     switch(n->prsnnlf)
     {
     case 0:
         prsdef(ctx, &n->prsnv.prsnvt, TOKSTFWDOBJ);
         emtval(ctx->prscxemt, &n->prsnv.prsnvt, ctx->prscxpool);
         break;
-        
+
     case 1:
         switch(n->prsntyp)
         {
@@ -1323,7 +1323,7 @@ void prsgexp(prscxdef *ctx, prsndef *n)
         case TOKTPOSTDEC:
             prsglval(ctx, n->prsntyp, n->prsnv.prsnvn[0]);
             break;
-            
+
         case TOKTPLUS:
         case TOKTMINUS:
         case TOKTNOT:
@@ -1348,7 +1348,7 @@ void prsgexp(prscxdef *ctx, prsndef *n)
             errsig(ctx->prscxerr, ERR_REQUNO);
         }
         break;
-        
+
     case 2:
         switch(n->prsntyp)
         {
@@ -1356,7 +1356,7 @@ void prsgexp(prscxdef *ctx, prsndef *n)
         case TOKTOR:
         {
             uint lab;
-            
+
             lab = emtglbl(ctx->prscxemt);
             prsgexp(ctx, n->prsnv.prsnvn[0]);
             emtjmp(ctx->prscxemt,
@@ -1366,7 +1366,7 @@ void prsgexp(prscxdef *ctx, prsndef *n)
             emtslbl(ctx->prscxemt, &lab, TRUE);
             break;
         }
-        
+
         case TOKTPLUS:
         case TOKTMINUS:
         case TOKTDIV:
@@ -1387,17 +1387,17 @@ void prsgexp(prscxdef *ctx, prsndef *n)
             prsgexp(ctx, n->prsnv.prsnvn[1]);
             emtop(ctx->prscxemt, prsbopl[n->prsntyp - TOKTPLUS]);
             break;
-            
+
         case TOKTCOMMA:
             prsgexp(ctx, n->prsnv.prsnvn[0]);
             prsgexp(ctx, n->prsnv.prsnvn[1]);
             break;
-            
+
         case TOKTLPAR:                      /* function call with arguments */
             cnt = prsgargs(ctx, n->prsnv.prsnvn[1]);      /* push arguments */
             prsgfn(ctx, n->prsnv.prsnvn[0], cnt);
             break;
-        
+
         case TOKTASSIGN:
         case TOKTPLEQ:
         case TOKTMINEQ:
@@ -1412,7 +1412,7 @@ void prsgexp(prscxdef *ctx, prsndef *n)
             prsgexp(ctx, n->prsnv.prsnvn[1]);      /* eval right side of := */
             prsglval(ctx, n->prsntyp, n->prsnv.prsnvn[0]);
             break;
-            
+
         case TOKTDOT:
             prsgdot(ctx, n, 0);
             break;
@@ -1420,18 +1420,18 @@ void prsgexp(prscxdef *ctx, prsndef *n)
         case TOKTDOTSPEC:
             prsgdotspec(ctx, n);
             break;
-            
+
         case TOKTLBRACK:
             prsgexp(ctx, n->prsnv.prsnvn[0]);    /* push list being indexed */
             prsgexp(ctx, n->prsnv.prsnvn[1]);       /* push the index value */
             emtop(ctx->prscxemt, OPCINDEX);
             break;
-        
+
         case TOKTRBRACK:
         {
             prsndef *nsub;
             uint     cnt;
-            
+
             for (cnt = 0, nsub = n ; nsub
                  ; ++cnt, nsub = nsub->prsnv.prsnvn[1])
                 prsgexp(ctx, nsub->prsnv.prsnvn[0]);
@@ -1439,7 +1439,7 @@ void prsgexp(prscxdef *ctx, prsndef *n)
             emtint2(ctx->prscxemt, cnt);
             break;
         }
-            
+
         default:
             errsig(ctx->prscxerr, ERR_INVBIN);
         }
@@ -1452,7 +1452,7 @@ void prsgexp(prscxdef *ctx, prsndef *n)
         {
             uint lfalse;                          /* label for FALSE branch */
             uint ldone;                       /* label for end of condition */
-            
+
             prsgexp(ctx, n->prsnv.prsnvn[0]);         /* evaluate condition */
             lfalse = emtglbl(ctx->prscxemt);
             emtjmp(ctx->prscxemt, OPCJF, lfalse);
@@ -1477,30 +1477,30 @@ void prsgexp(prscxdef *ctx, prsndef *n)
 void prsgini(prscxdef *ctx, prsndef *node, uint curfr)
 {
     int lcl;
-    
+
     /* descend tree - always generate in order specified by user */
     if (node->prsnv.prsnvn[2])
         prsgini(ctx, node->prsnv.prsnvn[2], curfr);
-    
+
     /* generate OPCLINE if one was specified */
     if (node->prsnnlf == 4)
     {
         uchar *p;
         uint   oldofs;
-        
+
         /* tell the line source about the OPCLINE instruction */
         dbgclin(ctx->prscxtok, ctx->prscxemt->emtcxobj,
                 (uint)ctx->prscxemt->emtcxofs);
-        
+
         /* now actually emit the OPCLINE instruction */
         oldofs = ctx->prscxemt->emtcxofs;
         p = ctx->prscxpool + node->prsnv.prsnvn[3]->prsnv.prsnvt.tokofs;
         emtmem(ctx->prscxemt, p, (uint)(*(p + 1) + 1));
-        
+
         /* fix it up with the correct frame */
         emtint2at(ctx->prscxemt, curfr, oldofs + 2);
     }
-    
+
     prsgexp(ctx, node->prsnv.prsnvn[0]);
     emtop(ctx->prscxemt, OPCSETLCL);
     lcl = node->prsnv.prsnvn[1]->prsnv.prsnvt.tokval;
@@ -1515,10 +1515,10 @@ static void prsgfn(prscxdef *ctx, prsndef *n, int cnt)
             || n->prsnv.prsnvt.toksym.tokstyp != TOKSTLOCAL))
     {
         tokdef *t = &n->prsnv.prsnvt;
-        
+
         /* if symbol is undefined, add to symbol table as a new function */
         prsdef(ctx, t, TOKSTFWDFN);
-        
+
         /* non-local-var symbol: interpret as a function */
         switch(t->toksym.tokstyp)
         {
@@ -1577,14 +1577,14 @@ static void prsgdot(prscxdef *ctx, prsndef *n, int cnt)
             reg_op = OPCINHERIT;
             ptr_op = OPCPTRINH;
             break;
-            
+
         case TOKSTSELF:
             if (ctx->prscxflg & PRSCXFFUNC) errlog(ctx->prscxerr, ERR_NOSELF);
             slf = TRUE;
             reg_op = OPCGETPSELF;
             ptr_op = OPCGETPPTRSELF;
             break;
-            
+
         case TOKSTOBJ:
         case TOKSTFWDOBJ:
             objflg = TRUE;
@@ -1595,10 +1595,10 @@ static void prsgdot(prscxdef *ctx, prsndef *n, int cnt)
     else if (n0->prsnnlf == 1 && n0->prsntyp == TOKTEXPINH)
     {
         tokdef *sc_tok;
-        
-        /* 
+
+        /*
          *   explicit superclass inheritance - this is inheritance, but
-         *   with an explicit superclass value 
+         *   with an explicit superclass value
          */
         inh = TRUE;
         exp_inh = TRUE;
@@ -1615,11 +1615,11 @@ static void prsgdot(prscxdef *ctx, prsndef *n, int cnt)
         exp_inh_obj = sc_tok->toksym.toksval;
     }
 
-    /* 
+    /*
      *   push object whose property we're getting unless inheriting or
      *   getting a property of 'self' or of a fixed object (in which cases
      *   the object is implicit in the opcode, rather than being on the
-     *   stack) 
+     *   stack)
      */
     if (!inh && !slf && !objflg)
         prsgexp(ctx, n0);
@@ -1630,9 +1630,9 @@ static void prsgdot(prscxdef *ctx, prsndef *n, int cnt)
         /* RHS is a property symbol - do a simple GETP (or INHERIT) */
         prpnum prop = n1->prsnv.prsnvt.tokofs;
 
-        /* 
+        /*
          *   emit the opcode and argument count - use the regular
-         *   (non-pointer) opcode, since we have a regular property value 
+         *   (non-pointer) opcode, since we have a regular property value
          */
         emtop(ctx->prscxemt, reg_op);
         emtbyte(ctx->prscxemt, cnt);
@@ -1644,19 +1644,19 @@ static void prsgdot(prscxdef *ctx, prsndef *n, int cnt)
         /* add the property value */
         emtint2(ctx->prscxemt, prop);
 
-        /* 
+        /*
          *   if this is an "inherited" with an explicit superclass, add
-         *   the explicit superclass value 
+         *   the explicit superclass value
          */
         if (exp_inh)
             emtint2(ctx->prscxemt, exp_inh_obj);
     }
     else
     {
-        /* 
+        /*
          *   evaluate the LHS unconditionally, even if it's just a fixed
          *   object, since we have no special instruction that encodes an
-         *   object value in a pointer property evaluation 
+         *   object value in a pointer property evaluation
          */
         if (objflg)
             prsgexp(ctx, n0);
@@ -1664,16 +1664,16 @@ static void prsgdot(prscxdef *ctx, prsndef *n, int cnt)
         /* RHS is an expression - evaluate it */
         prsgexp(ctx, n1);
 
-        /* 
+        /*
          *   emit the opcode and the byte count - use the pointer opcode,
-         *   since we have a property pointer 
+         *   since we have a property pointer
          */
         emtop(ctx->prscxemt, ptr_op);
         emtbyte(ctx->prscxemt, cnt);
 
-        /* 
+        /*
          *   if this is an "inherited" with an explicit superclass, add
-         *   the explicit superclass value 
+         *   the explicit superclass value
          */
         if (exp_inh)
             emtint2(ctx->prscxemt, exp_inh_obj);
@@ -1733,7 +1733,7 @@ static uchar prsglcvt_ext[] =
     OPCASISHL,                                                       /* <<= */
     OPCASISHR                                                        /* >>= */
 };
-    
+
 /* generate code for an l-value */
 static void prsglval(prscxdef *ctx, int typ, prsndef *n)
 {
@@ -1750,7 +1750,7 @@ static void prsglval(prscxdef *ctx, int typ, prsndef *n)
         op = OPCASI_MASK | OPCASIEXT;
         op2 = prsglcvt_ext[typ - TOKTMODEQ];
     }
-    
+
     switch(n->prsnnlf)
     {
     case 0:
@@ -1777,7 +1777,7 @@ static void prsglval(prscxdef *ctx, int typ, prsndef *n)
                 {
                     if (ctx->prscxflg & PRSCXFFUNC)
                         errlog(ctx->prscxerr, ERR_NOSELF);
-                    
+
                     emtop(ctx->prscxemt, OPCPUSHSELF);
                     emtop(ctx->prscxemt, op | OPCASIPRP);
                     if (op2) emtop(ctx->prscxemt, op2);
@@ -1793,7 +1793,7 @@ static void prsglval(prscxdef *ctx, int typ, prsndef *n)
                 errlog(ctx->prscxerr, ERR_INVASI);
         }
         break;
-        
+
     case 2:
         switch(n->prsntyp)
         {
@@ -1803,7 +1803,7 @@ static void prsglval(prscxdef *ctx, int typ, prsndef *n)
                 int      base_opc;
                 int      direct_prop;
                 prpnum   prop;
-                    
+
                 /* generate the expression providing the object */
                 prsgexp(ctx, n->prsnv.prsnvn[0]);
 
@@ -1837,7 +1837,7 @@ static void prsglval(prscxdef *ctx, int typ, prsndef *n)
 
                 break;
             }
-            
+
         case TOKTLBRACK:
             prsgexp(ctx, n->prsnv.prsnvn[0]);             /* evaluate list  */
             prsgexp(ctx, n->prsnv.prsnvn[1]);             /* evaluate index */
@@ -1845,12 +1845,12 @@ static void prsglval(prscxdef *ctx, int typ, prsndef *n)
             if (op2) emtop(ctx->prscxemt, op2);
             prsglval(ctx, TOKTASSIGN, n->prsnv.prsnvn[0]);      /* set list */
             break;
-            
+
         default:
             errlog(ctx->prscxerr, ERR_INVASI);
         }
         break;
-        
+
     default:
         errlog(ctx->prscxerr, ERR_INVASI);
     }
@@ -1860,7 +1860,7 @@ static void prsglval(prscxdef *ctx, int typ, prsndef *n)
 static int prsgargs(prscxdef *ctx, prsndef *n)
 {
     int cnt = 0;
-    
+
     if (n->prsnnlf == 2 && n->prsntyp == TOKTRPAR)
     {
         cnt = prsgargs(ctx, n->prsnv.prsnvn[1]);
@@ -1868,7 +1868,7 @@ static int prsgargs(prscxdef *ctx, prsndef *n)
     }
     else
         prsgexp(ctx, n);
-    
+
     return(cnt + 1);
 }
 

@@ -384,7 +384,7 @@ md5_finish(md5_state_t *pms, md5_byte_t digest[16])
 
 /* ------------------------------------------------------------------------ */
 /*
- *   E-Z MD5 [MJR addition] 
+ *   E-Z MD5 [MJR addition]
  */
 void md5_ez(char *hash, const char *msg, size_t len)
 {
@@ -405,7 +405,7 @@ void md5_ez(char *hash, const char *msg, size_t len)
 }
 
 /*
- *   Hash a data source [MJR addition] 
+ *   Hash a data source [MJR addition]
  */
 void md5_datasrc(char *hash, class CVmDataSource *src, unsigned long len)
 {

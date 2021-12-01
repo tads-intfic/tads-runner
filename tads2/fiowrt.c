@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/FIOWRT.C,v 1.3 1999/07/11 00:46:29 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1992, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -56,7 +56,7 @@ static void fiowcls(osfildef *fp, errcxdef *ec, ulong respos)
 {
     ulong endpos;
     char  buf[4];
-    
+
     endpos = osfpos(fp);
     osfseek(fp, respos, OSFSK_SET);
     oswp4(buf, endpos);
@@ -68,7 +68,7 @@ static void fiowcls(osfildef *fp, errcxdef *ec, ulong respos)
 static void fiowrq(errcxdef *ec, osfildef *fp, objnum objn)
 {
     uchar buf[2];
-    
+
     oswp2(buf, objn);
     if (osfwb(fp, buf, 2)) errsig(ec, ERR_WRTGAM);
 }
@@ -118,20 +118,20 @@ static void fiowrtobj(void *ctx0, toksdef *t)
     uint       used;
     int        err = 0;
     ulong      startpos = osfpos(fp);
-    
+
     /* set up start of buffer to write */
     buf[0] = t->tokstyp;
     obj = t->toksval;
     oswp2(buf + 1, obj);
-    
+
     switch(t->tokstyp)
     {
     case TOKSTOBJ:
-        /* 
+        /*
          *   Mark object as finished with compilation.  Note that we must
          *   do this even though tcdmain() does this as well, because
          *   running preinit() might have updated properties since the
-         *   last time we marked objects.  
+         *   last time we marked objects.
          */
         objcomp(mctx, (objnum)obj, ctx->fiowcxdebug);
 
@@ -141,7 +141,7 @@ static void fiowrtobj(void *ctx0, toksdef *t)
         used = objfree(p);          /* size actually used in object */
         if (objflg(p) & OBJFINDEX) used += objnprop(p) * 4;
         goto write_func_or_obj;
-                
+
     case TOKSTFUNC:
         /* size of function is entire object */
         p = mcmlck(mctx, (mcmon)obj);
@@ -152,19 +152,19 @@ static void fiowrtobj(void *ctx0, toksdef *t)
         oswp2(buf+3, siz);
         oswp2(buf+5, used);
         if (osfwb(fp, buf, 7)) err = ERR_WRTGAM;
-                
+
         /* write contents of object */
         if (flags & FIOFCRYPT)
             fioxor(p, used, ctx->fiowcxseed, ctx->fiowcxinc);
         if (osfwb(fp, p, used)) err = ERR_WRTGAM;
-        
+
         /* write fast-load record if applicable */
         if (ctx->fiowcxffp)
         {
             oswp4(buf + 7, startpos);
             if (osfwb(ctx->fiowcxffp, buf, 11)) err = ERR_WRTGAM;
         }
-                
+
         /*
          *   We're done with the object - delete it so that
          *   it doesn't have to be swapped out (which would
@@ -173,18 +173,18 @@ static void fiowrtobj(void *ctx0, toksdef *t)
         mcmunlck(mctx, (mcmon)obj);
         mcmfre(mctx, (mcmon)obj);
         break;
-                
+
     case TOKSTEXTERN:
         /* all we must write is the name & number of ext func */
         buf[3] = t->tokslen;
         memcpy(buf + 4, t->toksnam, (size_t)t->tokslen);
         if (osfwb(fp, buf, t->tokslen + 4)) err = ERR_WRTGAM;
-        
+
         /* write fast-load record if applicable */
         if (ctx->fiowcxffp
             && osfwb(ctx->fiowcxffp, buf, t->tokslen + 4)) err = ERR_WRTGAM;
         break;
-                
+
     case TOKSTFWDOBJ:
     case TOKSTFWDFN:
         {
@@ -218,7 +218,7 @@ static void fiowrtobj(void *ctx0, toksdef *t)
         }
         break;
     }
-                    
+
     /* if an error occurred, signal it */
     if (err) errsig(ec, err);
 }
@@ -282,9 +282,9 @@ static void fiowrt1(mcmcxdef *mctx, voccxdef *vctx, tokcxdef *tokctx,
           || osfwb(fp, vsnhdr, vsnlen))
         errsig(ec, ERR_WRTGAM);
 
-    /* 
+    /*
      *   write the flags - remember where we wrote it in case we need to
-     *   change the flags later 
+     *   change the flags later
      */
     flag_seek = osfpos(fp);
     oswp2(buf, flags);
@@ -307,7 +307,7 @@ static void fiowrt1(mcmcxdef *mctx, voccxdef *vctx, tokcxdef *tokctx,
         if (osfwb(fp, buf, 2)) errsig(ec, ERR_WRTGAM);
         fiowcls(fp, ec, fpos);
     }
-    
+
     /* write count of external functions */
     if (extc)
     {
@@ -325,10 +325,10 @@ static void fiowrt1(mcmcxdef *mctx, voccxdef *vctx, tokcxdef *tokctx,
         /* close the resource */
         fiowcls(fp, ec, fpos);
     }
-    
-    /* 
+
+    /*
      *   write the character set information, if a character set was
-     *   specified 
+     *   specified
      */
     if (G_cmap_id[0] != '\0')
     {
@@ -374,15 +374,15 @@ static void fiowrt1(mcmcxdef *mctx, voccxdef *vctx, tokcxdef *tokctx,
         {
             long curpos;
             char flag_buf[2];
-            
+
             /* clear the fast-load flag */
             flags &= ~FIOFFAST;
 
-            /* 
+            /*
              *   go back to the flags we wrote to the .gam file header, and
              *   re-write the new flags without the fast-load bit - since
              *   we're not going to write a fast-load table, we don't want
-             *   readers thinking they're going to find one 
+             *   readers thinking they're going to find one
              */
 
             /* first, remember where we are right now */
@@ -428,10 +428,10 @@ static void fiowrt1(mcmcxdef *mctx, voccxdef *vctx, tokcxdef *tokctx,
             }
         }
     }
-                    
+
     /* close the resource */
     fiowcls(fp, ec, fpos);
-    
+
     /* copy fast-load records to output file if applicable */
     if (cbctx.fiowcxffp)
     {
@@ -439,7 +439,7 @@ static void fiowrt1(mcmcxdef *mctx, voccxdef *vctx, tokcxdef *tokctx,
         char      copybuf[1024];
         ulong     len;
         ulong     curlen;
-        
+
         /* start with resource header for fast-load records */
         fpos = fiowhd(fp, ec, "\003FST");
 
@@ -459,15 +459,15 @@ static void fiowrt1(mcmcxdef *mctx, voccxdef *vctx, tokcxdef *tokctx,
 
         /* close the fast-load resource */
         fiowcls(fp, ec, fpos);
-        
+
         /* close and delete temp file */
         osfcls(fp2);
         osfdel_temp(fastnamebuf);
     }
-    
+
     /* write vocabulary inheritance records - start with header */
     fpos = fiowhd(fp, ec, "\003INH");
-    
+
     /* go through inheritance records and write to file */
     for (vpg = vctx->voccxinh, i = 0 ; i < VOCINHMAX ; ++vpg, ++i)
     {
@@ -491,10 +491,10 @@ static void fiowrt1(mcmcxdef *mctx, voccxdef *vctx, tokcxdef *tokctx,
             }
         }
     }
-    
+
     /* close resource */
     fiowcls(fp, ec, fpos);
-    
+
     /* write format strings */
     if (fmtl)
     {
@@ -505,7 +505,7 @@ static void fiowrt1(mcmcxdef *mctx, voccxdef *vctx, tokcxdef *tokctx,
             errsig(ec, ERR_WRTGAM);
         fiowcls(fp, ec, fpos);
     }
-    
+
     /* write preinit if preinit object was specified */
     if (flags & FIOFPRE)
     {
@@ -514,7 +514,7 @@ static void fiowrt1(mcmcxdef *mctx, voccxdef *vctx, tokcxdef *tokctx,
         if (osfwb(fp, buf, 2)) errsig(ec, ERR_WRTGAM);
         fiowcls(fp, ec, fpos);
     }
-    
+
     /* write required objects out of voccxdef */
     fpos = fiowhd(fp, ec, "\003REQ");
     fiowrq(ec, fp, vctx->voccxme);
@@ -545,7 +545,7 @@ static void fiowrt1(mcmcxdef *mctx, voccxdef *vctx, tokcxdef *tokctx,
     fiowrq(ec, fp, vctx->voccxpre2);
     fiowrq(ec, fp, vctx->voccxpdef2);
     fiowcls(fp, ec, fpos);
-    
+
     /* write compound words */
     if (vctx->voccxcpl)
     {
@@ -559,7 +559,7 @@ static void fiowrt1(mcmcxdef *mctx, voccxdef *vctx, tokcxdef *tokctx,
             errsig(ec, ERR_WRTGAM);
         fiowcls(fp, ec, fpos);
     }
-    
+
     /* write special words */
     if (vctx->voccxspl)
     {
@@ -573,7 +573,7 @@ static void fiowrt1(mcmcxdef *mctx, voccxdef *vctx, tokcxdef *tokctx,
             errsig(ec, ERR_WRTGAM);
         fiowcls(fp, ec, fpos);
     }
-    
+
     /* write vocabulary */
     fpos = fiowhd(fp, ec, "\003VOC");
 
@@ -608,7 +608,7 @@ static void fiowrt1(mcmcxdef *mctx, voccxdef *vctx, tokcxdef *tokctx,
         }
     }
     fiowcls(fp, ec, fpos);
-    
+
     /* write the symbol table, if desired */
     if (flags & FIOFSYM)
     {
@@ -620,7 +620,7 @@ static void fiowrt1(mcmcxdef *mctx, voccxdef *vctx, tokcxdef *tokctx,
         if (osfwb(fp, buf, 4)) errsig(ec, ERR_WRTGAM);
         fiowcls(fp, ec, fpos);
     }
-    
+
     /* write line source chain, if desired */
     if ((flags & (FIOFLIN | FIOFLIN2)) != 0 && vctx->voccxrun->runcxdbg != 0)
     {
@@ -641,11 +641,11 @@ static void fiowrt1(mcmcxdef *mctx, voccxdef *vctx, tokcxdef *tokctx,
         /* done with this section */
         fiowcls(fp, ec, fpos);
 
-        /* 
+        /*
          *   if we have new-style line records, put a SRC2 header (with no
          *   block contents) in the file, so that the debugger realizes
          *   that it has new-style line records (with line numbers rather
-         *   than seek offsets) 
+         *   than seek offsets)
          */
         if ((flags & FIOFLIN2) != 0)
         {
@@ -672,7 +672,7 @@ static void fiowrt1(mcmcxdef *mctx, voccxdef *vctx, tokcxdef *tokctx,
     /* write end-of-file resource header */
     (void)fiowhd(fp, ec, "\004$EOF");
     osfcls(fp);
-    
+
     /* if there are undefined functions/objects, signal an error */
     if (cbctx.fiowcxund) errsig(ec, ERR_UNDEF);
 }
@@ -683,18 +683,18 @@ void fiowrt(mcmcxdef *mctx, voccxdef *vctx, tokcxdef *tokctx, tokthdef *tab,
             int extc, uint prpcnt, char *filever)
 {
     osfildef *fp;
-    
+
     /* open the file */
     if (!(fp = osfoprwtb(fname, OSFTGAME)))
         errsig(vctx->voccxerr, ERR_OPWGAM);
-    
+
     ERRBEGIN(vctx->voccxerr)
-    
+
     /* write the file */
     fiowrt1(mctx, vctx, tokctx, tab, fmts, fmtl, fp, flags, preinit,
             extc, prpcnt, filever);
     os_settype(fname, OSFTGAME);
-   
+
     ERRCLEAN(vctx->voccxerr)
         /* clean up by closing the file */
         osfcls(fp);

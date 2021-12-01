@@ -1,16 +1,16 @@
-/* 
+/*
  *   Copyright (c) 2001, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmcset.cpp - T3 CharacterSet metaclass
 Function
-  
+
 Notes
-  
+
 Modified
   06/06/01 MJRoberts  - Creation
 */
@@ -36,7 +36,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   statics 
+ *   statics
  */
 
 /* metaclass registration object */
@@ -58,7 +58,7 @@ int (CVmObjCharSet::
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Create from stack 
+ *   Create from stack
  */
 vm_obj_id_t CVmObjCharSet::create_from_stack(VMG_ const uchar **pc_ptr,
                                              uint argc)
@@ -91,7 +91,7 @@ vm_obj_id_t CVmObjCharSet::create_from_stack(VMG_ const uchar **pc_ptr,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Create with no contents 
+ *   Create with no contents
  */
 vm_obj_id_t CVmObjCharSet::create(VMG_ int in_root_set)
 {
@@ -114,7 +114,7 @@ vm_obj_id_t CVmObjCharSet::create(VMG_ int in_root_set,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Instantiate 
+ *   Instantiate
  */
 CVmObjCharSet::CVmObjCharSet(VMG_ const char *charset_name,
                              size_t charset_name_len)
@@ -125,7 +125,7 @@ CVmObjCharSet::CVmObjCharSet(VMG_ const char *charset_name,
 }
 
 /*
- *   Allocate and initialize our extension 
+ *   Allocate and initialize our extension
  */
 void CVmObjCharSet::alloc_ext(VMG_ const char *charset_name,
                               size_t charset_name_len)
@@ -133,15 +133,15 @@ void CVmObjCharSet::alloc_ext(VMG_ const char *charset_name,
     size_t alloc_size;
     vmobj_charset_ext_t *extp;
     CResLoader *res_ldr;
-    
+
     /* if we already have an extension, delete it */
     if (ext_ != 0)
         G_mem->get_var_heap()->free_mem(ext_);
 
-    /* 
+    /*
      *   compute the size we need - note that we use the one fixed byte of
      *   the structure's name element as the extra byte we need for null
-     *   termination of the name 
+     *   termination of the name
      */
     alloc_size = sizeof(vmobj_charset_ext_t) + charset_name_len;
 
@@ -197,8 +197,8 @@ void CVmObjCharSet::notify_delete(VMG_ int /*in_root_set*/)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   set a property 
+/*
+ *   set a property
  */
 void CVmObjCharSet::set_prop(VMG_ class CVmUndo *,
                              vm_obj_id_t, vm_prop_id_t,
@@ -208,8 +208,8 @@ void CVmObjCharSet::set_prop(VMG_ class CVmUndo *,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   get a property 
+/*
+ *   get a property
  */
 int CVmObjCharSet::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                             vm_obj_id_t self, vm_obj_id_t *source_obj,
@@ -220,21 +220,21 @@ int CVmObjCharSet::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
     /* translate the property index to an index into our function table */
     func_idx = G_meta_table
                ->prop_to_vector_idx(metaclass_reg_->get_reg_idx(), prop);
-    
+
     /* call the appropriate function */
     if ((this->*func_table_[func_idx])(vmg_ self, retval, argc))
     {
         *source_obj = metaclass_reg_->get_class_obj(vmg0_);
         return TRUE;
     }
-    
+
     /* inherit default handling */
     return CVmObject::get_prop(vmg_ prop, retval, self, source_obj, argc);
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   load from an image file 
+ *   load from an image file
  */
 void CVmObjCharSet::load_from_image(VMG_ vm_obj_id_t self,
                                     const char *ptr, size_t siz)
@@ -244,8 +244,8 @@ void CVmObjCharSet::load_from_image(VMG_ vm_obj_id_t self,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   save to a file 
+/*
+ *   save to a file
  */
 void CVmObjCharSet::save_to_file(VMG_ class CVmFile *fp)
 {
@@ -257,8 +257,8 @@ void CVmObjCharSet::save_to_file(VMG_ class CVmFile *fp)
                     get_ext_ptr()->charset_name_len);
 }
 
-/* 
- *   restore from a file 
+/*
+ *   restore from a file
  */
 void CVmObjCharSet::restore_from_file(VMG_ vm_obj_id_t self,
                                       CVmFile *fp, CVmObjFixup *)
@@ -288,7 +288,7 @@ void CVmObjCharSet::restore_from_file(VMG_ vm_obj_id_t self,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Compare for equality 
+ *   Compare for equality
  */
 int CVmObjCharSet::equals(VMG_ vm_obj_id_t self, const vm_val_t *val,
                           int /*depth*/) const
@@ -319,7 +319,7 @@ int CVmObjCharSet::equals(VMG_ vm_obj_id_t self, const vm_val_t *val,
 }
 
 /*
- *   Calculate a hash value 
+ *   Calculate a hash value
  */
 uint CVmObjCharSet::calc_hash(VMG_ vm_obj_id_t self, int /*depth*/) const
 {
@@ -342,7 +342,7 @@ uint CVmObjCharSet::calc_hash(VMG_ vm_obj_id_t self, int /*depth*/) const
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   property evaluator - get the character set name
  */
 int CVmObjCharSet::getp_get_name(VMG_ vm_obj_id_t self,
@@ -363,21 +363,21 @@ int CVmObjCharSet::getp_get_name(VMG_ vm_obj_id_t self,
     return TRUE;
 }
 
-/* 
+/*
  *   property evaluator - is known
  */
 int CVmObjCharSet::getp_is_known(VMG_ vm_obj_id_t self,
                                  vm_val_t *retval, uint *argc)
 {
     static CVmNativeCodeDesc desc(0);
-    
+
     /* check arguments */
     if (get_prop_check_argc(retval, argc, &desc))
         return TRUE;
 
-    /* 
+    /*
      *   it's known if both of our character mappers are non-null; if either
-     *   is null, the character set is not known on this platform 
+     *   is null, the character set is not known on this platform
      */
     retval->set_logical(get_ext_ptr()->to_local != 0
                         && get_ext_ptr()->to_uni != 0);
@@ -386,8 +386,8 @@ int CVmObjCharSet::getp_is_known(VMG_ vm_obj_id_t self,
     return TRUE;
 }
 
-/* 
- *   property evaluator - check a character or a string for mappability 
+/*
+ *   property evaluator - check a character or a string for mappability
  */
 int CVmObjCharSet::getp_is_mappable(VMG_ vm_obj_id_t self,
                                     vm_val_t *retval, uint *argc)
@@ -429,7 +429,7 @@ int CVmObjCharSet::getp_is_mappable(VMG_ vm_obj_id_t self,
             /* check to see if this character is mappable */
             if (!to_local->is_mappable(p.getch()))
             {
-                /* 
+                /*
                  *   The character isn't mappable - this is an
                  *   all-or-nothing check, so if one isn't mappable we
                  *   return false.  Set the nil return and stop looking.
@@ -441,10 +441,10 @@ int CVmObjCharSet::getp_is_mappable(VMG_ vm_obj_id_t self,
     }
     else if (arg.typ == VM_INT)
     {
-        /* 
+        /*
          *   Check if the integer character value is mappable.  If it's out
          *   of the 16-bit unicode range (0..0xffff), it's not mappable;
-         *   otherwise, ask the character mapper. 
+         *   otherwise, ask the character mapper.
          */
         if (arg.val.intval < 0 || arg.val.intval > 0xffff)
         {
@@ -463,11 +463,11 @@ int CVmObjCharSet::getp_is_mappable(VMG_ vm_obj_id_t self,
     return TRUE;
 }
 
-/* 
+/*
  *   property evaluator - check a character or a string to see if it has a
  *   round-trip mapping.  A round-trip mapping is one where the unicode
  *   characters can be mapped to the local character set, then back to
- *   unicode, yielding the exact original unicode string.  
+ *   unicode, yielding the exact original unicode string.
  */
 int CVmObjCharSet::getp_is_rt_mappable(VMG_ vm_obj_id_t self,
                                        vm_val_t *retval, uint *argc)
@@ -539,7 +539,7 @@ int CVmObjCharSet::getp_is_rt_mappable(VMG_ vm_obj_id_t self,
 
 /*------------------------------------------------------------------------ */
 /*
- *   Determine if a character has a round-trip mapping.  
+ *   Determine if a character has a round-trip mapping.
  */
 int CVmObjCharSet::is_rt_mappable(wchar_t c, CCharmapToLocal *to_local,
                                   CCharmapToUni *to_uni)
@@ -554,12 +554,12 @@ int CVmObjCharSet::is_rt_mappable(wchar_t c, CCharmapToLocal *to_local,
     if (!to_local->is_mappable(c))
         return FALSE;
 
-    /* 
+    /*
      *   If there's an expansion in the mapping to the local set, then there
      *   can't be a round-trip mapping.  Expansions are inherently one-way
      *   because they produce multiple local characters for a single unicode
      *   character, and the reverse mapping has no way to group those
-     *   multiple local characters back into a single unicode character.  
+     *   multiple local characters back into a single unicode character.
      */
     if (to_local->get_expansion(c, &lcllen) != 0)
         return FALSE;
@@ -572,9 +572,9 @@ int CVmObjCharSet::is_rt_mappable(wchar_t c, CCharmapToLocal *to_local,
     unilen = sizeof(unibuf);
     unilen = to_uni->map(&p, &unilen, lclbuf, lcllen);
 
-    /* 
+    /*
      *   if the unicode mapping is one character that exactly matches the
-     *   original input character, then we have a valid round-trip mapping 
+     *   original input character, then we have a valid round-trip mapping
      */
     return (unilen == utf8_ptr::s_wchar_size(c)
             && utf8_ptr::s_getch(unibuf) == c);
@@ -582,7 +582,7 @@ int CVmObjCharSet::is_rt_mappable(wchar_t c, CCharmapToLocal *to_local,
 
 /*------------------------------------------------------------------------ */
 /*
- *   Get the unicode-to-local character set mapper 
+ *   Get the unicode-to-local character set mapper
  */
 CCharmapToLocal *CVmObjCharSet::get_to_local(VMG0_) const
 {
@@ -599,7 +599,7 @@ CCharmapToLocal *CVmObjCharSet::get_to_local(VMG0_) const
 }
 
 /*
- *   Get the local-to-unicode character set mapper 
+ *   Get the local-to-unicode character set mapper
  */
 CCharmapToUni *CVmObjCharSet::get_to_uni(VMG0_) const
 {

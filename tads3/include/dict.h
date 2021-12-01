@@ -1,12 +1,12 @@
 #charset "us-ascii"
 #pragma once
 
-/* 
+/*
  *   Copyright (c) 2000, 2006 Michael J. Roberts
- *   
+ *
  *   This file is part of TADS 3.
- *   
- *   This header defines the Dictionary intrinsic class.  
+ *
+ *   This header defines the Dictionary intrinsic class.
  */
 
 
@@ -18,36 +18,36 @@
  *   designed for storing the vocabulary table for a parser.  Dictionary
  *   works closely with GrammarProd to supply the vocabulary tokens for the
  *   productions.
- *   
+ *
  *   The main difference between Dictionary and a more general hash table is
  *   that Dictionary tags each vocabulary word with a type; for our purposes,
  *   the type is the vocabulary property (&noun, &adjective, etc) that
- *   associates the word with an object.  
+ *   associates the word with an object.
  */
 intrinsic class Dictionary 'dictionary2/030001': Object
 {
     /*
      *   Constructor:
-     *   
+     *
      *   new Dictionary() - creates a dictionary with a default comparator,
      *   which matches strings exactly (note that upper-case and lower-case
      *   letters are considered distinct)
-     *   
+     *
      *   new Dictionary(compObj) - create a dictionary with the given
      *   comparator object.  A comparator is an object that implements the
      *   comparator interface - see below for details.  When searching the
      *   dictionary (with findWord, for example), we use the comparator
      *   object to determine if the string beings sought matches a dictionary
-     *   string.  
+     *   string.
      */
 
-    /* 
+    /*
      *   Set the comparator object.  This defines how words are compared.
      *   The object must provide the following methods, which comprise the
      *   "comparator" interface.  Note that there's no class that defines
      *   this interface; this is simply a set of methods that we define here,
      *   and which the supplied object must define.
-     *   
+     *
      *   calcHash(str) - returns an integer giving the hash value of the
      *   given string.  The purpose of the hash value is to arbitrarily
      *   partition the search space, so that we can search only a small
@@ -59,13 +59,13 @@ intrinsic class Dictionary 'dictionary2/030001': Object
      *   it takes longer to compute the hash value than it would to search
      *   every string in the table, then we don't come out ahead using the
      *   hash.
-     *   
+     *
      *   matchValues(inputStr, dictStr) - compare the given input string with
      *   the given dictionary string, and return a result indicating whether
      *   or not they match for the purposes of the comparator.  A return
      *   value of zero or nil indicates that the values do not match; any
      *   other return value indicates a match.
-     *   
+     *
      *   Typically, matchValues() will return a non-zero integer to indicate
      *   a match and to encode additional information about the match using a
      *   bitwise-OR'd combination of flag values.  For example, a comparator
@@ -75,7 +75,7 @@ intrinsic class Dictionary 'dictionary2/030001': Object
      *   letters in the dictionary string.  So, a return value of 0x0001
      *   would indicate an exact match, and 0x0003 would indicate a match
      *   with case differences.
-     *   
+     *
      *   Note the asymmetry in the matchValues() arguments: we specifically
      *   designate one string as the input string and one as the dictionary
      *   string.  This allows for asymmetrical comparisons, which are
@@ -90,7 +90,7 @@ intrinsic class Dictionary 'dictionary2/030001': Object
      *   rules to work in one direction; for the truncation example, we'd
      *   want an input word that's a truncated version of a dictionary word
      *   to match, but not the other way around.
-     *   
+     *
      *   Important: Note that, although the hash value computation is up to
      *   the implementing object to define, we impose one requirement.  It is
      *   REQUIRED that for any two strings s1 and s2, if matchValues(s1, s2)
@@ -99,17 +99,17 @@ intrinsic class Dictionary 'dictionary2/030001': Object
      *   strings with equal hash values must be equal, or, equivalently, that
      *   two unequal strings must have different hash values.  Hash
      *   collisions are explicitly allowed, so two strings that don't match
-     *   can still have the same hash value.)  
+     *   can still have the same hash value.)
      */
     setComparator(compObj);
 
-    /* 
+    /*
      *   Find a word; returns a list giving the objects associated with the
      *   string in the dictionary.  If voc_prop is specified, only objects
      *   associated with the word by the given vocabulary property are
      *   returned.  We match the string using the comparator defined for the
      *   dictionary.
-     *   
+     *
      *   The return value is a list consisting of pairs of entries.  The
      *   first element of each pair is the matching object, and the second is
      *   gives the comparator result for matching the word.  If we use a
@@ -119,34 +119,34 @@ intrinsic class Dictionary 'dictionary2/030001': Object
      *   object, then the second element of the pair will be whatever the
      *   custom comparator's matchValues() method returned for matching the
      *   value for that dictionary entry.
-     *   
+     *
      *   The reason for giving a matchValues() return value for every
      *   individual match is that the same input string 'str' might match
      *   multiple entries in the dictionary.  For example, the same string
      *   might match one word exactly and one with truncation.  The match
      *   result code lets the caller determine if some matches are "better"
      *   than others, based on how the string matched for each individual
-     *   object entry.  
+     *   object entry.
      */
     findWord(str, voc_prop?);
 
     /*
      *   Add a word to the dictionary, associating the given object with the
-     *   given string and property combination. 
+     *   given string and property combination.
      */
     addWord(obj, str, voc_prop);
 
     /*
      *   Remove the given word association from the dictionary.  This
      *   removes only the association for the given object; other objects
-     *   associated with the same word are not affected.  
+     *   associated with the same word are not affected.
      */
     removeWord(obj, str, voc_prop);
 
-    /* 
+    /*
      *   Check to see if the given string 'str' is defined in the dictionary.
      *   Returns true if the word is defined, nil if not.
-     *   
+     *
      *   If the 'filter' argument is provided, it gives a callback function
      *   that is invoked to determine whether or not to count a particular
      *   word in the dictionary as a match.  The callback is invoked with one
@@ -160,7 +160,7 @@ intrinsic class Dictionary 'dictionary2/030001': Object
      *   condition than the dictionary's current comparator does; for
      *   example, the caller might use the filter to determine if the
      *   dictionary contains any matches for 'str' that match without any
-     *   truncation.  
+     *   truncation.
      */
     isWordDefined(str, filter?);
 
@@ -170,7 +170,7 @@ intrinsic class Dictionary 'dictionary2/030001': Object
      *   string multiple times, since the callback is invoked once per
      *   word/object/property association; in other words, the callback is
      *   invoked once for each association created with addWord() or during
-     *   compilation.  
+     *   compilation.
      */
     forEachWord(func);
 
@@ -178,7 +178,7 @@ intrinsic class Dictionary 'dictionary2/030001': Object
      *   Get a list of possible spelling corrections for the given word.
      *   This searches the dictionary for words that match the given word
      *   within the given maximum "edit distance".
-     *   
+     *
      *   The return value is a list giving all of the words in the dictionary
      *   that match the input string within the given maximum edit distance.
      *   Any given dictionary word will appear only once in the returned
@@ -192,7 +192,7 @@ intrinsic class Dictionary 'dictionary2/030001': Object
      *   use this to break ties for corrections of the same distance.
      *   Consider "book" and "box" as corrections for "bok": both have edit
      *   distance 1, but "book" has no replacements, while "box" has one.)
-     *   
+     *
      *   The edit distance between two words is defined as the number of
      *   single-character insertions, deletions, replacements, and
      *   transpositions necessary to transform one word into another.  For
@@ -200,7 +200,7 @@ intrinsic class Dictionary 'dictionary2/030001': Object
      *   pair, for an edit distance of 1.  XAEMINE can be transformed into
      *   EXAMINE by inserting an E at the beginning, and then deleting the E
      *   at the third letter, for an edit distance of 2.
-     *   
+     *
      *   Choosing the maximum edit distance is essentially heuristic.  Higher
      *   values make the search take longer, and yield more matches - which
      *   increases the chances that the right match will be found, but also
@@ -211,7 +211,7 @@ intrinsic class Dictionary 'dictionary2/030001': Object
      *   probably do better to vary the distance based on the word length:
      *   perhaps 1 for words up to 4 letters, 2 for 5-7 letters, and 3 for
      *   words of 8 letters or more.
-     *   
+     *
      *   If the dictionary has a StringComparator object as its current
      *   comparator, the results will take into account its case folding
      *   setting, truncation length, and character mappings.  These
@@ -219,14 +219,14 @@ intrinsic class Dictionary 'dictionary2/030001': Object
      *   against the maximum edit distance.  Custom comparators (not of the
      *   StringComparator class) are ignored: if you use a custom comparator,
      *   this method will only find matches based on the exact text of the
-     *   dictionary words.  
+     *   dictionary words.
      */
     correctSpelling(str, maxEditDistance);
 }
 
-/* 
+/*
  *   We rely on certain methods defined by the comparator interface, so
- *   export those method names.  
+ *   export those method names.
  */
 property calcHash, matchValues;
 export calcHash 'IfcComparator.calcHash';

@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -30,9 +30,9 @@ void vm_init_flat(vm_globals **vmg, const vm_init_options *opts)
     /* initialize the base VM structures */
     vm_init_base(vmg, opts);
 
-    /* 
+    /*
      *   assign the global pointer to the special vmg__ local for
-     *   globals-on-stack configuration 
+     *   globals-on-stack configuration
      */
     vmg__ = *vmg;
 

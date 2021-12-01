@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/TCPRSIMG.CPP,v 1.1 1999/07/11 00:46:53 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   tcprsimg.cpp - TADS 3 Compiler Parser - image writing functions
 Function
-  
+
 Notes
-  
+
 Modified
   04/30/99 MJRoberts  - Creation
 */
@@ -38,7 +38,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Read an object file and load the global symbol table 
+ *   Read an object file and load the global symbol table
  */
 int CTcParser::load_object_file(class CVmFile *fp, const textchar_t *fname,
                                 tctarg_obj_id_t *obj_xlat,
@@ -111,10 +111,10 @@ int CTcParser::load_object_file(class CVmFile *fp, const textchar_t *fname,
         /* read the next non-symbol object ID */
         id = (tctarg_obj_id_t)fp->read_uint4();
 
-        /* 
+        /*
          *   allocate a new ID for the object, and set the translation
          *   table for the new ID - this will ensure that references to
-         *   this non-symbol object are properly fixed up 
+         *   this non-symbol object are properly fixed up
          */
         obj_xlat[id] = G_cg->new_obj_id();
     }
@@ -188,7 +188,7 @@ int CTcParser::load_object_file(class CVmFile *fp, const textchar_t *fname,
     for (i = 0 ; i < exp_cnt ; ++i)
     {
         CTcPrsExport *exp;
-        
+
         /* read the next entry */
         exp = CTcPrsExport::read_from_obj_file(fp);
 
@@ -223,7 +223,7 @@ int CTcParser::load_object_file(class CVmFile *fp, const textchar_t *fname,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Generate code and write the image file 
+ *   Generate code and write the image file
  */
 void CTPNStmProg::build_image(class CVmFile *image_fp, uchar xor_mask,
                               const char tool_data[4])
@@ -239,14 +239,14 @@ void CTPNStmProg::build_image(class CVmFile *image_fp, uchar xor_mask,
     /*
      *   Finally, our task of constructing the program is complete.  All
      *   that remains is to write the image file.  Tell the code generator
-     *   to begin the process.  
+     *   to begin the process.
      */
     G_cg->write_to_image(image_fp, xor_mask, tool_data);
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Generate code and write the object file 
+ *   Generate code and write the object file
  */
 void CTPNStmProg::build_object_file(class CVmFile *object_fp,
                                     class CTcMake *make_obj)
@@ -258,7 +258,7 @@ void CTPNStmProg::build_object_file(class CVmFile *object_fp,
     /*
      *   Finally, our task of constructing the program is complete.  All
      *   that remains is to write the image file.  Tell the code generator
-     *   to begin the process.  
+     *   to begin the process.
      */
     G_cg->write_to_object_file(object_fp, make_obj);
 }
@@ -283,9 +283,9 @@ int CTPNStmProg::gen_code_for_build()
     /* generate code for the entire program */
     gen_code(TRUE, TRUE);
 
-    /* 
+    /*
      *   if we encountered any errors generating code, don't bother
-     *   writing the image 
+     *   writing the image
      */
     if (G_tcmain->get_error_count() != 0)
         return 1;
@@ -297,7 +297,7 @@ int CTPNStmProg::gen_code_for_build()
 /* ------------------------------------------------------------------------ */
 /*
  *   Check for unresolved external symbols.  Logs an error for each
- *   unresolved external.  
+ *   unresolved external.
  */
 int CTcParser::check_unresolved_externs()
 {
@@ -305,23 +305,23 @@ int CTcParser::check_unresolved_externs()
 
     /* generate any synthesized code */
     G_cg->build_synthesized_code();
-    
+
     /* note the previous error count */
     errcnt = G_tcmain->get_error_count();
-    
+
     /* enumerate the entries with our unresolved check callback */
     get_global_symtab()->enum_entries(&enum_sym_extref, this);
 
-    /* 
+    /*
      *   if the error count increased, we logged errors for unresolved
-     *   symbols 
+     *   symbols
      */
     return (G_tcmain->get_error_count() > errcnt);
 }
 
 /*
  *   Enumeration callback - check for unresolved external references.  For
- *   each object or function still marked "external," we'll log an error.  
+ *   each object or function still marked "external," we'll log an error.
  */
 void CTcParser::enum_sym_extref(void *, CTcSymbol *sym)
 {
@@ -335,17 +335,17 @@ void CTcParser::enum_sym_extref(void *, CTcSymbol *sym)
 /* ------------------------------------------------------------------------ */
 /*
  *   Build dictionaries.  We go through all objects and insert their
- *   vocabulary words into their dictionaries.  
+ *   vocabulary words into their dictionaries.
  */
 void CTcParser::build_dictionaries()
 {
     CTcDictEntry *dict;
     CTcSymObj *sym;
-    
-    /* 
+
+    /*
      *   enumerate our symbols to insert dictionary words - this will
      *   populate each dictionary's hash table with a complete list of the
-     *   words and object associations for the dictionary 
+     *   words and object associations for the dictionary
      */
     get_global_symtab()->enum_entries(&enum_sym_dict, this);
 
@@ -362,7 +362,7 @@ void CTcParser::build_dictionaries()
 }
 
 /*
- *   enumeration callback - build dictionaries 
+ *   enumeration callback - build dictionaries
  */
 void CTcParser::enum_sym_dict(void *, CTcSymbol *sym)
 {
@@ -372,26 +372,26 @@ void CTcParser::enum_sym_dict(void *, CTcSymbol *sym)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Build grammar productions 
+ *   Build grammar productions
  */
 void CTcParser::build_grammar_productions()
 {
     CTcGramProdEntry *entry;
 
-    /* 
+    /*
      *   First, run through the symbol table and merge all of the private
      *   grammar rules into the master grammar rule list.  Since we've
      *   finished linking, we've already applied all modify/replace
      *   overrides, hence each symbol table entry referring to an object
      *   will contain its final private grammar rule list.  So, we can
      *   safely merge the private lists into the master lists at this point,
-     *   since no more modifications to private lists are possible.  
+     *   since no more modifications to private lists are possible.
      */
     get_global_symtab()->enum_entries(&build_grammar_cb, this);
 
-    /* 
+    /*
      *   iterate over the master list of productions and generate the image
-     *   data for each one 
+     *   data for each one
      */
     for (entry = gramprod_head_ ; entry != 0 ; entry = entry->get_next())
     {
@@ -402,7 +402,7 @@ void CTcParser::build_grammar_productions()
 
 /*
  *   Symbol table enumeration callback - merge match object private grammar
- *   rules into the master grammar rule list.  
+ *   rules into the master grammar rule list.
  */
 void CTcParser::build_grammar_cb(void *, CTcSymbol *sym)
 {
@@ -415,12 +415,12 @@ void CTcParser::build_grammar_cb(void *, CTcSymbol *sym)
 /*
  *   Apply self-reference object ID fixups.  This traverses the symbol
  *   table and applies each object's list of fixups.  This can be called
- *   once after loading all object files.  
+ *   once after loading all object files.
  */
 void CTcParser::apply_internal_fixups()
 {
     CTcSymObj *anon_obj;
-    
+
     /* enumerate the entries with our callback */
     get_global_symtab()->enum_entries(&enum_sym_internal_fixup, this);
 
@@ -444,11 +444,11 @@ void CTcParser::enum_sym_internal_fixup(void *, CTcSymbol *sym)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Basic symbol class - image/object file functions 
+ *   Basic symbol class - image/object file functions
  */
 
 /*
- *   Read a symbol from an object file 
+ *   Read a symbol from an object file
  */
 int CTcSymbolBase::load_from_obj_file(CVmFile *fp, const textchar_t *fname,
                                       tctarg_obj_id_t *obj_xlat,
@@ -457,9 +457,9 @@ int CTcSymbolBase::load_from_obj_file(CVmFile *fp, const textchar_t *fname,
 {
     tc_symtype_t typ;
 
-    /* 
+    /*
      *   read the type - this is the one thing we know is always present
-     *   for every symbol (the rest of the data might vary per subclass) 
+     *   for every symbol (the rest of the data might vary per subclass)
      */
     typ = (tc_symtype_t)fp->read_uint2();
 
@@ -494,7 +494,7 @@ int CTcSymbolBase::load_from_obj_file(CVmFile *fp, const textchar_t *fname,
 }
 
 /*
- *   Log a conflict with another symbol from an object file 
+ *   Log a conflict with another symbol from an object file
  */
 void CTcSymbolBase::log_objfile_conflict(const textchar_t *fname,
                                          tc_symtype_t new_type) const
@@ -506,9 +506,9 @@ void CTcSymbolBase::log_objfile_conflict(const textchar_t *fname,
         "intrinsic class", "enum"
     };
 
-    /* 
+    /*
      *   if the types differ, log an error indicating the different types;
-     *   otherwise, simply log an error indicating the redefinition 
+     *   otherwise, simply log an error indicating the redefinition
      */
     if (new_type != get_type())
     {
@@ -530,11 +530,11 @@ void CTcSymbolBase::log_objfile_conflict(const textchar_t *fname,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Function Symbol subclass - image/object file functions 
+ *   Function Symbol subclass - image/object file functions
  */
 
 /*
- *   Load from an object file 
+ *   Load from an object file
  */
 int CTcSymFuncBase::load_from_obj_file(CVmFile *fp,
                                        const textchar_t *fname)
@@ -554,10 +554,10 @@ int CTcSymFuncBase::load_from_obj_file(CVmFile *fp,
     int mod_base_cnt;
     CTcSymFunc *sym;
 
-    /* 
+    /*
      *   Read the symbol name.  Use a custom reader instead of the base
      *   reader, because function symbols can be quite long, due to
-     *   multimethod name decoration.  
+     *   multimethod name decoration.
      */
     if ((txt = CTcParser::read_len_prefix_str(
         fp, txtbuf, sizeof(txtbuf), 0, TCERR_SYMEXP_SYM_TOO_LONG)) == 0)
@@ -580,17 +580,17 @@ int CTcSymFuncBase::load_from_obj_file(CVmFile *fp,
     /* look up any existing symbol */
     sym = (CTcSymFunc *)G_prs->get_global_symtab()->find(txt, len);
 
-    /* 
+    /*
      *   If this symbol is already defined, make sure the original
      *   definition is a function, and make sure that it's only defined
      *   (not referenced as external) once.  If it's not defined, define
-     *   it anew.  
+     *   it anew.
      */
     if (sym == 0)
     {
-        /* 
+        /*
          *   It's not defined yet - create the new definition and add it
-         *   to the symbol table.  
+         *   to the symbol table.
          */
         sym = new CTcSymFunc(txt, len, FALSE, argc, opt_argc, varargs,
                              has_retval, is_multimethod, is_multimethod_base,
@@ -607,19 +607,19 @@ int CTcSymFuncBase::load_from_obj_file(CVmFile *fp,
              || (!sym->is_extern()
                  && !is_extern && !ext_replace && !ext_modify))
     {
-        /* 
+        /*
          *   It's already defined, but it's not a function, or this is a
          *   non-extern/replaced definition and the symbol is already
-         *   defined non-extern - log a symbol type conflict error.  
+         *   defined non-extern - log a symbol type conflict error.
          */
         sym->log_objfile_conflict(fname, TC_SYM_FUNC);
 
-        /* 
+        /*
          *   proceed despite the error, since this is merely a symbol
          *   conflict and not a file corruption - create a fake symbol to
          *   hold the information, so that we can read the data and thus
          *   keep in sync with the file, but don't bother adding the fake
-         *   symbol object to the symbol table 
+         *   symbol object to the symbol table
          */
         sym = new CTcSymFunc(txt, len, FALSE, argc, opt_argc, varargs,
                              has_retval, is_multimethod, is_multimethod_base,
@@ -641,34 +641,34 @@ int CTcSymFuncBase::load_from_obj_file(CVmFile *fp,
                             (int)len, txt, fname);
     }
 
-    /* 
+    /*
      *   if this is a non-extern definition, we now have the object
      *   defined -- remove the 'extern' flag from the symbol table entry
-     *   in this case 
+     *   in this case
      */
     if (!is_extern)
     {
         /* mark the symbol as defined */
         sym->set_extern(FALSE);
 
-        /* 
+        /*
          *   if we're replacing it, delete the original; if we're modifying
-         *   it, chain the original into our modify list 
+         *   it, chain the original into our modify list
          */
         if (ext_replace)
         {
             int i;
 
-            /* 
+            /*
              *   mark the previous code anchor as obsolete so that we
-             *   don't write its code to the image file 
+             *   don't write its code to the image file
              */
             if (sym->get_anchor() != 0)
                 sym->get_anchor()->set_replaced(TRUE);
 
             /*
              *   Mark all of the modified base function code offsets as
-             *   replaced as well.  
+             *   replaced as well.
              */
             for (i = 0 ; i < sym->get_mod_base_offset_count() ; ++i)
             {
@@ -685,7 +685,7 @@ int CTcSymFuncBase::load_from_obj_file(CVmFile *fp,
             /*
              *   We can now forget everything in the modify base list, as
              *   everything in the list is being replaced and is thus no
-             *   longer relevant.  
+             *   longer relevant.
              */
             sym->clear_mod_base_offsets();
         }
@@ -695,7 +695,7 @@ int CTcSymFuncBase::load_from_obj_file(CVmFile *fp,
              *   We're modifying an external symbol.  The anchor to the code
              *   stream object that we previously loaded is actually the
              *   anchor to the modified base object, not to the new meaning
-             *   of the symbol, so detach the anchor from our symbol.  
+             *   of the symbol, so detach the anchor from our symbol.
              */
             sym->get_anchor()->detach_from_symbol();
 
@@ -708,7 +708,7 @@ int CTcSymFuncBase::load_from_obj_file(CVmFile *fp,
              *   So, load those fixups into the anchor's new internal fixup
              *   list.  It's important to note that these aren't references
              *   to this symbol - they're specifically references to the
-             *   modified base code stream object.  
+             *   modified base code stream object.
              */
             CTcAbsFixup::load_fixup_list_from_object_file(
                 fp, fname, sym->get_anchor()->fixup_list_head_);
@@ -717,26 +717,26 @@ int CTcSymFuncBase::load_from_obj_file(CVmFile *fp,
              *   Add the old code stream anchor to the list of modified base
              *   offsets for the function.  The function we're reading from
              *   the object file modifies this as a base function, so we need
-             *   to add this to the list of modified base functions.  
+             *   to add this to the list of modified base functions.
              */
             sym->add_mod_base_offset(sym->get_anchor()->get_ofs());
 
-            /* 
+            /*
              *   Complete the dissociation from the anchor by forgetting the
              *   anchor in the symbol.  This will allow the code stream
              *   object that's associated with this symbol in the current
              *   file to take over the anchor duty for this symbol, which
              *   will ensure that all fixups that reference this symbol will
-             *   be resolved to the new code stream object.  
+             *   be resolved to the new code stream object.
              */
             sym->set_anchor(0);
         }
     }
 
-    /* 
+    /*
      *   Read the list of modified base function offsets.  Each entry is a
      *   code stream offset, so adjust each using the base code stream offset
-     *   for this object file.  
+     *   for this object file.
      */
     for ( ; mod_base_cnt != 0 ; --mod_base_cnt)
     {
@@ -759,7 +759,7 @@ int CTcSymFuncBase::load_from_obj_file(CVmFile *fp,
         /*
          *   This is an external reference, so we must load our fixup
          *   list, adding it to any fixup list that already exists with
-         *   the symbol.  
+         *   the symbol.
          */
         CTcAbsFixup::
             load_fixup_list_from_object_file(fp, fname, &sym->fixups_);
@@ -775,22 +775,22 @@ int CTcSymFuncBase::load_from_obj_file(CVmFile *fp,
  */
 
 /*
- *   Load from an object file 
+ *   Load from an object file
  */
 int CTcSymObjBase::load_from_obj_file(CVmFile *fp,
                                       const textchar_t *fname,
                                       tctarg_obj_id_t *obj_xlat,
                                       int anon)
 {
-    /* 
+    /*
      *   do the main loading - if it fails to return a symbol, return
-     *   failure (i.e., non-zero) 
+     *   failure (i.e., non-zero)
      */
     return (load_from_obj_file_main(fp, fname, obj_xlat, 0, 0, anon) == 0);
 }
 
 /*
- *   Load a modified base object from an object file 
+ *   Load a modified base object from an object file
  */
 CTcSymObj *CTcSymObjBase::
    load_from_obj_file_modbase(class CVmFile *fp, const textchar_t *fname,
@@ -809,7 +809,7 @@ CTcSymObj *CTcSymObjBase::
 /*
  *   Load from an object file.  This main routine does most of the work,
  *   and returns the loaded symbol.
- *   
+ *
  *   'mod_name' is the primary symbol name for a stack of 'modify'
  *   objects.  Each of the objects in a 'modify' stack, except for the
  *   topmost (i.e., last defined) object, has a fake symbol name, since
@@ -819,7 +819,7 @@ CTcSymObj *CTcSymObjBase::
  *   file to the top of the stack in another object file if the bottom of
  *   our stack is declared external (i.e., this object file's source code
  *   used 'modify' with an external object).  If we're loading a top-level
- *   object, not a modified object, 'mod_name' should be null.  
+ *   object, not a modified object, 'mod_name' should be null.
  */
 CTcSymObj *CTcSymObjBase::
    load_from_obj_file_main(CVmFile *fp, const textchar_t *fname,
@@ -833,7 +833,7 @@ CTcSymObj *CTcSymObjBase::
     /* presume we won't be able to read a stream offset */
     int stream_ofs_valid = FALSE;
     ulong stream_ofs = 0;
-    
+
     /* read the symbol name information if it's not anonymous */
     const char *txt;
     if (!anon)
@@ -866,9 +866,9 @@ CTcSymObj *CTcSymObjBase::
     uint dict_idx = osrp2(buf + 13);
     uint obj_file_idx = osrp2(buf + 15);
 
-    /* 
+    /*
      *   if we're not external, read our stream offset, and adjust for the
-     *   object stream base in the object file 
+     *   object stream base in the object file
      */
     if (!is_extern)
     {
@@ -878,12 +878,12 @@ CTcSymObj *CTcSymObjBase::
         /* read the relative stream offset */
         stream_ofs = fp->read_uint4();
 
-        /* 
+        /*
          *   Ensure the stream offset was actually valid.  It must be valid
          *   unless the object has no stream (for example, dictionary and
          *   grammar production objects are not generated until link time,
          *   hence they don't have to have - indeed, can't have - valid
-         *   stream offsets when we're loading an object file).  
+         *   stream offsets when we're loading an object file).
          */
         assert(stream_ofs != 0xffffffff || stream == 0);
 
@@ -916,20 +916,20 @@ CTcSymObj *CTcSymObjBase::
         {
             const char *prop_name;
             CTcSymProp *prop_sym;
-            
+
             /* read the symbol name from the file */
             prop_name = base_read_from_sym_file(fp);
             if (prop_name == 0)
                 return 0;
-            
-            /* 
+
+            /*
              *   find the property symbol, or define it if it's not
-             *   already defined as a property 
+             *   already defined as a property
              */
             prop_sym = (CTcSymProp *)G_prs->get_global_symtab()
                        ->find_or_def_prop(prop_name, strlen(prop_name),
                                           FALSE);
-            
+
             /* make sure it's a property */
             if (prop_sym->get_type() != TC_SYM_PROP)
             {
@@ -949,14 +949,14 @@ CTcSymObj *CTcSymObjBase::
     CTcIdFixup::load_object_file(fp, 0, 0, TCGEN_XLAT_OBJ,
                                  4, fname, &fixups);
 
-    /* 
+    /*
      *   if this is a 'modify' object, load the base object - this is the
-     *   original version of the object, which this object modifies 
+     *   original version of the object, which this object modifies
      */
     CTcSymObj *mod_base_sym = 0;
     if (modify_flag)
     {
-        /* 
+        /*
          *   Load the base object - pass the top-level object's name
          *   (which is our own name if the caller didn't pass an enclosing
          *   top-level object to us).  Note that we must read, and can
@@ -965,7 +965,7 @@ CTcSymObj *CTcSymObjBase::
          *   always write it out at this specific place in the file, but
          *   we will have written the type information anyway; thus, we
          *   don't need the type information, but we must at least skip it
-         *   in the file.  
+         *   in the file.
          */
         mod_base_sym =
             load_from_obj_file_modbase(fp, fname, obj_xlat,
@@ -978,10 +978,10 @@ CTcSymObj *CTcSymObjBase::
             return 0;
     }
 
-    /* 
+    /*
      *   If this is a 'modifed extern' symbol, it's just a placeholder to
      *   connect the bottom object in the stack of modified objects in
-     *   this file with the top object in another object file. 
+     *   this file with the top object in another object file.
      */
     CTcSymObj *sym = 0;
     if (is_extern && modified_flag)
@@ -995,14 +995,14 @@ CTcSymObj *CTcSymObjBase::
          *   the real name for the top-level object, because the symbol
          *   we're modifying in the other file is the top object in its
          *   stack, if any).  So, look up the symbol in the other file,
-         *   which must already be loaded.  
+         *   which must already be loaded.
          */
         sym = (CTcSymObj *)
               G_prs->get_global_symtab()->find(mod_name, mod_name_len);
 
-        /* 
+        /*
          *   If the original base symbol wasn't an object of metaclass
-         *   "TADS Object", we can't modify it. 
+         *   "TADS Object", we can't modify it.
          */
         if (sym != 0
             && (sym->get_type() != TC_SYM_OBJ
@@ -1017,14 +1017,14 @@ CTcSymObj *CTcSymObjBase::
             /* forget the symbol */
             sym = 0;
         }
-        
+
         /* create a synthesized object to hold the original definition */
         CTcSymObj *mod_sym = synthesize_modified_obj_sym(FALSE);
 
         /* transfer data to the new fake symbol */
         if (sym != 0)
         {
-            /* 
+            /*
              *   'sym' has the original version of the object from the
              *   other object file - the original object file must be
              *   loaded before an object file that modifies a symbol it
@@ -1033,33 +1033,33 @@ CTcSymObj *CTcSymObjBase::
              *   have already caught if it's not defined).  We want to
              *   hijack 'sym' for our own use, since 'modify' replaces the
              *   symbol's meaning with the new object data.
-             *   
+             *
              *   Transfer the self-reference fixup list from the original
              *   version of the object to the new synthesized object --
              *   all of the self-references must now refer to the
              *   renumbered object.
-             *   
+             *
              *   This is really all we need to do to renumber the object.
              *   By moving the self-fixup list to the new fake object, we
              *   ensure that the original object will use its new number,
              *   which leaves the original number for our use in the new,
              *   modifying object (i.e., the one we're loading now).  Note
              *   that we'll replace the self-fixup list for this symbol
-             *   with the fixup list of the modifying symbol, below.  
+             *   with the fixup list of the modifying symbol, below.
              */
             mod_sym->set_fixups(sym->get_fixups());
 
-            /* 
+            /*
              *   Give the modified fake symbol the original pre-modified
              *   object data stream.  The fake symbol owns the
              *   pre-modified data stream because it's the pre-modified
-             *   object.  
+             *   object.
              */
             mod_sym->set_stream_ofs(sym->get_stream_ofs());
 
-            /* 
+            /*
              *   transfer the 'modify' base symbol from the original
-             *   version of this symbol to the new fake version 
+             *   version of this symbol to the new fake version
              */
             mod_sym->set_mod_base_sym(sym->get_mod_base_sym());
 
@@ -1067,11 +1067,11 @@ CTcSymObj *CTcSymObjBase::
             mod_sym->set_del_prop_head(sym->get_first_del_prop());
             sym->set_del_prop_head(0);
 
-            /* 
+            /*
              *   mark the original object as a 'class' object - it might
              *   have been compiled as a normal instance in its own
              *   translation unit, but it's now a class because it's the
-             *   base class for this link-time 'modify' 
+             *   base class for this link-time 'modify'
              */
             mod_sym->mark_compiled_as_class();
 
@@ -1084,9 +1084,9 @@ CTcSymObj *CTcSymObjBase::
             /* set our class flag to the one from the original symbol */
             class_flag = sym->is_class();
 
-            /* 
+            /*
              *   transfer the superclass list from the original symbol to
-             *   the modified base symbol 
+             *   the modified base symbol
              */
             mod_sym->set_sc_head(sym->get_sc_head());
             sym->set_sc_head(0);
@@ -1109,7 +1109,7 @@ CTcSymObj *CTcSymObjBase::
          *   in the context of the loaded object file.  The name is based
          *   on the object number, which is why it must be re-synthesized
          *   - the object number in this scheme can be different than the
-         *   original object number in the object file.  
+         *   original object number in the object file.
          */
         sym = synthesize_modified_obj_sym(FALSE);
 
@@ -1118,40 +1118,40 @@ CTcSymObj *CTcSymObjBase::
     }
     else if (anon)
     {
-        /* 
+        /*
          *   we will definitely not find a previous entry for an anonymous
-         *   symbol, because there's no name to look up 
+         *   symbol, because there's no name to look up
          */
         sym = 0;
     }
     else
     {
-        /* 
+        /*
          *   normal object - look up a previous definition of the symbol
-         *   in the global symbol table 
+         *   in the global symbol table
          */
         sym = (CTcSymObj *)G_prs->get_global_symtab()->find(txt, len);
     }
 
-    /* 
+    /*
      *   If this symbol is already defined, make sure the original
      *   definition is an object, and make sure that it's only defined
      *   (not referenced as external) once.  If it's not defined, define
-     *   it anew.  
+     *   it anew.
      */
     if (sym != 0 && sym->get_type() != TC_SYM_OBJ)
     {
-        /* 
+        /*
          *   It's already defined, but it's not an object - log a symbol
          *   type conflict error
          */
         sym->log_objfile_conflict(fname, TC_SYM_OBJ);
 
-        /* 
+        /*
          *   proceed despite the error, since this is merely a symbol
          *   conflict and not a file corruption - create a fake symbol to
          *   hold the data of the original symbol so we can continue
-         *   loading 
+         *   loading
          */
         sym = 0;
         use_fake_sym = TRUE;
@@ -1172,7 +1172,7 @@ CTcSymObj *CTcSymObjBase::
              && (sym->get_metaclass() == TC_META_DICT
                  || sym->get_metaclass() == TC_META_GRAMPROD))
     {
-        /* 
+        /*
          *   If this is a dictionary or grammar production object, and the
          *   original definition was of the same metaclass, allow the
          *   multiple definitions without conflict - just treat the new
@@ -1184,9 +1184,9 @@ CTcSymObj *CTcSymObjBase::
          */
         if (meta == sym->get_metaclass())
         {
-            /* 
+            /*
              *   it's another one of the same type - allow it without
-             *   conflict; act as though this new definition is external 
+             *   conflict; act as though this new definition is external
              */
             if (!sym->is_extern())
                 is_extern = FALSE;
@@ -1209,7 +1209,7 @@ CTcSymObj *CTcSymObjBase::
          *   external, but the new symbol is marked as 'replace' or
          *   'modify' - it's an error, because the original version of an
          *   object must always be loaded before the replaced or modified
-         *   version 
+         *   version
          */
         G_tcmain->log_error(0, 0, TC_SEV_ERROR,
                             TCERR_OBJFILE_MODREPOBJ_BEFORE_ORIG,
@@ -1226,28 +1226,28 @@ CTcSymObj *CTcSymObjBase::
              && !(is_extern || ext_modify_flag || ext_replace_flag
                   || modified_flag))
     {
-        /* 
+        /*
          *   the symbol was already defined, and this is a new actual
          *   definition (not external, and not replace or modify) -- this
          *   is an error because it means the same object is defined more
-         *   than once 
+         *   than once
          */
         sym->log_objfile_conflict(fname, TC_SYM_OBJ);
 
-        /* 
+        /*
          *   proceed despite the error, since this is merely a symbol
          *   conflict and not a file corruption - create a fake symbol to
          *   hold the data of the original symbol so we can continue
-         *   loading 
+         *   loading
          */
         sym = 0;
         use_fake_sym = TRUE;
     }
     else if (sym != 0 && meta != sym->get_metaclass())
     {
-        /* 
+        /*
          *   the new symbol and the old symbol have different metaclasses
-         *   - it's a conflict 
+         *   - it's a conflict
          */
         sym->log_objfile_conflict(fname, TC_SYM_OBJ);
 
@@ -1259,15 +1259,15 @@ CTcSymObj *CTcSymObjBase::
     /* create the object if necessary */
     if (sym == 0)
     {
-        /* 
+        /*
          *   The symbol isn't defined yet - create the new definition and
          *   add it to the symbol table.  Allocate a new object ID for the
-         *   symbol in the normal fashion.  
+         *   symbol in the normal fashion.
          */
         sym = new CTcSymObj(txt, len, FALSE, G_cg->new_obj_id(),
                             is_extern, meta, 0);
 
-        /* 
+        /*
          *   if we're using a fake symbol, don't bother adding the symbol
          *   to the symbol table, since its only function is to allow us
          *   to finish reading the object file data (we won't actually try
@@ -1275,8 +1275,8 @@ CTcSymObj *CTcSymObjBase::
          *   that an error has made linking impossible; we'll proceed
          *   anyway so that we catch any other errors that remain to be
          *   found)
-         *   
-         *   similarly, don't add the symbol if it's anonymous 
+         *
+         *   similarly, don't add the symbol if it's anonymous
          */
         if (!use_fake_sym && !anon)
             G_prs->get_global_symtab()->add_entry(sym);
@@ -1289,17 +1289,17 @@ CTcSymObj *CTcSymObjBase::
     /*
      *   If we're replacing the object, tell the code generator to get rid
      *   of the old object definition in the object stream -- delete the
-     *   definition at the symbol's old stream offset.  
+     *   definition at the symbol's old stream offset.
      */
     if (ext_replace_flag)
         G_cg->notify_replace_object(sym->get_stream_ofs());
 
-    /* 
+    /*
      *   If this is a non-extern definition, we now have the object
      *   defined -- remove the 'extern' flag from the symbol table entry,
      *   and set the symbol's data to the data we just read.  Do not
      *   transfer data to the symbol if this is an extern, since we want
-     *   to use the existing data from the originally loaded object.  
+     *   to use the existing data from the originally loaded object.
      */
     if (!is_extern)
     {
@@ -1320,10 +1320,10 @@ CTcSymObj *CTcSymObjBase::
         /* set the new symbol's deleted property list */
         sym->set_del_prop_head(del_prop_head);
 
-        /* 
+        /*
          *   set the symbol's class flag - only add the class flag,
          *   because we might have already set the class flag for this
-         *   symbol based on the external definition 
+         *   symbol based on the external definition
          */
         if (class_flag)
             sym->set_is_class(class_flag);
@@ -1336,9 +1336,9 @@ CTcSymObj *CTcSymObjBase::
     if (dict_idx != 0)
         sym->set_dict(G_prs->get_obj_dict(dict_idx));
 
-    /* 
+    /*
      *   if this is a dictionary symbol, add it to the dictionary fixup
-     *   list 
+     *   list
      */
     if (meta == TC_META_DICT)
         G_prs->add_dict_from_obj_file(sym);
@@ -1350,7 +1350,7 @@ CTcSymObj *CTcSymObjBase::
     /*
      *   Set the translation table entry for the symbol.  We know the
      *   original ID local to the object file, and we know the new global
-     *   object ID.  
+     *   object ID.
      */
     obj_xlat[id] = sym->get_obj_id();
 
@@ -1359,14 +1359,14 @@ CTcSymObj *CTcSymObjBase::
 }
 
 /*
- *   Apply our self-reference fixups 
+ *   Apply our self-reference fixups
  */
 void CTcSymObjBase::apply_internal_fixups()
 {
     /* run through our list and apply each fixup */
     for (CTcIdFixup *fixup = fixups_ ; fixup != 0 ; fixup = fixup->nxt_)
         fixup->apply_fixup(obj_id_, 4);
-    
+
     /*
      *   If we're a 'modify' object, and we were based at compile-time on
      *   an object external to the translation unit in which this modified
@@ -1374,7 +1374,7 @@ void CTcSymObjBase::apply_internal_fixups()
      *   list to be applied at link time.  Now is the time - go through
      *   our list and delete each property in each of our 'modify' base
      *   classes.  Don't delete the properties in our own object,
-     *   obviously - just in our modified base classes.  
+     *   obviously - just in our modified base classes.
      */
     for (CTcSymObj *mod_base = mod_base_sym_ ; mod_base != 0 ;
          mod_base = mod_base->get_mod_base_sym())
@@ -1394,7 +1394,7 @@ void CTcSymObjBase::apply_internal_fixups()
 
 /*
  *   Merge my private grammar rules into the master rule list for the
- *   associated grammar production object.  
+ *   associated grammar production object.
  */
 void CTcSymObjBase::merge_grammar_entry()
 {
@@ -1415,11 +1415,11 @@ void CTcSymObjBase::merge_grammar_entry()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   metaclass symbol base - image/object file functions 
+ *   metaclass symbol base - image/object file functions
  */
 
-/* 
- *   load from an object file 
+/*
+ *   load from an object file
  */
 int CTcSymMetaclassBase::
    load_from_obj_file(CVmFile *fp, const textchar_t *fname,
@@ -1493,7 +1493,7 @@ int CTcSymMetaclassBase::
     for ( ; prop_cnt != 0 ; --prop_cnt)
     {
         int is_static;
-        
+
         /* read the property symbol name */
         if ((txt = base_read_from_sym_file(fp)) == 0)
             return 1;
@@ -1506,25 +1506,25 @@ int CTcSymMetaclassBase::
         /* check what we're doing */
         if (sym == 0)
         {
-            /* 
+            /*
              *   we have a conflict, so we're just scanning the names to
-             *   keep in sync with the file - ignore it 
+             *   keep in sync with the file - ignore it
              */
         }
         else if (was_defined)
         {
-            /* 
+            /*
              *   the metaclass was previously defined - simply check to
              *   ensure that this property matches the corresponding
-             *   property (by list position) in the original definition 
+             *   property (by list position) in the original definition
              */
             if (prop == 0)
             {
-                /* 
+                /*
                  *   we're past the end of the original definition's
                  *   property list - this is okay, as we can simply add
                  *   the properties in the new list (which must be a more
-                 *   recent definition than the original one) 
+                 *   recent definition than the original one)
                  */
                 sym->add_prop(txt, len, fname, is_static);
             }
@@ -1545,9 +1545,9 @@ int CTcSymMetaclassBase::
         }
         else
         {
-            /* 
+            /*
              *   we're defining the metaclass anew - add this property to
-             *   the metaclass's property list 
+             *   the metaclass's property list
              */
             sym->add_prop(txt, len, fname, is_static);
         }
@@ -1559,29 +1559,29 @@ int CTcSymMetaclassBase::
     {
         /* laod the new object */
         CTcSymObj *mod_obj;
-        
+
         /* we have a modification object - load it */
         mod_obj = CTcSymObj::load_from_obj_file_modbase(
             fp, fname, obj_xlat, 0, 0, FALSE);
 
-        /* 
+        /*
          *   if the metaclass already has a modification object, then the
          *   bottom of the chain we just loaded modifies the top of the
-         *   existing chain 
+         *   existing chain
          */
         if (sym->get_mod_obj() != 0)
         {
             CTcSymObj *obj;
             CTcSymObj *prv;
 
-            /* 
+            /*
              *   Set the bottom of the new chain to point to the top of
              *   the existing chain.  The bottom object in each object
              *   file's modification chain is always a dummy root object;
              *   we'll thus find the second to last object in the new
              *   chain, and replace the pointer to its dummy root
              *   superclass with a pointer to the top of the
-             *   previously-loaded chain that we're modifying.  
+             *   previously-loaded chain that we're modifying.
              */
 
             /* find the second-to-last object in the new chain */
@@ -1589,9 +1589,9 @@ int CTcSymMetaclassBase::
                  obj != 0 && obj->get_mod_base_sym() != 0 ;
                  prv = obj, obj = obj->get_mod_base_sym()) ;
 
-            /* 
+            /*
              *   if we found the second-to-last object, set up the link
-             *   back into the old chain 
+             *   back into the old chain
              */
             if (prv != 0)
                 prv->set_mod_base_sym(sym->get_mod_obj());
@@ -1612,7 +1612,7 @@ int CTcSymMetaclassBase::
  */
 
 /*
- *   Load from an object file 
+ *   Load from an object file
  */
 int CTcSymPropBase::load_from_obj_file(class CVmFile *fp,
                                        const textchar_t *fname,
@@ -1627,32 +1627,32 @@ int CTcSymPropBase::load_from_obj_file(class CVmFile *fp,
     /* read our property ID */
     ulong id = fp->read_uint4();
 
-    /* 
+    /*
      *   If this symbol is already defined, make sure the original
-     *   definition is a property.  If it's not defined, define it anew.  
+     *   definition is a property.  If it's not defined, define it anew.
      */
     CTcSymProp *sym = (CTcSymProp *)G_prs->get_global_symtab()->find(txt, len);
     if (sym == 0)
     {
-        /* 
+        /*
          *   It's not defined yet - create the new definition and add it
          *   to the symbol table.  Allocate a new property ID for the
-         *   symbol in the normal fashion.  
+         *   symbol in the normal fashion.
          */
         sym = new CTcSymProp(txt, len, FALSE, G_cg->new_prop_id());
         G_prs->get_global_symtab()->add_entry(sym);
     }
     else if (sym->get_type() != TC_SYM_PROP)
     {
-        /* 
+        /*
          *   It's not already defined as a property - log a symbol type
-         *   conflict error 
+         *   conflict error
          */
         sym->log_objfile_conflict(fname, TC_SYM_PROP);
 
-        /* 
+        /*
          *   proceed despite the error, since this is merely a symbol
-         *   conflict and not a file corruption 
+         *   conflict and not a file corruption
          */
         return 0;
     }
@@ -1667,14 +1667,14 @@ int CTcSymPropBase::load_from_obj_file(class CVmFile *fp,
     /* success */
     return 0;
 }
-                                       
+
 /* ------------------------------------------------------------------------ */
 /*
- *   enumerator symbol entry base - image/object file functions 
+ *   enumerator symbol entry base - image/object file functions
  */
 
 /*
- *   Load from an object file 
+ *   Load from an object file
  */
 int CTcSymEnumBase::load_from_obj_file(class CVmFile *fp,
                                        const textchar_t *fname,
@@ -1701,32 +1701,32 @@ int CTcSymEnumBase::load_from_obj_file(class CVmFile *fp,
     /* get the 'token' flag */
     is_token = ((buf[0] & 1) != 0);
 
-    /* 
+    /*
      *   If this symbol is already defined, make sure the original
-     *   definition is an enum.  If it's not defined, define it anew.  
+     *   definition is an enum.  If it's not defined, define it anew.
      */
     sym = (CTcSymEnum *)G_prs->get_global_symtab()->find(txt, len);
     if (sym == 0)
     {
-        /* 
+        /*
          *   It's not defined yet - create the new definition and add it
          *   to the symbol table.  Allocate a new enumerator ID for the
-         *   symbol in the normal fashion.  
+         *   symbol in the normal fashion.
          */
         sym = new CTcSymEnum(txt, len, FALSE, G_prs->new_enum_id(), is_token);
         G_prs->get_global_symtab()->add_entry(sym);
     }
     else if (sym->get_type() != TC_SYM_ENUM)
     {
-        /* 
+        /*
          *   It's not already defined as an enumerator - log a symbol type
-         *   conflict error 
+         *   conflict error
          */
         sym->log_objfile_conflict(fname, TC_SYM_ENUM);
 
-        /* 
+        /*
          *   proceed despite the error, since this is merely a symbol
-         *   conflict and not a file corruption 
+         *   conflict and not a file corruption
          */
         return 0;
     }
@@ -1734,21 +1734,21 @@ int CTcSymEnumBase::load_from_obj_file(class CVmFile *fp,
     /*
      *   Set the translation table entry for the symbol.  We know the
      *   original ID local to the object file, and we know the new global
-     *   enum ID.  
+     *   enum ID.
      */
     enum_xlat[id] = sym->get_enum_id();
 
     /* success */
     return 0;
 }
-                                       
+
 /* ------------------------------------------------------------------------ */
 /*
  *   Built-in function symbol base - image/object file functions
  */
 
-/* 
- *   load from an object file 
+/*
+ *   load from an object file
  */
 int CTcSymBifBase::load_from_obj_file(class CVmFile *fp,
                                       const textchar_t *fname)
@@ -1778,18 +1778,18 @@ int CTcSymBifBase::load_from_obj_file(class CVmFile *fp,
     func_set_id = osrp2(buf+6);
     func_idx = osrp2(buf+8);
 
-    /* 
+    /*
      *   If this symbol is already defined, make sure the new definition
      *   matches the original definition - built-in function sets must be
      *   identical in all object files loaded.  If it's not already
-     *   defined, add it now.  
+     *   defined, add it now.
      */
     sym = (CTcSymBif *)G_prs->get_global_symtab()->find(txt, len);
     if (sym == 0)
     {
-        /* 
+        /*
          *   it's not defined yet - create the new definition and add it
-         *   to the symbol table 
+         *   to the symbol table
          */
         sym = new CTcSymBif(txt, len, FALSE, func_set_id, func_idx,
                             has_retval, min_argc, max_argc, varargs);
@@ -1807,20 +1807,20 @@ int CTcSymBifBase::load_from_obj_file(class CVmFile *fp,
              || sym->is_varargs() != varargs
              || sym->has_retval() != has_retval)
     {
-        /* 
+        /*
          *   this function is already defined but has different settings
          *   -- we cannot reconcile the different usages of the function,
-         *   so this is an error 
+         *   so this is an error
          */
         G_tcmain->log_error(0, 0, TC_SEV_ERROR, TCERR_OBJFILE_BIF_INCOMPAT,
                             (int)len, txt, fname);
     }
     else
     {
-        /* 
+        /*
          *   everything about the symbol matches - there's no need to
          *   redefine the symbol, since it's already set up exactly as we
-         *   need it to be 
+         *   need it to be
          */
     }
 
@@ -1833,8 +1833,8 @@ int CTcSymBifBase::load_from_obj_file(class CVmFile *fp,
  *   Grammar production list entry
  */
 
-/* 
- *   load from an object file 
+/*
+ *   load from an object file
  */
 void CTcGramProdEntry::load_from_obj_file(
     CVmFile *fp, const tctarg_prop_id_t *prop_xlat, const ulong *enum_xlat,
@@ -1846,9 +1846,9 @@ void CTcGramProdEntry::load_from_obj_file(
     CTcGramProdEntry *prod;
     ulong flags;
 
-    /* 
+    /*
      *   read the object file index of the production object, and get the
-     *   production object 
+     *   production object
      */
     idx = fp->read_uint4();
     obj = G_prs->get_objfile_objsym(idx);
@@ -1891,8 +1891,8 @@ void CTcGramProdEntry::load_from_obj_file(
  *   Grammar production alternative
  */
 
-/* 
- *   load from an object file 
+/*
+ *   load from an object file
  */
 CTcGramProdAlt *CTcGramProdAlt::
    load_from_obj_file(CVmFile *fp, const tctarg_prop_id_t *prop_xlat,
@@ -1950,8 +1950,8 @@ CTcGramProdAlt *CTcGramProdAlt::
  *   Grammar production token
  */
 
-/* 
- *   load from an object file 
+/*
+ *   load from an object file
  */
 CTcGramProdTok *CTcGramProdTok::
    load_from_obj_file(CVmFile *fp, const tctarg_prop_id_t *prop_xlat,

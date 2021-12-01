@@ -1,10 +1,10 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 2010 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -26,7 +26,7 @@ Function
   the program is definitely done with it, since the program doesn't have any
   references to it.
 Notes
-  
+
 Modified
   11/20/10 MJRoberts  - Creation
 */
@@ -44,9 +44,9 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   Image file data block:
- *   
+ *
  *   This object doesn't store anything in an image file.  A temporary file
- *   object is completely transient and doesn't have anything to store.  
+ *   object is completely transient and doesn't have anything to store.
  */
 
 
@@ -62,12 +62,12 @@ struct vm_tmpfil_ext
     static vm_tmpfil_ext *alloc_ext(
         VMG_ class CVmObjTemporaryFile *self, const char *filename);
 
-    /* 
+    /*
      *   The filename, as a null-terminated string.  We overallocate the
      *   structure with enough space.  If this is set to an empty string, it
      *   means that the temporary file is no longer valid.  This happens if
      *   the object is loaded from an image file or explicitly released via
-     *   the deleteFile() method.  
+     *   the deleteFile() method.
      */
     char filename[1];
 };
@@ -81,7 +81,7 @@ struct vm_tmpfil_ext
 class CVmObjTemporaryFile: public CVmObject
 {
     friend class CVmMetaclassTemporaryFile;
-    
+
 public:
     /* metaclass registration object */
     static class CVmMetaclass *metaclass_reg_;
@@ -99,9 +99,9 @@ public:
     static int is_tmpfil_obj(VMG_ vm_obj_id_t obj)
         { return vm_objp(vmg_ obj)->is_of_metaclass(metaclass_reg_); }
 
-    /* 
+    /*
      *   Get the name of the temp file (as a null-terminated string).
-     *   Returns null if the temp file is invalid. 
+     *   Returns null if the temp file is invalid.
      */
     const char *get_fname() const
     {
@@ -113,9 +113,9 @@ public:
     static vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr,
                                          uint argc);
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -136,18 +136,18 @@ public:
     int get_prop(VMG_ vm_prop_id_t prop, vm_val_t *val,
                  vm_obj_id_t self, vm_obj_id_t *source_obj, uint *argc);
 
-    /* 
+    /*
      *   receive savepoint notification - we don't keep any
-     *   savepoint-relative records, so we don't need to do anything here 
+     *   savepoint-relative records, so we don't need to do anything here
      */
     void notify_new_savept() { }
-    
+
     /* apply an undo record */
     void apply_undo(VMG_ struct CVmUndoRecord *rec);
-    
+
     /* discard an undo record */
     void discard_undo(VMG_ struct CVmUndoRecord *);
-    
+
     /* mark our undo record references */
     void mark_undo_ref(VMG_ struct CVmUndoRecord *) { }
 
@@ -208,7 +208,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjTemporaryFile metaclass registration table object 
+ *   CVmObjTemporaryFile metaclass registration table object
  */
 class CVmMetaclassTemporaryFile: public CVmMetaclass
 {
@@ -233,7 +233,7 @@ public:
     /* create dynamically using stack arguments */
     vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr, uint argc)
         { return CVmObjTemporaryFile::create_from_stack(vmg_ pc_ptr, argc); }
-    
+
     /* call a static property */
     int call_stat_prop(VMG_ vm_val_t *result,
                        const uchar **pc_ptr, uint *argc,
@@ -247,6 +247,6 @@ public:
 #endif /* VMTMPFIL_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjTemporaryFile)

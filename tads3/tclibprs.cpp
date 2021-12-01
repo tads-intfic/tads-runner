@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 2002, 2002 Michael J Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -13,7 +13,7 @@ Function
   as though it were a source file, and stands for the set of source files
   it references.  A .tl file can reference other .tl files.
 Notes
-  
+
 Modified
   01/08/02 MJRoberts  - Creation
 */
@@ -32,17 +32,17 @@ Modified
 /*
  *   Instantiate.  We'll note the name of the library, but we don't attempt
  *   to open it at this point - we won't open the file until parse_lib() is
- *   called.  
+ *   called.
  */
 CTcLibParser::CTcLibParser(const char *lib_name)
 {
     char lib_path[OSFNMAX];
 
-    /* 
+    /*
      *   Extract the library's directory path.  Since files within a library
      *   are always relative to the directory containing the library itself,
      *   we use the full path to the library as the starting point for each
-     *   file found within the library.  
+     *   file found within the library.
      */
     os_get_path_name(lib_path, sizeof(lib_path), lib_name);
 
@@ -67,7 +67,7 @@ CTcLibParser::~CTcLibParser()
 }
 
 /*
- *   Parse a library file. 
+ *   Parse a library file.
  */
 void CTcLibParser::parse_lib()
 {
@@ -115,13 +115,13 @@ void CTcLibParser::parse_lib()
         {
             char buf2[128];
             size_t len2;
-            
-            /* 
+
+            /*
              *   If we can read anything more from the file, this indicates
              *   that the line was simply too long to read into our buffer;
              *   skip the rest of the line and log an error in this case.
              *   If we can't read any more text, it means we've reached the
-             *   end of the file. 
+             *   end of the file.
              */
             if ((len2 = fp->read_line(buf2, sizeof(buf2))) != 0)
             {
@@ -139,7 +139,7 @@ void CTcLibParser::parse_lib()
                     if (len2 != 0
                         && (buf2[len2-1] == '\n' || buf2[len2-1] == '\r'))
                         break;
-                    
+
                     /* read another chunk */
                     if ((len2 = fp->read_line(buf2, sizeof(buf2))) == 0)
                         break;
@@ -159,14 +159,14 @@ void CTcLibParser::parse_lib()
             /* check for the start of a preprocessor symbol */
             if (*p == '$')
             {
-                /* 
+                /*
                  *   We have a dollar sign, so this *could* be a preprocessor
                  *   symbol.  If the next character is '(', then find the
                  *   matching ')', and take the part between the parentheses
                  *   as a symbol to expand.  If the next character is '$',
                  *   replace the pair with a single dollar sign.  If the next
                  *   character is anything else, the '$' is not significant,
-                 *   so leave it as it is.  
+                 *   so leave it as it is.
                  */
                 if (*(p+1) == '(')
                 {
@@ -176,10 +176,10 @@ void CTcLibParser::parse_lib()
                     for (closep = p + 2 ; *closep != '\0' && *closep != ')' ;
                          ++closep) ;
 
-                    /* 
+                    /*
                      *   if we found the close paren, process it; if not,
                      *   just ignore the whole thing and treat the '$(' as a
-                     *   pair of ordinary characters 
+                     *   pair of ordinary characters
                      */
                     if (*closep == ')')
                     {
@@ -217,12 +217,12 @@ void CTcLibParser::parse_lib()
                             dst += vallen;
                         }
 
-                        /* 
+                        /*
                          *   Skip to the close paren and continue with the
                          *   main loop.  We don't need to copy any input for
                          *   the symbol, because we've already copied the
                          *   expansion instead; so just go back to the start
-                         *   of the input loop.  
+                         *   of the input loop.
                          */
                         p = closep;
                         continue;
@@ -235,10 +235,10 @@ void CTcLibParser::parse_lib()
                 }
                 else if (*(p+1) == '$')
                 {
-                    /* 
+                    /*
                      *   we have a double dollar sign, so turn it into a
                      *   single dollar sign - simply skip the first of the
-                     *   pair so we only keep one 
+                     *   pair so we only keep one
                      */
                     ++p;
                 }
@@ -282,9 +282,9 @@ void CTcLibParser::parse_lib()
         /* skip spaces after the end of the variable name */
         for ( ; isspace(*p) ; ++p) ;
 
-        /* 
+        /*
          *   if we didn't find a colon after the variable name, it's an
-         *   error; flag the error and skip the line 
+         *   error; flag the error and skip the line
          */
         if (*p != ':')
         {
@@ -296,9 +296,9 @@ void CTcLibParser::parse_lib()
             }
             else
             {
-                /* 
+                /*
                  *   it's not a valid stand-alone flag; the definition must
-                 *   be missing the value portion 
+                 *   be missing the value portion
                  */
                 err_missing_colon();
                 ++err_cnt_;
@@ -326,7 +326,7 @@ void CTcLibParser::parse_lib()
 }
 
 /*
- *   Scan a variable 
+ *   Scan a variable
  */
 void CTcLibParser::scan_var(const char *name, const char *val)
 {
@@ -347,7 +347,7 @@ void CTcLibParser::scan_var(const char *name, const char *val)
 
 /*
  *   Scan a source filename.  We build the full filename by combining the
- *   library path and the given filename, then we call scan_full_source().  
+ *   library path and the given filename, then we call scan_full_source().
  */
 void CTcLibParser::scan_source(const char *val)
 {
@@ -367,7 +367,7 @@ void CTcLibParser::scan_source(const char *val)
 /*
  *   Scan a library filename.  We build the full filename by combining the
  *   enclosing library path and the given filename, then we call
- *   scan_full_library().  
+ *   scan_full_library().
  */
 void CTcLibParser::scan_library(const char *val)
 {
@@ -387,7 +387,7 @@ void CTcLibParser::scan_library(const char *val)
 /*
  *   Scan a resource filename.  We build the full filename by combining the
  *   enclosing library path and the given filename, then we call
- *   scan_full_resource().  
+ *   scan_full_resource().
  */
 void CTcLibParser::scan_resource(const char *val)
 {
@@ -405,7 +405,7 @@ void CTcLibParser::scan_resource(const char *val)
 }
 
 /*
- *   scan a "needmacro" definition 
+ *   scan a "needmacro" definition
  */
 void CTcLibParser::scan_needmacro(const char *val)
 {
@@ -434,7 +434,7 @@ void CTcLibParser::scan_needmacro(const char *val)
 
 /*
  *   Scan a parsed "needmacro" definition.  This default implementation shows
- *   an error and the library-defined warning text.  
+ *   an error and the library-defined warning text.
  */
 void CTcLibParser::scan_parsed_needmacro(const char *macro_name,
                                          size_t macro_len,
@@ -457,8 +457,8 @@ void CTcLibParser::scan_parsed_needmacro(const char *macro_name,
     }
 }
 
-/* 
- *   log an error in a source line 
+/*
+ *   log an error in a source line
  */
 void CTcLibParser::src_err_msg(const char *msg, ...)
 {

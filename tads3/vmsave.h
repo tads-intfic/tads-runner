@@ -1,10 +1,10 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -12,7 +12,7 @@ Name
 Function
   Saves/restores VM state to/from a file.
 Notes
-  
+
 Modified
   08/02/99 MJRoberts  - Creation
 */
@@ -29,10 +29,10 @@ Modified
 class CVmSaveFile
 {
 public:
-    /* 
+    /*
      *   Save state to a file.  Writes the state information to the given
      *   open file stream.
-     *   
+     *
      *   'metadata' is an optional LookupTable object containing
      *   string->string associations.  We'll write each key/value pair to the
      *   save file in the metadata header section.  This section allows the
@@ -40,21 +40,21 @@ public:
      *   on the saved game.  For example, you could store things like the
      *   current location, chapter number, score, etc - things that would
      *   help the user identify the context of the saved game when looking
-     *   for the one he/she wishes to restore.  
+     *   for the one he/she wishes to restore.
      */
     static void save(VMG_ class CVmFile *fp,
                      class CVmObjLookupTable *metadata);
 
-    /* 
+    /*
      *   given a saved state file, read the name of the image file that
-     *   created it 
+     *   created it
      */
     static int restore_get_image(osfildef *fp,
                                  char *fname_buf, size_t fname_buf_len);
 
-    /* 
+    /*
      *   Restore state from a file.  Returns zero on success, or a
-     *   VMERR_xxx code indicating the problem on failure.  
+     *   VMERR_xxx code indicating the problem on failure.
      */
     static int restore(VMG_ class CVmFile *fp);
 

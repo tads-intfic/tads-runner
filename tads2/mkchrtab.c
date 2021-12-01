@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/mkchrtab.c,v 1.2 1999/05/17 02:52:14 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   mkchrtab.c - TADS character table generator
 Function
-  
+
 Notes
-  
+
 Modified
   05/31/98 MJRoberts  - Creation
 */
@@ -44,18 +44,18 @@ static int read_number(unsigned int *result, char **p,
     unsigned int base;
     unsigned int acc;
     int digcnt;
-    
+
     /* skip any leading spaces */
     while (isspace(**p))
         ++(*p);
 
     /*
-     *   Check for a character value 
+     *   Check for a character value
      */
     if (**p == '\'')
     {
         unsigned char c;
-        
+
         /* get the next character */
         ++(*p);
 
@@ -120,15 +120,15 @@ static int read_number(unsigned int *result, char **p,
         return 0;
     }
 
-    /* 
+    /*
      *   determine the base - if there's a leading zero, it's hex or
-     *   octal; otherwise, it's decimal 
+     *   octal; otherwise, it's decimal
      */
     if (**p == '0')
     {
         /* skip the leading zero */
         ++(*p);
-        
+
         /* if the next character is 'x', it's hex, otherwise it's octal */
         if (**p == 'x' || **p == 'X')
         {
@@ -157,7 +157,7 @@ static int read_number(unsigned int *result, char **p,
         if (isdigit(**p) || (base == 16 && isxdigit(**p)))
         {
             unsigned int dig;
-            
+
             /* get this digit's value */
             dig = (unsigned int)(isdigit(**p)
                                  ? **p - '0'
@@ -210,7 +210,7 @@ static int read_number(unsigned int *result, char **p,
 
 
 /*
- *   Check to see if an identifier matches a given string 
+ *   Check to see if an identifier matches a given string
  */
 static int id_matches(const char *idp, size_t idlen, const char *str)
 {
@@ -218,7 +218,7 @@ static int id_matches(const char *idp, size_t idlen, const char *str)
 }
 
 /*
- *   HTML Entity mapping structure 
+ *   HTML Entity mapping structure
  */
 struct entity_t
 {
@@ -227,7 +227,7 @@ struct entity_t
 };
 
 /*
- *   List of HTML TADS entity names and the corresponding character codes 
+ *   List of HTML TADS entity names and the corresponding character codes
  */
 static const struct entity_t entities[] =
 {
@@ -561,7 +561,7 @@ static const struct entity_t entities[] =
 /*
  *   Entity mapping list entry.  We store each entity mapping we find in
  *   the file in one of these structures, and link the structures together
- *   into a list. 
+ *   into a list.
  */
 typedef struct entity_map_t entity_map_t;
 struct entity_map_t
@@ -580,7 +580,7 @@ struct entity_map_t
 };
 
 /*
- *   Parse an entity name mapping 
+ *   Parse an entity name mapping
  */
 static entity_map_t *parse_entity(char *p, char *infile, int linenum)
 {
@@ -589,7 +589,7 @@ static entity_map_t *parse_entity(char *p, char *infile, int linenum)
     unsigned char buf[CMAP_MAX_ENTITY_EXPANSION];
     unsigned char *dstp;
     entity_map_t *mapp;
-    
+
     /* find the end of the entity name */
     start = p;
     for ( ; isalpha(*p) || isdigit(*p) ; ++p) ;
@@ -676,7 +676,7 @@ static entity_map_t *parse_entity(char *p, char *infile, int linenum)
 
 
 /*
- *   Unicode mapping table entry 
+ *   Unicode mapping table entry
  */
 typedef struct unicode_map_t unicode_map_t;
 struct unicode_map_t
@@ -686,7 +686,7 @@ struct unicode_map_t
 };
 
 /*
- *   Generate a mapping table by associating two Unicode mapping tables 
+ *   Generate a mapping table by associating two Unicode mapping tables
  */
 static void gen_unicode_mapping(unicode_map_t map_from[256],
                                 unicode_map_t map_to[256],
@@ -696,16 +696,16 @@ static void gen_unicode_mapping(unicode_map_t map_from[256],
                                 unsigned char result_rev_set[256])
 {
     int i;
-    
+
     /*
      *   For each item in the 'from' map, find the entry in the 'to' map
      *   with the same Unicode value.  This gives the value that we store
-     *   in the result table at the 'from' character index location. 
+     *   in the result table at the 'from' character index location.
      */
     for (i = 0 ; i < 256 ; ++i)
     {
         int j;
-        
+
         /* find this 'from' Unicode value in the 'to' table */
         for (j = 0 ; j < 256 ; ++j)
         {
@@ -734,14 +734,14 @@ static void gen_unicode_mapping(unicode_map_t map_from[256],
 }
 
 /*
- *   Load a Unicode mapping file 
+ *   Load a Unicode mapping file
  */
 static void load_unicode_file(char *filename, unicode_map_t map[256],
                               char *infile, int linenum)
 {
     osfildef *fp;
     int linenum_u;
-        
+
     /* open the unicode file */
     fp = osfoprs(filename, OSFTTEXT);
     if (fp == 0)
@@ -787,22 +787,22 @@ static void load_unicode_file(char *filename, unicode_map_t map[256],
 }
 
 /*
- *   Generate the HTML named entity mappings for the native character set 
+ *   Generate the HTML named entity mappings for the native character set
  */
 static void gen_unicode_html_mapping(unicode_map_t map_native[256],
                                      entity_map_t **entity_first,
                                      entity_map_t **entity_last)
 {
     unsigned int i;
-    
+
     /* go through the native characters and find the named entity for each */
     for (i = 0 ; i < 255 ; ++i)
     {
         const struct entity_t *entity;
-        
-        /* 
+
+        /*
          *   scan the named entity table to find an entity with the same
-         *   Unicode value as this native character's Unicode mapping 
+         *   Unicode value as this native character's Unicode mapping
          */
         for (entity = entities ; entity->ename != 0 ; ++entity)
         {
@@ -820,18 +820,18 @@ static void gen_unicode_html_mapping(unicode_map_t map_native[256],
                 mapp->exp_len = 1;
                 mapp->expansion[0] = (unsigned char)i;
 
-                /* 
+                /*
                  *   link it at the head of the list, so that any explicit
                  *   mapping specified by the user for the same entity
                  *   already or subsequently will override it (this will
                  *   happen because the users's entries always go at the
-                 *   end of the list) 
+                 *   end of the list)
                  */
                 mapp->nxt = *entity_first;
                 if (*entity_last == 0)
                     *entity_last = mapp;
                 *entity_first = mapp;
-                
+
                 /* no need to look any further */
                 break;
             }
@@ -841,7 +841,7 @@ static void gen_unicode_html_mapping(unicode_map_t map_native[256],
 
 
 /*
- *   Parse Unicode mapping files 
+ *   Parse Unicode mapping files
  */
 static void parse_unicode_files(char *val, size_t vallen,
                                 char *infile, int linenum,
@@ -857,7 +857,7 @@ static void parse_unicode_files(char *val, size_t vallen,
     char *dst;
     unicode_map_t map_native[256];
     unicode_map_t map_internal[256];
-    
+
     /* retrieve the filenames */
     fn_native[0] = '\0';
     fn_internal[0] = '\0';
@@ -870,7 +870,7 @@ static void parse_unicode_files(char *val, size_t vallen,
         /* if we're at a comment, we're done */
         if (*val == '#')
             break;
-        
+
         /* find the end of the current identifier */
         for (id = val ; vallen > 0 && isalpha(*val) ; ++val, --vallen) ;
         idlen = val - id;
@@ -944,10 +944,10 @@ static void parse_unicode_files(char *val, size_t vallen,
                 /* skip the quote */
                 ++val;
                 --vallen;
-                
-                /* 
+
+                /*
                  *   if it's stuttered, keep a single copy and keep going;
-                 *   otherwise, we're done 
+                 *   otherwise, we're done
                  */
                 if (vallen > 1 && *(val+1) == qu)
                 {
@@ -996,7 +996,7 @@ static void parse_unicode_files(char *val, size_t vallen,
 
 
 /*
- *   Main entrypoint 
+ *   Main entrypoint
  */
 int main(int argc, char **argv)
 {
@@ -1054,11 +1054,11 @@ int main(int argc, char **argv)
                "Options:\n"
                "  -strict   warn if any codes 128-255 are unassigned\n");
 #if 0
-/* 
+/*
  *   The information about what goes in the file made the message way too
  *   long, so this has been removed.  Users will want to the documentation
  *   instead of the usage message for information this detailed, so it
- *   didn't seem useful to keep it in here.  
+ *   didn't seem useful to keep it in here.
  */
         printf("\n"
                "The source file contains one entry per line, as follows:\n"
@@ -1117,9 +1117,9 @@ int main(int argc, char **argv)
     infile = argv[curarg];
     outfile = argv[curarg + 1];
 
-    /* 
+    /*
      *   initialize the tables - by default, a character code in one
-     *   character set maps to the same code in the other character set 
+     *   character set maps to the same code in the other character set
      */
     for (p = input_map, i = 0 ; i < sizeof(input_map)/sizeof(input_map[0]) ;
          ++i, ++p)
@@ -1129,12 +1129,12 @@ int main(int argc, char **argv)
          i < sizeof(output_map)/sizeof(output_map[0]) ; ++i, ++p)
         *p = (unsigned char)i;
 
-    /* 
+    /*
      *   initialize the "set" flags all to false, since we haven't set any
      *   of the values yet -- we'll use these flags to detect when the
      *   user attempts to set the same value more than once, so that we
      *   can issue a warning (multiple mappings are almost certainly in
-     *   error) 
+     *   error)
      */
     for (i = 0 ; i < sizeof(input_map_set)/sizeof(input_map_set[0]) ; ++i)
         input_map_set[i] = output_map_set[i] = FALSE;
@@ -1177,7 +1177,7 @@ int main(int argc, char **argv)
             char *val;
             size_t vallen;
             size_t idlen;
-            
+
             /* find the end of the directive name */
             for (sp = p ; isalpha(*sp) || *sp == '_' ; ++sp) ;
             idlen = sp - p;
@@ -1331,9 +1331,9 @@ int main(int argc, char **argv)
             /* skip the '&' */
             ++p;
 
-            /* 
+            /*
              *   parse the entity - if it succeeds, link the resulting
-             *   mapping entry into our list 
+             *   mapping entry into our list
              */
             mapp = parse_entity(p, infile, linenum);
             if (mapp != 0)
@@ -1362,7 +1362,7 @@ int main(int argc, char **argv)
                 /* skip the operator */
                 p += 2;
 
-                /* 
+                /*
                  *   This is a "from" translation - it only affects the
                  *   output mapping from the internal character set to the
                  *   native character set.  Read the second number.  There
@@ -1372,11 +1372,11 @@ int main(int argc, char **argv)
                 if (read_number(&n2, &p, infile, linenum, TRUE))
                     continue;
 
-                /* 
+                /*
                  *   The forward translation is not affected; set only the
                  *   output translation.  Note that the first number was
                  *   the output (native) value for the internal index in
-                 *   the second number, so move the first value to n3.  
+                 *   the second number, so move the first value to n3.
                  */
                 n3 = n1;
                 set_input = FALSE;
@@ -1386,10 +1386,10 @@ int main(int argc, char **argv)
                 /* skip it */
                 p += 3;
 
-                /* 
+                /*
                  *   this is a reversible translation, so we only need one
                  *   more number - the third number is implicitly the same
-                 *   as the first 
+                 *   as the first
                  */
                 n3 = n1;
                 if (read_number(&n2, &p, infile, linenum, TRUE))
@@ -1419,10 +1419,10 @@ int main(int argc, char **argv)
             if (read_number(&n2, &p, infile, linenum, TRUE))
                 continue;
 
-            /* 
+            /*
              *   we may or may not have a third number - if we have
              *   another -> operator, read the third number; if we don't,
-             *   the reverse translation is not affected by this entry 
+             *   the reverse translation is not affected by this entry
              */
             if (*p == '-')
             {
@@ -1445,7 +1445,7 @@ int main(int argc, char **argv)
             {
                 /*
                  *   There's no third number - the reverse translation is
-                 *   not affected by this line.  
+                 *   not affected by this line.
                  */
                 set_output = FALSE;
             }
@@ -1471,7 +1471,7 @@ int main(int argc, char **argv)
                 printf("%s: line %d: warning - native character %u has "
                        "already been\n    mapped to internal value %u\n",
                        infile, linenum, n1, input_map[n1]);
-            
+
             /* set it */
             input_map[n1] = n2;
 
@@ -1500,7 +1500,7 @@ int main(int argc, char **argv)
     osfcls(fp);
 
     /*
-     *   It's an error if we didn't get an ID or LDESC 
+     *   It's an error if we didn't get an ID or LDESC
      */
     if (id[0] == '\0')
     {
@@ -1554,7 +1554,7 @@ int main(int argc, char **argv)
     }
 
     /*
-     *   Write the entity mapping list, if we have any entities 
+     *   Write the entity mapping list, if we have any entities
      */
     if (entity_first != 0)
     {
@@ -1588,9 +1588,9 @@ int main(int argc, char **argv)
             free(entp);
         }
 
-        /* 
+        /*
          *   write out the end marker, which is just a length marker and
-         *   character marker of zero 
+         *   character marker of zero
          */
         oswp2(lenbuf, 0);
         oswp2(cvalbuf, 0);

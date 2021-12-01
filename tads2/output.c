@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/Output.c,v 1.2 1999/05/17 02:52:12 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1987, 1988 by Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -56,9 +56,9 @@ Modified
 #include "dbg.h"
 #include "cmap.h"
 
-/* 
+/*
  *   use our own isxxx - anything outside the US ASCII range is not reliably
- *   classifiable by the normal C isxxx routines 
+ *   classifiable by the normal C isxxx routines
  */
 #define outissp(c) (((uchar)(c)) <= 127 && isspace((uchar)(c)))
 #define outisal(c) (((uchar)(c)) <= 127 && isalpha((uchar)(c)))
@@ -70,29 +70,29 @@ Modified
 /*
  *   Turn on formatter-level MORE mode, EXCEPT under any of the following
  *   conditions:
- *   
+ *
  *   - this is a MAC OS port
  *.  - this is an HTML TADS interpreter
  *.  - USE_OS_LINEWRAP is defined
- *   
+ *
  *   Formatter-level MORE mode and formatter-level line wrapping go together;
  *   you can't have one without the other.  So, if USE_OS_LINEWRAP is
  *   defined, we must also use OS-level MORE mode, which means we don't want
  *   formatter-level MORE mode.
- *   
+ *
  *   For historical reasons, we check specifically for MAC_OS.  This was the
  *   first platform for which OS-level MORE mode and OS-level line wrapping
  *   were invented; at the time, we foolishly failed to anticipate that more
  *   platforms might eventually come along with the same needs, so we coded a
  *   test for MAC_OS rather than some more abstract marker.  For
  *   compatibility, we retain this specific test.
- *   
+ *
  *   USE_OS_LINEWRAP is intended as the more abstract marker we should
  *   originally have used.  A port should #define USE_OS_LINEWRAP in its
  *   system-specific os_xxx.h header to turn on OS-level line wrapping and
  *   OS-level MORE mode.  Ports should avoid adding new #ifndef tests for
  *   specific platforms here; we've only retained the MAC_OS test because we
- *   don't want to break the existing MAC_OS port.  
+ *   don't want to break the existing MAC_OS port.
  */
 #ifndef MAC_OS
 # ifndef USE_HTML
@@ -102,7 +102,7 @@ Modified
 # endif /* USE_HTML */
 #endif /* MAC_OS */
 
-/* 
+/*
  *   In HTML mode, don't use MORE mode.  Note that we explicitly turn MORE
  *   mode OFF, even though we won't have turned it on above, because it might
  *   have been turned on by an os_xxx.h header.  This is here for historical
@@ -110,7 +110,7 @@ Modified
  *   headers that were originally written for the normal builds for those
  *   same platforms, and those original headers explicitly #define USE_MORE
  *   somewhere.  So, to be absolutely sure we get it right here, we have to
- *   explicitly turn off USE_MORE when compiling for HTML mode.  
+ *   explicitly turn off USE_MORE when compiling for HTML mode.
  */
 #ifdef USE_HTML
 # ifdef USE_MORE
@@ -131,7 +131,7 @@ Modified
  *   QTAB is a special hard tab character indicator.  We use this when we
  *   need to generate a hard tab to send to the underlying output layer
  *   (in particular, we use this to send hard tabs to the HTML formatter
- *   when we're in HTML mode).  
+ *   when we're in HTML mode).
  */
 #define QTAB 25
 
@@ -145,7 +145,7 @@ Modified
  *   Globals and statics.  These should really be moved into a context
  *   structure, so that the output formatter subsystem could be shared
  *   among multiple clients.  For now, there's no practical problem using
- *   statics, because we only need a single output subsystem at one time.  
+ *   statics, because we only need a single output subsystem at one time.
  */
 
 /* current script (command input) file */
@@ -154,13 +154,13 @@ extern osfildef *scrfp;
 /*
  *   This should be TRUE if the output should have two spaces after a
  *   period (or other such punctuation. It should generally be TRUE for
- *   fixed-width fonts, and FALSE for proportional fonts.  
+ *   fixed-width fonts, and FALSE for proportional fonts.
  */
 static int doublespace = 1;
 
 /*
  *   Log file handle and name.  If we're copying output to a log file,
- *   these will tell us about the file.  
+ *   these will tell us about the file.
  */
 osfildef *logfp;
 static char logfname[OSFNMAX];
@@ -197,13 +197,13 @@ static objnum G_user_filter = MCMONINV;
 
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   Hack to run with TADS 2.0 with minimal reworking.  Rather than using
  *   an allocated output layer context, store our subsystem context
  *   information in some statics.  This is less clean than using a real
  *   context, but doesn't create any practical problems as we don't need
  *   to share the output formatter subsystem among multiple simultaneous
- *   callers.  
+ *   callers.
  */
 static runcxdef *runctx;                               /* execution context */
 static uchar    *fmsbase;                        /* format string area base */
@@ -231,7 +231,7 @@ static char out_parse_entity(char *outbuf, size_t outbuf_size,
  *   read the full tag in order to obey an HEIGHT attribute we find.  When
  *   we encounter a <BR>, we figure out whether we think we'll need a
  *   flush or a blank line; if we find a HEIGHT attribute, we may change
- *   this opinion.  
+ *   this opinion.
  */
 #define HTML_DEFER_BR_NONE   0                           /* no pending <BR> */
 #define HTML_DEFER_BR_FLUSH  1                   /* only need an outflush() */
@@ -241,7 +241,7 @@ static char out_parse_entity(char *outbuf, size_t outbuf_size,
  *   If we're compiling for an HTML-enabled underlying output subsystem,
  *   we want to call the underlying OS layer when switching in and out of
  *   HTML mode.  If the underlying system doesn't process HTML, we don't
- *   need to let it know anything about HTML mode. 
+ *   need to let it know anything about HTML mode.
  */
 #ifdef USE_HTML
 # define out_start_html(stream) os_start_html()
@@ -255,14 +255,14 @@ static char out_parse_entity(char *outbuf, size_t outbuf_size,
 /* ------------------------------------------------------------------------ */
 /*
  *   Output formatter stream state structure.  This structure encapsulates
- *   the state of an individual output stream.  
+ *   the state of an individual output stream.
  */
 typedef struct out_stream_info out_stream_info;
 struct out_stream_info
 {
     /* low-level display routine (va_list version) */
     void (*do_print)(out_stream_info *stream, const char *str);
-    
+
     /* current line position and output column */
     uchar linepos;
     uchar linecol;
@@ -273,9 +273,9 @@ struct out_stream_info
     /* output buffer */
     char linebuf[MAXWIDTH];
 
-    /* 
+    /*
      *   attribute buffer - we keep one attribute entry for each character in
-     *   the line buffer 
+     *   the line buffer
      */
     int attrbuf[MAXWIDTH];
 
@@ -309,39 +309,39 @@ struct out_stream_info
     /* this output stream uses "MORE" mode */
     int use_more_mode;
 
-    /* 
+    /*
      *   This output stream uses OS-level line wrapping - if this is set,
      *   the output formatter will not insert a newline at the end of a
      *   line that it's flushing for word wrapping, but will instead let
-     *   the underlying OS display layer handle the wrapping. 
+     *   the underlying OS display layer handle the wrapping.
      */
     int os_line_wrap;
 
     /*
      *   Flag indicating that the underlying output system wants to
      *   receive its output as HTML.
-     *   
+     *
      *   If this is true, we'll pass through HTML to the underlying output
      *   system, and in addition generate HTML sequences for certain
      *   TADS-native escapes (for example, we'll convert the "\n" sequence
      *   to a <BR> sequence).
-     *   
+     *
      *   If this is false, we'll do just the opposite: we'll remove HTML
-     *   from the output stream and convert it into normal text sequences. 
+     *   from the output stream and convert it into normal text sequences.
      */
     int html_target;
 
     /*
      *   Flag indicating that the target uses plain text.  If this flag is
-     *   set, we won't add the OS escape codes for highlighted characters. 
+     *   set, we won't add the OS escape codes for highlighted characters.
      */
     int plain_text_target;
-    
-    /* 
+
+    /*
      *   Flag indicating that the caller is displaying HTML.  We always
      *   start off in text mode; the client can switch to HTML mode by
      *   displaying a special escape sequence, and can switch back to text
-     *   mode by displaying a separate special escape sequence.  
+     *   mode by displaying a separate special escape sequence.
      */
     int html_mode;
 
@@ -351,9 +351,9 @@ struct out_stream_info
     /* <BR> defer mode */
     unsigned int html_defer_br;
 
-    /* 
+    /*
      *   HTML "ignore" mode - we suppress all output when parsing the
-     *   contents of a <TITLE> or <ABOUTBOX> tag 
+     *   contents of a <TITLE> or <ABOUTBOX> tag
      */
     int html_in_ignore;
 
@@ -362,7 +362,7 @@ struct out_stream_info
      *   title (i.e., we're inside a <TITLE> tag's contents).  We'll copy
      *   characters to the title buffer rather than the normal output
      *   buffer, and then call os_set_title() when we reach the </TITLE>
-     *   tag.  
+     *   tag.
      */
     int html_in_title;
 
@@ -381,7 +381,7 @@ struct out_stream_info
     /*
      *   Parsing mode flag for ALT attributes.  If we're parsing a tag
      *   that allows ALT, such as IMG or SOUND, we'll set this flag, then
-     *   insert the ALT text if we encounter it during parsing.  
+     *   insert the ALT text if we encounter it during parsing.
      */
     int html_allow_alt;
 };
@@ -389,7 +389,7 @@ struct out_stream_info
 /*
  *   Default output converter.  This is the output converter for the
  *   standard display.  Functions in the public interface that do not
- *   specify an output converter will use this converter by default.  
+ *   specify an output converter will use this converter by default.
  */
 static out_stream_info G_std_disp;
 
@@ -397,7 +397,7 @@ static out_stream_info G_std_disp;
  *   Log file converter.  This is the output converter for a log file.
  *   Whenever we open a log file, we'll initialize this converter; as we
  *   display text to the main display, we'll also copy it to the log file.
- *   
+ *
  *   We maintain an entire separate conversion context for the log file,
  *   so that we can perform a different set of conversions on it.  We may
  *   want, for example, to pass HTML text through to the OS display
@@ -405,21 +405,21 @@ static out_stream_info G_std_disp;
  *   we'll still want to convert log file output to text.  By keeping a
  *   separate display context for the log file, we can format output to
  *   the log file using an entirely different style than we do for the
- *   display. 
+ *   display.
  */
 static out_stream_info G_log_disp;
 
 
 /* ------------------------------------------------------------------------ */
 /*
- *   low-level output handlers for the standard display and log file 
+ *   low-level output handlers for the standard display and log file
  */
 
 /* standard display printer */
 static void do_std_print(out_stream_info *stream, const char *str)
 {
     VARUSED(stream);
-    
+
     /* display the text through the OS layer */
     os_printz(str);
 }
@@ -439,8 +439,8 @@ static void do_log_print(out_stream_info *stream, const char *str)
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   initialize a generic output formatter state structure 
+/*
+ *   initialize a generic output formatter state structure
  */
 static void out_state_init(out_stream_info *stream)
 {
@@ -509,13 +509,13 @@ static void out_state_init(out_stream_info *stream)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   initialize a standard display stream 
+ *   initialize a standard display stream
  */
 static void out_init_std(out_stream_info *stream)
 {
     /* there's no user output filter function yet */
     out_set_filter(MCMONINV);
-    
+
     /* initialize the basic stream state */
     out_state_init(stream);
 
@@ -523,33 +523,33 @@ static void out_init_std(out_stream_info *stream)
     G_std_disp.do_print = do_std_print;
 
 #ifdef USE_MORE
-    /* 
+    /*
      *   We're compiled for MORE mode, and we're not compiling for an
      *   underlying HTML formatting layer, so use MORE mode for the
-     *   standard display stream.  
+     *   standard display stream.
      */
     stream->use_more_mode = TRUE;
 #else
     /*
      *   We're compiled for OS-layer (or HTML-layer) MORE handling.  For
-     *   this case, use OS-layer (or HTML-layer) line wrapping as well.  
+     *   this case, use OS-layer (or HTML-layer) line wrapping as well.
      */
     stream->os_line_wrap = TRUE;
 #endif
 
 #ifdef USE_HTML
-    /* 
+    /*
      *   if we're compiled for HTML mode, set the standard output stream
      *   so that it knows it has an HTML target - this will ensure that
      *   HTML tags are passed through to the underlying stream, and that
-     *   we generate HTML equivalents for our own control sequences 
+     *   we generate HTML equivalents for our own control sequences
      */
     stream->html_target = TRUE;
 #endif
 }
 
 /*
- *   initialize a standard log file stream 
+ *   initialize a standard log file stream
  */
 static void out_init_log(out_stream_info *stream)
 {
@@ -566,8 +566,8 @@ static void out_init_log(out_stream_info *stream)
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   table of '&' character name sequences 
+/*
+ *   table of '&' character name sequences
  */
 struct amp_tbl_t
 {
@@ -585,10 +585,10 @@ struct amp_tbl_t
  *   HTML entity mapping table.  When we're in non-HTML mode, we keep our
  *   own expansion table so that we can map HTML entity names into the
  *   local character set.
- *   
+ *
  *   The entries in this table must be in sorted order (by HTML entity
  *   name), because we use a binary search to find an entity name in the
- *   table.  
+ *   table.
  */
 static struct amp_tbl_t amp_tbl[] =
 {
@@ -903,7 +903,7 @@ static struct amp_tbl_t amp_tbl[] =
 
 /* ------------------------------------------------------------------------ */
 /*
- *   turn on CAPS mode for a stream 
+ *   turn on CAPS mode for a stream
  */
 static void outcaps_stream(out_stream_info *stream)
 {
@@ -916,7 +916,7 @@ static void outcaps_stream(out_stream_info *stream)
 }
 
 /*
- *   turn on NOCAPS mode for a stream 
+ *   turn on NOCAPS mode for a stream
  */
 static void outnocaps_stream(out_stream_info *stream)
 {
@@ -929,7 +929,7 @@ static void outnocaps_stream(out_stream_info *stream)
 }
 
 /*
- *   turn on or off ALLCAPS mode for a stream 
+ *   turn on or off ALLCAPS mode for a stream
  */
 static void outallcaps_stream(out_stream_info *stream, int all_caps)
 {
@@ -943,7 +943,7 @@ static void outallcaps_stream(out_stream_info *stream, int all_caps)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   write a string to a stream 
+ *   write a string to a stream
  */
 static void stream_print(out_stream_info *stream, char *str)
 {
@@ -952,26 +952,26 @@ static void stream_print(out_stream_info *stream, char *str)
 }
 
 /*
- *   Write out a line 
+ *   Write out a line
  */
 static void t_outline(out_stream_info *stream, int nl,
                       const char *txt, const int *attr)
 {
     extern int scrquiet;
 
-    /* 
+    /*
      *   Check the "script quiet" mode - this indicates that we're reading
      *   a script and not echoing output to the display.  If this mode is
      *   on, and we're writing to the display, suppress this write.  If
      *   the mode is off, or we're writing to another stream (such as the
-     *   log file), show the output as normal.  
+     *   log file), show the output as normal.
      */
     if (!scrquiet || stream != &G_std_disp)
     {
         size_t i;
         char buf[MAXWIDTH];
         char *dst;
-        
+
         /*
          *   Check to see if we've reached the end of the screen, and if
          *   so run the MORE prompt.  Note that we don't make this check
@@ -979,13 +979,13 @@ static void t_outline(out_stream_info *stream, int nl,
          *   layer code is taking responsibility for pagination issues.
          *   We also don't display a MORE prompt when reading from a
          *   script file.
-         *   
+         *
          *   Note that we suppress the MORE prompt if nl == 0, since this
          *   is used to flush a partial line of text without starting a
          *   new line (for example, when displaying a prompt where the
          *   input will appear on the same line following the prompt).
-         *   
-         *   Skip the MORE prompt if this stream doesn't use it.  
+         *
+         *   Skip the MORE prompt if this stream doesn't use it.
          */
         if (stream->use_more_mode
             && scrfp == 0
@@ -999,7 +999,7 @@ static void t_outline(out_stream_info *stream, int nl,
 
         /*
          *   Display the text.  Run through the text in pieces; each time the
-         *   attributes change, set attributes at the osifc level. 
+         *   attributes change, set attributes at the osifc level.
          */
         for (i = 0, dst = buf ; txt[i] != '\0' ; ++i)
         {
@@ -1040,27 +1040,27 @@ static void t_outline(out_stream_info *stream, int nl,
 /*
  *   Flush the current line to the display.  The 'nl' argument specifies
  *   what kind of flushing to do:
- *   
+ *
  *   0: flush the current line but do not start a new line; more text will
  *   follow on the current line.  This is used, for example, to flush text
  *   after displaying a prompt and before waiting for user input.
- *   
+ *
  *   1: flush the line and start a new line.
- *   
+ *
  *   2: flush the line as though starting a new line, but don't add an
  *   actual newline character to the output, since the underlying OS
  *   display code will handle this.  Instead, add a space after the line.
  *   (This differs from mode 0 in that mode 0 shouldn't add anything at
  *   all after the line.)
- *   
+ *
  *   3: "preview" mode.  Flush the line, but do not start a new line, and
  *   retain the current text in the buffer.  This is used for systems that
  *   handle the line wrapping in the underlying system code to flush a
  *   partially filled line that will need to be flushed again later.
- *   
+ *
  *   4: same as mode 0, but used for internal buffer flushes only.  Do not
  *   involve the underlying OS layer in this type of flush - simply flush
- *   our buffers with no separation.  
+ *   our buffers with no separation.
  */
 
 /* flush a given output stream */
@@ -1084,7 +1084,7 @@ static void outflushn_stream(out_stream_info *stream, int nl)
     /* check the output mode */
     if (nl == 3)
     {
-        /* 
+        /*
          *   this is the special "preview" mode -- only display the part
          *   that we haven't already previewed for this same line
          */
@@ -1117,7 +1117,7 @@ static void outflushn_stream(out_stream_info *stream, int nl)
             break;
 
         case 1:
-            /* 
+            /*
              *   Add a newline.  If there's nothing in the current line,
              *   or we just wrote out a newline, do not add an extra
              *   newline.  Keep all newlines in PRE mode.
@@ -1127,7 +1127,7 @@ static void outflushn_stream(out_stream_info *stream, int nl)
             {
                 /* add a newline after the text */
                 suffix = "\n";
-                
+
                 /* count the line in the page size */
                 countnl = 1;
             }
@@ -1139,22 +1139,22 @@ static void outflushn_stream(out_stream_info *stream, int nl)
             break;
 
         case 2:
-            /* 
+            /*
              *   we're going to depend on the underlying OS output layer
              *   to do line breaking, so don't add a newline, but do add a
              *   space, so that the underlying OS layer knows we have a
-             *   word break here 
+             *   word break here
              */
             suffix = " ";
             break;
         }
 
-        /* 
+        /*
          *   display the line, as long as we have something buffered to
          *   display; even if we don't, display it if our column is
          *   non-zero and we didn't just do a newline, since this must
          *   mean that we've flushed a partial line and are just now doing
-         *   the newline 
+         *   the newline
          */
         if (stream->linebuf[stream->preview] != '\0'
             || (stream->linecol != 0 && !stream->just_did_nl)
@@ -1187,11 +1187,11 @@ static void outflushn_stream(out_stream_info *stream, int nl)
         /* reset the line output buffer position */
         stream->linepos = stream->preview = 0;
 
-        /* 
+        /*
          *   If we just output a newline, note it.  If we didn't just
          *   output a newline, but we did write out anything else, note
          *   that we're no longer at the start of a line on the underlying
-         *   output device.  
+         *   output device.
          */
         if (nl == 1)
             stream->just_did_nl = TRUE;
@@ -1199,7 +1199,7 @@ static void outflushn_stream(out_stream_info *stream, int nl)
             stream->just_did_nl = FALSE;
     }
 
-    /* 
+    /*
      *   If the osifc-level attributes don't match the current attributes,
      *   bring the osifc layer up to date.  This is necessary in cases where
      *   we set attributes immediately before asking for input - we
@@ -1219,7 +1219,7 @@ static void outflushn_stream(out_stream_info *stream, int nl)
 /*
  *   Determine if we're showing output.  Returns true if output should be
  *   displayed, false if it should be suppressed.  We'll note the output
- *   for hidden display accounting as needed. 
+ *   for hidden display accounting as needed.
  */
 static int out_is_hidden()
 {
@@ -1233,9 +1233,9 @@ static int out_is_hidden()
         /* note the hidden output */
         hidout = 1;
 
-        /* 
+        /*
          *   unless we're showing hidden text in the debugger, we're
-         *   suppressing output, so return true 
+         *   suppressing output, so return true
          */
         if (!dbghid)
             return TRUE;
@@ -1247,7 +1247,7 @@ static int out_is_hidden()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Display a blank line to the given stream 
+ *   Display a blank line to the given stream
  */
 static void outblank_stream(out_stream_info *stream)
 {
@@ -1265,14 +1265,14 @@ static void outblank_stream(out_stream_info *stream)
 /* ------------------------------------------------------------------------ */
 /*
  *   Generate a tab for a "\t" sequence in the game text.
- *   
+ *
  *   Standard (non-HTML) version: we'll generate enough spaces to take us
  *   to the next tab stop.
- *   
+ *
  *   HTML version: if we're in native HTML mode, we'll just generate a
  *   <TAB MULTIPLE=4>; if we're not in HTML mode, we'll generate a hard
  *   tab character, which the HTML formatter will interpret as a <TAB
- *   MULTIPLE=4>.  
+ *   MULTIPLE=4>.
  */
 static void outtab_stream(out_stream_info *stream)
 {
@@ -1295,10 +1295,10 @@ static void outtab_stream(out_stream_info *stream)
     {
         int maxcol;
 
-        /* 
+        /*
          *   We're not in HTML mode - expand the tab with spaces.  Figure
          *   the maximum column: if we're doing our own line wrapping, never
-         *   go beyond the actual display width. 
+         *   go beyond the actual display width.
          */
         maxcol = (stream->os_line_wrap ? OS_MAXWIDTH : G_os_linewidth);
 
@@ -1316,13 +1316,13 @@ static void outtab_stream(out_stream_info *stream)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Flush a line 
+ *   Flush a line
  */
 static void out_flushline(out_stream_info *stream, int padding)
 {
-    /* 
+    /*
      *   check to see if we're using the underlying display layer's line
-     *   wrapping 
+     *   wrapping
      */
     if (stream->os_line_wrap)
     {
@@ -1334,16 +1334,16 @@ static void out_flushline(out_stream_info *stream, int padding)
          *   enough information here to figure out actual line breaks.
          *   So, we'll just flush out our buffer whenever it fills up, and
          *   suppress newlines.
-         *   
+         *
          *   Similarly, if we have OS-level MORE processing, don't try to
          *   figure out where the line breaks go -- just flush our buffer
          *   without a trailing newline whenever the buffer is full, and
          *   let the OS layer worry about formatting lines and paragraphs.
-         *   
+         *
          *   If we're using padding, use mode 2.  If we don't want padding
          *   (which is the case if we completely fill up the buffer
          *   without finding any word breaks), write out in mode 0, which
-         *   just flushes the buffer exactly like it is.  
+         *   just flushes the buffer exactly like it is.
          */
         outflushn_stream(stream, padding ? 2 : 4);
     }
@@ -1353,7 +1353,7 @@ static void out_flushline(out_stream_info *stream, int padding)
          *   Normal mode - we process the *MORE* prompt ourselves, and we
          *   are responsible for figuring out where the actual line breaks
          *   go.  Use outflush() to generate an actual newline whenever we
-         *   flush out our buffer.  
+         *   flush out our buffer.
          */
         outflushn_stream(stream, 1);
     }
@@ -1368,7 +1368,7 @@ static void outchar_noxlat_stream(out_stream_info *stream, char c)
 {
     int  i;
     int  qspace;
-    
+
     /* check for the special quoted space character */
     if (c == QSPACE)
     {
@@ -1387,7 +1387,7 @@ static void outchar_noxlat_stream(out_stream_info *stream, char c)
         /* translate any whitespace character to a regular space character */
         if (outissp(c))
             c = ' ';
-        
+
         /* it's not a quoted space */
         qspace = 0;
     }
@@ -1422,7 +1422,7 @@ static void outchar_noxlat_stream(out_stream_info *stream, char c)
         {
             /* lock the object holding the captured text */
             p = mcmlck(stream->capture_ctx, stream->capture_obj);
-            
+
             /* make sure the capture object is big enough */
             if (mcmobjsiz(stream->capture_ctx, stream->capture_obj)
                 <= stream->capture_ofs)
@@ -1431,10 +1431,10 @@ static void outchar_noxlat_stream(out_stream_info *stream, char c)
                 p = mcmrealo(stream->capture_ctx, stream->capture_obj,
                              (ushort)(stream->capture_ofs + 256));
             }
-            
+
             /* add this character */
             *(p + stream->capture_ofs++) = c;
-            
+
             /* unlock the capture object */
             mcmtch(stream->capture_ctx, stream->capture_obj);
             mcmunlck(stream->capture_ctx, stream->capture_obj);
@@ -1442,7 +1442,7 @@ static void outchar_noxlat_stream(out_stream_info *stream, char c)
 
         /*
          *   we're done - we don't want to actually display the character
-         *   while capturing 
+         *   while capturing
          */
         return;
     }
@@ -1450,10 +1450,10 @@ static void outchar_noxlat_stream(out_stream_info *stream, char c)
     /* add the character to out output buffer, flushing as needed */
     if (stream->linecol + 1 < G_os_linewidth)
     {
-        /* 
-         *   there's room for this character, so add it to the buffer 
+        /*
+         *   there's room for this character, so add it to the buffer
          */
-        
+
         /* ignore non-quoted space at start of line outside of PRE */
         if (outissp(c) && c != '\t' && stream->linecol == 0 && !qspace
             && stream->html_pre_level == 0)
@@ -1482,7 +1482,7 @@ static void outchar_noxlat_stream(out_stream_info *stream, char c)
              *   brackets, and braces.)  Don't double the spacing if we're
              *   not in the normal doublespace mode; some people may
              *   prefer single spacing after punctuation, so we make this
-             *   a run-time option.  
+             *   a run-time option.
              */
             if (doublespace)
             {
@@ -1517,7 +1517,7 @@ static void outchar_noxlat_stream(out_stream_info *stream, char c)
      *   most recent word break, and output the line up to the previous
      *   word.  Note that if we're trying to output a space, we'll just
      *   add it to the line buffer.  If the last character of the line
-     *   buffer is already a space, we won't do anything right now.  
+     *   buffer is already a space, we won't do anything right now.
      */
     if (outissp(c) && c != '\t' && !qspace)
     {
@@ -1529,32 +1529,32 @@ static void outchar_noxlat_stream(out_stream_info *stream, char c)
         }
         return;
     }
-    
+
     /*
      *   Find the most recent word break: look for a space or dash, starting
-     *   at the end of the line.  
-     *   
+     *   at the end of the line.
+     *
      *   If we're about to write a hyphen, we want to skip all contiguous
      *   hyphens, because we want to keep them together as a single
      *   punctuation mark; then keep going in the normal manner, which will
      *   keep the hyphens plus the word they're attached to together as a
      *   single unit.  If spaces precede the sequence of hyphens, include
-     *   the prior word as well.  
+     *   the prior word as well.
      */
     i = stream->linepos - 1;
     if (c == '-')
     {
         /* skip any contiguous hyphens at the end of the line */
         for ( ; i >= 0 && stream->linebuf[i] == '-' ; --i) ;
-        
+
         /* skip any spaces preceding the sequence of hyphens */
         for ( ; i >= 0 && outissp(stream->linebuf[i]) ; --i) ;
     }
 
-    /* 
+    /*
      *   Now find the preceding space.  If we're doing our own wrapping
      *   (i.e., we're not using OS line wrapping), then look for the
-     *   nearest hyphen as well. 
+     *   nearest hyphen as well.
      */
     for ( ; i >= 0 && !outissp(stream->linebuf[i])
           && !(!stream->os_line_wrap && stream->linebuf[i] == '-') ; --i) ;
@@ -1562,15 +1562,15 @@ static void outchar_noxlat_stream(out_stream_info *stream, char c)
     /* check to see if we found a good place to break */
     if (i < 0)
     {
-        /* 
+        /*
          *   we didn't find any good place to break - flush the entire
-         *   line as-is, breaking arbitrarily in the middle of a word 
+         *   line as-is, breaking arbitrarily in the middle of a word
          */
         out_flushline(stream, FALSE);
 
-        /* 
+        /*
          *   we've completely cleared out the line buffer, so reset all of
-         *   the line buffer counters 
+         *   the line buffer counters
          */
         stream->linepos = 0;
         stream->linecol = 0;
@@ -1583,10 +1583,10 @@ static void outchar_noxlat_stream(out_stream_info *stream, char c)
         int tmpattr[MAXWIDTH];
         size_t tmpcnt;
 
-        /* remember the word-break character */        
+        /* remember the word-break character */
         brkchar = stream->linebuf[i];
 
-        /* null-terminate the line buffer */        
+        /* null-terminate the line buffer */
         stream->linebuf[stream->linepos] = '\0';
 
         /* the next line starts after the break - save a copy */
@@ -1594,9 +1594,9 @@ static void outchar_noxlat_stream(out_stream_info *stream, char c)
         memcpy(tmpbuf, &stream->linebuf[i+1], tmpcnt + 1);
         memcpy(tmpattr, &stream->attrbuf[i+1], tmpcnt * sizeof(tmpattr[0]));
 
-        /* 
+        /*
          *   terminate the buffer at the space or after the hyphen,
-         *   depending on where we broke 
+         *   depending on where we broke
          */
         if (outissp(brkchar))
             stream->linebuf[i] = '\0';
@@ -1611,9 +1611,9 @@ static void outchar_noxlat_stream(out_stream_info *stream, char c)
         memcpy(stream->attrbuf, tmpattr, tmpcnt * sizeof(tmpattr[0]));
         stream->linepos = tmpcnt;
 
-        /* 
+        /*
          *   figure what column we're now in - count all of the printable
-         *   characters in the new line 
+         *   characters in the new line
          */
         for (stream->linecol = 0, i = 0 ; i < stream->linepos ; ++i)
         {
@@ -1622,7 +1622,7 @@ static void outchar_noxlat_stream(out_stream_info *stream, char c)
                 ++(stream->linecol);
         }
     }
-    
+
     /* add the new character to buffer */
     stream->attrbuf[stream->linepos] = stream->cur_attr;
     stream->linebuf[stream->linepos++] = c;
@@ -1634,15 +1634,15 @@ static void outchar_noxlat_stream(out_stream_info *stream, char c)
 /* ------------------------------------------------------------------------ */
 /*
  *   Write out a character, translating to the local system character set
- *   from the game's internal character set. 
+ *   from the game's internal character set.
  */
 static void outchar_stream(out_stream_info *stream, char c)
 {
     outchar_noxlat_stream(stream, cmap_i2n(c));
 }
 
-/* 
- *   write out a string, translating to the local system character set 
+/*
+ *   write out a string, translating to the local system character set
  */
 static void outstring_stream(out_stream_info *stream, char *s)
 {
@@ -1651,8 +1651,8 @@ static void outstring_stream(out_stream_info *stream, char *s)
         outchar_stream(stream, *s);
 }
 
-/* 
- *   write out a string without translation 
+/*
+ *   write out a string without translation
  */
 static void outstring_noxlat_stream(out_stream_info *stream, char *s)
 {
@@ -1664,16 +1664,16 @@ static void outstring_noxlat_stream(out_stream_info *stream, char *s)
 /* ------------------------------------------------------------------------ */
 /*
  *   Write out an HTML character value, translating to the local character
- *   set.  
+ *   set.
  */
 static void outchar_html_stream(out_stream_info *stream,
                                 unsigned int htmlchar)
 {
     struct amp_tbl_t *ampptr;
 
-    /* 
+    /*
      *   search for a mapping entry for this entity, in case it's defined
-     *   in an external mapping file 
+     *   in an external mapping file
      */
     for (ampptr = amp_tbl ;
          ampptr < amp_tbl + sizeof(amp_tbl)/sizeof(amp_tbl[0]) ; ++ampptr)
@@ -1683,27 +1683,27 @@ static void outchar_html_stream(out_stream_info *stream,
             break;
     }
 
-    /* 
+    /*
      *   If we found a mapping table entry, and the entry has an expansion
      *   from the external character mapping table file, use the external
-     *   expansion; otherwise, use the default expansion.  
+     *   expansion; otherwise, use the default expansion.
      */
     if (ampptr >= amp_tbl + sizeof(amp_tbl)/sizeof(amp_tbl[0])
         || ampptr->expan == 0)
     {
         char xlat_buf[50];
 
-        /* 
+        /*
          *   there's no external mapping table file expansion -- use the
-         *   default OS mapping routine 
+         *   default OS mapping routine
          */
         os_xlat_html4(htmlchar, xlat_buf, sizeof(xlat_buf));
         outstring_noxlat_stream(stream, xlat_buf);
     }
     else
     {
-        /* 
-         *   use the explicit mapping from the mapping table file 
+        /*
+         *   use the explicit mapping from the mapping table file
          */
         outstring_noxlat_stream(stream, ampptr->expan);
     }
@@ -1714,22 +1714,22 @@ static void outchar_html_stream(out_stream_info *stream,
 /*
  *   Enter a recursion level.  Returns TRUE if the caller should proceed
  *   with the operation, FALSE if not.
- *   
+ *
  *   If we're making a recursive call, thereby re-entering the formatter,
  *   and this stream is not the same as the enclosing stream, we want to
  *   ignore this call and suppress any output to this stream, so we'll
- *   return FALSE.  
+ *   return FALSE.
  */
 static int out_push_stream(out_stream_info *stream)
 {
-    /* 
+    /*
      *   if we're already in the formatter, and the new stream doesn't
      *   match the enclosing recursion level's stream, tell the caller to
-     *   abort the operation 
+     *   abort the operation
      */
     if (G_recurse != 0 && G_cur_stream != stream)
         return FALSE;
-    
+
     /* note the active stream */
     G_cur_stream = stream;
 
@@ -1741,7 +1741,7 @@ static int out_push_stream(out_stream_info *stream)
 }
 
 /*
- *   Leave a recursion level 
+ *   Leave a recursion level
  */
 static void out_pop_stream()
 {
@@ -1753,7 +1753,7 @@ static void out_pop_stream()
 /*
  *   nextout() returns the next character in a string, and updates the
  *   string pointer and remaining length.  Returns zero if no more
- *   characters are available in the string.  
+ *   characters are available in the string.
  */
 /* static char nextout(char **s, uint *len); */
 #define nextout(s, len) ((char)(*(len) == 0 ? 0 : (--(*(len)), *((*(s))++))))
@@ -1762,7 +1762,7 @@ static void out_pop_stream()
 /* ------------------------------------------------------------------------ */
 /*
  *   Get the next character, writing the previous character to the given
- *   output stream if it's not null. 
+ *   output stream if it's not null.
  */
 static char nextout_copy(char **s, size_t *slen,
                          char prv, out_stream_info *stream)
@@ -1785,7 +1785,7 @@ static char read_tag(char *dst, size_t dstlen, int *is_end_tag,
                      char **s, size_t *slen, out_stream_info *stream)
 {
     char c;
-    
+
     /* skip the opening '<' */
     c = nextout_copy(s, slen, '<', stream);
 
@@ -1806,10 +1806,10 @@ static char read_tag(char *dst, size_t dstlen, int *is_end_tag,
     }
     else
         *is_end_tag = FALSE;
-    
-    /* 
+
+    /*
      *   find the end of the tag name - the tag continues to the next space,
-     *   '>', or end of line 
+     *   '>', or end of line
      */
     for ( ; c != '\0' && !outissp(c) && c != '>' ;
          c = nextout_copy(s, slen, c, stream))
@@ -1821,7 +1821,7 @@ static char read_tag(char *dst, size_t dstlen, int *is_end_tag,
             --dstlen;
         }
     }
-    
+
     /* null-terminate the tag name */
     if (dstlen > 0)
         *dst = '\0';
@@ -1833,7 +1833,7 @@ static char read_tag(char *dst, size_t dstlen, int *is_end_tag,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   display a string of a given length to a given stream 
+ *   display a string of a given length to a given stream
  */
 static int outformatlen_stream(out_stream_info *stream,
                                char *s, size_t slen)
@@ -1846,11 +1846,11 @@ static int outformatlen_stream(out_stream_info *stream,
     char    *f1;
     int      infmt = 0;
 
-    /* 
+    /*
      *   This routine can recurse because of format strings ("%xxx%"
      *   sequences).  When we recurse, we want to ensure that the
      *   recursion is directed to the original stream only.  So, note the
-     *   current stream statically in case we re-enter the formatter. 
+     *   current stream statically in case we re-enter the formatter.
      */
     if (!out_push_stream(stream))
         return 0;
@@ -1870,7 +1870,7 @@ static int outformatlen_stream(out_stream_info *stream,
              *   come across an HTML-significant character ('&' or '<') in
              *   HTML mode, we must have a stray percent sign; dump the
              *   whole string so far and act as though we have no format
-             *   string 
+             *   string
              */
             if (c == '\\'
                 || f == &fmsbuf[sizeof(fmsbuf)]
@@ -1902,15 +1902,15 @@ static int outformatlen_stream(out_stream_info *stream,
                 /* check for an init cap */
                 if (outisup(fmsbuf[0]))
                 {
-                    /* 
+                    /*
                      *   note the initial capital, so that we follow the
-                     *   original capitalization in the substituted string 
+                     *   original capitalization in the substituted string
                      */
                     initcap = TRUE;
 
-                    /* 
+                    /*
                      *   if the second letter is capitalized as well,
-                     *   capitalize the entire substituted string 
+                     *   capitalize the entire substituted string
                      */
                     if (fmsbuf[1] != '\0' && outisup(fmsbuf[1]))
                     {
@@ -1922,7 +1922,7 @@ static int outformatlen_stream(out_stream_info *stream,
                 /* convert the entire string to lower case for searching */
                 strcpy(fmsbuf_srch, fmsbuf);
                 os_strlwr(fmsbuf_srch);
-                
+
                 /* find the string in the format string table */
                 fmslen = strlen(fmsbuf_srch);
                 for (fms = fmsbase ; fms < fmstop ; )
@@ -1942,19 +1942,19 @@ static int outformatlen_stream(out_stream_info *stream,
 
                         /* note the current ALLCAPS mode */
                         old_all_caps = stream->allcapsflag;
-                        
-                        /* 
+
+                        /*
                          *   we have a match - set the appropriate
-                         *   capitalization mode 
+                         *   capitalization mode
                          */
                         if (allcaps)
                             outallcaps_stream(stream, TRUE);
                         else if (initcap)
                             outcaps_stream(stream);
 
-                        /* 
+                        /*
                          *   evaluate the associated property to generate
-                         *   the substitution text 
+                         *   the substitution text
                          */
                         runppr(runctx, cmdActor, (prpnum)propnum, 0);
 
@@ -1991,19 +1991,19 @@ static int outformatlen_stream(out_stream_info *stream,
             c = nextout(&s, &slen);
             continue;
         }
-        
+
         /*
          *   If we're parsing HTML here, and we're inside a tag, skip
-         *   characters until we reach the end of the tag.  
+         *   characters until we reach the end of the tag.
          */
         if (stream->html_mode_flag != HTML_MODE_NORMAL)
         {
             switch(stream->html_mode_flag)
             {
             case HTML_MODE_TAG:
-                /* 
+                /*
                  *   keep skipping up to the closing '>', but note when we
-                 *   enter any quoted section 
+                 *   enter any quoted section
                  */
                 switch(c)
                 {
@@ -2074,7 +2074,7 @@ static int outformatlen_stream(out_stream_info *stream,
                         if (c == '=')
                         {
                             char qu;
-                            
+
                             /* skip the '=' */
                             c = nextout(&s, &slen);
 
@@ -2104,13 +2104,13 @@ static int outformatlen_stream(out_stream_info *stream,
                                 c = nextout(&s, &slen);
                                 if (c == '\0')
                                 {
-                                    /* 
+                                    /*
                                      *   we've reached the end of the
                                      *   string, and we're still inside
                                      *   this attribute - abandon the
                                      *   attribute but note that we're
                                      *   inside a quoted string if
-                                     *   necessary 
+                                     *   necessary
                                      */
                                     if (qu == '"')
                                         stream->html_mode_flag =
@@ -2126,10 +2126,10 @@ static int outformatlen_stream(out_stream_info *stream,
                                     break;
                                 }
 
-                                /* 
+                                /*
                                  *   if we're looking for a quote, check
                                  *   for the closing quote; otherwise,
-                                 *   check for alphanumerics 
+                                 *   check for alphanumerics
                                  */
                                 if (qu != 0)
                                 {
@@ -2158,15 +2158,15 @@ static int outformatlen_stream(out_stream_info *stream,
                             attrval[0] = '\0';
                         }
 
-                        /* 
+                        /*
                          *   see if we recognize it, and it's meaningful
-                         *   in the context of the current tag 
+                         *   in the context of the current tag
                          */
                         if (!stricmp(attrname, "height")
                             && stream->html_defer_br != HTML_DEFER_BR_NONE)
                         {
                             int ht;
-                                
+
                             /*
                              *   If the height is zero, always treat this
                              *   as a non-blanking flush.  If it's one,
@@ -2197,9 +2197,9 @@ static int outformatlen_stream(out_stream_info *stream,
                             outstring_stream(stream, attrval);
                         }
 
-                        /* 
+                        /*
                          *   since we already read the next character,
-                         *   simply loop back immediately 
+                         *   simply loop back immediately
                          */
                         continue;
                     }
@@ -2220,9 +2220,9 @@ static int outformatlen_stream(out_stream_info *stream,
                 break;
             }
 
-            /* 
+            /*
              *   move on to the next character, and start over with the
-             *   new character 
+             *   new character
              */
             c = nextout(&s, &slen);
             continue;
@@ -2231,7 +2231,7 @@ static int outformatlen_stream(out_stream_info *stream,
         /*
          *   If we're in a title, and this isn't the start of a new tag,
          *   skip the character - we suppress all regular text output
-         *   inside a <TITLE> ... </TITLE> sequence. 
+         *   inside a <TITLE> ... </TITLE> sequence.
          */
         if (stream->html_in_ignore && c != '<')
         {
@@ -2252,10 +2252,10 @@ static int outformatlen_stream(out_stream_info *stream,
                 c = nextout(&s, &slen);
             }
 
-            /* 
+            /*
              *   if we're gathering a title, and there's room in the title
              *   buffer for more (always leaving room for a null
-             *   terminator), add this to the title buffer 
+             *   terminator), add this to the title buffer
              */
             if (stream->html_in_title)
             {
@@ -2273,7 +2273,7 @@ static int outformatlen_stream(out_stream_info *stream,
             /* don't display anything in an ignore section */
             continue;
         }
-        
+
         if ( c == '%' )                              /* translation string? */
         {
             infmt = 1;
@@ -2282,7 +2282,7 @@ static int outformatlen_stream(out_stream_info *stream,
         else if ( c == '\\' )                       /* special escape code? */
         {
             c = nextout(&s, &slen);
-            
+
             if (stream->capturing && c != '^' && c != 'v' && c != '\0')
             {
                 outchar_stream(stream, '\\');
@@ -2329,13 +2329,13 @@ static int outformatlen_stream(out_stream_info *stream,
                             /* tell the OS layer to switch to HTML mode */
                             out_start_html(stream);
                         }
-                        
+
                         /* switch to HTML mode */
                         stream->html_mode = TRUE;
 
-                        /* 
+                        /*
                          *   if the character wasn't a "+", it's not part
-                         *   of the "\H" sequence, so display it normally 
+                         *   of the "\H" sequence, so display it normally
                          */
                         if (c != '+' && c != 0)
                             outchar_stream(stream, c);
@@ -2348,15 +2348,15 @@ static int outformatlen_stream(out_stream_info *stream,
                 case 'n':                                       /* newline? */
                     outflushn_stream(stream, 1);        /* yes, output line */
                     break;
-                    
+
                 case 't':                                           /* tab? */
                     outtab_stream(stream);
                     break;
-                    
+
                 case 'b':                                    /* blank line? */
                     outblank_stream(stream);
                     break;
-                    
+
                 case '\0':                               /* line ends here? */
                     done = 1;
                     break;
@@ -2364,18 +2364,18 @@ static int outformatlen_stream(out_stream_info *stream,
                 case ' ':                                   /* quoted space */
                     if (stream->html_target && stream->html_mode)
                     {
-                        /* 
+                        /*
                          *   we're generating for an HTML target and we're
                          *   in HTML mode - generate the HTML non-breaking
-                         *   space 
+                         *   space
                          */
                         outstring_stream(stream, "&nbsp;");
                     }
                     else
                     {
-                        /* 
+                        /*
                          *   we're not in HTML mode - generate our
-                         *   internal quoted space character 
+                         *   internal quoted space character
                          */
                         outchar_stream(stream, QSPACE);
                     }
@@ -2423,7 +2423,7 @@ static int outformatlen_stream(out_stream_info *stream,
                     outchar_stream(stream, nextout(&s, &slen));
                     outchar_stream(stream, nextout(&s, &slen));
                     break;
-                    
+
                 default:                 /* just pass invalid escapes as-is */
                     outchar_stream(stream, c);
                     break;
@@ -2438,7 +2438,7 @@ static int outformatlen_stream(out_stream_info *stream,
              *   We're in HTML mode, but the underlying target does not
              *   accept HTML sequences.  It appears we're at the start of
              *   an "&" entity or a tag sequence, so parse it, remove it,
-             *   and replace it (if possible) with a text-only equivalent. 
+             *   and replace it (if possible) with a text-only equivalent.
              */
             if (c == '<')
             {
@@ -2451,14 +2451,14 @@ static int outformatlen_stream(out_stream_info *stream,
                 /*
                  *   Check to see if we recognize the tag.  We only
                  *   recognize a few simple tags that map easily to
-                 *   character mode. 
+                 *   character mode.
                  */
                 if (!stricmp(tagbuf, "br"))
                 {
-                    /* 
+                    /*
                      *   line break - if there's anything buffered up,
                      *   just flush the current line, otherwise write out
-                     *   a blank line 
+                     *   a blank line
                      */
                     if (stream->html_in_ignore)
                         /* suppress breaks in ignore mode */;
@@ -2473,7 +2473,7 @@ static int outformatlen_stream(out_stream_info *stream,
                          || !stricmp(tagbuf, "strong"))
                 {
                     int attr;
-                    
+
                     /* choose the attribute flag */
                     switch (tagbuf[0])
                     {
@@ -2497,7 +2497,7 @@ static int outformatlen_stream(out_stream_info *stream,
                         attr = OS_ATTR_STRONG;
                         break;
                     }
-                    
+
                     /* bold on/off - send out appropriate os-layer code */
                     if (stream->html_in_ignore)
                     {
@@ -2534,7 +2534,7 @@ static int outformatlen_stream(out_stream_info *stream,
                 else if (!stricmp(tagbuf, "hr"))
                 {
                     int rem;
-                    
+
                     if (!stream->html_in_ignore)
                     {
                         /* start a new line */
@@ -2545,17 +2545,17 @@ static int outformatlen_stream(out_stream_info *stream,
                         {
                             char dashbuf[100];
                             int cur;
-                            
+
                             /* do as much as we can on this pass */
                             cur = rem;
                             if ((size_t)cur > sizeof(dashbuf) - 1)
                                 cur = sizeof(dashbuf) - 1;
-                            
+
                             /* do a buffer-full of dashes */
                             memset(dashbuf, '_', cur);
                             dashbuf[cur] = '\0';
                             outstring_stream(stream, dashbuf);
-                            
+
                             /* deduct this from the total */
                             rem -= cur;
                         }
@@ -2573,7 +2573,7 @@ static int outformatlen_stream(out_stream_info *stream,
                         /* if it's an open quote, increment the level */
                         if (!is_end_tag)
                             ++(stream->html_quote_level);
-                        
+
                         /* add the open quote */
                         htmlchar =
                             (!is_end_tag
@@ -2581,13 +2581,13 @@ static int outformatlen_stream(out_stream_info *stream,
                                 ? 8220 : 8216)
                              : ((stream->html_quote_level & 1) == 1
                                 ? 8221 : 8217));
-                        
-                        /* 
+
+                        /*
                          *   write out the HTML character, translated to
-                         *   the local character set 
+                         *   the local character set
                          */
                         outchar_html_stream(stream, htmlchar);
-                        
+
                         /* if it's a close quote, decrement the level */
                         if (is_end_tag)
                             --(stream->html_quote_level);
@@ -2595,46 +2595,46 @@ static int outformatlen_stream(out_stream_info *stream,
                 }
                 else if (!stricmp(tagbuf, "title"))
                 {
-                    /* 
+                    /*
                      *   Turn ignore mode on or off as appropriate, and
                      *   turn on or off title mode as well.
                      */
                     if (is_end_tag)
                     {
-                        /* 
+                        /*
                          *   note that we're leaving an ignore section and
-                         *   a title section 
+                         *   a title section
                          */
                         --(stream->html_in_ignore);
                         --(stream->html_in_title);
 
-                        /* 
+                        /*
                          *   if we're no longer in a title, call the OS
                          *   layer to tell it the title string, in case it
                          *   wants to change the window title or otherwise
-                         *   make use of the title 
+                         *   make use of the title
                          */
                         if (stream->html_in_title == 0)
                         {
                             /* null-terminate the title string */
                             *stream->html_title_ptr = '\0';
-                            
+
                             /* tell the OS about the title */
                             os_set_title(stream->html_title_buf);
                         }
                     }
                     else
                     {
-                        /* 
+                        /*
                          *   if we aren't already in a title, set up to
-                         *   capture the title into the title buffer 
+                         *   capture the title into the title buffer
                          */
                         if (!stream->html_in_title)
                             stream->html_title_ptr = stream->html_title_buf;
 
-                        /* 
+                        /*
                          *   note that we're in a title and in an ignore
-                         *   section, since nothing within gets displayed 
+                         *   section, since nothing within gets displayed
                          */
                         ++(stream->html_in_ignore);
                         ++(stream->html_in_title);
@@ -2665,10 +2665,10 @@ static int outformatlen_stream(out_stream_info *stream,
                 /* suppress everything up to the next '>' */
                 stream->html_mode_flag = HTML_MODE_TAG;
 
-                /* 
+                /*
                  *   continue with the current character; since we're in
                  *   html tag mode, we'll skip everything until we get to
-                 *   the closing '>' 
+                 *   the closing '>'
                  */
                 continue;
             }
@@ -2680,7 +2680,7 @@ static int outformatlen_stream(out_stream_info *stream,
 
                 /* write it out (we've already translated it) */
                 outstring_noxlat_stream(stream, xlat_buf);
-                
+
                 /* proceed with the next character */
                 continue;
             }
@@ -2693,7 +2693,7 @@ static int outformatlen_stream(out_stream_info *stream,
              *   However, we do need to keep track of when we're in a PRE
              *   block, so that we can pass whitespaces and newlines through
              *   to the underlying HTML engine without filtering when we're
-             *   in preformatted text. 
+             *   in preformatted text.
              */
             char tagbuf[50];
             int is_end_tag;
@@ -2743,7 +2743,7 @@ static int outformatlen_stream(out_stream_info *stream,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parse an HTML entity markup 
+ *   Parse an HTML entity markup
  */
 static char out_parse_entity(char *outbuf, size_t outbuf_size,
                              char **sp, size_t *slenp)
@@ -2756,9 +2756,9 @@ static char out_parse_entity(char *outbuf, size_t outbuf_size,
     size_t lo, hi, cur;
     char  c;
 
-    /* 
+    /*
      *   remember where the part after the '&' begins, so we can come back
-     *   here later if necessary 
+     *   here later if necessary
      */
     orig_s = *sp;
     orig_slen = *slenp;
@@ -2770,7 +2770,7 @@ static char out_parse_entity(char *outbuf, size_t outbuf_size,
     if (c == '#')
     {
         uint val;
-        
+
         /* skip the '#' */
         c = nextout(sp, slenp);
 
@@ -2803,14 +2803,14 @@ static char out_parse_entity(char *outbuf, size_t outbuf_size,
                 val += c - '0';
             }
         }
-        
+
         /* if we found a ';' at the end, skip it */
         if (c == ';')
             c = nextout(sp, slenp);
-        
+
         /* translate the character into the output buffer */
         os_xlat_html4(val, outbuf, outbuf_size);
-        
+
         /* we're done with this character */
         return c;
     }
@@ -2823,28 +2823,28 @@ static char out_parse_entity(char *outbuf, size_t outbuf_size,
          c != '\0' && (outisdg(c) || outisal(c))
              && dst < ampbuf + sizeof(ampbuf) - 1 ;
          *dst++ = c, c = nextout(sp, slenp)) ;
-    
+
     /* null-terminate the name */
     *dst = '\0';
-    
+
     /* do a binary search for the name */
     lo = 0;
     hi = sizeof(amp_tbl)/sizeof(amp_tbl[0]) - 1;
     for (;;)
     {
         int diff;
-        
+
         /* if we've converged, look no further */
         if (lo > hi || lo >= sizeof(amp_tbl)/sizeof(amp_tbl[0]))
         {
             ampptr = 0;
             break;
         }
-        
+
         /* split the difference */
         cur = lo + (hi - lo)/2;
         ampptr = &amp_tbl[cur];
-        
+
         /* see where we are relative to the target item */
         diff = strcmp(ampptr->cname, ampbuf);
         if (diff == 0)
@@ -2861,7 +2861,7 @@ static char out_parse_entity(char *outbuf, size_t outbuf_size,
                 ampptr = 0;
                 break;
             }
-            
+
             /* this one is too high - check the lower half */
             hi = (cur == hi ? hi - 1 : cur);
         }
@@ -2871,7 +2871,7 @@ static char out_parse_entity(char *outbuf, size_t outbuf_size,
             lo = (cur == lo ? lo + 1 : cur);
         }
     }
-    
+
     /* skip to the appropriate next character */
     if (c == ';')
     {
@@ -2881,25 +2881,25 @@ static char out_parse_entity(char *outbuf, size_t outbuf_size,
     else if (ampptr != 0)
     {
         int skipcnt;
-        
+
         /* found the name - skip its exact length */
         skipcnt = strlen(ampptr->cname);
         for (*sp = orig_s, *slenp = orig_slen ; skipcnt != 0 ;
              c = nextout(sp, slenp), --skipcnt) ;
     }
-    
+
     /* if we found the entry, write out the character */
     if (ampptr != 0)
     {
-        /* 
+        /*
          *   if this one has an external mapping table entry, use the mapping
-         *   table entry; otherwise, use the default OS routine mapping 
+         *   table entry; otherwise, use the default OS routine mapping
          */
         if (ampptr->expan != 0)
         {
-            /* 
+            /*
              *   we have an explicit expansion from the mapping table file -
-             *   use it 
+             *   use it
              */
             size_t copylen = strlen(ampptr->expan);
             if (copylen > outbuf_size - 1)
@@ -2910,18 +2910,18 @@ static char out_parse_entity(char *outbuf, size_t outbuf_size,
         }
         else
         {
-            /* 
+            /*
              *   there's no mapping table expansion - use the default OS code
-             *   expansion 
+             *   expansion
              */
             os_xlat_html4(ampptr->html_cval, outbuf, outbuf_size);
         }
     }
     else
     {
-        /* 
+        /*
          *   didn't find it - output the '&' literally, then back up and
-         *   output the entire sequence following 
+         *   output the entire sequence following
          */
         *sp = orig_s;
         *slenp = orig_slen;
@@ -2935,12 +2935,12 @@ static char out_parse_entity(char *outbuf, size_t outbuf_size,
     /* return the next character */
     return c;
 }
-                      
+
 
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Initialize the output formatter 
+ *   Initialize the output formatter
  */
 void out_init()
 {
@@ -2958,8 +2958,8 @@ void out_init()
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   initialize the property translation table 
+/*
+ *   initialize the property translation table
  */
 void tiosetfmt(tiocxdef *ctx, runcxdef *rctx, uchar *fbase, uint flen)
 {
@@ -2976,10 +2976,10 @@ void tiosetfmt(tiocxdef *ctx, runcxdef *rctx, uchar *fbase, uint flen)
  *   reader will call this routine during initialization if it finds HTML
  *   entities in the mapping table file.  We'll remember these mappings
  *   for use in translating HTML entities to the local character set.
- *   
+ *
  *   Note that the standard run-time can only display a single character
  *   set, so every HTML entity that we display must be mapped to the
- *   single active native character set.  
+ *   single active native character set.
  */
 void tio_set_html_expansion(unsigned int html_char_val,
                             const char *expansion, size_t expansion_len)
@@ -3045,9 +3045,9 @@ int outformatlen(char *s, uint slen)
         /* call the filter */
         runfn(runctx, G_user_filter, 1);
 
-        /* 
+        /*
          *   note that we called the filter, so that we'll remove the
-         *   result of the filter from the stack before we return 
+         *   result of the filter from the stack before we return
          */
         called_filter = TRUE;
 
@@ -3060,18 +3060,18 @@ int outformatlen(char *s, uint slen)
             /* pop the value */
             runpop(runctx, &val);
 
-            /* 
+            /*
              *   get the text from the string, and use it as a replacement
-             *   for the original string 
+             *   for the original string
              */
             p = val.runsv.runsvstr;
             slen = osrp2(p) - 2;
             s = (char *)(p + 2);
 
-            /* 
+            /*
              *   push the string back onto the stack - this will ensure
              *   that the string stays referenced while we're working, so
-             *   that the garbage collector won't delete it 
+             *   that the garbage collector won't delete it
              */
             runrepush(runctx, &val);
         }
@@ -3117,7 +3117,7 @@ done:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Display a blank line 
+ *   Display a blank line
  */
 void outblank()
 {
@@ -3144,7 +3144,7 @@ void outblank()
 /*
  *   outcaps() - sets an internal flag which makes the next letter output
  *   a capital, whether it came in that way or not.  Set the same state in
- *   both formatters (standard and log).  
+ *   both formatters (standard and log).
  */
 void outcaps(void)
 {
@@ -3154,7 +3154,7 @@ void outcaps(void)
 
 /*
  *   outnocaps() - sets the next letter to a miniscule, whether it came in
- *   that way or not.  
+ *   that way or not.
  */
 void outnocaps(void)
 {
@@ -3164,7 +3164,7 @@ void outnocaps(void)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Open a log file 
+ *   Open a log file
  */
 int tiologopn(tiocxdef *ctx, char *fn)
 {
@@ -3178,17 +3178,17 @@ int tiologopn(tiocxdef *ctx, char *fn)
     /* open the new file */
     logfp = osfopwt(fn, OSFTLOG);
 
-    /* 
+    /*
      *   Reset the log file's output formatter state, since we're opening
-     *   a new file.  
+     *   a new file.
      */
     out_init_log(&G_log_disp);
 
-    /* 
+    /*
      *   Set the log file's HTML source mode flag to the same value as is
      *   currently being used in the main display stream, so that it will
      *   interpret source markups the same way that the display stream is
-     *   going to.  
+     *   going to.
      */
     G_log_disp.html_mode = G_std_disp.html_mode;
 
@@ -3197,7 +3197,7 @@ int tiologopn(tiocxdef *ctx, char *fn)
 }
 
 /*
- *   Close the log file 
+ *   Close the log file
  */
 int tiologcls(tiocxdef *ctx)
 {
@@ -3226,10 +3226,10 @@ int tiologcls(tiocxdef *ctx)
  *   automatically copy text to the log file; any text that the caller
  *   knows should be in the log file during times when more mode is turned
  *   off can be explicitly added with this function.
- *   
+ *
  *   If nl is true, we'll add a newline at the end of this text.  The
  *   caller should not include any newlines in the text being displayed
- *   here.  
+ *   here.
  */
 void out_logfile_print(char *txt, int nl)
 {
@@ -3257,12 +3257,12 @@ void out_logfile_print(char *txt, int nl)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Set the current MORE mode 
+ *   Set the current MORE mode
  */
 int setmore(int state)
 {
     int oldstate = G_os_moremode;
-    
+
     G_os_moremode = state;
     return oldstate;
 }
@@ -3273,14 +3273,14 @@ int setmore(int state)
  *   pagination issues (i.e., USE_MORE is defined), we'll simply display
  *   the prompt and wait for input.  Otherwise, the OS layer controls the
  *   MORE prompt, so we'll call the OS-layer function to display the
- *   prompt.  
+ *   prompt.
  */
 void out_more_prompt()
 {
 #ifdef USE_MORE
     /*
      *   USE_MORE defined - we take responsibility for pagination.  Show
-     *   our default MORE prompt and wait for a keystroke.  
+     *   our default MORE prompt and wait for a keystroke.
      */
 
     int done;
@@ -3294,7 +3294,7 @@ void out_more_prompt()
     for (done = FALSE ; !done ; )
     {
         os_event_info_t evt;
-        
+
         /* get an event */
         switch(os_get_event(0, FALSE, &evt))
         {
@@ -3306,7 +3306,7 @@ void out_more_prompt()
                 done = TRUE;
                 next_page = TRUE;
                 break;
-                
+
             case '\r':
             case '\n':
                 /* stop waiting, show one line */
@@ -3335,21 +3335,21 @@ void out_more_prompt()
         }
     }
 
-    /* 
+    /*
      *   Remove the prompt from the screen by backing up and overwriting
      *   it with spaces.  (Note that this assumes that we're running in
      *   some kind of terminal or character mode with a fixed-pitch font;
      *   if that's not the case, the OS layer should be taking
      *   responsibility for pagination anyway, so this code shouldn't be
-     *   in use in the first place.)  
+     *   in use in the first place.)
      */
     os_printz("\r      \r");
 
-    /* 
+    /*
      *   if they pressed the space key, it means that we should show an
      *   entire new page, so reset the line count to zero; otherwise,
      *   we'll want to display another MORE prompt at the very next line,
-     *   so leave the line count alone 
+     *   so leave the line count alone
      */
     if (next_page)
         G_std_disp.linecnt = 0;
@@ -3360,7 +3360,7 @@ void out_more_prompt()
      *   USE_MORE is undefined - this means that the OS layer is taking
      *   all responsibility for pagination.  We must ask the OS layer to
      *   display the MORE prompt, because we can't make any assumptions
-     *   about what the prompt looks like.  
+     *   about what the prompt looks like.
      */
 
     os_more_prompt();
@@ -3370,7 +3370,7 @@ void out_more_prompt()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   reset output 
+ *   reset output
  */
 void outreset(void)
 {
@@ -3382,7 +3382,7 @@ void outreset(void)
  *   Determine if HTML mode is active.  Returns true if so, false if not.
  *   Note that this merely indicates whether an "\H+" sequence is
  *   currently active -- this will return true after an "\H+" sequence,
- *   even on text-only interpreters.  
+ *   even on text-only interpreters.
  */
 int tio_is_html_mode()
 {
@@ -3395,11 +3395,11 @@ int tio_is_html_mode()
 /*
  *   Capture routines.  Capture affects only the standard display output
  *   stream; there's no need to capture information redundantly in the log
- *   file stream.  
+ *   file stream.
  */
 
 /*
- *   Begin/end capturing 
+ *   Begin/end capturing
  */
 void tiocapture(tiocxdef *tioctx, mcmcxdef *memctx, int flag)
 {
@@ -3416,9 +3416,9 @@ void tiocapture(tiocxdef *tioctx, mcmcxdef *memctx, int flag)
         G_std_disp.capture_ctx = memctx;
     }
 
-    /* 
+    /*
      *   remember capture status in the standard output stream as well as
-     *   the log stream 
+     *   the log stream
      */
     G_std_disp.capturing = flag;
     G_log_disp.capturing = flag;
@@ -3449,8 +3449,8 @@ uint tiocapturesize(tiocxdef *ctx)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   set the current actor 
+/*
+ *   set the current actor
  */
 void tiosetactor(tiocxdef *ctx, objnum actor)
 {
@@ -3459,18 +3459,18 @@ void tiosetactor(tiocxdef *ctx, objnum actor)
 }
 
 /*
- *   get the current actor 
+ *   get the current actor
  */
 objnum tiogetactor(tiocxdef *ctx)
 {
     VARUSED(ctx);
     return cmdActor;
 }
-          
+
 /* ------------------------------------------------------------------------ */
 /*
  *   Flush the output line.  We'll write to both the standard display and
- *   the log file, as needed.  
+ *   the log file, as needed.
  */
 void outflushn(int nl)
 {
@@ -3486,7 +3486,7 @@ void outflushn(int nl)
 }
 
 /*
- *   flush the current line, and start a new line 
+ *   flush the current line, and start a new line
  */
 void outflush(void)
 {
@@ -3499,8 +3499,8 @@ void outflush(void)
  *   Hidden text routines
  */
 
-/* 
- *   outhide - hide output in the standard display stream 
+/*
+ *   outhide - hide output in the standard display stream
  */
 void outhide(void)
 {
@@ -3511,7 +3511,7 @@ void outhide(void)
 
 /*
  *   Check output status.  Indicate whether output is currently hidden,
- *   and whether any hidden output has occurred.  
+ *   and whether any hidden output has occurred.
  */
 void outstat(int *hidden, int *output_occurred)
 {
@@ -3548,7 +3548,7 @@ int outshow(void)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   start/end watchpoint evaluation - suppress all dstring output 
+ *   start/end watchpoint evaluation - suppress all dstring output
  */
 void outwx(int flag)
 {
@@ -3559,7 +3559,7 @@ void outwx(int flag)
 /* ------------------------------------------------------------------------ */
 /*
  *   Set the user filter function.  Setting this to MCMONINV clears the
- *   filter. 
+ *   filter.
  */
 void out_set_filter(objnum filter_fn)
 {
@@ -3569,7 +3569,7 @@ void out_set_filter(objnum filter_fn)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Set the double-space mode 
+ *   Set the double-space mode
  */
 void out_set_doublespace(int dbl)
 {

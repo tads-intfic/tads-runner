@@ -2,11 +2,11 @@
 $Header: d:/cvsroot/tads/TADS2/TOK.H,v 1.3 1999/07/11 00:46:30 MJRoberts Exp $
 */
 
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -81,11 +81,11 @@ Modified
 #define TOKTSHR     18
 #define TOKTTILDE   30
 
-/* 
+/*
  *   special 'dot' replacement for speculative evaluation mode -- this is
  *   strictly for marking parse tree nodes, and has the same meaning in a
  *   parse tree node as a regular TOKTDOT, but generates code that can't
- *   call methods 
+ *   call methods
  */
 #define TOKTDOTSPEC 31
 
@@ -402,11 +402,11 @@ void tokaddinc(tokcxdef *ctx, char *path, int pathlen);
 /* compute the hash value of a string */
 uint tokhsh(char *nam);
 
-/* 
+/*
  *   Fold case of a token if we're in case-insensitive mode.  This should
  *   be called any time a token is constructed artificially; it need not
  *   be used the token is read through the tokenizer, because the
- *   tokenizer will always adjust a token as needed before returning it. 
+ *   tokenizer will always adjust a token as needed before returning it.
  */
 void tok_case_fold(tokcxdef *ctx, tokdef *tok);
 
@@ -438,7 +438,7 @@ void toktlini(errcxdef *errctx, toktldef *toktab,
 /* add a symbol to a linear symbol table */
 void toktladd(toktdef *toktab, char *name, int namel,
               int typ, int val, int hash);
-                
+
 /* search a linear symbol table */
 int toktlsea(toktdef *tab, char *name, int namel, int hash,
              toksdef *ret);
@@ -463,9 +463,9 @@ int tokget1(tokcxdef *ctx, tokdef *tok, int consume);
 void tok_add_define(tokcxdef *ctx, char *sym, int len,
                     char *expan, int explen);
 
-/* 
+/*
  *   add a symbol to the #define symbol table, folding case if we're
- *   operating in case-insensitive mode 
+ *   operating in case-insensitive mode
  */
 void tok_add_define_cvtcase(tokcxdef *ctx, char *sym, int len,
                             char *expan, int explen);

@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -26,7 +26,7 @@ Function
   resolver, so normal stand-alone interpreters should use the load-time
   version instead.
 Notes
-  
+
 Modified
   07/21/99 MJRoberts  - Creation
 */
@@ -48,13 +48,13 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Call the given function from the given function set.  
+ *   Call the given function from the given function set.
  */
 void CVmBifTable::call_func(VMG_ uint set_index, uint func_index, uint argc)
 {
     vm_bif_entry_t *entry;
     vm_bif_desc *desc;
-    
+
     /* get the function set */
     entry = table_[set_index];
 
@@ -77,7 +77,7 @@ void CVmBifTable::call_func(VMG_ uint set_index, uint func_index, uint argc)
 }
 
 /*
- *   Handle adding a function set entry that's unresolvable at load-time 
+ *   Handle adding a function set entry that's unresolvable at load-time
  */
 void CVmBifTable::add_entry_unresolved(VMG_ const char *func_set_id)
 {
@@ -87,7 +87,7 @@ void CVmBifTable::add_entry_unresolved(VMG_ const char *func_set_id)
      *   entry in the function set table, and store the name of the
      *   function set - we'll need this in case the program attempts to
      *   invoke a function in this function set, so that we can generate
-     *   an error containing the unresolved function set name. 
+     *   an error containing the unresolved function set name.
      */
     table_[count_] = 0;
     names_[count_] = lib_copy_str(func_set_id);
@@ -97,7 +97,7 @@ void CVmBifTable::add_entry_unresolved(VMG_ const char *func_set_id)
 }
 
 /*
- *   Get a function's descriptor 
+ *   Get a function's descriptor
  */
 const vm_bif_desc *CVmBifTable::get_desc(uint set_index, uint func_index)
 {

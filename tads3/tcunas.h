@@ -1,18 +1,18 @@
 /* $Header: d:/cvsroot/tads/tads3/TCUNAS.H,v 1.3 1999/07/11 00:46:58 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   tcunas.h - TADS 3 Compiler Unassembler
 Function
-  
+
 Notes
-  
+
 Modified
   05/10/99 MJRoberts  - Creation
 */
@@ -29,16 +29,16 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   byte-code source for unassembler 
+ *   byte-code source for unassembler
  */
 class CTcUnasSrc
 {
 public:
     virtual ~CTcUnasSrc() { }
-    
-    /* 
+
+    /*
      *   read the next byte; returns zero on success, non-zero at the end
-     *   of the byte stream 
+     *   of the byte stream
      */
     virtual int next_byte(char *ch) = 0;
 
@@ -92,7 +92,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   output stream for unassembler 
+ *   output stream for unassembler
  */
 class CTcUnasOut
 {
@@ -105,7 +105,7 @@ public:
 
 /*
  *   stdio implementation of output stream - writes data to standard
- *   output 
+ *   output
  */
 class CTcUnasOutStdio: public CTcUnasOut
 {
@@ -123,7 +123,7 @@ public:
 
 /*
  *   Text file (osfildef) implementation of output stream.  The file handle
- *   is managed by the caller.  
+ *   is managed by the caller.
  */
 class CTcUnasOutFile: public CTcUnasOut
 {

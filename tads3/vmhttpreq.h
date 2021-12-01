@@ -1,10 +1,10 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 2010 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -28,7 +28,7 @@ Function
   garbage collector, the wrapper releases its reference on the underlying C++
   object.
 Notes
-  
+
 Modified
    MJRoberts  - Creation
 */
@@ -73,7 +73,7 @@ struct vm_httpreq_ext
 };
 
 /*
- *   Cookie tracker 
+ *   Cookie tracker
  */
 struct vm_httpreq_cookie
 {
@@ -130,7 +130,7 @@ struct vm_httpreq_cookie
 class CVmObjHTTPRequest: public CVmObject
 {
     friend class CVmMetaclassHTTPRequest;
-    
+
 public:
     /* metaclass registration object */
     static class CVmMetaclass *metaclass_reg_;
@@ -148,9 +148,9 @@ public:
     static int is_vmhttpreq_obj(VMG_ vm_obj_id_t obj)
         { return vm_objp(vmg_ obj)->is_of_metaclass(metaclass_reg_); }
 
-    /* 
+    /*
      *   Create the request object.  'srv_obj' is the HTTPServer object for
-     *   the listener that received the request.  
+     *   the listener that received the request.
      */
     static vm_obj_id_t create(VMG_ int in_root_set,
                               class TadsHttpRequest *req,
@@ -160,9 +160,9 @@ public:
     static vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr,
                                          uint argc);
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -183,12 +183,12 @@ public:
     int get_prop(VMG_ vm_prop_id_t prop, vm_val_t *val,
                  vm_obj_id_t self, vm_obj_id_t *source_obj, uint *argc);
 
-    /* 
+    /*
      *   receive savepoint notification - we don't keep any
-     *   savepoint-relative records, so we don't need to do anything here 
+     *   savepoint-relative records, so we don't need to do anything here
      */
     void notify_new_savept() { }
-    
+
     /* we don't participate in undo */
     void apply_undo(VMG_ struct CVmUndoRecord *) { }
     void discard_undo(VMG_ struct CVmUndoRecord *) { }
@@ -218,10 +218,10 @@ public:
     void restore_from_file(VMG_ vm_obj_id_t self,
                            class CVmFile *fp, class CVmObjFixup *fixups);
 
-    /* 
+    /*
      *   determine if we've been changed since loading - assume we have (if
      *   we haven't, the only harm is the cost of unnecessarily reloading or
-     *   saving) 
+     *   saving)
      */
     int is_changed_since_load() const { return TRUE; }
 
@@ -310,7 +310,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjHTTPRequest metaclass registration table object 
+ *   CVmObjHTTPRequest metaclass registration table object
  */
 class CVmMetaclassHTTPRequest: public CVmMetaclass
 {
@@ -337,7 +337,7 @@ public:
     /* create dynamically using stack arguments */
     vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr, uint argc)
         { return CVmObjHTTPRequest::create_from_stack(vmg_ pc_ptr, argc); }
-    
+
     /* call a static property */
     int call_stat_prop(VMG_ vm_val_t *result,
                        const uchar **pc_ptr, uint *argc,
@@ -351,6 +351,6 @@ public:
 #endif /* VMHTTPREQ_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjHTTPRequest)

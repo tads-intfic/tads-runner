@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/SUPRUN.C,v 1.3 1999/07/11 00:46:30 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1992, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -126,11 +126,11 @@ supbidef osfar_t supbitab[] =
     { "inputdialog", bifinpdlg },
     { "resourceExists", bifresexists },
 
-    /* 
+    /*
      *   To accommodate systemInfo, we've removed g_readpic.  This has been
      *   present for a while and didn't do anything, since tads/g was never
      *   released.  We can therefore use its function slot without requiring
-     *   a format change.  
+     *   a format change.
      */
     /* { "g_readpic", bifgrp }, */
 
@@ -139,9 +139,9 @@ supbidef osfar_t supbitab[] =
     /* { "g_sethot", bifgsh }, */
     /* { "g_inventory", bifgin }, */
 
-    /* 
+    /*
      *   more tads/g functions - these are kept around mostly as
-     *   placeholders in case we want to use these slots in the future 
+     *   placeholders in case we want to use these slots in the future
      */
     /* { "g_compass", bifgco }, - removed for reSearch */
     /* { "g_overlay", bifgov }, - removed for reGetGroup */
@@ -173,7 +173,7 @@ supbidef osfar_t supbitab[] =
     { "__reserved_func_17", bifgsn },
     { "__reserved_func_18", bifgsn },
     { "__reserved_func_19", bifgsn },
-    
+
 
     { 0, 0 }
 };
@@ -274,7 +274,7 @@ static void supiwrds(voccxdef *ctx, objnum sc, objnum target, int flags)
     vocdef   *v;
     vocdef  **vp;
     vocwdef  *vw;
-    
+
     /* go through each hash value looking for superclass object */
     for (i = VOCHASHSIZ, vp = ctx->voccxhsh ; i != 0 ; ++vp, --i)
     {
@@ -303,7 +303,7 @@ void supivoc1(supcxdef *sup, voccxdef *ctx, vocidef *v, objnum target,
     objnum   *sc;
     int       numsc;
     vocidef  *scv;
-    
+
     for (numsc = v->vocinsc, sc = v->vocisc ; numsc ; ++sc, --numsc)
     {
         scv = vocinh(ctx, *sc);
@@ -311,7 +311,7 @@ void supivoc1(supcxdef *sup, voccxdef *ctx, vocidef *v, objnum target,
         {
             /* inherit from its superclasses first */
             supivoc1(sup, ctx, scv, target, FALSE, flags);
-            
+
             /* if it's a class object, we can inherit from it */
             if (scv->vociflg & VOCIFCLASS)
             {
@@ -327,7 +327,7 @@ void supivoc1(supcxdef *sup, voccxdef *ctx, vocidef *v, objnum target,
 
             /*
              *   inherit from superclass if it's a class, or if we're
-             *   supposed to inherit from any object 
+             *   supposed to inherit from any object
              */
             if (inh_from_obj || (scv->vociflg & VOCIFCLASS))
             {
@@ -347,7 +347,7 @@ void supivoc1(supcxdef *sup, voccxdef *ctx, vocidef *v, objnum target,
             sup_log_undefobj(ctx->voccxmem, ctx->voccxerr, ERR_UNDFOBJ,
                              buf, (int)strlen(buf), *sc);
         }
-    }    
+    }
 }
 
 void sup_log_undefobj(mcmcxdef *mctx, errcxdef *ec, int err,
@@ -356,13 +356,13 @@ void sup_log_undefobj(mcmcxdef *mctx, errcxdef *ec, int err,
     uchar  *p;
     size_t  len;
 
-    /* 
+    /*
      *   if the object has any superclasses defined, what must have
      *   happened is that we encountered an error in the course of
      *   defining the object; the object is partially defined, hence it
      *   won't show up in our records of defined objects, yet it really
      *   shouldn't count as an undefined object; simply suppress the
-     *   message in this case 
+     *   message in this case
      */
     if (objget1sc(mctx, objn) != MCMONINV)
         return;

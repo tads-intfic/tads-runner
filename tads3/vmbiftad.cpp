@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/VMBIFTAD.CPP,v 1.3 1999/07/11 00:46:58 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmbiftad.cpp - TADS built-in function set for T3 VM
 Function
-  
+
 Notes
-  
+
 Modified
   04/05/99 MJRoberts  - Creation
 */
@@ -58,7 +58,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Initialize the TADS intrinsics global state 
+ *   Initialize the TADS intrinsics global state
  */
 CVmBifTADSGlobals::CVmBifTADSGlobals(VMG0_)
 {
@@ -66,26 +66,26 @@ CVmBifTADSGlobals::CVmBifTADSGlobals(VMG0_)
     rex_parser = new CRegexParser();
     rex_searcher = new CRegexSearcherSimple(rex_parser);
 
-    /* 
+    /*
      *   Allocate a global variable to hold the most recent regular
      *   expression search string.  We need this in a global so that the last
      *   search string is always protected from garbage collection; we must
      *   keep the string because we might need it to extract a group-match
-     *   substring.  
+     *   substring.
      */
     last_rex_str = G_obj_table->create_global_var();
 
     /* ISAAC is the default RNG */
     rng_id = VMBT_RNGID_ISAAC;
 
-    /* 
+    /*
      *   Set the random number seed to a fixed starting value (this value
      *   is arbitrary; we chose it by throwing dice).  If the program
      *   wants another sequence, it can manually change this by calling
      *   the randomize() intrinsic in our function set, which seeds the
      *   generator with an OS-dependent starting value (usually based on
      *   the system's real-time clock, to ensure that each run will use a
-     *   different starting value).  
+     *   different starting value).
      */
     lcg_rand_seed = 024136543305;
 
@@ -100,7 +100,7 @@ CVmBifTADSGlobals::CVmBifTADSGlobals(VMG0_)
 }
 
 /*
- *   delete the TADS intrinsics global state 
+ *   delete the TADS intrinsics global state
  */
 CVmBifTADSGlobals::~CVmBifTADSGlobals()
 {
@@ -108,7 +108,7 @@ CVmBifTADSGlobals::~CVmBifTADSGlobals()
     delete rex_searcher;
     delete rex_parser;
 
-    /* 
+    /*
      *   note that we leave our last_rex_str global variable undeleted here,
      *   as we don't have access to G_obj_table (as there's no VMG_ to a
      *   destructor); this is okay, since the object table will take care of
@@ -144,7 +144,7 @@ void CVmBifTADS::datatype(VMG_ uint argc)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   getarg - get the given argument to the current procedure 
+ *   getarg - get the given argument to the current procedure
  */
 void CVmBifTADS::getarg(VMG_ uint argc)
 {
@@ -192,10 +192,10 @@ void CVmBifTADS::nextobj(VMG_ uint argc)
     G_interpreter->pop_obj(vmg_ &val);
     prv_obj = val.val.obj;
 
-    /* 
+    /*
      *   Enumerate objects starting with the next object in the master
      *   object table after the given object.  Reduce the argument count by
-     *   one, since we've removed the preceding object.  
+     *   one, since we've removed the preceding object.
      */
     enum_objects(vmg_ argc - 1, prv_obj + 1);
 }
@@ -220,10 +220,10 @@ void CVmBifTADS::enum_objects(VMG_ uint argc, vm_obj_id_t start_obj)
     /* presume we're enumerating instances only */
     flags = VMBIFTADS_ENUM_INSTANCES;
 
-    /* 
+    /*
      *   check arguments - we can optionally have two more arguments: a
      *   superclass whose instances/subclasses we are to enumerate, and an
-     *   integer giving flag bits 
+     *   integer giving flag bits
      */
     if (argc == 2)
     {
@@ -259,27 +259,27 @@ void CVmBifTADS::enum_objects(VMG_ uint argc, vm_obj_id_t start_obj)
     /* presume we won't find anything */
     retval_nil(vmg0_);
 
-    /* 
+    /*
      *   starting with the given object, scan objects until we find one
-     *   that's valid and matches our superclass, if one was provided 
+     *   that's valid and matches our superclass, if one was provided
      */
     for (obj = start_obj ; obj < G_obj_table->get_max_used_obj_id() ; ++obj)
     {
-        /* 
+        /*
          *   If it's valid, and it's not an intrinsic class modifier object,
          *   consider it further.  Skip intrinsic class modifiers, since
          *   they're not really separate objects; they're really part of the
          *   intrinsic class they modify, and all of the properties and
          *   methods of a modifier object are reachable through the base
-         *   intrinsic class.  
+         *   intrinsic class.
          */
         if (G_obj_table->is_obj_id_valid(obj)
             && !CVmObjIntClsMod::is_intcls_mod_obj(vmg_ obj))
         {
-            /* 
+            /*
              *   if it's a class, skip it if the flags indicate classes are
              *   not wanted; if it's an instance, skip it if the flags
-             *   indicate that instances are not wanted 
+             *   indicate that instances are not wanted
              */
             if (vm_objp(vmg_ obj)->is_class_object(vmg_ obj))
             {
@@ -294,9 +294,9 @@ void CVmBifTADS::enum_objects(VMG_ uint argc, vm_obj_id_t start_obj)
                     continue;
             }
 
-            /* 
+            /*
              *   if a superclass was specified, and it matches, we have a
-             *   winner 
+             *   winner
              */
             if (sc != VM_INVALID_OBJ)
             {
@@ -309,9 +309,9 @@ void CVmBifTADS::enum_objects(VMG_ uint argc, vm_obj_id_t start_obj)
             }
             else
             {
-                /* 
+                /*
                  *   We're enumerating all objects - but skip List and String
-                 *   object, as we expose these as special types.  
+                 *   object, as we expose these as special types.
                  */
                 if (vm_objp(vmg_ obj)->get_as_list() == 0
                     && vm_objp(vmg_ obj)->get_as_string(vmg0_) == 0)
@@ -430,9 +430,9 @@ public:
     }
 
 protected:
-    /* 
+    /*
      *   Get the size of the state vector, in bytes.  Return 0 if we can
-     *   store the state in an int32_t. 
+     *   store the state in an int32_t.
      */
     virtual size_t get_state_size() = 0;
 
@@ -447,7 +447,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   ISAAC random number generator 
+ *   ISAAC random number generator
  */
 class vmbt_isaac_ifc: public IVmBifTadsRNG
 {
@@ -470,7 +470,7 @@ public:
     /* seed from a string value */
     virtual void seed_str(const char *str, size_t len)
     {
-        /* 
+        /*
          *   Copy the string value into the rsl array; copy as much as will
          *   fit, and zero the rest.  (The point here is to be deterministic,
          *   so we want this to be the same every time with a given seed - we
@@ -501,7 +501,7 @@ public:
  *   Linear Congruential Random-Number Generator.  This generator uses an
  *   algorithm from Knuth, The Art of Computer Programming, Volume 2, p.
  *   170, with parameters chosen from the same book for their good
- *   statistical properties and efficiency on 32-bit hardware.  
+ *   statistical properties and efficiency on 32-bit hardware.
  */
 class vmbt_lcg_ifc: public IVmBifTadsRNG
 {
@@ -513,30 +513,30 @@ public:
         const uint32_t a = 1664525L;
         const uint32_t c = 1;
 
-        /* 
+        /*
          *   Generate the next random value using the linear congruential
          *   method described in Knuth, The Art of Computer Programming,
          *   volume 2, p170.
-         *   
+         *
          *   Use 2^32 as m, hence (n mod m) == (n & 0xFFFFFFFF).  This is
          *   efficient and is well-suited to 32-bit machines, works fine on
          *   larger machines, and will even work on 16-bit machines as long
          *   as the compiler can provide us with 32-bit arithmetic (which we
          *   assume extensively elsewhere anyway).
-         *   
+         *
          *   We use a = 1664525, a multiplier which has very good results
          *   with the Spectral Test (see Knuth p102) with our choice of m.
-         *   
+         *
          *   Use c = 1, since this trivially satisfies Knuth's requirements
          *   about common factors.
-         *   
+         *
          *   Note that the result of the multiplication might overflow a
          *   32-bit ulong for values of lcg_rand_seed that are not small.
          *   This doesn't matter, since if it does, the machine will
          *   naturally truncate high-order bits to yield the result mod 2^32.
          *   So, on a 32-bit machine, the (&0xFFFFFFFF) part is superfluous,
          *   but it's harmless and is needed for machines with a larger word
-         *   size.  
+         *   size.
          */
         *seedp = (int32_t)(((a * (uint32_t)*seedp) + c) & 0xFFFFFFFF);
         return (uint32_t)*seedp;
@@ -548,19 +548,19 @@ public:
         os_rand(&l);
         *seedp = (int32_t)l;
     }
-    
+
     virtual void seed_int(int32_t i)
     {
         *seedp = i;
     }
-    
+
     virtual int32_t get_state_int() { return *seedp; }
     virtual void put_state_int(int32_t i) { *seedp = i; }
-    
+
     virtual size_t get_state_size() { return 0; }
     virtual void get_state_buf(char *) { }
     virtual void put_state_buf(const char *) { }
-    
+
     int32_t *seedp;
 };
 
@@ -570,12 +570,12 @@ public:
  *   Bit-shift generator.  This is from Knuth, The Art of Computer
  *   Programming, volume 2.  This generator is designed to produce random
  *   strings of bits and isn't suitable for use as a general-purpose RNG.
- *   
+ *
  *   Linear congruential generators aren't ideal for generating random bits;
  *   their statistical properties are better suited for generating values
  *   over a full integer range.  This generator is specially designed to
  *   produce random bits, so it could be a useful complement to an LCG RNG.
- *   
+ *
  *   Since this isn't a good general RNG, we don't currently enable it.
  *   We're keeping the code here, ifdef'd out, in case we decide to enable it
  *   in the future - which seems really unlikely, since ISAAC seems to be
@@ -598,7 +598,7 @@ static uint32_t bits_rng_next(VMG0_)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Mersenne Twister MT19937 RNG algorithm 
+ *   Mersenne Twister MT19937 RNG algorithm
  */
 class vmbt_mt_ifc: public IVmBifTadsRNG
 {
@@ -638,10 +638,10 @@ public:
         {
         case VMBT_RNGID_ISAAC:
             return &isaac;
-            
+
         case VMBT_RNGID_LCG:
             return &lcg;
-            
+
         case VMBT_RNGID_MT19937:
             return &mt;
 
@@ -660,23 +660,23 @@ public:
 /* ------------------------------------------------------------------------ */
 /*
  *   randomize - seed the random number generator.  This has several formats:
- *   
+ *
  *.    randomize() - select the default RNG (ISAAC) and initialize it
  *.                  with random seed data.
- *   
+ *
  *.    randomize(nil) - retrieve the current state of the random number
  *.                  generator.  Returns a list: [id, state], where 'id'
  *.                  is the generator ID, and 'state' is an opaque value
  *.                  representing the generator's internal state.
- *   
+ *
  *.    randomize([state]) - restores the generator and internal state
  *.                  returned from a previous call to randomize(nil).
- *   
+ *
  *.    randomize(id) - select the RNG identified by 'id'.
- *   
+ *
  *.    randomize(id, nil) - select the given RNG, and initialize it with
  *.                  random seed data.
- *   
+ *
  *.    randomize(id, val) - select the given RNG, and initialize it with
  *.                  the given fixed seed data.  The seed can be provided
  *.                  as an integer or string value.
@@ -690,7 +690,7 @@ void CVmBifTADS::randomize(VMG_ uint argc)
         /*
          *   No arguments - select the default random number generator
          *   (ISAAC) and initialize it with random seed data.
-         *   
+         *
          *   Load the ISAAC initialization vector with some truly random data
          *   from the operating system.
          */
@@ -703,7 +703,7 @@ void CVmBifTADS::randomize(VMG_ uint argc)
     }
     else if (argc == 1 && G_stk->get(0)->typ == VM_NIL)
     {
-        /* 
+        /*
          *   randomize(nil) - retrieve the current RNG state.  This returns a
          *   list with two elements: [id, state].  Set up the return list.
          */
@@ -728,7 +728,7 @@ void CVmBifTADS::randomize(VMG_ uint argc)
     }
     else if (argc == 1 && G_stk->get(0)->is_listlike(vmg0_))
     {
-        /* 
+        /*
          *   Randomize([state]) - restores a previous RNG state.  The first
          *   list element is the RNG ID; the second is the saved state data,
          *   in an RNG-specific format.
@@ -756,13 +756,13 @@ void CVmBifTADS::randomize(VMG_ uint argc)
          *.  randomize(id, nil) - select and seed with random data
          *.  randomize(id, val) - select and seed with fixed data
          */
-        
+
         /* get the ID, and get the generator interface for it */
         int id = G_stk->get(0)->num_to_int(vmg0_);
         CVmRNGSelector sel Pvmg0_P;
         IVmBifTadsRNG *rng = sel.get(id);
 
-        /* 
+        /*
          *   Determine whether and how we're seeding the RNG.  If there's
          *   only the one argument, we're not seeding it.  If there's a
          *   second argument, and it's nil, we're seeding with OS random
@@ -810,7 +810,7 @@ void CVmBifTADS::randomize(VMG_ uint argc)
 }
 
 /*
- *   LCG randomize - seed the random-number generator 
+ *   LCG randomize - seed the random-number generator
  */
 //void CVmBifTADS::randomize(VMG_ uint argc)
 //{
@@ -824,7 +824,7 @@ void CVmBifTADS::randomize(VMG_ uint argc)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Get the next random number from the selected RNG 
+ *   Get the next random number from the selected RNG
  */
 static uint32_t rng_next(VMG0_)
 {
@@ -836,26 +836,26 @@ static uint32_t rng_next(VMG0_)
 /* ------------------------------------------------------------------------ */
 /*
  *   Map a random 32-bit number to a smaller range 0..range-1.
- *   
+ *
  *   Use the "multiplication" method Knuth describes in TAoCP Vol 2 section
  *   3.4.2.  This treats the source value as a fractional value in the range
  *   [0..1); we multiply this fractional value by the upper bound to get a
  *   linearly distributed number [0..range).  To turn a 32-bit integer into a
  *   fractional value in the range [0..1), divide by 2^32.
- *   
+ *
  *   We do this calculation entirely with 32-bit integer arithmetic.  The
  *   nominal calculation we're performing is:
- *   
+ *
  *.      rand_val = (ulong)((((double)rand_val) / 4294967296.0)
  *.                         * (double)range);
- *   
+ *
  *   To do the arithmetic entirely with integers, we refactor this by first
  *   calculating the 64-bit product of rand_val * range, then dividing the
  *   product by 2^32.  This isn't possible to do directly with 32-bit ints,
  *   of course.  But the division is particularly easy because it's the same
  *   as a 32-bit right-shift.  So the trick is to factor out the low-order
  *   32-bits of the product and the high-order 32-bits, which we can do with
- *   some bit shifting.  
+ *   some bit shifting.
  */
 static inline ulong rand_range(ulong rand_val, ulong range)
 {
@@ -863,7 +863,7 @@ static inline ulong rand_range(ulong rand_val, ulong range)
     ulong hi = (((rand_val >> 16) & 0xffff) * ((range >> 16) & 0xffff))
                + ((((rand_val >> 16) & 0xffff) * (range & 0xffff)) >> 16)
                + (((rand_val & 0xffff) * ((range >> 16) & 0xffff)) >> 16);
-    
+
     /* calculate the low-order 32 bits */
     ulong lo = ((((rand_val >> 16) & 0xffff) * (range & 0xffff)) & 0xffff)
                + (((rand_val & 0xffff) * ((range >> 16) & 0xffff)) & 0xffff)
@@ -906,7 +906,7 @@ static inline ulong rand_range(ulong rand_val,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Random string template parser 
+ *   Random string template parser
  */
 class RandStrParser
 {
@@ -1001,9 +1001,9 @@ public:
     RandStrNode *nextSibling;
 };
 
-/* 
+/*
  *   range element - this covers a single character or single 'a-z' range
- *   within a [character list] expression 
+ *   within a [character list] expression
  */
 class RandStrRange: public RandStrNode
 {
@@ -1029,7 +1029,7 @@ class RandStrLit: public RandStrNode
 public:
     RandStrLit(class RandStrParser *p)
     {
-        /* 
+        /*
          *   Allocate our buffer.  To make this easy, we use the total byt
          *   length of the string remaining.  This is more than we'll
          *   actually ever need, on two counts: we could have more bytes than
@@ -1038,7 +1038,7 @@ public:
          *   rest of the string.  So we'll waste a little memory.  But this
          *   object is short-lived and the wasted space is usually trivial,
          *   so it's not worth the additional work to be more precise in
-         *   allocating the buffer.  
+         *   allocating the buffer.
          */
         buf = new wchar_t[p->getrem()];
         len = 0;
@@ -1047,7 +1047,7 @@ public:
         for (p->skip() ; p->more() ; p->skip())
         {
             wchar_t ch;
-            
+
             /* if we're at a close quote, we might be done */
             if ((ch = p->getch()) == '"')
             {
@@ -1096,10 +1096,10 @@ public:
         /* we don't have a character class or literal character yet */
         ch = 0;
         isLit = FALSE;
-        
+
         /* we have no character list items yet */
         listChars = 0;
-        
+
         /* check for a character list of the form [abcw-z] */
         if (p->getch() == '[')
         {
@@ -1153,9 +1153,9 @@ public:
         }
         else if (p->getch() == '%')
         {
-            /* 
+            /*
              *   quoted character expression - skip the '%' and store the
-             *   single character 
+             *   single character
              */
             p->skip();
             ch = p->more() ? p->getch() : '%';
@@ -1180,10 +1180,10 @@ public:
     /* generate the atom */
     virtual void generate(VMG_ wchar_t *&dst)
     {
-        /* 
+        /*
          *   If we have a character list expression, choose a character from
          *   the list.  Otherwise, generate a character according to our
-         *   character class code.  
+         *   character class code.
          */
         wchar_t outc;
         if (listChars != 0)
@@ -1224,68 +1224,68 @@ public:
                 /* printable ASCII character 32-126 */
                 outc = (wchar_t)rand_range(rand_val, 32, 126);
                 break;
-                
+
             case 'l':
                 /* printable Latin-1 character 32-126, 160-255 */
                 outc = (wchar_t)rand_range(rand_val, 32, 126, 160, 255);
                 break;
-                
+
             case 'u':
-                /* 
+                /*
                  *   Printable Unicode character.  This excludes undefined
                  *   character, the private use area, and the control
-                 *   characters.  
+                 *   characters.
                  */
                 for (;;)
                 {
                     /* exclude the control and private use ranges */
                     outc = (wchar_t)rand_range(
                         rand_val, 32, 127, 160, 0xDFFF, 0xF900, 0xFFFE);
-                    
+
                     /* if it's a unicode character, we're set */
                     if (t3_is_unichar(ch))
                         break;
-                    
+
                     /* pick a new random number */
                     rand_val = rng_next(vmg0_);
                 }
                 break;
-                
+
             case 'd':
                 /* decimal digit 0-9 */
                 outc = (wchar_t)rand_range(rand_val, '0', '9');
                 break;
-                
+
             case 'X':
                 /* upper-case hex digit 0-9 A-F */
                 outc = (wchar_t)rand_range(rand_val, '0', '9', 'A', 'F');
                 break;
-                
+
             case 'x':
                 /* lower-case hex digit 0-9 a-f */
                 outc = (wchar_t)rand_range(rand_val, '0', '9', 'a', 'f');
                 break;
-                
+
             case 'A':
                 /* letter A-Z */
                 outc = (wchar_t)rand_range(rand_val, 'A', 'Z');
                 break;
-                
+
             case 'a':
                 /* letter a-z */
                 outc = (wchar_t)rand_range(rand_val, 'a', 'z');
                 break;
-                
+
             case 'b':
                 /* random byte value 0-255 */
                 outc = (wchar_t)rand_range(rand_val, 0, 255);
                 break;
-                
+
             case 'c':
                 /* mixed-case letter A-Z a-z */
                 outc = (wchar_t)rand_range(rand_val, 'a', 'z', 'A', 'Z');
                 break;
-                
+
             case 'z':
                 /* mixed-case letter or number 0-9 a-z A-Z */
                 outc = (wchar_t)rand_range(rand_val,
@@ -1313,22 +1313,22 @@ protected:
     int listChars;
 };
 
-/* 
+/*
  *   repeat group - this is an item optionally followed by a {repeat count},
- *   a '*', or a '?' 
+ *   a '*', or a '?'
  */
 class RandStrRepeat: public RandStrNode
 {
 public:
     RandStrRepeat(RandStrParser *p);
 
-    /* 
+    /*
      *   If we have a finite upper bound, our maximum length is our child
      *   item length times our maximum repeat count.  If there's no upper
      *   bound, our output is in principle infinite, but the probability of
      *   the string being at least a given length N is (2/3)^N, so the odds
      *   drop off very rapidly as N increases; at N=25, we're down to one in
-     *   25,000.  Return 50, and use this as a hard cap in the generator.  
+     *   25,000.  Return 50, and use this as a hard cap in the generator.
      */
     static const int MAX_UNBOUNDED = 50;
     virtual int maxlen()
@@ -1341,9 +1341,9 @@ public:
     {
         if (hi >= 0)
         {
-            /* 
+            /*
              *   Finite upper bound.  Pick a random repeat count from lo to
-             *   hi, and generate our child that many times.  
+             *   hi, and generate our child that many times.
              */
             for (ulong cnt = rand_range(rng_next(vmg0_), lo, hi) ;
                  cnt != 0 ; --cnt)
@@ -1356,9 +1356,9 @@ public:
             for (i = 0 ; i < lo ; ++i)
                 firstChild->generate(vmg_ dst);
 
-            /* 
+            /*
              *   Now add additional items one at a time, with 67% probability
-             *   for each added item.  Stop when we fail the roll.  
+             *   for each added item.  Stop when we fail the roll.
              */
             for (i = 0 ;
                  rand_range(rng_next(vmg0_), 0, 99) < 67 && i < MAX_UNBOUNDED ;
@@ -1367,11 +1367,11 @@ public:
         }
     }
 
-    /* 
+    /*
      *   Repeat range.  If hi is negative, there's no upper bound.  Rather
      *   than picking a number from 0 to infinity uniformly (which is
      *   obviously impractical, since the expectation value is infinite), we
-     *   have a 50% chance of adding each additional item. 
+     *   have a 50% chance of adding each additional item.
      */
     int lo, hi;
 };
@@ -1382,17 +1382,17 @@ class RandStrCatList: public RandStrNode
 public:
     RandStrCatList(RandStrParser *p)
     {
-        /* 
+        /*
          *   parse repeat groups until we reach the end of the string, the
-         *   end of the alternative, or the end of the parenthesized group 
+         *   end of the alternative, or the end of the parenthesized group
          */
         while (p->more() && p->getch() != ')' && p->getch() != '|')
             addChild(new RandStrRepeat(p));
     }
 
-    /* 
+    /*
      *   we generate a concatenation of our children, so our length is the
-     *   sum of our child lengths 
+     *   sum of our child lengths
      */
     virtual int maxlen()
     {
@@ -1421,11 +1421,11 @@ public:
         /* no alternatives yet */
         altCount = 0;
 
-        /* 
+        /*
          *   parse alternatives until we reach the end of the string or a
          *   close paren (unless we're the outermost expression, in which
          *   case we treat ')' as an ordinary character since there's no
-         *   enclosing group to close) 
+         *   enclosing group to close)
          */
         while (p->more() && (isOuterExpr || p->getch() != ')'))
         {
@@ -1439,7 +1439,7 @@ public:
         }
     }
 
-    /* 
+    /*
      *   when we generate, we choose one child to generate, so our maximum
      *   length is the highest of our individual child lengths
      */
@@ -1476,9 +1476,9 @@ public:
     int altCount;
 };
 
-/* 
+/*
  *   repeat group - this is an atom or parenthesized expression, optionally
- *   followed by a postfix repeat count 
+ *   followed by a postfix repeat count
  */
 RandStrRepeat::RandStrRepeat(RandStrParser *p)
 {
@@ -1487,10 +1487,10 @@ RandStrRepeat::RandStrRepeat(RandStrParser *p)
     {
         /* skip the open paren */
         p->skip();
-        
+
         /* parse the alt list */
         addChild(new RandStrAltList(p, FALSE));
-        
+
         /* if there's a close paren, skip it */
         if (p->getch() == ')')
             p->skip();
@@ -1505,25 +1505,25 @@ RandStrRepeat::RandStrRepeat(RandStrParser *p)
         /* no parens or quotes, so this is a simple character atom */
         addChild(new RandStrAtom(p));
     }
-    
+
     /* check for {n}, {n-m}, *, or ? */
     if (p->getch() == '{')
     {
         /* skip the '{' */
         p->skip();
-        
+
         /* parse the low end of the range */
         lo = p->parseInt();
-        
+
         /* if we're at a ',', get the high end of the range */
         if (p->getch() == ',')
         {
             /* there's a separate high part - get it */
             for (p->skip() ; is_space(p->getch()) ; p->skip()) ;
 
-            /* 
+            /*
              *   if the high part is missing, there's no upper bound;
-             *   otherwise parse the finite upper bound 
+             *   otherwise parse the finite upper bound
              */
             if (p->getch() == '}' || p->getch() == '\0')
             {
@@ -1549,7 +1549,7 @@ RandStrRepeat::RandStrRepeat(RandStrParser *p)
             /* there's only the one number, so it's the low and high */
             hi = lo;
         }
-        
+
         /* skip the '}' */
         if (p->getch() == '}')
             p->skip();
@@ -1582,8 +1582,8 @@ RandStrRepeat::RandStrRepeat(RandStrParser *p)
     }
 }
 
-/* 
- *   main parser implementation 
+/*
+ *   main parser implementation
  */
 RandStrParser::RandStrParser(const char *src, size_t len)
 {
@@ -1631,14 +1631,14 @@ void RandStrParser::exec(VMG_ vm_val_t *result)
 /*
  *   rand - generate a random number, or choose an element randomly from a
  *   list of values or from our list of arguments.
- *   
+ *
  *   With one integer argument N, we choose a random number from 0 to N-1.
- *   
+ *
  *   With one list argument, we choose a random element of the list.
- *   
+ *
  *   With multiple arguments, we choose one argument at random and return
  *   its value.  Note that, because this is an ordinary built-in function,
- *   all of our arguments will be fully evaluated.  
+ *   all of our arguments will be fully evaluated.
  */
 void CVmBifTADS::rand(VMG_ uint argc)
 {
@@ -1651,7 +1651,7 @@ void CVmBifTADS::rand(VMG_ uint argc)
     /* determine the desired range of values based on the arguments */
     if (argc == 0)
     {
-        /* 
+        /*
          *   if no argument is given, produce a random number in our full
          *   range - clear the 'use_range' flag to so indicate
          */
@@ -1681,9 +1681,9 @@ void CVmBifTADS::rand(VMG_ uint argc)
     else if (argc == 1
              && G_stk->get(0)->get_as_string(vmg0_) != 0)
     {
-        /* 
+        /*
          *   It's a string, giving a template for generating a new random
-         *   string.  First, get the string argument.  
+         *   string.  First, get the string argument.
          */
         const char *tpl = G_stk->get(0)->get_as_string(vmg0_);
         size_t tplbytes = vmb_get_len(tpl);
@@ -1708,7 +1708,7 @@ void CVmBifTADS::rand(VMG_ uint argc)
             delete rsp;
         }
         err_end;
-        
+
 #else
         /* figure its character length */
         utf8_ptr tplp((char *)tpl);
@@ -1742,10 +1742,10 @@ void CVmBifTADS::rand(VMG_ uint argc)
                 break;
 
             case '*':
-                /* 
+                /*
                  *   Printable Unicode character.  This excludes undefined
                  *   character, the private use area, and the control
-                 *   characters.  
+                 *   characters.
                  */
                 for (;;)
                 {
@@ -1804,15 +1804,15 @@ void CVmBifTADS::rand(VMG_ uint argc)
                 break;
 
             case '[':
-                /* 
+                /*
                  *   Character range.  Scan the range to count the number of
-                 *   characters included.  
+                 *   characters included.
                  */
                 {
-                    /* 
+                    /*
                      *   allocate a list of range descriptors - use 'len2' as
                      *   the range count, since at the most we could have one
-                     *   range per byte (but it'll usually be less) 
+                     *   range per byte (but it'll usually be less)
                      */
                     struct rdesc
                     {
@@ -1846,7 +1846,7 @@ void CVmBifTADS::rand(VMG_ uint argc)
                             tplp.inc(&tplbytes);
                             rch = tplp.getch();
                         }
-                        
+
                         /* if the next character is '-', it's a range */
                         if (tplbytes > 1 && tplp.getch_at(1) == '-')
                         {
@@ -1858,9 +1858,9 @@ void CVmBifTADS::rand(VMG_ uint argc)
                             if (tplbytes > 1 && tplp.getch() == '%')
                                 tplp.inc(&tplbytes);
 
-                            /* 
+                            /*
                              *   The range count includes everything from
-                             *   'rch' to the current character.  
+                             *   'rch' to the current character.
                              */
                             if (tplbytes != 0)
                                 nchars += ranges[nranges++].set(
@@ -1871,7 +1871,7 @@ void CVmBifTADS::rand(VMG_ uint argc)
                             /* it's a single character range */
                             nchars += ranges[nranges++].set(rch);
                         }
-                        
+
                         /* if we're out of characters, we're done */
                         if (tplbytes == 0)
                             break;
@@ -1891,9 +1891,9 @@ void CVmBifTADS::rand(VMG_ uint argc)
                             break;
                         }
 
-                        /* 
+                        /*
                          *   it's not in this range, so deduct the range
-                         *   length from the remainder and keep going 
+                         *   length from the remainder and keep going
                          */
                         ch -= r->end - r->start + 1;
                     }
@@ -1933,7 +1933,7 @@ void CVmBifTADS::rand(VMG_ uint argc)
         /* done with the temporary buffer */
         delete [] buf;
 #endif
-        
+
         /* discard the argument */
         G_stk->discard();
 
@@ -1942,9 +1942,9 @@ void CVmBifTADS::rand(VMG_ uint argc)
     }
     else
     {
-        /* 
+        /*
          *   produce a random number in the range 0..(argc-1) so that we
-         *   can select one of our arguments 
+         *   can select one of our arguments
          */
         range = argc;
         use_range = TRUE;
@@ -1958,13 +1958,13 @@ void CVmBifTADS::rand(VMG_ uint argc)
 
     /*
      *   Calculate our random value in the range 0..(range-1).  If range
-     *   == 0, simply choose a value across our full range.  
+     *   == 0, simply choose a value across our full range.
      */
     if (use_range)
         rand_val = rand_range(rand_val, range);
 
     /*
-     *   Return the appropriate value, depending on our argument list 
+     *   Return the appropriate value, depending on our argument list
      */
     if (choose_an_arg)
     {
@@ -2005,7 +2005,7 @@ void CVmBifTADS::rand(VMG_ uint argc)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   toString - convert to string 
+ *   toString - convert to string
  */
 void CVmBifTADS::toString(VMG_ uint argc)
 {
@@ -2025,10 +2025,10 @@ void CVmBifTADS::toString(VMG_ uint argc)
     /* assume unsigned */
     int flags = TOSTR_UNSIGNED;;
 
-    /* 
+    /*
      *   If the 'isSigned' argument is present, pop it as a bool; otherwise
      *   treat the value as signed if the radix is decimal, otherwise
-     *   unsigned. 
+     *   unsigned.
      */
     if (argc >= 3 ? G_stk->get(2)->get_logical_only() : radix == 10)
         flags &= ~TOSTR_UNSIGNED;
@@ -2041,7 +2041,7 @@ void CVmBifTADS::toString(VMG_ uint argc)
 }
 
 /*
- *   explicitly convert to string 
+ *   explicitly convert to string
  */
 void CVmBifTADS::toString(VMG_ vm_val_t *result, const vm_val_t *val,
                           int radix, int flags)
@@ -2054,9 +2054,9 @@ void CVmBifTADS::toString(VMG_ vm_val_t *result, const vm_val_t *val,
     /* save the new string on the stack to protect from garbage collection */
     G_stk->push(result);
 
-    /* 
+    /*
      *   if the return value wasn't already a new object, create a string
-     *   from the return value 
+     *   from the return value
      */
     if (result->typ != VM_OBJ)
     {
@@ -2079,7 +2079,7 @@ void CVmBifTADS::toInteger(VMG_ uint argc)
 }
 
 /*
- *   toNumber - convert to an integer or BigNumber 
+ *   toNumber - convert to an integer or BigNumber
  */
 void CVmBifTADS::toNumber(VMG_ uint argc)
 {
@@ -2088,10 +2088,10 @@ void CVmBifTADS::toNumber(VMG_ uint argc)
 }
 
 /*
- *   Common handler for toInteger and toNumber 
+ *   Common handler for toInteger and toNumber
  */
 void CVmBifTADS::toIntOrNum(VMG_ uint argc, int int_only)
-{    
+{
     /* check arguments */
     check_argc_range(vmg_ argc, 1, 2);
 
@@ -2102,7 +2102,7 @@ void CVmBifTADS::toIntOrNum(VMG_ uint argc, int int_only)
     {
         /*
          *   If we only want integer results, try converting the BigNumber to
-         *   an integer.  Otherwise, simply return the BigNumber as-is. 
+         *   an integer.  Otherwise, simply return the BigNumber as-is.
          */
         if (int_only)
         {
@@ -2118,7 +2118,7 @@ void CVmBifTADS::toIntOrNum(VMG_ uint argc, int int_only)
             /* BigNumber results are okay - just return the BigNumber */
             retval(vmg_ valp);
         }
-        
+
         /* discard arguments, and we're done */
         G_stk->discard(argc);
         return;
@@ -2171,7 +2171,7 @@ void CVmBifTADS::toIntOrNum(VMG_ uint argc, int int_only)
     for ( ; len2 != 0 && is_space(*p2) ; ++p2, --len2) ;
     for ( ; len2 != 0 && is_space(*(p2 + len2 - 1)) ; --len2) ;
 
-    /* 
+    /*
      *   Check for "nil" and "true", ignoring leading and trailing spaces; if
      *   it matches either of those, return the corresponding boolean value.
      *   Otherwise, parse the string as an integer value in the given radix.
@@ -2201,7 +2201,7 @@ void CVmBifTADS::toIntOrNum(VMG_ uint argc, int int_only)
 /* ------------------------------------------------------------------------ */
 /*
  *   put an integer value in a constant list, advancing the list write
- *   pointer 
+ *   pointer
  */
 static void put_list_int(char **dstp, long intval)
 {
@@ -2218,7 +2218,7 @@ static void put_list_int(char **dstp, long intval)
 
 /*
  *   put an object value in a constant list, advancing the list write
- *   pointer 
+ *   pointer
  */
 static void put_list_obj(char **dstp, vm_obj_id_t objval)
 {
@@ -2239,7 +2239,7 @@ static void put_list_obj(char **dstp, vm_obj_id_t objval)
  *   Given a time_t value, create a list of components giving the local time
  *   corresponding to the time_t, using the getTime(GetDateAndTime) format.
  *   Returns the object ID of the new list.
- *   
+ *
  *   The list format is [year, month, day, day-of-week, day-of-year, hour,
  *   minute, second, seconds-since-1970].
  */
@@ -2247,7 +2247,7 @@ vm_obj_id_t CVmBifTADS::format_datetime_list(VMG_ os_time_t timer)
 {
     /* note the starting stack pointer, so we can discard gc protection */
     vm_val_t *gsp = G_stk->get_sp();
-    
+
     /* convert the time_t to the local time */
     struct tm *tblock = os_localtime(&timer);
 
@@ -2255,7 +2255,7 @@ vm_obj_id_t CVmBifTADS::format_datetime_list(VMG_ os_time_t timer)
     char buf[80];
     vmb_put_len(buf, 9);
     char *dst = buf + VMB_LEN;
-    
+
     /* add the time elements to the list */
     put_list_int(&dst, tblock->tm_year + 1900);
     put_list_int(&dst, tblock->tm_mon + 1);
@@ -2266,7 +2266,7 @@ vm_obj_id_t CVmBifTADS::format_datetime_list(VMG_ os_time_t timer)
     put_list_int(&dst, tblock->tm_min);
     put_list_int(&dst, tblock->tm_sec);
 
-    /* 
+    /*
      *   if the timer is over 0x7fffffff, we can't represent it as an
      *   int32_t, so store it as a BigNumber value
      */
@@ -2294,7 +2294,7 @@ vm_obj_id_t CVmBifTADS::format_datetime_list(VMG_ os_time_t timer)
 
         /* save it on the stack for gc protection */
         G_stk->push()->set_obj(bn);
-        
+
         /* add it to the list */
         put_list_obj(&dst, bn);
     }
@@ -2310,7 +2310,7 @@ vm_obj_id_t CVmBifTADS::format_datetime_list(VMG_ os_time_t timer)
 }
 
 /*
- *   get the current time 
+ *   get the current time
  */
 void CVmBifTADS::gettime(VMG_ uint argc)
 {
@@ -2334,7 +2334,7 @@ void CVmBifTADS::gettime(VMG_ uint argc)
     switch(typ)
     {
     case 1:
-        /* 
+        /*
          *   GetTimeDateAndTime - return the current time and date as a list
          *   of time elements
          */
@@ -2346,9 +2346,9 @@ void CVmBifTADS::gettime(VMG_ uint argc)
         break;
 
     case 2:
-        /* 
+        /*
          *   They want the high-precision system timer value, which returns
-         *   the time in milliseconds from an arbitrary zero point.  
+         *   the time in milliseconds from an arbitrary zero point.
          */
         {
             unsigned long t;
@@ -2358,7 +2358,7 @@ void CVmBifTADS::gettime(VMG_ uint argc)
             /* retrieve the raw time from the operating system */
             t = os_get_sys_clock_ms();
 
-            /* 
+            /*
              *   We only have 31 bits of precision in our result (since we
              *   must fit the value into a signed integer), so we can only
              *   represent time differences of about 23 days.  Now, the
@@ -2370,7 +2370,7 @@ void CVmBifTADS::gettime(VMG_ uint argc)
              *   likely to be confused by this, because the time difference
              *   from this call to that future call would appear to be
              *   negative.
-             *   
+             *
              *   There's obviously no way we can eliminate the possibility
              *   of a negative time difference if the current program
              *   session lasts more than 23 days of continuous execution.
@@ -2380,7 +2380,7 @@ void CVmBifTADS::gettime(VMG_ uint argc)
              *   the zero point of the timer to the time of the first call
              *   to this function.  That way, the timer will wrap only if
              *   the program session runs continuously until the timer's
-             *   range is exhausted.  
+             *   range is exhausted.
              */
             if (!t_zero_set)
             {
@@ -2389,21 +2389,21 @@ void CVmBifTADS::gettime(VMG_ uint argc)
                 t_zero_set = TRUE;
             }
 
-            /* 
+            /*
              *   Adjust the time by subtracting the zero point from the raw
              *   OS timer.  This will give us the number of milliseconds
              *   from our zero point.
-             *   
+             *
              *   If the system timer has wrapped since our zero point, we'll
              *   get what looks like a negative number; but what we really
              *   have is a large positive number with a borrow from an
              *   unrepresented higher-precision portion, so the fact that
              *   this value is negative doesn't matter - it will still be
-             *   sequential when treated as unsigned.  
+             *   sequential when treated as unsigned.
              */
             t -= t_zero;
 
-            /* 
+            /*
              *   whatever we got, keep only the low-order 31 bits, since we
              *   only have 31 bits in which to represent an unsigned value
              */
@@ -2433,14 +2433,14 @@ void CVmBifTADS::re_match(VMG_ uint argc)
     int start_idx;
     CVmObjPattern *pat_obj = 0;
     const char *pat_str = 0;
-    
+
     /* check arguments */
     check_argc_range(vmg_ argc, 2, 3);
 
-    /* 
+    /*
      *   make copies of the arguments, so we can pop the values without
      *   actually removing them from the stack - leave the originals on the
-     *   stack for gc protection 
+     *   stack for gc protection
      */
     v1 = G_stk->get(0);
     v2 = G_stk->get(1);
@@ -2460,17 +2460,17 @@ void CVmBifTADS::re_match(VMG_ uint argc)
         start_idx = (int)v3->val.intval;
     }
 
-    /* 
+    /*
      *   remember the last search string (the second argument), and reset any
-     *   old group registers (since they'd point into the previous string) 
+     *   old group registers (since they'd point into the previous string)
      */
     G_bif_tads_globals->last_rex_str->val = *v2;
     G_bif_tads_globals->rex_searcher->clear_group_regs();
 
-    /* 
+    /*
      *   check what we have for the pattern - we could have either a string
      *   giving the regular expression, or a RexPattern object with the
-     *   compiled pattern 
+     *   compiled pattern
      */
     if (G_stk->get(0)->typ == VM_OBJ
         && CVmObjPattern::is_pattern_obj(vmg_ G_stk->get(0)->val.obj))
@@ -2540,10 +2540,10 @@ template<int dir> inline void CVmBifTADS::re_search_common(VMG_ uint argc)
     /* check arguments */
     check_argc_range(vmg_ argc, 2, 3);
 
-    /* 
+    /*
      *   make copies of the arguments, so we can pop the values without
      *   actually removing them from the stack - leave the originals on the
-     *   stack for gc protection 
+     *   stack for gc protection
      */
     vm_val_t *v1 = G_stk->get(0);
     vm_val_t *v2 = G_stk->get(1);
@@ -2563,9 +2563,9 @@ template<int dir> inline void CVmBifTADS::re_search_common(VMG_ uint argc)
         start_idx = (int)v3->val.intval;
     }
 
-    /* 
+    /*
      *   remember the last search string (the second argument), and clear out
-     *   any old group registers (since they'd point into the old string) 
+     *   any old group registers (since they'd point into the old string)
      */
     G_bif_tads_globals->last_rex_str->val = *v2;
     G_bif_tads_globals->rex_searcher->clear_group_regs();
@@ -2632,7 +2632,7 @@ template<int dir> inline void CVmBifTADS::re_search_common(VMG_ uint argc)
     /* check for a match */
     if (match_idx >= 0)
     {
-        /* 
+        /*
          *   We found a match - calculate the character index of the match
          *   offset, adjusted to a 1-base.  The character index is simply the
          *   number of characters in the part of the string up to the match
@@ -2660,9 +2660,9 @@ template<int dir> inline void CVmBifTADS::re_search_common(VMG_ uint argc)
         /* push it momentarily as protection against garbage collection */
         G_stk->push()->set_obj(match_str_obj);
 
-        /* 
+        /*
          *   set up a 3-element list to contain the return value:
-         *   [match_start_index, match_length, match_string] 
+         *   [match_start_index, match_length, match_string]
          */
         char buf[VMB_LEN + VMB_DATAHOLDER * 3];
         vmb_put_len(buf, 3);
@@ -2689,7 +2689,7 @@ template<int dir> inline void CVmBifTADS::re_search_common(VMG_ uint argc)
 
 /*
  *   re_search - search for a substring matching a regular expression
- *   within a string 
+ *   within a string
  */
 void CVmBifTADS::re_search(VMG_ uint argc)
 {
@@ -2707,7 +2707,7 @@ void CVmBifTADS::re_search_back(VMG_ uint argc)
 /* ------------------------------------------------------------------------ */
 /*
  *   re_group - get the string matching a group in the most recent regular
- *   expression search or match 
+ *   expression search or match
  */
 void CVmBifTADS::re_group(VMG_ uint argc)
 {
@@ -2729,10 +2729,10 @@ void CVmBifTADS::re_group(VMG_ uint argc)
         /* make sure it's in range */
         if (groupno < 1 || groupno > RE_GROUP_REG_CNT)
             err_throw(VMERR_BAD_VAL_BIF);
-        
+
         /* adjust from a 1-base to a 0-base */
         --groupno;
-        
+
         /* if the group doesn't exist in the pattern, return nil */
         if (groupno >= G_bif_tads_globals->rex_searcher->get_group_cnt())
         {
@@ -2744,20 +2744,20 @@ void CVmBifTADS::re_group(VMG_ uint argc)
         reg = G_bif_tads_globals->rex_searcher->get_group_reg(groupno);
     }
 
-    /* 
+    /*
      *   get the previous search string - get a pointer directly to the
      *   contents of the string
      */
     const char *last_str =
         G_bif_tads_globals->last_rex_str->val.get_as_string(vmg0_);
-    
+
     /* if the group wasn't set, or there's no last string, return nil */
     if (last_str == 0 || reg->start_ofs == -1 || reg->end_ofs == -1)
     {
         retval_nil(vmg0_);
         return;
     }
-    
+
     /* set up for a list with three elements */
     char buf[VMB_LEN + 3*VMB_DATAHOLDER];
     vmb_put_len(buf, 3);
@@ -2766,28 +2766,28 @@ void CVmBifTADS::re_group(VMG_ uint argc)
     /* get the starting offset from the group register */
     int start_byte_ofs = reg->start_ofs;
 
-    /* 
+    /*
      *   The first element is the character index of the group text in the
      *   source string.  Calculate the character index by adding 1 to the
      *   character length of the text preceding the group; calculate the
      *   character length from the byte length of that string.  Note that the
      *   starting in the group register is stored from the starting point of
      *   the search, not the start of the string, so we need to add in the
-     *   starting point in the search.  
+     *   starting point in the search.
      */
     utf8_ptr p((char *)last_str + VMB_LEN);
     put_list_int(&dst, p.len(start_byte_ofs) + 1);
 
-    /* 
+    /*
      *   The second element is the character length of the group text.
-     *   Calculate the character length from the byte length. 
+     *   Calculate the character length from the byte length.
      */
     p.set(p.getptr() + start_byte_ofs);
     put_list_int(&dst, p.len(reg->end_ofs - reg->start_ofs));
 
     /*
      *   The third element is the string itself.  Create a new string
-     *   containing the matching substring. 
+     *   containing the matching substring.
      */
     vm_obj_id_t strobj = CVmObjString::create(
         vmg_ FALSE, p.getptr(), reg->end_ofs - reg->start_ofs);
@@ -2815,10 +2815,10 @@ void CVmBifTADS::re_replace(VMG_ uint argc)
     /* check arguments */
     check_argc_range(vmg_ argc, 3, 6);
 
-    /* 
+    /*
      *   do the replacement - the subject string is the 2nd stack argument
      *   (at stack offset 1), so the replacement string argument is at stack
-     *   offset 2 
+     *   offset 2
      */
     vm_find_replace<VMFINDREPLACE_rexReplace>(
         vmg_ G_interpreter->get_r0(), argc, G_stk->get(1), 0);
@@ -2867,7 +2867,7 @@ void CVmBifTADS::undo(VMG_ uint argc)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   save 
+ *   save
  */
 void CVmBifTADS::save(VMG_ uint argc)
 {
@@ -2877,9 +2877,9 @@ void CVmBifTADS::save(VMG_ uint argc)
     /* get the filename argument */
     const vm_val_t *filespec = G_stk->get(0);
 
-    /* 
+    /*
      *   if there's a metadata table argument, fetch it (but leave the value
-     *   on the stack for gc protection) 
+     *   on the stack for gc protection)
      */
     CVmObjLookupTable *metatab = 0;
     if (argc >= 2)
@@ -2936,7 +2936,7 @@ void CVmBifTADS::save(VMG_ uint argc)
         /* close the file if it's still open */
         if (file != 0)
             delete file;
-        
+
         /* abandon the network file */
         if (netfile != 0)
             netfile->abandon(vmg0_);
@@ -3029,13 +3029,13 @@ void CVmBifTADS::restart(VMG_ uint argc)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Get the maximum value from a set of argument 
+ *   Get the maximum value from a set of argument
  */
 void CVmBifTADS::get_max(VMG_ uint argc)
 {
     uint i;
     vm_val_t cur_max;
-    
+
     /* make sure we have at least one argument */
     if (argc < 1)
         err_throw(VMERR_WRONG_NUM_OF_ARGS);
@@ -3072,9 +3072,9 @@ void CVmBifTADS::get_max(VMG_ uint argc)
         /* compare each argument in turn */
         for (i = 1 ; i < argc ; ++i)
         {
-            /* 
+            /*
              *   compare this value to the maximum so far; if this value is
-             *   greater, it becomes the new maximum so far 
+             *   greater, it becomes the new maximum so far
              */
             if (G_stk->get(i)->compare_to(vmg_ &cur_max) > 0)
                 cur_max = *G_stk->get(i);
@@ -3089,7 +3089,7 @@ void CVmBifTADS::get_max(VMG_ uint argc)
 }
 
 /*
- *   Get the minimum value from a set of argument 
+ *   Get the minimum value from a set of argument
  */
 void CVmBifTADS::get_min(VMG_ uint argc)
 {
@@ -3132,9 +3132,9 @@ void CVmBifTADS::get_min(VMG_ uint argc)
         /* compare each argument in turn */
         for (i = 1 ; i < argc ; ++i)
         {
-            /* 
+            /*
              *   compare this value to the minimum so far; if this value is
-             *   less, it becomes the new minimum so far 
+             *   less, it becomes the new minimum so far
              */
             if (G_stk->get(i)->compare_to(vmg_ &cur_min) < 0)
                 cur_min = *G_stk->get(i);
@@ -3152,7 +3152,7 @@ void CVmBifTADS::get_min(VMG_ uint argc)
 /*
  *   makeString - construct a string by repeating a character; by
  *   converting a unicode code point to a string; or by converting a list
- *   of unicode code points to a string 
+ *   of unicode code points to a string
  */
 void CVmBifTADS::make_string(VMG_ uint argc)
 {
@@ -3166,7 +3166,7 @@ void CVmBifTADS::make_string(VMG_ uint argc)
     int lst_len = -1;
     size_t i;
     utf8_ptr dst;
-    
+
     /* check arguments */
     check_argc_range(vmg_ argc, 1, 2);
 
@@ -3183,9 +3183,9 @@ void CVmBifTADS::make_string(VMG_ uint argc)
     /* leave the original value on the stack to protect it from GC */
     G_stk->push(&val);
 
-    /* 
+    /*
      *   see what we have, and calculate how much space we'll need for the
-     *   result string 
+     *   result string
      */
     switch(val.typ)
     {
@@ -3194,9 +3194,9 @@ void CVmBifTADS::make_string(VMG_ uint argc)
         lst_len = val.ll_length(vmg0_);
 
     do_list:
-        /* 
+        /*
          *   Run through the list and get the size of each character, so
-         *   we can determine how long the string will have to be. 
+         *   we can determine how long the string will have to be.
          */
         for (new_str_len = 0, i = 1 ; (int)i <= lst_len ; ++i)
         {
@@ -3217,19 +3217,19 @@ void CVmBifTADS::make_string(VMG_ uint argc)
     case VM_SSTRING:
         /* get the string pointer */
         strp = G_const_pool->get_ptr(val.val.ofs);
-        
+
     do_string:
-        /* 
+        /*
          *   it's a string - the output length is the same as the input
-         *   length 
+         *   length
          */
         new_str_len = vmb_get_len(strp);
         break;
 
     case VM_INT:
-        /* 
+        /*
          *   it's an integer giving a unicode character value - we just
-         *   need enough space to store this particular character 
+         *   need enough space to store this particular character
          */
         new_str_len = utf8_ptr::s_wchar_size((wchar_t)val.val.intval);
         break;
@@ -3253,21 +3253,21 @@ void CVmBifTADS::make_string(VMG_ uint argc)
         break;
     }
 
-    /* 
+    /*
      *   if the length times the repeat count would be over the maximum
-     *   16-bit string length, it's an error 
+     *   16-bit string length, it's an error
      */
     if (new_str_len * rpt > 0xffffL - VMB_LEN)
         err_throw(VMERR_BAD_VAL_BIF);
 
     /* multiply the length by the repeat count */
     new_str_len *= rpt;
-    
+
     /* allocate the string and gets its buffer */
     new_str_obj = CVmObjString::create(vmg_ FALSE, new_str_len);
     new_str = (CVmObjString *)vm_objp(vmg_ new_str_obj);
     new_strp = new_str->cons_get_buf();
-    
+
     /* set up the destination pointer */
     dst.set(new_strp);
 
@@ -3351,7 +3351,7 @@ void CVmBifTADS::make_list(VMG_ uint argc)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   getFuncParams 
+ *   getFuncParams
  */
 void CVmBifTADS::get_func_params(VMG_ uint argc)
 {
@@ -3363,9 +3363,9 @@ void CVmBifTADS::get_func_params(VMG_ uint argc)
     if (!hdr.set(vmg_ G_stk->get(0)))
         err_throw(VMERR_FUNCPTR_VAL_REQD);
 
-    /* 
+    /*
      *   Allocate our return list.  We need three elements: [minArgs,
-     *   optionalArgs, isVarargs].  
+     *   optionalArgs, isVarargs].
      */
     vm_obj_id_t lst_obj = CVmObjList::create(vmg_ FALSE, 3);
 
@@ -3431,9 +3431,9 @@ struct bpptr
             return '\0';
     }
 
-    /* 
+    /*
      *   match a character: if we match, return true and skip the character,
-     *   otherwise just return false 
+     *   otherwise just return false
      */
     int match_skip(char ch)
     {
@@ -3517,9 +3517,9 @@ struct fmtopts
         pound = FALSE;
     }
 
-    /* 
+    /*
      *   sign character to show for positive numbers: '\0' to show nothing, '
-     *   ' to show a space, '+' to show a plus 
+     *   ' to show a space, '+' to show a plus
      */
     char sign;
 
@@ -3538,9 +3538,9 @@ struct fmtopts
     /* padding character; default is space */
     wchar_t pad;
 
-    /* 
+    /*
      *   '#' flag: e E f g G -> always use a decimal point; g G -> keep
-     *   trailing zeros; x X o -> use 0x/0X/0 prefix for non-zero values 
+     *   trailing zeros; x X o -> use 0x/0X/0 prefix for non-zero values
      */
     int pound;
 };
@@ -3678,9 +3678,9 @@ struct bpwriter
                              size_t bytes, size_t chars,
                              const fmtopts &opts)
     {
-        /* 
+        /*
          *   Figure the amount of padding: if the width is larger than the
-         *   string length (in characters), pad by the difference.  
+         *   string length (in characters), pad by the difference.
          */
         int npad = (opts.width > (int)chars ? opts.width - chars : 0);
 
@@ -3736,10 +3736,10 @@ struct bpwriter
 
         default:
             {
-                /* 
+                /*
                  *   figure the string conversion flags: round to integer,
                  *   and use an unsigned interpretation if the format is
-                 *   unsigned 
+                 *   unsigned
                  */
                 int tsflags = TOSTR_ROUND;
                 if (flags & FI_UNSIGNED)
@@ -3767,10 +3767,10 @@ struct bpwriter
         }
     }
 
-    /* 
+    /*
      *   Format an integer value for which we've generated a basic string
      *   buffer value.  This applies our extra formatting - padding, plus
-     *   sign, alignment, case conversion.  
+     *   sign, alignment, case conversion.
      */
     void format_int(VMG_ const char *p, size_t len,
                     const char *type_prefix,
@@ -3792,20 +3792,20 @@ struct bpwriter
             }
         }
 
-        /* 
+        /*
          *   get the number of digits: assume that the whole thing is digits
-         *   except for a leading minus sign 
+         *   except for a leading minus sign
          */
         int digits = len;
         if (*p == '-')
             --digits;
 
-        /* 
+        /*
          *   Figure the display width required.  Start with the length of the
          *   string.  If we the "sign" option is set and we don't have a "-"
          *   sign, add space for a "+" sign.  If the "group" option is set,
          *   add a comma for each group of three digits.  If the '#' flag is
-         *   set, add the type prefix if the value is nonzero.  
+         *   set, add the type prefix if the value is nonzero.
          */
         int dispwid = len;
         if (opts.sign != '\0' && *p != '-')
@@ -3818,15 +3818,15 @@ struct bpwriter
         /*
          *   If there's a precision setting, it means that we're to add
          *   leading zeros to bring the number of digits up to the
-         *   precision. 
+         *   precision.
          */
         if (digits < opts.prec)
             dispwid += opts.prec - digits;
 
-        /* 
+        /*
          *   Figure the amount of padding.  If there's an explicit width spec
          *   in the options, and the display width is less than the width
-         *   spec, pad by the differene.  
+         *   spec, pad by the differene.
          */
         int padcnt = (opts.width > dispwid ? opts.width - dispwid : 0);
 
@@ -3853,10 +3853,10 @@ struct bpwriter
         /* write the digits, adding grouping commas and converting case */
         for (int dig = 0 ; len != 0 ; ++p, --len, ++dig)
         {
-            /* 
+            /*
              *   if this isn't the first digit, and we have a multiple of
              *   three digits remaining, and we're using grouping, add the
-             *   group comma 
+             *   group comma
              */
             if (opts.group != 0 && dig != 0 && len % 3 == 0)
                 putwch(opts.group);
@@ -3883,9 +3883,9 @@ struct bpwriter
         /* get the integer value */
         int32_t i = val->cast_to_int(vmg0_);
 
-        /* 
+        /*
          *   use Roman numerals if it's in the range 1-4999, otherwise just
-         *   treat it like '%d' 
+         *   treat it like '%d'
          */
         if (i >= 1 && i <= 4999)
         {
@@ -3910,7 +3910,7 @@ struct bpwriter
                 { "i", 1 }
             };
 
-            /* 
+            /*
              *   convert by repeatedly appending the highest-value Roman
              *   numeral less than or equal to the number, deducting each
              *   Roman numeral value from the remaining number balance until
@@ -3929,7 +3929,7 @@ struct bpwriter
                         else
                             putch(*p);
                     }
-                    
+
                     /* deduct its value from the remaining balance */
                     i -= r[ri].val;
                 }
@@ -3954,9 +3954,9 @@ struct bpwriter
         /* a stack buffer for conversions that can use it */
         char buf[256];
 
-        /* 
+        /*
          *   Use the precision specified, with a default of 6 digits; assume
-         *   that there's no maximum number of digits. 
+         *   that there's no maximum number of digits.
          */
         int prec = (opts.prec >= 0 ? opts.prec : 6);
         int maxdigs = -1;
@@ -3970,9 +3970,9 @@ struct bpwriter
         else if (opts.sign == ' ')
             flags |= VMBN_FORMAT_POS_SPACE;
 
-        /* 
+        /*
          *   if the '#' flag is set, always show a decimal point, and keep
-         *   trailing zeros with 'g' and 'G' 
+         *   trailing zeros with 'g' and 'G'
          */
         if (opts.pound)
         {
@@ -3985,9 +3985,9 @@ struct bpwriter
         if (type_spec == 'E' || type_spec == 'G')
             flags |= VMBN_FORMAT_EXP_CAP;
 
-        /* 
+        /*
          *   for 'e' or 'E', always use scientific notation, with a sign
-         *   symbol in the exponent value 
+         *   symbol in the exponent value
          */
         if (type_spec == 'e' || type_spec == 'E')
             flags |= VMBN_FORMAT_EXP | VMBN_FORMAT_EXP_SIGN;
@@ -4018,7 +4018,7 @@ struct bpwriter
                 const char *p = CVmObjBigNum::cvt_int_to_string_buf(
                     buf, sizeof(buf), num.val.intval,
                     maxdigs, -1, prec, 3, flags);
-                
+
                 /* write it out, adding padding and alignment */
                 format_with_padding(vmg_ p, opts);
             }
@@ -4068,7 +4068,7 @@ struct bpwriter
 /*
  *   Internal sprintf formatter.  The arguments are on the stack in the usual
  *   function call order, with the first argument at top of stack.  We'll
- *   allocate a new String object to hold the result.  
+ *   allocate a new String object to hold the result.
  */
 static void tsprintf(VMG_ vm_val_t *retval, const char *fmtp, size_t fmtl,
                      int arg0, int argc)
@@ -4076,10 +4076,10 @@ static void tsprintf(VMG_ vm_val_t *retval, const char *fmtp, size_t fmtl,
     /* set up a format string reader */
     bpptr fmt(fmtp, fmtl);
 
-    /* 
+    /*
      *   Create a string to hold the result.  Use 150% the length of the
      *   format string as a guess, with a minimum of 64 characters; we'll
-     *   expand this as needed as we go. 
+     *   expand this as needed as we go.
      */
     size_t init_len = (fmtl < 43 ? 64 : fmtl*3/2);
     retval->set_obj(CVmObjString::create(vmg_ FALSE, init_len));
@@ -4097,10 +4097,10 @@ static void tsprintf(VMG_ vm_val_t *retval, const char *fmtp, size_t fmtl,
     vm_val_t nil_val;
     nil_val.set_nil();
 
-    /* 
+    /*
      *   Scan the format string.  The string is in utf8 format as always, but
      *   our format codes are all plain ASCII characters, so a simple byte
-     *   scan is perfectly adequate.  
+     *   scan is perfectly adequate.
      */
     for (int argpos = 1 ; fmt.more() ; )
     {
@@ -4127,7 +4127,7 @@ static void tsprintf(VMG_ vm_val_t *retval, const char *fmtp, size_t fmtl,
                     argno = fmt.atoi();
                     fmt.match_skip(']');
                     break;
-                    
+
                 case '+':
                     /* note the sign specifier */
                     opts.sign = '+';
@@ -4171,7 +4171,7 @@ static void tsprintf(VMG_ vm_val_t *retval, const char *fmtp, size_t fmtl,
                 }
             }
 
-            /* 
+            /*
              *   Next comes the width, but there's one more flag character
              *   that has a special position just before the width: '0', to
              *   specify leading zero padding.
@@ -4330,7 +4330,7 @@ void CVmBifTADS::sprintf(VMG_ uint argc)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   abs() - absolute value 
+ *   abs() - absolute value
  */
 void CVmBifTADS::get_abs(VMG_ uint argc)
 {

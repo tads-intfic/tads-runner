@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/OSRESTAD.C,v 1.1 1999/07/11 00:46:30 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -38,7 +38,7 @@ Function
       to begin with.
 
 Notes
-  
+
 Modified
   06/25/99 MJRoberts  - Creation
 */
@@ -50,17 +50,17 @@ Modified
 
 /*
  *   The strings, as a static array.
- *   
+ *
  *   To translate a version of TADS built using this file, make a new copy
  *   of this file, translate the strings, and modify the makefile to build
  *   a new version of the executable with your translated version of this
- *   file.  
+ *   file.
  */
 static const char *S_res_strings[] =
 {
-    /* 
+    /*
      *   OK/Cancel/Yes/No button labels.  We provide a shortcut for every
-     *   label, to make the buttons work well in character mode. 
+     *   label, to make the buttons work well in character mode.
      */
     "&OK",                                              /* RESID_BTN_OK = 1 */
     "&Cancel",                                      /* RESID_BTN_CANCEL = 2 */
@@ -78,10 +78,10 @@ static const char *S_res_strings[] =
  */
 int os_get_str_rsc(int id, char *buf, size_t buflen)
 {
-    /* 
+    /*
      *   make sure the index is in range of our array - note that the
      *   index values start at 1, but our array starts at 0, so adjust
-     *   accordingly 
+     *   accordingly
      */
     if (id < 0 || id >= (int)sizeof(S_res_strings)/sizeof(S_res_strings[0]))
         return 1;

@@ -1,16 +1,16 @@
-/* 
+/*
  *   Copyright (c) 2001, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmcset.h - T3 CharacterSet metaclass
 Function
-  
+
 Notes
-  
+
 Modified
   06/06/01 MJRoberts  - Creation
 */
@@ -30,24 +30,24 @@ Modified
  *   and one mapping in the reverse direction.  A CharacterSet is
  *   parameterized on creation by the name of the mapping, using the
  *   standard CCharmap names.
- *   
+ *
  *   In an image file, a CharacterSet contains simply the standard CCharmap
  *   name of the mapping:
- *   
+ *
  *   UINT2 length-in-bytes
  *.  BYTE name[]
- *   
+ *
  *   On creation, we will create the pair of CCharmap objects, if the name
  *   of the mapping is valid.  It is legal to create a CharacterSet with an
  *   unknown mapping, but such a character set object cannot be used to
  *   perform mappings.
- *   
- *   CharacterSet objects are constants at run-time.  
+ *
+ *   CharacterSet objects are constants at run-time.
  */
 class CVmObjCharSet: public CVmObject
 {
     friend class CVmMetaclassCharSet;
-    
+
 public:
     /* metaclass registration object */
     static class CVmMetaclass *metaclass_reg_;
@@ -65,9 +65,9 @@ public:
     static vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr,
                                          uint argc);
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -88,9 +88,9 @@ public:
     virtual void convert_to_const_data(VMG_ class CVmConstMapper *,
                                        vm_obj_id_t /*self*/)
     {
-        /* 
+        /*
          *   we don't reference any data and can't be converted to constant
-         *   data ourselves, so there's nothing to do here 
+         *   data ourselves, so there's nothing to do here
          */
     }
 
@@ -139,9 +139,9 @@ public:
     void restore_from_file(VMG_ vm_obj_id_t self,
                            class CVmFile *fp, class CVmObjFixup *fixups);
 
-    /* 
+    /*
      *   Check a value for equality.  We will match another byte array with
-     *   the same number of elements and the same value for each element.  
+     *   the same number of elements and the same value for each element.
      */
     int equals(VMG_ vm_obj_id_t self, const vm_val_t *val, int depth) const;
 
@@ -153,7 +153,7 @@ public:
 
     /*
      *   Get the to-local and to-unicode mappers.  If the mapper isn't
-     *   available, we'll throw an UnknownCharacterSetException. 
+     *   available, we'll throw an UnknownCharacterSetException.
      */
     class CCharmapToLocal *get_to_local(VMG0_) const;
     class CCharmapToUni *get_to_uni(VMG0_) const;
@@ -184,18 +184,18 @@ protected:
 
     /* determine if the mapping is known */
     int getp_is_known(VMG_ vm_obj_id_t self, vm_val_t *val, uint *argc);
-    
-    /* 
+
+    /*
      *   property evaluator - determine if the a character code (given as an
      *   integer) or the characters in a string can be mapped from Unicode
-     *   to this local character set 
+     *   to this local character set
      */
     int getp_is_mappable(VMG_ vm_obj_id_t self, vm_val_t *val, uint *argc);
 
-    /* 
+    /*
      *   property evaluator - determine if the character code (given as an
      *   integer) or the characters in a string have a round-trip mapping
-     *   from Unicode to local and back 
+     *   from Unicode to local and back
      */
     int getp_is_rt_mappable(VMG_ vm_obj_id_t self, vm_val_t *val, uint *argc);
 
@@ -205,7 +205,7 @@ protected:
 };
 
 /*
- *   Our extension structure 
+ *   Our extension structure
  */
 struct vmobj_charset_ext_t
 {
@@ -224,7 +224,7 @@ struct vmobj_charset_ext_t
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Registration table object 
+ *   Registration table object
  */
 class CVmMetaclassCharSet: public CVmMetaclass
 {
@@ -262,6 +262,6 @@ public:
 #endif /* VMCSET_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjCharSet)

@@ -3,11 +3,11 @@ static char RCSid[] =
     "$Header: d:/cvsroot/tads/TADS2/RUN.C,v 1.2 1999/05/17 02:52:13 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -56,7 +56,7 @@ static void run_new(runcxdef *ctx, uchar *noreg *codepp,
     objdef  *objp;
     int      sccnt;
     vocidef *voci;
-    
+
     /* get the superclass (nil means no superclass) */
     if (runtostyp(ctx) == DAT_NIL)
         sccnt = 0;
@@ -111,7 +111,7 @@ static void run_new(runcxdef *ctx, uchar *noreg *codepp,
 }
 
 /*
- *   Delete an object 
+ *   Delete an object
  */
 static void run_delete(runcxdef *ctx, uchar *noreg *codepp,
                        objnum callobj, prpnum callprop)
@@ -128,7 +128,7 @@ static void run_delete(runcxdef *ctx, uchar *noreg *codepp,
     voci = vocinh(vctx, objn);
     if (voci == 0 || !(voci->vociflg & VOCIFNEW))
         runsig(ctx, ERR_BADDEL);
-    
+
     /* run the destructor */
     runpprop(ctx, codepp, callobj, callprop, objn, PRP_DESTRUCT,
              FALSE, 0, objn);
@@ -169,7 +169,7 @@ static void run_delete(runcxdef *ctx, uchar *noreg *codepp,
         /* forget the verb */
         vctx->voccxlsv = MCMONINV;
 
-        /* 
+        /*
          *   note in the flags why we lost the "again" verb, for better
          *   error reporting if the player tries to type "again"
          */
@@ -188,12 +188,12 @@ void runfn(runcxdef *ctx, noreg objnum  objn, int argc)
 {
     uchar *fn;
     int    err;
-    
+
     NOREG((&objn))
 
     /* get a lock on the object */
     fn = mcmlck(ctx->runcxmem, objn);
-    
+
     /* catch any errors, so we can unlock the object */
     ERRBEGIN(ctx->runcxerr)
 
@@ -207,13 +207,13 @@ void runfn(runcxdef *ctx, noreg objnum  objn, int argc)
             dbgdump(ctx->runcxdbg);                       /* dump the stack */
         errrse(ctx->runcxerr);
     ERREND(ctx->runcxerr)
-    
+
     /* we're done with the object, so unlock it */
     mcmunlck(ctx->runcxmem, objn);
 }
 
 /*
- *   compress the heap - remove unreferenced items 
+ *   compress the heap - remove unreferenced items
  */
 void runhcmp(runcxdef *ctx, uint siz, uint below,
              runsdef *val1, runsdef *val2, runsdef *val3)
@@ -226,7 +226,7 @@ void runhcmp(runcxdef *ctx, uint siz, uint below,
     uchar   *dst  = hp;
     uchar   *hnxt;
     int      ref;
-    
+
     /* go through heap, finding references on stack */
     for ( ; hp < htop ; hp = hnxt)
     {
@@ -244,7 +244,7 @@ void runhcmp(runcxdef *ctx, uint siz, uint below,
                     sp->runsv.runsvstr = dst;      /* reflect imminent move */
                 }
                 break;
-                
+
             default:                /* other types do not refer to the heap */
                 break;
             }
@@ -269,20 +269,20 @@ void runhcmp(runcxdef *ctx, uint siz, uint below,
 
     /* set heap pointer based on shuffled heap */
     ctx->runcxhp = dst;
-    
+
     /* check for space requested, and signal error if not available */
     if ((uint)(ctx->runcxhtop - ctx->runcxhp) < siz)
         runsig(ctx, ERR_HPOVF);
 }
 
 /*
- *   push a value onto the stack that's already been allocated in heap 
+ *   push a value onto the stack that's already been allocated in heap
  */
 void runrepush(runcxdef *ctx, runsdef *val)
 {
     /* check for stack overflow */
     runstkovf(ctx);
-    
+
     OSCPYSTRUCT(*(ctx->runcxsp), *val);
 
     /* increment stack pointer */
@@ -293,7 +293,7 @@ void runrepush(runcxdef *ctx, runsdef *val)
 void runpstr(runcxdef *ctx, char *str, int len, int sav)
 {
     runsdef val;
-    
+
     /* allocate space and set up new string */
     runhres(ctx, len+2, sav);
     oswp2(ctx->runcxhp, len+2);
@@ -313,7 +313,7 @@ void runpushcstr(runcxdef *ctx, char *str, size_t len, int sav)
     char    *dst;
     size_t   need;
     runsdef  val;
-    
+
     /* determine how much space we'll need after converting escapes */
     for (p = str, need = len ; p < str + len ; ++p)
     {
@@ -379,7 +379,7 @@ void runpush(runcxdef *ctx, dattyp typ, runsdef *val)
 
     /* check for stack overflow */
     runstkovf(ctx);
-    
+
     OSCPYSTRUCT(*(ctx->runcxsp), *val);
     ctx->runcxsp->runstyp = typ;
 
@@ -392,7 +392,7 @@ void runpush(runcxdef *ctx, dattyp typ, runsdef *val)
         ctx->runcxsp->runsv.runsvstr = ctx->runcxhp;
         ctx->runcxhp += len;
     }
-    
+
     /* increment stack pointer */
     ++(ctx->runcxsp);
 }
@@ -401,7 +401,7 @@ void runpush(runcxdef *ctx, dattyp typ, runsdef *val)
 void runpnum(runcxdef *ctx, long num)
 {
     runsdef val;
-    
+
     val.runsv.runsvnum = num;
     runpush(ctx, DAT_NUMBER, &val);
 }
@@ -410,7 +410,7 @@ void runpnum(runcxdef *ctx, long num)
 void runpobj(runcxdef *ctx, objnum obj)
 {
     runsdef val;
-    
+
     if (obj == MCMONINV)
         runpnil(ctx);
     else
@@ -437,15 +437,15 @@ static void runputbuf(uchar *dstp, runsdef *val)
     case DAT_SSTRING:
         memcpy(dstp, val->runsv.runsvstr, (size_t)osrp2(val->runsv.runsvstr));
         break;
-        
+
     case DAT_NUMBER:
         oswp4s(dstp, val->runsv.runsvnum);
         break;
-        
+
     case DAT_PROPNUM:
         oswp2(dstp, val->runsv.runsvprp);
         break;
-        
+
     case DAT_OBJECT:
     case DAT_FNADDR:
         oswp2(dstp, val->runsv.runsvobj);
@@ -457,27 +457,27 @@ static void runputbuf(uchar *dstp, runsdef *val)
 void runpbuf(runcxdef *ctx, int typ, void *valp)
 {
     runsdef val;
-    
+
     switch(typ)
     {
     case DAT_NUMBER:
         val.runsv.runsvnum = osrp4s(valp);
         break;
-        
+
     case DAT_OBJECT:
     case DAT_FNADDR:
         val.runsv.runsvobj = osrp2(valp);
         break;
-        
+
     case DAT_PROPNUM:
         val.runsv.runsvprp = osrp2(valp);
         break;
-        
+
     case DAT_SSTRING:
     case DAT_LIST:
         val.runsv.runsvstr = (uchar *)valp;
         break;
-        
+
     case DAT_NIL:
     case DAT_TRUE:
         break;
@@ -489,31 +489,31 @@ void runpbuf(runcxdef *ctx, int typ, void *valp)
 int runeq(runcxdef *ctx)
 {
     runsdef val1, val2;
-    
+
     /* get values, and see if they have identical type; not equal if not */
     runpop(ctx, &val1);
     runpop(ctx, &val2);
     if (val1.runstyp != val2.runstyp) return(FALSE);
-    
+
     /* types match, so check values */
     switch(val1.runstyp)
     {
     case DAT_NUMBER:
         return(val1.runsv.runsvnum == val2.runsv.runsvnum);
-        
+
     case DAT_SSTRING:
     case DAT_LIST:
         return(osrp2(val1.runsv.runsvstr) == osrp2(val2.runsv.runsvstr)
                && !memcmp(val1.runsv.runsvstr, val2.runsv.runsvstr,
                           (size_t)osrp2(val1.runsv.runsvstr)));
-        
+
     case DAT_PROPNUM:
         return(val1.runsv.runsvprp == val2.runsv.runsvprp);
-        
+
     case DAT_OBJECT:
     case DAT_FNADDR:
         return(val1.runsv.runsvobj == val2.runsv.runsvobj);
-        
+
     default:
         return(TRUE);
     }
@@ -526,7 +526,7 @@ int runmcmp(runcxdef *ctx)
     {
         long num2 = runpopnum(ctx);
         long num1 = runpopnum(ctx);
-        
+
         if (num1 > num2) return(1);
         else if (num1 < num2) return(-1);
         else return(0);
@@ -537,14 +537,14 @@ int runmcmp(runcxdef *ctx)
         uchar *str1 = runpopstr(ctx);
         uint   len1 = osrp2(str1) - 2;
         uint   len2 = osrp2(str2) - 2;
-        
+
         str1 += 2;
         str2 += 2;
         while (len1 && len2)
         {
             if (*str1 < *str2) return(-1);   /* character from 1 is greater */
             else if (*str1 > *str2) return(1);       /* char from 1 is less */
-            
+
             ++str1;
             ++str2;
             --len1;
@@ -585,7 +585,7 @@ uchar *runfind(uchar *lst, runsdef *item)
 {
     uint len;
     uint curlen;
-    
+
     for (len = osrp2(lst) - 2, lst += 2 ; len ; lst += curlen, len -= curlen)
     {
         if (*lst == item->runstyp)
@@ -707,12 +707,12 @@ int runsub(runcxdef *ctx, runsdef *val, runsdef *val2, uint below)
 
             /*
              *   loop through left list, copying elements to output if
-             *   not in the right list 
+             *   not in the right list
              */
             for ( ; rem1 ; lstadv(&p1, &rem1))
             {
                 int found = FALSE;
-                
+
                 /* find current element of first list in second list */
                 p2 = val2->runsv.runsvstr;
                 rem2 = osrp2(p2) - 2;
@@ -737,7 +737,7 @@ int runsub(runcxdef *ctx, runsdef *val, runsdef *val2, uint below)
                 if (!found)
                 {
                     uint siz;
-                    
+
                     *dst++ = *p1;
                     if ((siz = datsiz(*p1, p1+1)) != 0)
                     {
@@ -785,7 +785,7 @@ static uint runcpsav(runcxdef *ctx, uchar *noreg *cp, objnum obj, prpnum prop)
     uint ofs;
 
     VARUSED(prop);
-    
+
     /* get offset from start of object */
     ofs = *cp - mcmobjptr(ctx->runcxmem, (mcmon)obj);
 
@@ -801,12 +801,12 @@ static uint runcpsav(runcxdef *ctx, uchar *noreg *cp, objnum obj, prpnum prop)
 uchar *runcprst(runcxdef *ctx, uint ofs, objnum obj, prpnum prop)
 {
     uchar *ptr;
-    
+
     VARUSED(prop);
-    
+
     /* lock object, and get pointer based on offset */
     ptr = mcmlck(ctx->runcxmem, (mcmon)obj) + ofs;
-    
+
     return(ptr);
 }
 
@@ -815,7 +815,7 @@ static uint runindofs(runcxdef *ctx, uint indx, uchar *lstp)
 {
     uint   lstsiz;
     uchar *orgp = lstp;
-    
+
     /* verify that index is in range */
     if (indx <= 0) runsig(ctx, ERR_LOWINX);
 
@@ -825,10 +825,10 @@ static uint runindofs(runcxdef *ctx, uint indx, uchar *lstp)
 
     /* skip the first indx-1 elements */
     for (--indx ; indx && lstsiz ; --indx) lstadv(&lstp, &lstsiz);
-    
+
     /* if we ran out of list, the index is out of range */
     if (!lstsiz) runsig(ctx, ERR_HIGHINX);
-    
+
     /* return the offset */
     return((uint)(lstp - orgp));
 }
@@ -857,7 +857,7 @@ static void runpind(runcxdef *ctx, uint indx, uchar *lstp)
  *   Check a property to ensure that it's a data property.  Throws an
  *   error if the property contains a method.  This is used for debugger
  *   speculative evaluation to ensure that we don't call any methods from
- *   within speculative expressions.  
+ *   within speculative expressions.
  */
 static void runcheckpropdata(runcxdef *ctx, objnum obj, prpnum prop)
 {
@@ -870,7 +870,7 @@ static void runcheckpropdata(runcxdef *ctx, objnum obj, prpnum prop)
     /* if the object is invalid, it's an error */
     if (obj == MCMONINV)
         errsig(ctx->runcxerr, ERR_REQVOB);
-    
+
     /* get the property */
     pofs = objgetap(ctx->runcxmem, obj, prop, &target, FALSE);
 
@@ -893,9 +893,9 @@ static void runcheckpropdata(runcxdef *ctx, objnum obj, prpnum prop)
     {
     case DAT_CODE:
     case DAT_DSTRING:
-        /* 
+        /*
          *   we can't call code or evaluate (i.e., print) double-quoted
-         *   strings during speculative evaluation 
+         *   strings during speculative evaluation
          */
         errsig(ctx->runcxerr, ERR_RTBADSPECEXPR);
 
@@ -921,14 +921,14 @@ void runpprop(runcxdef *ctx, uchar *noreg *codepp,
     int      times_through = 0;
     int      err;
     objnum   otherobj;
-    
+
     NOREG((&obj, &codepp));
 
     if (obj == MCMONINV) runsig(ctx, ERR_RUNNOBJ);
-    
+
 startover:
     pofs = objgetap(ctx->runcxmem, obj, prop, &target, inh);
-    
+
     /* if nothing was found, push nil */
     if (!pofs)
     {
@@ -951,10 +951,10 @@ startover:
         /* save caller's code offset - caller's object may move */
         if (codepp)
             saveofs = runcpsav(ctx, codepp, callobj, callprop);
-        
+
         /* execute the code */
         runexe(ctx, val, self, target, prop, argc);
-        
+
         /* restore caller's code pointer in case object moved */
         if (codepp)
             *codepp = runcprst(ctx, saveofs, callobj, callprop);
@@ -967,10 +967,10 @@ startover:
     case DAT_DSTRING:
         outfmt(ctx->runcxtio, val);
         break;
-        
+
     case DAT_DEMAND:
         break;
-        
+
     default:
         runpbuf(ctx, typ, val);
         break;
@@ -1000,7 +1000,7 @@ startover:
         /*
          *   if we've already done this, the property isn't being set by
          *   the callback, so we'll never get out of this loop - abort if
-         *   so 
+         *   so
          */
         if (++times_through != 1)
             runsig(ctx, ERR_DMDLOOP);
@@ -1023,7 +1023,7 @@ startover:
 
 /* ======================================================================== */
 /*
- *   user exit callbacks 
+ *   user exit callbacks
  */
 
 static int runuftyp(runuxdef *ctx)
@@ -1054,7 +1054,7 @@ static void runufnpu(runuxdef *ctx, long num)
 static void runufspu(runuxdef *ctx, uchar *str)
 {
     runsdef val;
-    
+
     val.runstyp = DAT_SSTRING;
     val.runsv.runsvstr = str - 2;
     runrepush(ctx->runuxctx, &val);
@@ -1068,13 +1068,13 @@ static void runufcspu(runuxdef *ctx, char *str)
 static uchar *runufsal(runuxdef *ctx, int len)
 {
     uchar *ret;
-    
+
     len += 2;
     runhres(ctx->runuxctx, len, ctx->runuxargc);
     ret = ctx->runuxctx->runcxhp;
     oswp2(ret, len);
     ret += 2;
-    
+
     ctx->runuxctx->runcxhp += len;
     return(ret);
 }
@@ -1082,7 +1082,7 @@ static uchar *runufsal(runuxdef *ctx, int len)
 static void runuflpu(runuxdef *ctx, int typ)
 {
     runsdef val;
-    
+
     val.runstyp = typ;
     runrepush(ctx->runuxctx, &val);
 }
@@ -1095,7 +1095,7 @@ static void runuflpu(runuxdef *ctx, int typ)
 
 /* ======================================================================== */
 /*
- *   execute p-code 
+ *   execute p-code
  */
 void runexe(runcxdef *ctx, uchar *p0, objnum self, objnum target,
             prpnum targprop, int argc)
@@ -1120,7 +1120,7 @@ void runexe(runcxdef *ctx, uchar *p0, objnum self, objnum target,
 #endif
 
     NOREG((&rstp, &p));
-    
+
     /* save entry SP - this is reset point until ENTER */
     rstsp = ctx->runcxsp;
 
@@ -1133,12 +1133,12 @@ void runexe(runcxdef *ctx, uchar *p0, objnum self, objnum target,
      *   error and enter the debugger with the error indication.  If the
      *   debugger isn't present, we'll simply re-throw the error.  This
      *   entire block can be compiled out of the execution engine when
-     *   linking a stand-alone (non-debug) version of the run-time.  
+     *   linking a stand-alone (non-debug) version of the run-time.
      */
 resume_from_error:
     ERRBEGIN(ctx->runcxerr)
 #endif /* DBG_OFF */
-    
+
     for (brkchk = 0 ;; ++brkchk)
     {
         /* check for break - signal if user has hit break */
@@ -1147,7 +1147,7 @@ resume_from_error:
             brkchk = 0;
             if (os_break()) runsig(ctx, ERR_USRINT);
         }
-        
+
         opc = *p++;
 
         switch(opc)
@@ -1157,13 +1157,13 @@ resume_from_error:
             runpush(ctx, DAT_NUMBER, &val);
             p += 4;
             break;
-            
+
         case OPCPUSHOBJ:
             val.runsv.runsvobj = osrp2(p);
             runpush(ctx, DAT_OBJECT, &val);
             p += 2;
             break;
-            
+
         case OPCPUSHSELF:
             val.runsv.runsvobj = self;
             runpush(ctx, DAT_OBJECT, &val);
@@ -1174,59 +1174,59 @@ resume_from_error:
             runpush(ctx, DAT_SSTRING, &val);
             p += osrp2(p);                              /* skip past string */
             break;
-            
+
         case OPCPUSHLST:
             val.runsv.runsvstr = p;
             runpush(ctx, DAT_LIST, &val);
             p += osrp2(p);                                /* skip past list */
             break;
-            
+
         case OPCPUSHNIL:
             runpush(ctx, DAT_NIL, &val);
             break;
-            
+
         case OPCPUSHTRUE:
             runpush(ctx, DAT_TRUE, &val);
             break;
-            
+
         case OPCPUSHFN:
             val.runsv.runsvobj = osrp2(p);
             runpush(ctx, DAT_FNADDR, &val);
             p += 2;
             break;
-            
+
         case OPCPUSHPN:
             val.runsv.runsvprp = osrp2(p);
             runpush(ctx, DAT_PROPNUM, &val);
             p += 2;
             break;
-            
+
         case OPCNEG:
             val.runstyp = DAT_NUMBER;
             val.runsv.runsvnum = -runpopnum(ctx);
             runrepush(ctx, &val);
             break;
-            
+
         case OPCBNOT:
             val.runstyp = DAT_NUMBER;
             val.runsv.runsvnum = ~runpopnum(ctx);
             runrepush(ctx, &val);
             break;
-            
+
         case OPCNOT:
             if (runtoslog(ctx))
                 runpush(ctx, runclog(!runpoplog(ctx)), &val);
             else
                 runpush(ctx, runclog(runpopnum(ctx)), &val);
             break;
-            
+
         case OPCADD:
             runpop(ctx, &val2);    /* right op is pushed last -> popped 1st */
             runpop(ctx, &val);
             runadd(ctx, &val, &val2, 2);
             runrepush(ctx, &val);
             break;
-            
+
         case OPCSUB:
             runpop(ctx, &val2);    /* right op is pushed last -> popped 1st */
             runpop(ctx, &val);
@@ -1240,14 +1240,14 @@ resume_from_error:
             val.runsv.runsvnum *= runpopnum(ctx);
             runrepush(ctx, &val);
             break;
-            
+
         case OPCBAND:
             val.runstyp = DAT_NUMBER;
             val.runsv.runsvnum = runpopnum(ctx);
             val.runsv.runsvnum &= runpopnum(ctx);
             runrepush(ctx, &val);
             break;
-            
+
         case OPCBOR:
             val.runstyp = DAT_NUMBER;
             val.runsv.runsvnum = runpopnum(ctx);
@@ -1268,7 +1268,7 @@ resume_from_error:
             val.runsv.runsvnum = runpopnum(ctx) >> val.runsv.runsvnum;
             runrepush(ctx, &val);
             break;
-            
+
         case OPCXOR:
             /* allow logical ^ logical or number ^ number */
             if (runtoslog(ctx))
@@ -1289,7 +1289,7 @@ resume_from_error:
             }
             runrepush(ctx, &val);
             break;
-            
+
         case OPCDIV:
             val.runsv.runsvnum = runpopnum(ctx);
             if (val.runsv.runsvnum == 0)
@@ -1307,7 +1307,7 @@ resume_from_error:
             val.runstyp = DAT_NUMBER;
             runrepush(ctx, &val);
             break;
-            
+
 #ifdef NEVER
         case OPCAND:
             if (runtostyp(ctx) == DAT_LIST)
@@ -1315,7 +1315,7 @@ resume_from_error:
             else
                 runpush(ctx, runclog(runpoplog(ctx) && runpoplog(ctx)), &val);
             break;
-            
+
         case OPCOR:
             runpush(ctx, runclog(runpoplog(ctx) || runpoplog(ctx)), &val);
             break;
@@ -1324,27 +1324,27 @@ resume_from_error:
         case OPCEQ:
             runpush(ctx, runclog(runeq(ctx)), &val);
             break;
-            
+
         case OPCNE:
             runpush(ctx, runclog(!runeq(ctx)), &val);
             break;
-            
+
         case OPCLT:
             runpush(ctx, runclog(runmcmp(ctx) < 0), &val);
             break;
-            
+
         case OPCLE:
             runpush(ctx, runclog(runmcmp(ctx) <= 0), &val);
             break;
-            
+
         case OPCGT:
             runpush(ctx, runclog(runmcmp(ctx) > 0), &val);
             break;
-            
+
         case OPCGE:
             runpush(ctx, runclog(runmcmp(ctx) >= 0), &val);
             break;
-            
+
         case OPCCALL:
             {
                 objnum o;
@@ -1354,7 +1354,7 @@ resume_from_error:
 
                 /* ensure we have enough values to pass as arguments */
                 runcheckargc(ctx, &nargc);
-            
+
                 /* object could move--save offset to restore 'p' after call */
                 o = osrp2(p);
                 ofs = runcpsav(ctx, &p, target, targprop);
@@ -1366,7 +1366,7 @@ resume_from_error:
                 p = runcprst(ctx, ofs, target, targprop) + 2;
                 break;
             }
-        
+
         case OPCGETP:
             nargc = *p++;
             runcheckargc(ctx, &nargc);
@@ -1395,7 +1395,7 @@ resume_from_error:
                 objnum   frobj;
                 uint     frofs;
                 runsdef *otherbp;
-                
+
                 frobj = osrp2(p);
                 frofs = osrp2(p + 2);
                 otherbp = dbgfrfind(ctx->runcxdbg, frobj, frofs);
@@ -1409,31 +1409,31 @@ resume_from_error:
             runrepush(ctx, ctx->runcxbp + runrp2s(p) - 1);
             p += 2;
             break;
-            
+
         case OPCRETURN:
             runleave(ctx, argc /* was: osrp2(p) */);
             dbgleave(ctx->runcxdbg, DBGEXRET);
             goto done;
-            
+
         case OPCRETVAL:
             /* if there's nothing on the stack, return nil */
             if (runtostyp(ctx) != DAT_BASEPTR)
                 runpop(ctx, &val);
             else
                 val.runstyp = DAT_NIL;
-            
+
             runleave(ctx, argc /* was: osrp2(p) */);
             runrepush(ctx, &val);
             dbgleave(ctx->runcxdbg, DBGEXVAL);
             goto done;
-            
+
         case OPCENTER:
             /* push old base pointer and set up new one */
             ctx->runcxsp = rstsp;
             val.runsv.runsvstr = (uchar *)ctx->runcxbp;
             runpush(ctx, DAT_BASEPTR, &val);
             ctx->runcxbp = ctx->runcxsp;
-    
+
             /* add a trace record */
             dbgenter(ctx->runcxdbg, ctx->runcxbp, self, target, targprop,
                      0, argc);
@@ -1441,21 +1441,21 @@ resume_from_error:
             /* initialize locals to nil */
             for (i = osrp2(p) ; i ; --i) runpush(ctx, DAT_NIL, &val);
             p += 2;                         /* skip the local count operand */
-            
+
             /* save stack pointer - reset sp to this value on DISCARD */
             rstsp = ctx->runcxsp;
             break;
-            
+
         case OPCDISCARD:
             ctx->runcxsp = rstsp;
             break;
-            
+
         case OPCSWITCH:
         {
             int      i;
             int      tostyp;
             int      match, typmatch;
-            
+
             runpop(ctx, &val);
             tostyp = val.runstyp;
             switch(tostyp)
@@ -1479,7 +1479,7 @@ resume_from_error:
                 tostyp = OPCPUSHNIL;
                 break;
             }
-            
+
             p += osrp2(p);                         /* find the switch table */
             i = osrp2(p);                            /* get number of cases */
 
@@ -1495,7 +1495,7 @@ resume_from_error:
                              && val.runsv.runsvnum == osrp4s(p));
                     p += 4;
                     break;
-                        
+
                 case OPCPUSHLST:
                 case OPCPUSHSTR:
                     match = (typmatch
@@ -1504,24 +1504,24 @@ resume_from_error:
                                         p, (size_t)osrp2(p)));
                     p += runrp2s(p);
                     break;
-                        
+
                 case OPCPUSHPN:
                     match = (typmatch
                              && val.runsv.runsvprp == osrp2(p));
                     p += 2;
                     break;
-                        
+
                 case OPCPUSHOBJ:
                 case OPCPUSHFN:
                     match = (typmatch
                              && val.runsv.runsvobj == osrp2(p));
                     p += 2;
                     break;
-                    
+
                 case OPCPUSHSELF:
                     match = (typmatch && val.runsv.runsvobj == self);
                     break;
-                        
+
                 case OPCPUSHTRUE:
                 case OPCPUSHNIL:
                     match = typmatch;
@@ -1537,14 +1537,14 @@ resume_from_error:
         case OPCJMP:
             p += runrp2s(p);
             break;
-            
+
         case OPCJT:
             if (runtoslog(ctx))
                 p += (runpoplog(ctx) ? runrp2s(p) : 2);
             else
                 p += (runpopnum(ctx) != 0 ? runrp2s(p) : 2);
             break;
-            
+
         case OPCJF:
             if (runtoslog(ctx))
                 p += ((!runpoplog(ctx)) ? runrp2s(p) : 2);
@@ -1556,12 +1556,12 @@ resume_from_error:
                 p += 2;
             }
             break;
-            
+
         case OPCSAY:
             outfmt(ctx->runcxtio, p);
             p += osrp2(p);                              /* skip past string */
             break;
-            
+
         case OPCBUILTIN:
             {
                 int      binum;
@@ -1584,7 +1584,7 @@ resume_from_error:
                 p += 2;
                 break;
             }
-            
+
         case OPCPTRCALL:
             nargc = *p++;
             runcheckargc(ctx, &nargc);
@@ -1592,7 +1592,7 @@ resume_from_error:
             runfn(ctx, runpopfn(ctx), nargc);
             p = runcprst(ctx, ofs, target, targprop);
             break;
-            
+
         case OPCINHERIT:
             nargc = *p++;
             runcheckargc(ctx, &nargc);
@@ -1609,7 +1609,7 @@ resume_from_error:
             runpprop(ctx, &p, target, targprop, target, prop, TRUE, nargc,
                      self);
             break;
-            
+
         case OPCPTRGETP:
             nargc = *p++;
             runcheckargc(ctx, &nargc);
@@ -1625,7 +1625,7 @@ resume_from_error:
             runcheckpropdata(ctx, obj, prop);
             runpprop(ctx, &p, target, targprop, obj, prop, FALSE, 0, obj);
             break;
-            
+
         case OPCEXPINH:
             /* inheritance from explicit superclass */
             nargc = *p++;
@@ -1634,12 +1634,12 @@ resume_from_error:
             obj = osrp2(p + 2);
             p += 4;
 
-            /* 
+            /*
              *   Evaluate the property of the given object, but keeping
              *   the same 'self' as is currently in effect.  Note that the
              *   'inherit' flag is FALSE in this call, even though we're
              *   inheriting, because the opcode explicitly specifies the
-             *   object we want to inherit from.  
+             *   object we want to inherit from.
              */
             runpprop(ctx, &p, target, targprop, obj, prop, FALSE,
                      nargc, self);
@@ -1654,7 +1654,7 @@ resume_from_error:
             runpprop(ctx, &p, target, targprop, obj, prop, FALSE,
                      nargc, self);
             break;
-            
+
         case OPCPASS:
             prop = osrp2(p);
             runleave(ctx, 0);
@@ -1662,55 +1662,55 @@ resume_from_error:
             runpprop(ctx, &p, target, targprop, target, prop, TRUE, argc,
                      self);
             goto done;
-            
+
         case OPCEXIT:
             errsig(ctx->runcxerr, ERR_RUNEXIT);
             /* NOTREACHED */
-            
+
         case OPCABORT:
             errsig(ctx->runcxerr, ERR_RUNABRT);
             /* NOTREACHED */
-            
+
         case OPCASKDO:
             errsig(ctx->runcxerr, ERR_RUNASKD);
             /* NOTREACHED */
-            
+
         case OPCASKIO:
             errsig1(ctx->runcxerr, ERR_RUNASKI, ERRTINT, osrp2(p));
             /* NOTREACHED */
-            
+
         case OPCJE:
             p += (runeq(ctx) ? runrp2s(p) : 2);
             break;
-            
+
         case OPCJNE:
             p += (!runeq(ctx) ? runrp2s(p) : 2);
             break;
-            
+
         case OPCJGT:
             p += (runmcmp(ctx) > 0 ? runrp2s(p) : 2);
             break;
-            
+
         case OPCJGE:
             p += (runmcmp(ctx) >= 0 ? runrp2s(p) : 2);
             break;
-            
+
         case OPCJLT:
             p += (runmcmp(ctx) < 0 ? runrp2s(p) : 2);
             break;
-            
+
         case OPCJLE:
             p += (runmcmp(ctx) <= 0 ? runrp2s(p) : 2);
             break;
-            
+
         case OPCJNAND:
             p += (!(runpoplog(ctx) && runpoplog(ctx)) ? runrp2s(p) : 2);
             break;
-            
+
         case OPCJNOR:
             p += (!(runpoplog(ctx) || runpoplog(ctx)) ? runrp2s(p) : 2);
             break;
-            
+
         case OPCGETPSELF:
             nargc = *p++;
             runcheckargc(ctx, &nargc);
@@ -1719,7 +1719,7 @@ resume_from_error:
             runpprop(ctx, &p, target, targprop, self, prop, FALSE, nargc,
                      self);
             break;
-            
+
         case OPCGETPSELFDATA:
             prop = osrp2(p);
             p += 2;
@@ -1734,7 +1734,7 @@ resume_from_error:
             runpprop(ctx, &p, target, targprop, self, prop, FALSE, nargc,
                      self);
             break;
-            
+
         case OPCGETPOBJ:
             nargc = *p++;
             runcheckargc(ctx, &nargc);
@@ -1744,13 +1744,13 @@ resume_from_error:
             runpprop(ctx, &p, target, targprop, obj, prop, FALSE, nargc,
                      obj);
             break;
-            
+
         case OPCINDEX:
             i = runpopnum(ctx);                                /* get index */
             lstp = runpoplst(ctx);                          /* get the list */
             runpind(ctx, i, lstp);
             break;
-            
+
         case OPCJST:
             if (runtostyp(ctx) == DAT_TRUE)
                 p += runrp2s(p);
@@ -1760,7 +1760,7 @@ resume_from_error:
                 p += 2;
             }
             break;
-            
+
         case OPCJSF:
             if (runtostyp(ctx) == DAT_NIL ||
                 (runtostyp(ctx) == DAT_NUMBER &&
@@ -1772,7 +1772,7 @@ resume_from_error:
                 p += 2;
             }
             break;
-            
+
         case OPCCALLEXT:
             {
 #if 0 // external functions are now obsolete
@@ -1786,7 +1786,7 @@ resume_from_error:
                 runxdef   *ex;
 
                 runuxdef   ux;
-                
+
                 /* set up callback context */
                 ux.runuxctx  = ctx;
                 ux.runuxvec  = &uf;
@@ -1795,7 +1795,7 @@ resume_from_error:
                 fn = osrp2(p);
                 p += 2;
                 ex = &ctx->runcxext[fn];
-                
+
                 if (!ex->runxptr)
                 {
                     if ((ex->runxptr = os_exfil(ex->runxnam)) == 0)
@@ -1813,10 +1813,10 @@ resume_from_error:
 #endif
             }
             break;
-            
+
         case OPCDBGRET:
             goto done;
-            
+
         case OPCCONS:
             {
                 uint    totsiz;
@@ -1824,13 +1824,13 @@ resume_from_error:
                 uint    tot;
                 uint    cursiz;
                 runsdef lstend;
-                
+
                 tot = i = osrp2(p);    /* get # of items to build into list */
                 p += 2;
 
                 /* reserve space for initial list (w/length word only) */
                 runhres(ctx, 2, 0);
-                
+
                 /*
                  *   Set up value to point to output list, making room
                  *   for length prefix.  Remember size-so-far separately.
@@ -1849,7 +1849,7 @@ resume_from_error:
                      *   Set up to allocate space.  Before doing so, make
                      *   sure the list under construction is valid, to
                      *   ensure that it stays around after garbage
-                     *   collection. 
+                     *   collection.
                      */
                     oldsiz = totsiz;
                     totsiz += cursiz + 1;
@@ -1865,22 +1865,22 @@ resume_from_error:
                 runrepush(ctx, &lstend);
             }
             break;
-            
+
         case OPCARGC:
             val.runsv.runsvnum = argc;
             runpush(ctx, DAT_NUMBER, &val);
             break;
-            
+
         case OPCCHKARGC:
             if ((*p & 0x80) ? argc < (*p & 0x7f) : argc != *p)
             {
                 char namebuf[128];
                 size_t namelen;
-                
-                /* 
+
+                /*
                  *   debugger is present - look up the name of the current
                  *   function or method, so that we can report it in the
-                 *   error message 
+                 *   error message
                  */
                 if (targprop == 0)
                 {
@@ -1902,7 +1902,7 @@ resume_from_error:
             }
             ++p;
             break;
-            
+
         case OPCLINE:
         case OPCBP:
             {
@@ -1926,19 +1926,19 @@ resume_from_error:
                 dbgssi(ctx->runcxdbg, ofs, instr, 0, &p);
                 break;
             }
-            
+
         case OPCFRAME:
             /* this is a frame record - just jump past it */
             p += osrp2(p);
             break;
-            
+
         case OPCASI_MASK | OPCASIDIR | OPCASILCL:
             runpop(ctx, &val);
             OSCPYSTRUCT(*(ctx->runcxbp + runrp2s(p) - 1), val);
             stkval = &val;
             p += 2;
             goto no_assign;
-            
+
         case OPCASI_MASK | OPCASIDIR | OPCASIPRP:
             obj = runpopobj(ctx);
             prop = osrp2(p);
@@ -1957,11 +1957,11 @@ resume_from_error:
         case OPCNEW:
             run_new(ctx, &p, target, targprop);
             break;
-            
+
         case OPCDELETE:
             run_delete(ctx, &p, target, targprop);
             break;
-            
+
         default:
             if ((opc & OPCASI_MASK) == OPCASI_MASK)
             {
@@ -1976,7 +1976,7 @@ resume_from_error:
                 asityp = (opc & OPCASITYP_MASK);
                 if (asityp == OPCASIEXT)
                     asiext = *p++;
-                
+
                 /* get list element/property number if needed */
                 switch(opc & OPCASIDEST_MASK)
                 {
@@ -1990,7 +1990,7 @@ resume_from_error:
                     prop = runpopprp(ctx);
                     obj = runpopobj(ctx);
                     break;
-                    
+
                 case OPCASIIND:
                     i = runpopnum(ctx);
                     lstp = runpoplst(ctx);
@@ -2001,7 +2001,7 @@ resume_from_error:
                     p += 2;
                     break;
                 }
-                
+
                 if (asityp != OPCASIDIR)
                 {
                     /* we have an <op>= operator - get lval, modify, & set */
@@ -2010,7 +2010,7 @@ resume_from_error:
                     case OPCASILCL:
                         OSCPYSTRUCT(val, *(ctx->runcxbp + lclnum - 1));
                         break;
-                        
+
                     case OPCASIPRP:
                     case OPCASIPRPPTR:
                         runpprop(ctx, &p, target, targprop, obj, prop,
@@ -2023,7 +2023,7 @@ resume_from_error:
                         runpop(ctx, &val);
                         break;
                     }
-                    
+
                     /* if saving pre-inc/dec value, get the value now */
                     if ((opc & OPCASIPRE_MASK) == OPCASIPOST)
                     {
@@ -2031,11 +2031,11 @@ resume_from_error:
                         stkval = &val3;
                     }
                 }
-                
+
                 /* get rvalue, except for inc/dec operations */
                 if (asityp != OPCASIINC && asityp != OPCASIDEC)
                     runpop(ctx, &val2);
-                
+
                 /* now apply operation to lvalue using rvalue */
                 switch(asityp)
                 {
@@ -2044,11 +2044,11 @@ resume_from_error:
                     {
                         runsdef val4;
 
-                        /* 
+                        /*
                          *   we're adding to an indexed value out of a list -
                          *   we need to make sure the list is protected from
                          *   garbage collection, so push it back on the stack
-                         *   while we're working 
+                         *   while we're working
                          */
                         val4.runstyp = DAT_LIST;
                         val4.runsv.runsvstr = lstp;
@@ -2057,9 +2057,9 @@ resume_from_error:
                         /* carry out the addition */
                         runadd(ctx, &val, &val2, 2);
 
-                        /* 
+                        /*
                          *   in case the list got moved during garbage
-                         *   collection, retrieve it from the stack 
+                         *   collection, retrieve it from the stack
                          */
                         lstp = runpoplst(ctx);
                     }
@@ -2069,7 +2069,7 @@ resume_from_error:
                         runadd(ctx, &val, &val2, 2);
                     }
                     break;
-                    
+
                 case OPCASISUB:
                     if ((opc & OPCASIIND) != 0)
                     {
@@ -2098,14 +2098,14 @@ resume_from_error:
                             goto no_assign;
                     }
                     break;
-                    
+
                 case OPCASIMUL:
                     if (val.runstyp != DAT_NUMBER
                         || val2.runstyp != DAT_NUMBER)
                         runsig(ctx, ERR_REQNUM);
                     val.runsv.runsvnum *= val2.runsv.runsvnum;
                     break;
-                    
+
                 case OPCASIDIV:
                     if (val.runstyp != DAT_NUMBER
                         || val2.runstyp != DAT_NUMBER)
@@ -2114,19 +2114,19 @@ resume_from_error:
                         runsig(ctx, ERR_DIVZERO);
                     val.runsv.runsvnum /= val2.runsv.runsvnum;
                     break;
-                    
+
                 case OPCASIINC:
                     if (val.runstyp != DAT_NUMBER)
                         runsig(ctx, ERR_REQNUM);
                     ++(val.runsv.runsvnum);
                     break;
-                    
+
                 case OPCASIDEC:
                     if (val.runstyp != DAT_NUMBER)
                         runsig(ctx, ERR_REQNUM);
                     --(val.runsv.runsvnum);
                     break;
-                    
+
                 case OPCASIDIR:
                     valp = stkval = &val2;
                     break;
@@ -2161,7 +2161,7 @@ resume_from_error:
                         else
                             runsig(ctx, ERR_REQNUM);
                         break;
-                        
+
                     case OPCASIBOR:
                         if ((val.runstyp == DAT_TRUE
                              || val.runstyp == DAT_NIL)
@@ -2180,7 +2180,7 @@ resume_from_error:
                         else
                             runsig(ctx, ERR_REQNUM);
                         break;
-                        
+
                     case OPCASIXOR:
                         if ((val.runstyp == DAT_TRUE || val.runstyp == DAT_NIL)
                             && (val2.runstyp == DAT_TRUE
@@ -2205,14 +2205,14 @@ resume_from_error:
                             runsig(ctx, ERR_REQNUM);
                         val.runsv.runsvnum <<= val2.runsv.runsvnum;
                         break;
-                        
+
                     case OPCASISHR:
                         if (val.runstyp != DAT_NUMBER
                             || val2.runstyp != DAT_NUMBER)
                             runsig(ctx, ERR_REQNUM);
                         val.runsv.runsvnum >>= val2.runsv.runsvnum;
                         break;
-                        
+
                     default:
                         runsig(ctx, ERR_INVOPC);
                     }
@@ -2221,56 +2221,56 @@ resume_from_error:
                 default:
                     runsig(ctx, ERR_INVOPC);
                 }
-                
+
                 /* write the rvalue at *valp to the lvalue */
                 switch(opc & OPCASIDEST_MASK)
                 {
                 case OPCASILCL:
                     OSCPYSTRUCT(*(ctx->runcxbp + lclnum - 1), *valp);
                     break;
-                    
+
                 case OPCASIPRP:
                 case OPCASIPRPPTR:
                 assign_property:
                     {
                         void    *valbuf;
                         uchar    outbuf[4];
-                        
+
                         switch(valp->runstyp)
                         {
                         case DAT_LIST:
                         case DAT_SSTRING:
                             valbuf = valp->runsv.runsvstr;
                             break;
-                            
+
                         case DAT_NUMBER:
                             valbuf = outbuf;
                             oswp4s(outbuf, valp->runsv.runsvnum);
                             break;
-                            
+
                         case DAT_OBJECT:
                         case DAT_FNADDR:
                             valbuf = outbuf;
                             oswp2(outbuf, valp->runsv.runsvobj);
                             break;
-                            
+
                         case DAT_PROPNUM:
                             valbuf = outbuf;
                             oswp2(outbuf, valp->runsv.runsvprp);
                             break;
-                            
+
                         default:
                             valbuf = &valp->runsv;
                             break;
                         }
-                        
+
                         ofs = runcpsav(ctx, &p, target, targprop);
                         objsetp(ctx->runcxmem, obj, prop, valp->runstyp,
                                 valbuf, ctx->runcxundo);
                         p = runcprst(ctx, ofs, target, targprop);
                         break;
                     }
-                    
+
                 case OPCASIIND:
                     {
                         uint   newtot;
@@ -2279,7 +2279,7 @@ resume_from_error:
                         uint   delsiz;
                         uchar *delp;
                         uchar *remp;
-                        
+
                         /* compute sizes and pointers to various parts */
                         ofs = runindofs(ctx, i, lstp);
                         delp = lstp + ofs;        /* ptr to item to replace */
@@ -2287,7 +2287,7 @@ resume_from_error:
                         remsiz = osrp2(lstp) - ofs - delsiz - 1;
                         newsiz = runsiz(valp);          /* size of new item */
                         newtot = osrp2(lstp) + newsiz - delsiz;  /* new tot */
-                    
+
                         /* reserve space for the new list & copy first part */
                         {
                             runsdef val3;
@@ -2303,13 +2303,13 @@ resume_from_error:
                             remp = lstp + ofs + delsiz + 1;
                         }
                         memcpy(ctx->runcxhp + 2, lstp + 2, (size_t)(ofs - 2));
-                        
+
                         /* set size of new list */
                         oswp2(ctx->runcxhp, newtot);
-                        
+
                         /* copy new item into buffer */
                         runputbuf(ctx->runcxhp + ofs, valp);
-                        
+
                         /* copy remainder and update heap pointer */
                         memcpy(ctx->runcxhp + ofs + newsiz + 1, remp,
                                (size_t)remsiz);
@@ -2320,7 +2320,7 @@ resume_from_error:
                         break;
                     }
                 }
-                
+
             no_assign:   /* skip assignment - operation didn't change value */
                 if (*p == OPCDISCARD)
                 {
@@ -2336,25 +2336,25 @@ resume_from_error:
         }
     }
 
-    /* 
+    /*
      *   come here to return - don't use 'return' directly, since that
-     *   would not properly exit the error frame 
+     *   would not properly exit the error frame
      */
 done: ;
 
 #ifndef DBG_OFF
     /*
      *   Come here to catch any errors that occur during execution of this
-     *   p-code 
+     *   p-code
      */
      ERRCATCH(ctx->runcxerr, err)
      {
-         /* 
+         /*
           *   if the debugger isn't present, or we're already in the
           *   debugger, or if the debugger can't resume from errors, or if
           *   we're not in user code (in which case the debugger can't
           *   resume from this error even if it normally could resume from
-          *   an error), simply re-signal the error 
+          *   an error), simply re-signal the error
           */
          if (!dbgpresent()
              || ctx->runcxdbg->dbgcxfcn == 0
@@ -2379,7 +2379,7 @@ done: ;
              /* trap other errors to the debugger */
              break;
          }
-         
+
          /* if the object was unlocked, re-lock it */
          if (p == 0)
              mcmlck(ctx->runcxmem, target);
@@ -2388,9 +2388,9 @@ done: ;
          p = mcmobjptr(ctx->runcxmem, (mcmon)target) + ctx->runcxlofs - 2;
          p += *p;
 
-         /* 
+         /*
           *   Keep the current error's arguments around for handling
-          *   outside of this handler, since we'll need them in dbgssi. 
+          *   outside of this handler, since we'll need them in dbgssi.
           */
          errkeepargs(ctx->runcxerr);
 
@@ -2416,7 +2416,7 @@ done: ;
 /*
  *   Signal a run-time error.  This function first calls the debugger
  *   single-step function to allow the debugger to trap the error, then
- *   signals the error as usual when the debugger returns.  
+ *   signals the error as usual when the debugger returns.
  */
 void runsign(runcxdef *ctx, int err)
 {
@@ -2426,9 +2426,9 @@ void runsign(runcxdef *ctx, int err)
      *   Do not trap to the debugger here if the debugger can resume from
      *   an error; instead, we'll trap in the p-code loop, since we'll be
      *   able to resume execution from the point of the error.
-     *   
+     *
      *   Note that we can't resume from an error when there's no stack
-     *   frame, so we'll trap to the debugger here in that case.  
+     *   frame, so we'll trap to the debugger here in that case.
      */
     if (ctx->runcxdbg->dbgcxfcn == 0
         || !dbgu_err_resume(ctx->runcxdbg))

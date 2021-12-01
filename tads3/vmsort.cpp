@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -23,7 +23,7 @@ Function
   sorted be arranged as an array; we provide a higher-level abstraction
   for the comparison callback.
 Notes
-  
+
 Modified
   05/14/00 MJRoberts  - Creation
 */

@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/PRSCOMP.C,v 1.3 1999/07/11 00:46:30 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1993, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -50,19 +50,19 @@ static toktldef *prsvlst(prscxdef *ctx, toktldef *lcltab, prsndef **inits,
 
     /* skip whatever token encouraged caller to parse a variable list */
     toknext(ctx->prscxtok);
-    
+
     /* if caller doesn't already have a local table, allocate one now */
     if (!lcltab)
     {
         /* ensure there's enough space */
         if (ctx->prscxslcl < sizeof(toktldef) + 20)
             errsig(ctx->prscxerr, ERR_NOMEMLC);
-        
+
         /* set up space for linear table and initialize it */
         lcltab = (toktldef *)osrndpt(ctx->prscxplcl);
         toktlini(ctx->prscxerr, lcltab, (uchar *)(lcltab + 1),
                  (int)ctx->prscxslcl - (uint)sizeof(toktldef));
-        
+
         /* make new local symbol table the head of search list */
         lcltab->toktlsc.toktnxt = ctx->prscxtok->tokcxstab;
         ctx->prscxtok->tokcxstab = &lcltab->toktlsc;
@@ -71,16 +71,16 @@ static toktldef *prsvlst(prscxdef *ctx, toktldef *lcltab, prsndef **inits,
     for (;;)
     {
         int tnum;
-        
+
         if (ctx->prscxtok->tokcxcur.toktyp != TOKTSYMBOL) break;
-        
+
         /* add the symbol */
         ++(*locals);
         t = &ctx->prscxtok->tokcxcur;
         (*lcltab->toktlsc.toktfadd)((toktdef *)lcltab, t->toknam, t->toklen,
                                     TOKSTLOCAL, (args ? -(*locals) : *locals),
                                     t->tokhash);
-            
+
         /* check for initializer if initializers are ok */
         if (((tnum = toknext(ctx->prscxtok)) == TOKTASSIGN || tnum == TOKTEQ)
             && inits)
@@ -88,7 +88,7 @@ static toktldef *prsvlst(prscxdef *ctx, toktldef *lcltab, prsndef **inits,
             prsndef *expr;
 
             toknext(ctx->prscxtok);                          /* skip the := */
-            
+
             /* save the OPCLINE if necessary */
             if ((ctx->prscxflg & PRSCXFLIN)
                 && !(ctx->prscxtok->tokcxlin->linflg & LINFDBG))
@@ -105,7 +105,7 @@ static toktldef *prsvlst(prscxdef *ctx, toktldef *lcltab, prsndef **inits,
                 linrec = prsbalo(ctx, siz);
                 memcpy(linrec, ctx->prscxemt->emtcxptr + oldofs,
                        (size_t)(ctx->prscxemt->emtcxofs - oldofs));
-                
+
                 /* now remove the OPCLINE - this isn't the place for it */
                 ctx->prscxemt->emtcxofs = oldofs;
 
@@ -131,18 +131,18 @@ static toktldef *prsvlst(prscxdef *ctx, toktldef *lcltab, prsndef **inits,
         if (ctx->prscxtok->tokcxcur.toktyp != TOKTCOMMA) break;
         toknext(ctx->prscxtok);                           /* skip the comma */
     }
-    
+
     /* check for varargs specifier */
     if (varargs && ctx->prscxtok->tokcxcur.toktyp == TOKTELLIPSIS)
     {
         *varargs = TRUE;
         toknext(ctx->prscxtok);                        /* skip the ellipsis */
     }
-    
+
     /* update the local table pool pointers to follow the table */
     ctx->prscxplcl = lcltab->toktlnxt;
     ctx->prscxslcl = lcltab->toktlsiz;
-    
+
     return(lcltab);
 }
 
@@ -172,14 +172,14 @@ static void prsvgfr(prscxdef *ctx, toktldef *lcltab, uint *encfr)
         ofs = ec->emtcxofs;          /* remember the location of the length */
         emtint2(ec, 0);           /* placeholder - we'll fill this in later */
         emtint2(ec, *encfr);                /* point to the enclosing frame */
-        
+
         /* write out the symbols using the callback iterator */
         toktleach(&lcltab->toktlsc, prsvgf0, ctx);
-        
+
         /* now write the length of the table back at the beginning */
         diff = ctx->prscxemt->emtcxofs - ofs;
         emtint2at(ec, diff, ofs);
-        
+
         /* the new table is now the current frame */
         *encfr = ofs;
     }
@@ -197,7 +197,7 @@ static void prsclin(prscxdef *ctx, uint curfr, lindef *lin, int tellsrc,
         dbgclin(ctx->prscxtok, ctx->prscxemt->emtcxobj,
                 (uint)ctx->prscxemt->emtcxofs);
     }
-        
+
     /* emit a LINE instruction, noting location and frame */
     emtop(ctx->prscxemt, OPCLINE);
     emtbyte(ctx->prscxemt, lin->linlln + 4);       /* note length of record */
@@ -209,7 +209,7 @@ static void prsclin(prscxdef *ctx, uint curfr, lindef *lin, int tellsrc,
     if (saved_loc != 0)
     {
         uchar cur[LINLLNMAX];
-        
+
         /* use the saved location */
         memcpy(ctx->prscxemt->emtcxptr + ctx->prscxemt->emtcxofs,
                saved_loc, lin->linlln);
@@ -227,10 +227,10 @@ static void prsclin(prscxdef *ctx, uint curfr, lindef *lin, int tellsrc,
     /* advance the output pointer */
     ctx->prscxemt->emtcxofs += lin->linlln;
 
-    /* 
+    /*
      *   indicate in line source that we've generated a debug record, as long
      *   as the generated location isn't different from current location (if
-     *   it is, don't mark this line as used yet) 
+     *   it is, don't mark this line as used yet)
      */
     if (!diff)
         ctx->prscxtok->tokcxlin->linflg |= LINFDBG;
@@ -254,11 +254,11 @@ void prsstm(prscxdef *ctx, uint brk, uint cont, int parms, int locals,
     prsctdef       *noreg casetab = (prsctdef *)0;            /* case table */
     prsctdef       *curctab;
     lindef         *lin = ctx->prscxtok->tokcxlin;           /* line source */
-    
+
     NOREG((&ldone, &lfalse, &lloop, &casetab))
-    
+
     ERRBEGIN(ctx->prscxerr)
-        
+
     /* if no 'enter' instruction, emit one */
     if (!entofs)
     {
@@ -294,7 +294,7 @@ void prsstm(prscxdef *ctx, uint brk, uint cont, int parms, int locals,
         /* adjust the 'enter' instruction to make room for new locals */
         if (lcltab && locals > emtint2from(ctx->prscxemt, entofs))
             emtint2at(ctx->prscxemt, locals, entofs);
-        
+
         /* generate code for initializers, if any */
         if (inits) prsgini(ctx, inits, curfr);
     }
@@ -312,7 +312,7 @@ startover:
     case TOKTSEM:
         toknext(ctx->prscxtok);    /* skip the semicolon - end of statement */
         break;
-        
+
     case TOKTRBRACE:
         if (compound)
         {
@@ -320,16 +320,16 @@ startover:
             toknext(ctx->prscxtok);                         /* skip the '}' */
         }
         break;
-        
+
     case TOKTLBRACE:
         prsstm(ctx, brk, cont, parms, locals, entofs, (prscsdef *)0, curfr);
         break;
-        
+
     case TOKTDSTRING:
         prsxgen(ctx);
         prsreq(ctx, TOKTSEM);
         break;
-        
+
     case TOKTIF:
         prsnreq(ctx, TOKTLPAR);
         lfalse = emtglbl(ctx->prscxemt);
@@ -337,7 +337,7 @@ startover:
         emtjmp(ctx->prscxemt, OPCJF, lfalse);
         prsreq(ctx, TOKTRPAR);
         prsstm(ctx, brk, cont, parms, locals, entofs, (prscsdef *)0, curfr);
-        
+
         /* in v1 compatibility mode, ignore ';' after 'if{...}' */
         if ((ctx->prscxflg & PRSCXFV1E)
             && ctx->prscxtok->tokcxcur.toktyp == TOKTSEM)
@@ -356,7 +356,7 @@ startover:
         else
             emtslbl(ctx->prscxemt, &lfalse, TRUE);             /* no 'else' */
         break;
-        
+
     case TOKTWHILE:
         prsnreq(ctx, TOKTLPAR);
         ldone = emtglbl(ctx->prscxemt);
@@ -371,10 +371,10 @@ startover:
         emtslbl(ctx->prscxemt, &ldone, TRUE);
         emtdlbl(ctx->prscxemt, &lloop);
         break;
-        
+
     case TOKTDO:
         toknext(ctx->prscxtok);                    /* skip the 'do' keyword */
-        
+
         /* get labels - one for loopback, one for break, one for continue */
         ldone = emtglbl(ctx->prscxemt);
         lloop = emtgslbl(ctx->prscxemt);        /* loop point is right here */
@@ -386,17 +386,17 @@ startover:
 
         /* set continue label to just before condition */
         emtslbl(ctx->prscxemt, &lfalse, TRUE);
-        
+
         /* parse the while(condition) clause and loop back if true */
         prsreq(ctx, TOKTWHILE);
         prsxgen_pia(ctx);                            /* parse the condition */
         emtjmp(ctx->prscxemt, OPCJT, lloop);
         emtdlbl(ctx->prscxemt, &lloop);
-        
+
         /* set break label to just after the loop */
         emtslbl(ctx->prscxemt, &ldone, TRUE);
         break;
-        
+
     case TOKTFOR:
         {
             prsndef *reinit = (prsndef *)0;
@@ -414,7 +414,7 @@ startover:
             if (ctx->prscxtok->tokcxcur.toktyp != TOKTSEM) prsxgen(ctx);
             emtop(ctx->prscxemt, OPCDISCARD);     /* don't need initializer */
             prsreq(ctx, TOKTSEM);
-            
+
             /* parse condition, if present */
             emtslbl(ctx->prscxemt, &lloop, FALSE);
             if (ctx->prscxtok->tokcxcur.toktyp != TOKTSEM)
@@ -423,12 +423,12 @@ startover:
                 emtjmp(ctx->prscxemt, OPCJF, lfalse);
             }
             prsreq(ctx, TOKTSEM);
-            
+
             /* parse re-initializer, if present */
             if (ctx->prscxtok->tokcxcur.toktyp != TOKTRPAR)
                 reinit = prsexpr(ctx);
             prsreq(ctx, TOKTRPAR);
-            
+
             /* save expression context - re-initizlier is in pool */
             ctx->prscxrrst = ctx->prscxnrem;
             ctx->prscxnrst = ctx->prscxnode;
@@ -436,7 +436,7 @@ startover:
             /* parse loop body */
             prsstm(ctx, lfalse, ldone, parms, locals, entofs, (prscsdef *)0,
                    curfr);
-            
+
             /* generate re-initializer code if needed, and loop back */
             emtslbl(ctx->prscxemt, &ldone, FALSE);
             if (reinit)
@@ -455,7 +455,7 @@ startover:
 /*          prsrstn(ctx); */
             break;
         }
-        
+
     case TOKTBREAK:
         prsnreq(ctx, TOKTSEM);
         if (brk == EMTLLNKEND)
@@ -482,7 +482,7 @@ startover:
         prsdef(ctx, &ctx->prscxtok->tokcxcur, TOKSTLABEL);
         if (ctx->prscxtok->tokcxcur.toksym.tokstyp != TOKSTLABEL)
             errsig(ctx->prscxerr, ERR_REQLBL);
-        
+
         emtjmp(ctx->prscxemt, OPCJMP,
                (uint)ctx->prscxtok->tokcxcur.toksym.toksval);
         prsnreq(ctx, TOKTSEM);
@@ -500,14 +500,14 @@ startover:
         prsnreq(ctx, TOKTLPAR);
         prsxgen(ctx);
         prsreq(ctx, TOKTRPAR);
-        
+
         /* get 'break' label - this jumps past case table */
         ldone = emtglbl(ctx->prscxemt);
 
         /* get label for case table, and emit SWITCH instruction for it */
         lloop = emtglbl(ctx->prscxemt);
-        emtjmp(ctx->prscxemt, OPCSWITCH, lloop);        
-        
+        emtjmp(ctx->prscxemt, OPCSWITCH, lloop);
+
         /* allocate the first case table (more can be added later) */
         casetab = MCHNEW(ctx->prscxerr, prsctdef, "prsstm: case table");
         casetab->prsctnxt = (prsctdef *)0;
@@ -522,13 +522,13 @@ startover:
         emtjmp(ctx->prscxemt, OPCJMP, ldone);       /* jump over case table */
         emtslbl(ctx->prscxemt, &lloop, TRUE);       /* set case table label */
         emtint2(ctx->prscxemt, myswctl.prscscnt);        /* number of cases */
-        
+
         for (curctab = casetab ; curctab ; curctab = nextctab)
         {
             int lastlbl;
             int i;
             int diff;
-            
+
             nextctab = curctab->prsctnxt;
             lastlbl = (nextctab ? PRSCTSIZE : myswctl.prscscnt);
             for (i = 0 ; i < lastlbl ; --(myswctl.prscscnt), ++i)
@@ -540,7 +540,7 @@ startover:
                              - ctx->prscxemt->emtcxofs);
                 emtint2s(ctx->prscxemt, diff);
             }
-            
+
             /* done with this table - free it */
             mchfre(curctab);
         }
@@ -558,12 +558,12 @@ startover:
         /* we're done with the saved values in the case table */
         ctx->prscxrrst = sw_oldrrst;
         ctx->prscxnrst = sw_oldnrst;
-        
+
         /* set end label, and we're done */
         emtslbl(ctx->prscxemt, &ldone, TRUE);
         break;
     }
-    
+
     case TOKTCASE:
     {
         prsndef *node;
@@ -590,7 +590,7 @@ startover:
         /* assume we have an object if it's an undefined symbol */
         if (typ == TOKTSYMBOL)
             prsdef(ctx, &node->prsnv.prsnvt, TOKSTFWDOBJ);
-        
+
         /* if we need another case table, add one */
         if (casecnt == PRSCTSIZE)
         {
@@ -600,7 +600,7 @@ startover:
             curctab->prsctnxt = (prsctdef *)0;
             casecnt = 0;
         }
-                
+
         /* set up this entry with value and code location */
         OSCPYSTRUCT(curctab->prsctcase[casecnt].prscttok,
                     node->prsnv.prsnvt);
@@ -608,7 +608,7 @@ startover:
                     ctx->prscxemt->emtcxofs;
         ++casecnt;
         ++(swctl->prscscnt);
-        
+
         /* save anything in the node table - we'll need it later */
         ctx->prscxnrst = ctx->prscxnode;
         ctx->prscxrrst = ctx->prscxnrem;
@@ -622,15 +622,15 @@ startover:
         prsnreq(ctx, TOKTCOLON);
         swctl->prscsdflt = ctx->prscxemt->emtcxofs;
         break;
-        
+
     case TOKTELSE:
         errlog(ctx->prscxerr, ERR_BADELS);
         toknext(ctx->prscxtok);
         break;
-        
+
     case TOKTRETURN:
         if (toknext(ctx->prscxtok) == TOKTSEM)
-        {       
+        {
             toknext(ctx->prscxtok);
             emtop(ctx->prscxemt, OPCRETURN);
         }
@@ -642,7 +642,7 @@ startover:
         }
         emtint2(ctx->prscxemt, parms);
         break;
-        
+
     case TOKTPASS:
         {
             prpnum p;
@@ -654,22 +654,22 @@ startover:
             prsreq(ctx, TOKTSEM);
         }
         break;
-        
+
     case TOKTEXIT:
         prsnreq(ctx, TOKTSEM);
         emtop(ctx->prscxemt, OPCEXIT);
         break;
-        
+
     case TOKTABORT:
         prsnreq(ctx, TOKTSEM);
         emtop(ctx->prscxemt, OPCABORT);
         break;
-        
+
     case TOKTASKDO:
         prsnreq(ctx, TOKTSEM);
         emtop(ctx->prscxemt, OPCASKDO);
         break;
-        
+
     case TOKTASKIO:
         prsnreq(ctx, TOKTLPAR);
         t = &ctx->prscxtok->tokcxcur;
@@ -682,20 +682,20 @@ startover:
         case TOKSTFWDOBJ:
             {
                 mcmon obj;
-                
+
                 obj = t->toksym.toksval;
                 emtop(ctx->prscxemt, OPCASKIO);
                 emtint2(ctx->prscxemt, obj);
             }
             break;
-            
+
         default:
             errsig(ctx->prscxerr, ERR_REQOBJ);
         }
         prsnreq(ctx, TOKTRPAR);
         prsreq(ctx, TOKTSEM);
         break;
-        
+
     case TOKTSYMBOL:
     case TOKTLPAR:
     case TOKTNUMBER:
@@ -706,18 +706,18 @@ startover:
             prsndef *expr;
             int      needsem;
             int      t;
-            
+
             /*needsem = (ctx->prscxtok->tokcxcur.toktyp != TOKTLPAR);*/
             needsem = TRUE;
             expr = prsexpr(ctx);
-            
+
             if (ctx->prscxtok->tokcxcur.toktyp == TOKTCOLON &&
                 expr->prsnnlf == 0 && expr->prsnv.prsnvt.toktyp == TOKTSYMBOL
                 && ((t = expr->prsnv.prsnvt.toksym.tokstyp) == TOKSTLABEL
                     || t == TOKSTUNK))
             {
                 uint lbl;
-                
+
                 prsdef(ctx, &expr->prsnv.prsnvt, TOKSTLABEL);
                 lbl = expr->prsnv.prsnvt.toksym.toksval;
                 emtslbl(ctx->prscxemt, &lbl, FALSE);
@@ -732,7 +732,7 @@ startover:
             emtop(ctx->prscxemt, OPCDISCARD);
         }
         break;
-        
+
     case TOKTEOF:
         errsig(ctx->prscxerr, ERR_EOF);
 
@@ -747,7 +747,7 @@ startover:
 
         /* ignore the statement and continue parsing */
         break;
-        
+
     default:
         errsig(ctx->prscxerr, ERR_SYNTAX);
     }
@@ -771,12 +771,12 @@ startover:
         ctx->prscxslcl = oldlcls;
         ctx->prscxtok->tokcxstab = oldltab;
         prsrstn(ctx);
-    
+
         /* free case tables if any were allocated */
         {
             prsctdef *curctab;
             prsctdef *nextctab;
-            
+
             for (curctab = casetab ; curctab ; curctab = nextctab)
             {
                 nextctab = curctab->prsctnxt;
@@ -829,9 +829,9 @@ static prpnum prstpl(prscxdef *ctx, uchar *root, char *prefix)
     memcpy(tok.toknam + pfllen, root+2, (size_t)rootlen);
 
     /* fold case if we're in case-insensitive mode */
-    /* 
+    /*
      *   convert the symbol to lower-case if we're compiling the game in
-     *   case-insensitive mode 
+     *   case-insensitive mode
      */
     tok_case_fold(ctx->prscxtok, &tok);
 
@@ -856,7 +856,7 @@ static prpnum prssynp(prscxdef *ctx, uchar *prefix, size_t pfxlen,
     toksdef  sym;
     size_t   suflen;
     toktdef *tab;
-    
+
     /* construct the token */
     suflen = osrp2(suffix) - 2;
     suffix += 2;
@@ -881,7 +881,7 @@ static prpnum prssynp(prscxdef *ctx, uchar *prefix, size_t pfxlen,
 
     /* make it a property if it's not already */
     prsdef(ctx, &tok, TOKSTPROP);
-    
+
     /* now look it up and return its property number */
     (*tab->toktfsea)(tab, tok.toknam, tok.toklen, tok.tokhash, &sym);
     return(sym.toksval);
@@ -950,7 +950,7 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
     size_t    tplsiz;
     dattyp    tpldat;
     prpnum    tplprop;
-    
+
     /* use new-style or old-style templates, as appropriate */
     if (ctx->prscxflg & PRSCXFTPL1)
     {
@@ -965,7 +965,7 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
         tplprop = PRP_TPL2;
     }
     tpl[0] = 0;                             /* no templates in array so far */
-    
+
     IF_DEBUG(printf("*** compiling object #%d (%s) ***\n",
                     objtok->toksym.toksval, objtok->toknam));
 
@@ -973,21 +973,21 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
     objn = objtok->toksym.toksval;
     objptr = (objdef *)mcmlck(ctx->prscxmem, (mcmon)objn);
     objini(ctx->prscxmem, numsc, objn, classflg);
-    
+
     /* set up superclasses in object */
     for (scptr = objsc(objptr), i = numsc, sclistp = sclist ; i
         ; scptr += 2, ++sclistp, --i)
         oswp2(scptr, *sclistp);
-    
+
     /* catch any errors that occur while we have the object locked */
     ERRBEGIN(ctx->prscxerr)
-    
+
     for (;;)
     {
         ctx->prscxtok->tokcxstab = oldltab;    /* restore old symbol tables */
         t = ctx->prscxtok->tokcxcur.toktyp;
         if (t == TOKTSEM) break;               /* end of object - quit loop */
-        
+
         /* check for special doSynonym or ioSyonym property */
         if (t == TOKTDOSYN || t == TOKTIOSYN)
         {
@@ -1003,7 +1003,7 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
             synto = ctx->prscxpool + ctx->prscxtok->tokcxcur.tokofs;
             prsnreq(ctx, TOKTRPAR);              /* require the close paren */
             prsreq(ctx, TOKTEQ);                             /* and the '=' */
-            
+
             /* loop through suffixes to point to 'synto' */
             for (;;)
             {
@@ -1016,10 +1016,10 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
                 prssyn(ctx, objn, verpre, synto, synfrom);
                 prssyn(ctx, objn, pre, synto, synfrom);
                 objptr = mcmlck(ctx->prscxmem, (mcmon)objn);
-                
+
                 toknext(ctx->prscxtok);
             }
-            
+
             /* entirely done with this property - move along */
             continue;
         }
@@ -1053,7 +1053,7 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
                 /* done with superclass object - unlock it */
                 mcmunlck(ctx->prscxmem, (mcmon)prvobj);
 
-                /* 
+                /*
                  *   If the superclass was superseded, delete this
                  *   property.  Note that if we're generating debugging
                  *   information, we can only mark the property as
@@ -1061,7 +1061,7 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
                  *   remove the data; the reason for the difference is
                  *   that p-code is all self-relative, and hence can be
                  *   relocated within an object, except for certain
-                 *   debugging instructions.  
+                 *   debugging instructions.
                  */
                 if (prvmod)
                     objdelp(ctx->prscxmem, prvobj, p,
@@ -1095,7 +1095,7 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
 
             if (tplcur >= sizeof(tpl)) errsig(ctx->prscxerr, ERR_MANYTPL);
             thistpl = tpl + tplcur;
-            
+
             /* presume template flags will be zero, if any */
             tplflags = 0;
 
@@ -1128,7 +1128,7 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
                         { "disambigDobjFirst", VOCTPLFLG_DOBJ_FIRST },
                         { "disambigIobjFirst", 0 }
                     };
-                    
+
                     /* get the next token, and stop if it's the ']' */
                     if ((t = toknext(ctx->prscxtok)) == TOKTRBRACK)
                         break;
@@ -1167,7 +1167,7 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
             root = ctx->prscxpool + ctx->prscxtok->tokcxcur.tokofs;
             if (osrp2(root) + 3 > TOKNAMMAX)
                 errsig(ctx->prscxerr, ERR_LONGTPL);
-            
+
             /* build the template based on the root name and prep */
             if (p == PRP_IOACTION)
             {
@@ -1194,11 +1194,11 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
             toknext(ctx->prscxtok);
             continue;
         }
-        
+
         /* error if already defined */
         if (objgetp(ctx->prscxmem, objn, p, (dattyp *)0) != 0)
             errlog(ctx->prscxerr, ERR_PREDEF);
-        
+
         /* check for a formal parameter list */
         prsrstn(ctx);
         varargs = FALSE;
@@ -1215,7 +1215,7 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
         /*
          *   Check for redirection syntax: xoVerb -> obj.  This means to
          *   route xoVerb and verXoVerb to the given object's methods of
-         *   the same name. 
+         *   the same name.
          */
         if (ctx->prscxtok->tokcxcur.toktyp == TOKTPOINTER)
         {
@@ -1224,7 +1224,7 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
             toksdef *sym;
             tokdef   tok2;
             toktdef *tab;
-            
+
             /* get the object (and make sure it's an object) */
             if (toknext(ctx->prscxtok) != TOKTSYMBOL)
                 errsig(ctx->prscxerr, ERR_REQSYM);
@@ -1273,7 +1273,7 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
             toknext(ctx->prscxtok);
             continue;
         }
-        
+
         /* parse the property definition */
         prsreq(ctx, TOKTEQ);
         if (ctx->prscxtok->tokcxcur.toktyp == TOKTLBRACE)
@@ -1287,7 +1287,7 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
             ctx->prscxemt->emtcxptr = mcmlck(ctx->prscxmem, (mcmon)objn);
             ctx->prscxemt->emtcxofs = codeofs;
             ctx->prscxemt->emtcxobj = objn;
-            
+
             /* emit argument count checking instruction */
             if (ctx->prscxflg & PRSCXFARC)
             {
@@ -1307,7 +1307,7 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
 
             /* end code generation, and "close" the property */
             objendemt(ctx->prscxmem, objn, p, ctx->prscxemt->emtcxofs);
-                
+
             /* recache objptr in case it changed during code generation */
             objptr = ctx->prscxemt->emtcxptr;
 
@@ -1320,16 +1320,16 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
             prsndef *expr;
             lindef *saved_lin;
             uchar saved_loc[LINLLNMAX];
-            
+
             /* allow vocabulary list to be enclosed in square brackets */
             if (prpisvoc(p) && ctx->prscxtok->tokcxcur.toktyp == TOKTLBRACK)
                 toknext(ctx->prscxtok);
 
-            /* 
+            /*
              *   save the line position at the START of the expression - if
              *   it's a one-liner, as most expression properties are, we want
              *   to generate the debug record at the start rather than at the
-             *   next token, which will probably be on the next line 
+             *   next token, which will probably be on the next line
              */
             saved_lin = ctx->prscxtok->tokcxlin;
             linglop(saved_lin, saved_loc);
@@ -1357,7 +1357,7 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
                     emtop(ctx->prscxemt, OPCCHKARGC);
                     emtbyte(ctx->prscxemt, (varargs ? 0x80 : 0 ) + parms);
                 }
-                
+
                 /* generate an ENTER for no locals */
                 emtop(ctx->prscxemt, OPCENTER);
                 emtint2(ctx->prscxemt, 0);
@@ -1368,13 +1368,13 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
 
                 /* generate code for the expression */
                 prsgexp(ctx, expr);
-                
+
                 /* emit a RETVAL instruction and close the property */
                 emtop(ctx->prscxemt, OPCRETVAL);
                 emtint2(ctx->prscxemt, 0);
                 prsdelgoto(ctx);
                 objendemt(ctx->prscxmem, objn, p, ctx->prscxemt->emtcxofs);
-                
+
                 /* recache objptr in case it changed during code generation */
                 objptr = ctx->prscxemt->emtcxptr;
             }
@@ -1382,12 +1382,12 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
             {
                 /* set val pointer for list/string types */
                 val = &ctx->prscxpool[0] + expr->prsnv.prsnvt.tokofs;
-                
+
                 /* special handling for vocabulary property */
                 if (prpisvoc(p))
                 {
                     uchar *wrdtxt;
-                    
+
                     hasvoc = TRUE;           /* note presence of vocabulary */
 
                     /* single-quoted string value required */
@@ -1400,17 +1400,17 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
                         /* add the vocabulary word */
                         vocadd(ctx->prscxvoc, p, objn,
                                (classflg ? VOCFCLASS : 0), (char *)wrdtxt);
-                    
+
                         /* check for additional words in list */
                         if (ctx->prscxtok->tokcxcur.toktyp != TOKTSSTRING)
                             break;
-                        
+
                         /* another word - get text and skip it */
                         wrdtxt = ctx->prscxpool +
                                 ctx->prscxtok->tokcxcur.tokofs;
                         toknext(ctx->prscxtok);
                     }
-                    
+
                     /* allow vocabulary list to terminate in ']' */
                     if (ctx->prscxtok->tokcxcur.toktyp == TOKTRBRACK)
                         toknext(ctx->prscxtok);
@@ -1458,7 +1458,7 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
                     case TOKTSSTRING:
                         typ = DAT_SSTRING;
                         break;
-                        
+
                     case TOKTLIST:
                         /* set up for code/list generation */
                         mcmunlck(ctx->prscxmem, (mcmon)objn);
@@ -1467,11 +1467,11 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
                                                          (mcmon)objn);
                         ctx->prscxemt->emtcxofs = codeofs;
                         ctx->prscxemt->emtcxobj = objn;
-                        
+
                         /* generate the list value */
                         emtlst(ctx->prscxemt, expr->prsnv.prsnvt.tokofs,
                                ctx->prscxpool);
-                        
+
                         /* finish code/list generation */
                         objendemt(ctx->prscxmem, objn, p,
                                   ctx->prscxemt->emtcxofs);
@@ -1483,15 +1483,15 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
                         val = valbuf;
                         oswp4s(valbuf, expr->prsnv.prsnvt.tokval);
                         break;
-                        
+
                     case TOKTNIL:
                         typ = DAT_NIL;
                         break;
-                        
+
                     case TOKTTRUE:
                         typ = DAT_TRUE;
                         break;
-                        
+
                     case TOKTPOUND:
                         typ = DAT_PROPNUM;
                         val = valbuf;
@@ -1507,7 +1507,7 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
                     mcmunlck(ctx->prscxmem, (mcmon)objn);
                     objsetp(ctx->prscxmem, objn, p, typ, val, (objucxdef *)0);
                     objptr = mcmlck(ctx->prscxmem, (mcmon)objn);
-                    
+
                 skip_for_list:
                     /* take note of certain special properties */
                     switch(p)
@@ -1517,11 +1517,11 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
                         else if (typ == DAT_NIL) locnil = TRUE;
                         else locwarn = TRUE;
                         break;
-                        
+
                     case PRP_CONTENTS:
                         contset = TRUE;
                         break;
-                        
+
                     case PRP_LOCOK:
                         if (typ == DAT_TRUE) locok = TRUE;
                         break;
@@ -1530,7 +1530,7 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
             }
         }
     }
-    
+
     /* error cleanup: unlock the object, restore context data */
     ERRCLEAN(ctx->prscxerr)
         ctx->prscxslcl = oldslcl;
@@ -1539,7 +1539,7 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
         ctx->prscxtok->tokcxstab = oldltab;
         mcmunlck(ctx->prscxmem, (mcmon)objn);
     ERRENDCLN(ctx->prscxerr)
-        
+
     /* done parsing - unlock object to set some special properties */
     mcmtch(ctx->prscxmem, (mcmon)objn);
     mcmunlck(ctx->prscxmem, (mcmon)objn);
@@ -1552,16 +1552,16 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
     if (!contset)
         objsetp(ctx->prscxmem, objn, PRP_CONTENTS, DAT_DEMAND, (void *)0,
                 (objucxdef *)0);
-    
+
     /* add location record */
     vociadd(ctx->prscxvoc, objn, locobj, numsc, sclist,
             (classflg | (hasvoc ? VOCIFVOC : 0) | (locnil ? VOCIFLOCNIL : 0)));
-    
+
     /* issue location type warning if appropriate */
     if (locwarn && !locok)
         errlog1(ctx->prscxerr, ERR_LOCNOBJ, ERRTSTR,
                 errstr(ctx->prscxerr, (char *)objtok->toknam, objtok->toklen));
-    
+
     /* later: build an index on the properties if it's a class */
     indexprop = FALSE;
     if (indexprop) objindx(ctx->prscxmem, objn);
@@ -1570,7 +1570,7 @@ static void prsobj(prscxdef *ctx, noreg tokdef *objtok, int numsc,
     objptr = mcmlck(ctx->prscxmem, (mcmon)objn);
     freeofs = objfree(objptr);
     mcmunlck(ctx->prscxmem, (mcmon)objn);
-    
+
     if (indexprop) freeofs += objnprop(objptr) * 4;
 
     mcmrealo(ctx->prscxmem, (mcmon)objn,
@@ -1643,13 +1643,13 @@ static void prsspec(prscxdef *ctx, int modflag)
              *   there are defaults.  If not, it's an error, since the
              *   list ended prematurely (the set of words defined in the
              *   v2.0 specialWords list did not have defaults; only words
-             *   added later have defaults). 
+             *   added later have defaults).
              */
             if (end_of_list)
             {
                 /*
                  *   Find this type in the defaults.  If not available,
-                 *   it's an error. 
+                 *   it's an error.
                  */
                 while (defp->def && defp->typ != *typ)
                     ++defp;
@@ -1668,17 +1668,17 @@ static void prsspec(prscxdef *ctx, int modflag)
                 len = osrp2(wrd) - 2;
                 wrd += 2;
             }
-            
+
             /* make sure the word will fit - get more storage if not */
             if (!ctx->prscxspp
                 || len + 2 > (size_t)(ctx->prscxsps - ctx->prscxspf))
             {
                 uint   newsiz;
                 uchar *newptr;
-                
+
                 newsiz = ctx->prscxsps + len + 128;
                 newptr = mchalo(ctx->prscxerr, newsiz, "prsspec");
-                
+
                 /* copy old area, if there was one */
                 if (ctx->prscxspp)
                 {
@@ -1688,7 +1688,7 @@ static void prsspec(prscxdef *ctx, int modflag)
                 ctx->prscxspp = (char *)newptr;
                 ctx->prscxsps = newsiz;
             }
-            
+
             /* set up another entry in the list */
             p = (uchar *)ctx->prscxspp + ctx->prscxspf;
             *p++ = *typ;
@@ -1721,7 +1721,7 @@ static void prsspec(prscxdef *ctx, int modflag)
         if (*(typ + 1) && !end_of_list && tok != TOKTCOMMA)
             prssigreq(ctx, TOKTCOMMA);
     }
-    
+
     prsreq(ctx, TOKTSEM);
 }
 
@@ -1736,13 +1736,13 @@ static void prsfmt(prscxdef *ctx)
     uchar  *ptr;
     size_t  len;
     size_t  newlen;
-    
+
     /* get string to be translated */
     if (toknext(ctx->prscxtok) != TOKTSSTRING)
         errsig(ctx->prscxerr, ERR_BADFMT);
     wrd = ctx->prscxpool + ctx->prscxtok->tokcxcur.tokofs;
     len = osrp2(wrd);
-    
+
     /* convert any (\') sequences into just plain (') */
     for (src = dst = (wrd + 2), cnt = 0, newlen = len ;
          cnt < len - 2 ; *dst++ = *src++, ++cnt)
@@ -1760,17 +1760,17 @@ static void prsfmt(prscxdef *ctx)
     /* get property to translate it into */
     toknext(ctx->prscxtok);
     p = prsrqpr(ctx);
-    
+
     /* add to format string list */
     if (!ctx->prscxfsp || len + 2 > (size_t)(ctx->prscxfss - ctx->prscxfsf))
     {
         uint   newsiz;
         uchar *newptr;
-        
+
         /* get more storage */
         newsiz = ctx->prscxfss + len + 256;
         newptr = mchalo(ctx->prscxerr, newsiz, "prsfmt");
-        
+
         /* set up new storage */
         if (ctx->prscxfsp)
         {
@@ -1780,12 +1780,12 @@ static void prsfmt(prscxdef *ctx)
         ctx->prscxfsp = newptr;
         ctx->prscxfss = newsiz;
     }
-    
+
     /* enter new format string information in format string storage */
     ptr = ctx->prscxfsp + ctx->prscxfsf;
     oswp2(ptr, p);
     memcpy(ptr + 2, wrd, (size_t)len);
-    
+
     ctx->prscxfsf += len + 2;
 
     prsreq(ctx, TOKTSEM);                  /* statement ends with semicolon */
@@ -1816,14 +1816,14 @@ static void prscmpd(prscxdef *ctx)
     word3 = ctx->prscxpool + ctx->prscxtok->tokcxcur.tokofs;
 
     prsnreq(ctx, TOKTSEM);                 /* statement ends with semicolon */
-    
+
     /* add the new compound word definition */
     need = osrp2(word1) + osrp2(word2) + osrp2(word3);
     if (!ctx->prscxcpp || need > (ctx->prscxcps - ctx->prscxcpf))
     {
         uint   newsiz;
         uchar *newptr;
-        
+
         /* get more storage */
         newsiz = ctx->prscxcps + need + 256;
         newptr = mchalo(ctx->prscxerr, newsiz, "prscmpd");
@@ -1837,7 +1837,7 @@ static void prscmpd(prscxdef *ctx)
         ctx->prscxcpp = (char *)newptr;
         ctx->prscxcps = newsiz;
     }
-    
+
     /* copy the three parts into the compound word area */
     p = (uchar *)ctx->prscxcpp + ctx->prscxcpf;
     memcpy(p, word1, (size_t)osrp2(word1));
@@ -1846,7 +1846,7 @@ static void prscmpd(prscxdef *ctx)
     p += osrp2(word2);
     memcpy(p, word3, (size_t)osrp2(word3));
     p += osrp2(word3);
-    
+
     ctx->prscxcpf += need;
 }
 
@@ -1878,12 +1878,12 @@ void prscode(prscxdef *ctx, int markcomp)
     toktldef     *ltab;
     int           oldflg;
     int           modflag = 0;                      /* modify/replace flags */
-    
+
     NOREG((&tok))
-    
+
     t = ctx->prscxtok->tokcxcur.toktyp;
     if (t == TOKTEOF) return;            /* end of file; nothing more to do */
-    
+
     /* allow null statements */
     if (t == TOKTSEM)
     {
@@ -1897,14 +1897,14 @@ void prscode(prscxdef *ctx, int markcomp)
         prscmpd(ctx);
         return;
     }
-    
+
     /* check for special formatString construct */
     if (t == TOKTFORMAT)
     {
         prsfmt(ctx);
         return;
     }
-    
+
     /* check for 'replace' or 'modify' keywords */
     if (t == TOKTREPLACE || t == TOKTMODIFY)
     {
@@ -1939,7 +1939,7 @@ void prscode(prscxdef *ctx, int markcomp)
         int     len;
         ushort  objsiz;
         lindef *lin;
-        
+
         /* require a previously defined object */
         if (tok.toksym.tokstyp != TOKSTOBJ
             || vocinh(ctx->prscxvoc, tok.toksym.toksval) == 0)
@@ -1958,7 +1958,7 @@ void prscode(prscxdef *ctx, int markcomp)
         /*
          *   Set the "superseded by modified object" flag in the
          *   original.  Also set the class flag, because we want the
-         *   modified version to inherit location and vocabulary. 
+         *   modified version to inherit location and vocabulary.
          */
         objsflg(newptr, objflg(newptr) | OBJFMOD | OBJFCLASS);
         mcmtch(ctx->prscxmem, (mcmon)newobj);
@@ -1995,7 +1995,7 @@ void prscode(prscxdef *ctx, int markcomp)
         toknext(ctx->prscxtok);
         goto objbody;
     }
-    
+
     prsnreq(ctx, TOKTCOLON);
     t = ctx->prscxtok->tokcxcur.toktyp;
     switch(t)
@@ -2008,7 +2008,7 @@ void prscode(prscxdef *ctx, int markcomp)
         if (tok.toksym.tokstyp != TOKSTEXTERN)
             errsig(ctx->prscxerr, ERR_REQEXT);
         break;
-        
+
     case TOKTFUNCTION:
         if (modflag == TOKTMODIFY) errlog(ctx->prscxerr, ERR_MODFCN);
         prsdef(ctx, (tokdef *)&tok, TOKSTFWDFN);
@@ -2030,13 +2030,13 @@ void prscode(prscxdef *ctx, int markcomp)
             /* log the error */
             errlog(ctx->prscxerr, ERR_FREDEF);
 
-            /* 
+            /*
              *   Since the symbol was already defined as something else,
              *   we haven't given it a proper function definition yet.  In
              *   particular, we haven't assigned an object number to the
              *   function.  Do so now by forcing the symbol to undefined
              *   then defining it as a function again.
-             *   
+             *
              *   Note that we need to force the change in the global
              *   symbol table itself.  This will hose down any previous
              *   definition of the symbol, but this doesn't matter much
@@ -2054,15 +2054,15 @@ void prscode(prscxdef *ctx, int markcomp)
             prsdef(ctx, (tokdef *)&tok, TOKSTFWDFN);
         }
 
-        /* 
+        /*
          *   make sure the symbol is in the symbol table as a function if
          *   it's not already - it could have been a forward function, in
          *   which case it's time to make it a defined function, since
-         *   this is the definition 
+         *   this is the definition
          */
         tok.toksym.tokstyp = TOKSTFUNC;
         (*ctx->prscxstab->toktfset)(ctx->prscxstab, (toksdef *)&tok.toksym);
-        
+
         oldltab = ctx->prscxtok->tokcxstab;           /* remember old table */
         oldplcl = ctx->prscxplcl;                /* and old table pool data */
         oldslcl = ctx->prscxslcl;
@@ -2077,13 +2077,13 @@ void prscode(prscxdef *ctx, int markcomp)
                            &varargs, curfr);
             prsreq(ctx, TOKTRPAR);
         }
-        
+
         /*
          *   If we're replacing this function, delete any references in
          *   line number records to this object; this will prevent the
          *   debugger from attempting to use these records, which will be
          *   invalid after we replace the object's pcode with the new
-         *   pcode here.  
+         *   pcode here.
          */
         if (modflag == TOKTREPLACE)
         {
@@ -2105,43 +2105,43 @@ void prscode(prscxdef *ctx, int markcomp)
         /* flag that we're doing a function - no "self" */
         oldflg = ctx->prscxflg;
         ctx->prscxflg |= PRSCXFFUNC;
-        
+
         /* now parse the body of the function */
         ERRBEGIN(ctx->prscxerr)
-            
+
         if (ctx->prscxflg & PRSCXFARC)
         {
             emtop(ctx->prscxemt, OPCCHKARGC);
             emtbyte(ctx->prscxemt, (varargs ? 0x80 : 0 ) + parms);
         }
-        
+
         /* if there's a local symbol table, set up debug record */
         if (ltab) prsvgfr(ctx, ltab, &curfr);
-        
+
         if (ctx->prscxtok->tokcxcur.toktyp != TOKTLBRACE)
             prssigreq(ctx, TOKTLBRACE);
         prsstm(ctx, EMTLLNKEND, EMTLLNKEND, parms, 0, 0, (prscsdef *)0,
                curfr);
-        
+
         /* be sure to emit a 'return' at the end of the function */
         emtop(ctx->prscxemt, OPCRETURN);
         emtint2(ctx->prscxemt, 0);
-        
+
         /* restore local symbol table information in context */
         ctx->prscxplcl = oldplcl;
         ctx->prscxslcl = oldslcl;
-        
+
         /* resize the object down to the actual space needed */
         mcmrealo(ctx->prscxmem, (mcmon)tok.toksym.toksval,
                  (ushort)ctx->prscxemt->emtcxofs);
-        
+
         /* tell cache manager the object's been changed, and unlock it */
         mcmtch(ctx->prscxmem, (mcmon)tok.toksym.toksval);
         mcmunlck(ctx->prscxmem, (mcmon)tok.toksym.toksval);
 
         /* to prevent stray writes to this object... */
         ctx->prscxemt->emtcxptr = (uchar *)0;
-        
+
         /* clean up context changes, and delete labels */
         ctx->prscxtok->tokcxstab = oldltab;
         ctx->prscxflg = oldflg;
@@ -2155,14 +2155,14 @@ void prscode(prscxdef *ctx, int markcomp)
             prsdelgoto(ctx);
             mcmunlck(ctx->prscxmem, (mcmon)tok.toksym.toksval);
         ERRENDCLN(ctx->prscxerr)
-        
-        break;  
-        
+
+        break;
+
     case TOKTSYMBOL:
         for (scp = sc ;;)
         {
             int typ;
-            
+
             /* check that we have room for a new superclass */
             if (numsc >= PRSMAXSC) errsig(ctx->prscxerr, ERR_MANYSC);
 
@@ -2171,18 +2171,18 @@ void prscode(prscxdef *ctx, int markcomp)
             typ = ctx->prscxtok->tokcxcur.toksym.tokstyp;
             if (typ != TOKSTOBJ && typ != TOKSTFWDOBJ)
                 errsig(ctx->prscxerr, ERR_REQOBJ);
-            
+
             /* add the object to the superclass array */
             *scp++ = ctx->prscxtok->tokcxcur.toksym.toksval;
             ++numsc;
-            
+
             /* skip the token, and keep going as long as the list continues */
             if (toknext(ctx->prscxtok) != TOKTCOMMA) break;
             typ = toknext(ctx->prscxtok);        /* get next object in list */
         }
         goto objbody;
         /* FALLTHROUGH */
-        
+
     case TOKTOBJECT:
         toknext(ctx->prscxtok);
     objbody:
@@ -2190,15 +2190,15 @@ void prscode(prscxdef *ctx, int markcomp)
         if (!(tok.toksym.tokstyp == TOKSTFWDOBJ
               || (tok.toksym.tokstyp == TOKSTOBJ && modflag != 0)))
         {
-            /* 
+            /*
              *   it's already defined globally as something other than an
-             *   object - log an error 
+             *   object - log an error
              */
             errlog(ctx->prscxerr, ERR_OREDEF);
 
-            /* 
+            /*
              *   actually redefine the symbol as an object, so that we can
-             *   proceed with the compilation 
+             *   proceed with the compilation
              */
             tok.toksym.tokstyp = TOKSTUNK;
             prsdefobj(ctx, (tokdef *)&tok, TOKSTFWDOBJ);
@@ -2220,10 +2220,10 @@ void prscode(prscxdef *ctx, int markcomp)
         if (markcomp)
             objcomp(ctx->prscxmem, (objnum)tok.toksym.toksval,
                     (ctx->prscxflg & PRSCXFLIN) != 0);
-        
+
         prsreq(ctx, TOKTSEM);
         break;
-        
+
     default:
         errsig(ctx->prscxerr, ERR_SYNTAX);
     }

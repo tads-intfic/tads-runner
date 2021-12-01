@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/VMMCREG.CPP,v 1.2 1999/05/17 02:52:28 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -34,7 +34,7 @@ Function
       you should still include "vmmccore.h", which takes care of
       including the core files.)
 Notes
-  
+
 Modified
   12/01/98 MJRoberts  - Creation
 */
@@ -46,43 +46,43 @@ Modified
 /* the global registry table */
 vm_meta_reg_t G_meta_reg_table[] =
 {
-    /* 
+    /*
      *   enable table-building mode, and include the core metaclasses
-     *   common to all T3 VM implementations 
+     *   common to all T3 VM implementations
      */
 #define VMMCCORE_BUILD_TABLE
 #include "vmmccore.h"
 
 // !!! INCLUDE HOST-SPECIFIC METACLASS HEADERS HERE (SECOND OF TWO)
 
-    /* 
+    /*
      *   last entry in the table (this is only required because of the
-     *   trailing comma in the registration macro) 
+     *   trailing comma in the registration macro)
      */
     { 0 }
 };
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Register the metaclasses 
+ *   Register the metaclasses
  */
 void vm_register_metaclasses()
 {
     uint i;
     vm_meta_reg_t *entry;
-    
-    /* 
+
+    /*
      *   run through the metaclass table and tell each metaclass its
-     *   registration table index 
+     *   registration table index
      */
     for (i = 0, entry = G_meta_reg_table ; entry->meta != 0 ;
          ++i, ++entry)
     {
-        /* 
+        /*
          *   Call this entry's class method to set its registration index.
          *   This is static information that never changes throughout the
          *   program's execution - we simply establish the registration
-         *   table index for each metaclass once upon initialization.  
+         *   table index for each metaclass once upon initialization.
          */
         (*entry->meta)->set_metaclass_reg_index(i);
     }

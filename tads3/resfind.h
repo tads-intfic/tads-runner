@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 2001, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -27,7 +27,7 @@ Modified
 
 /*
  *   Resource locator.  This gives the seek offset and size of a resource
- *   within a larger file. 
+ *   within a larger file.
  */
 struct tads_resinfo
 {
@@ -44,22 +44,22 @@ struct tads_resinfo
  *   invoked - this allows searching for a resource within a game file that
  *   is embedded in a larger file stream, since we don't care where within
  *   the osfildef stream the tads game file starts.
- *   
+ *
  *   Fills in the resource information structure with the seek offset and
  *   size of the resource in the file and returns true if the resource is
  *   found; returns false if a resource with the given name doesn't exist in
- *   the file.  
+ *   the file.
  */
 int tads_find_resource_fp(osfildef *fp, const char *resname,
                           tads_resinfo *info);
 
 /*
- *   Find a resource in a file, given the filename. 
- *   
+ *   Find a resource in a file, given the filename.
+ *
  *   Fills in the resource information structure with the seek offset and
  *   size of the resource in the file and returns true if the resource is
  *   found; returns false if a resource with the given name doesn't exist in
- *   the file.  
+ *   the file.
  */
 int tads_find_resource(const char *fname, const char *resname,
                        tads_resinfo *info);

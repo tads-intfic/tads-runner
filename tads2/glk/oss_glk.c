@@ -20,7 +20,7 @@
 
 /* ---------------------------------------------------------------------- */
 /*
-** Conversions from Glk structures to TADS ones and back.  
+** Conversions from Glk structures to TADS ones and back.
 */
 
 /*
@@ -45,9 +45,9 @@ glui32 oss_convert_file_type(int type)
     return fileusage_Data;
 }
 
-/* 
+/*
 ** Change a fileref ID (frefid_t) to a special string and put it in the
-** buffer which is passed to it. The string is given by 
+** buffer which is passed to it. The string is given by
 **   OSS_FILEREF_STRING_PREFIX + 'nnnnn' + OSS_FILEREF_STRING_SUFFIX
 ** where 'nnnnn' is the frefid_t pointer converted into a string of decimal
 ** numbers. This is only really practical for 32-bit pointers; if we use
@@ -210,7 +210,7 @@ void oss_revert_path(void)
 /* Open a stream, given a string, usage, and a filemode. tadsusage is the
    TADS filemode (OSFT*); tbusage is either fileusage_TextMode or
    fileusage_BinaryMode (from Glk). */
-osfildef *oss_open_stream(char *buffer, glui32 tadsusage, glui32 tbusage, 
+osfildef *oss_open_stream(char *buffer, glui32 tadsusage, glui32 tbusage,
               glui32 fmode, glui32 rock)
 {
     frefid_t fileref;

@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2010 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmstrbuf.cpp - StringBuffer object
 Function
-  
+
 Notes
-  
+
 Modified
   12/13/09 MJRoberts  - Creation
 */
@@ -52,7 +52,7 @@ const int32_t STRBUF_MAX_LEN = (OSMALMAX < 0x7fffffff ? OSMALMAX : 0x7fffffff);
 /* ------------------------------------------------------------------------ */
 /*
  *   Extended undo record.  We attach this record to the standard undo record
- *   via the 'ptrval' field.  
+ *   via the 'ptrval' field.
  */
 struct strbuf_undo_rec
 {
@@ -74,7 +74,7 @@ struct strbuf_undo_rec
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Allocate an extension structure 
+ *   Allocate an extension structure
  */
 vm_strbuf_ext *vm_strbuf_ext::alloc_ext(VMG_ CVmObjStringBuffer *self,
                                         int32_t alo, int32_t inc)
@@ -108,10 +108,10 @@ vm_strbuf_ext *vm_strbuf_ext::expand_ext(VMG_ CVmObjStringBuffer *self,
     if (old_ext->alo >= new_len)
         return old_ext;
 
-    /* 
+    /*
      *   figure the required new allocation size: we allocate in increments
      *   of 'inc' from the old extension, so allocate enough for the new
-     *   length, rounded up 
+     *   length, rounded up
      */
     int32_t new_alo = ((new_len + old_ext->inc - 1) / old_ext->inc)
                       * old_ext->inc;
@@ -131,7 +131,7 @@ vm_strbuf_ext *vm_strbuf_ext::expand_ext(VMG_ CVmObjStringBuffer *self,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   StringBuffer object statics 
+ *   StringBuffer object statics
  */
 
 /* metaclass registration object */
@@ -156,7 +156,7 @@ int (CVmObjStringBuffer::
 
 /* ------------------------------------------------------------------------ */
 /*
- *   StringBuffer metaclass implementation 
+ *   StringBuffer metaclass implementation
  */
 
 /*
@@ -185,7 +185,7 @@ vm_obj_id_t CVmObjStringBuffer::create(VMG_ int in_root_set,
 }
 
 /*
- *   create dynamically using stack arguments 
+ *   create dynamically using stack arguments
  */
 vm_obj_id_t CVmObjStringBuffer::create_from_stack(
     VMG_ const uchar **pc_ptr, uint argc)
@@ -205,10 +205,10 @@ vm_obj_id_t CVmObjStringBuffer::create_from_stack(
         /* one argument - it's the initial size */
         alo = CVmBif::pop_int_val(vmg0_);
 
-        /* 
+        /*
          *   figure a default increment: for small initial buffers, expand by
          *   the buffer size; for medium sizes, expand by half the buffer
-         *   size; for large sizes, expand by a fixed maximum 
+         *   size; for large sizes, expand by a fixed maximum
          */
         if (alo < 256)
             inc = alo;
@@ -239,9 +239,9 @@ vm_obj_id_t CVmObjStringBuffer::create_from_stack(
     else if (inc > STRBUF_MAX_LEN)
         inc = STRBUF_MAX_LEN;
 
-    /* 
+    /*
      *   allocate the object ID - this type of construction never creates a
-     *   root object 
+     *   root object
      */
     id = vm_new_id(vmg_ FALSE, FALSE, FALSE);
 
@@ -252,8 +252,8 @@ vm_obj_id_t CVmObjStringBuffer::create_from_stack(
     return id;
 }
 
-/* 
- *   notify of deletion 
+/*
+ *   notify of deletion
  */
 void CVmObjStringBuffer::notify_delete(VMG_ int /*in_root_set*/)
 {
@@ -262,8 +262,8 @@ void CVmObjStringBuffer::notify_delete(VMG_ int /*in_root_set*/)
         G_mem->get_var_heap()->free_mem(ext_);
 }
 
-/* 
- *   set a property 
+/*
+ *   set a property
  */
 void CVmObjStringBuffer::set_prop(VMG_ class CVmUndo *undo,
                                   vm_obj_id_t self, vm_prop_id_t prop,
@@ -273,32 +273,32 @@ void CVmObjStringBuffer::set_prop(VMG_ class CVmUndo *undo,
     err_throw(VMERR_INVALID_SETPROP);
 }
 
-/* 
- *   get a property 
+/*
+ *   get a property
  */
 int CVmObjStringBuffer::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                                  vm_obj_id_t self, vm_obj_id_t *source_obj,
                                  uint *argc)
 {
     uint func_idx;
-    
+
     /* translate the property into a function vector index */
     func_idx = G_meta_table
                ->prop_to_vector_idx(metaclass_reg_->get_reg_idx(), prop);
-    
+
     /* call the appropriate function */
     if ((this->*func_table_[func_idx])(vmg_ self, retval, argc))
     {
         *source_obj = metaclass_reg_->get_class_obj(vmg0_);
         return TRUE;
     }
-    
+
     /* inherit default handling from our base class */
     return CVmObject::get_prop(vmg_ prop, retval, self, source_obj, argc);
 }
 
 /*
- *   apply an undo record 
+ *   apply an undo record
  */
 void CVmObjStringBuffer::apply_undo(VMG_ struct CVmUndoRecord *undo_rec)
 {
@@ -340,7 +340,7 @@ void CVmObjStringBuffer::apply_undo(VMG_ struct CVmUndoRecord *undo_rec)
 }
 
 /*
- *   discard extra undo information 
+ *   discard extra undo information
  */
 void CVmObjStringBuffer::discard_undo(VMG_ CVmUndoRecord *rec)
 {
@@ -355,8 +355,8 @@ void CVmObjStringBuffer::discard_undo(VMG_ CVmUndoRecord *rec)
     }
 }
 
-/* 
- *   load from an image file 
+/*
+ *   load from an image file
  */
 void CVmObjStringBuffer::load_from_image(VMG_ vm_obj_id_t self,
                                          const char *ptr, size_t siz)
@@ -364,15 +364,15 @@ void CVmObjStringBuffer::load_from_image(VMG_ vm_obj_id_t self,
     /* load our image data */
     load_image_data(vmg_ ptr, siz);
 
-    /* 
+    /*
      *   save our image data pointer in the object table, so that we can
-     *   access it (without storing it ourselves) during a reload 
+     *   access it (without storing it ourselves) during a reload
      */
     G_obj_table->save_image_pointer(self, ptr, siz);
 }
 
 /*
- *   reload from the image file 
+ *   reload from the image file
  */
 void CVmObjStringBuffer::reload_from_image(VMG_ vm_obj_id_t self,
                                            const char *ptr, size_t siz)
@@ -382,7 +382,7 @@ void CVmObjStringBuffer::reload_from_image(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   load or reload data from the image 
+ *   load or reload data from the image
  */
 void CVmObjStringBuffer::load_image_data(VMG_ const char *ptr, size_t siz)
 {
@@ -425,8 +425,8 @@ void CVmObjStringBuffer::load_image_data(VMG_ const char *ptr, size_t siz)
 }
 
 
-/* 
- *   save to a file 
+/*
+ *   save to a file
  */
 void CVmObjStringBuffer::save_to_file(VMG_ class CVmFile *fp)
 {
@@ -444,15 +444,15 @@ void CVmObjStringBuffer::save_to_file(VMG_ class CVmFile *fp)
         fp->write_uint2(*src++);
 }
 
-/* 
- *   restore from a file 
+/*
+ *   restore from a file
  */
 void CVmObjStringBuffer::restore_from_file(VMG_ vm_obj_id_t self,
                                            CVmFile *fp, CVmObjFixup *fixups)
 {
     const int32_t bufchars = 256;
     char buf[bufchars * sizeof(uint16_t)];
-    
+
     /* free our existing extension, if we have one */
     if (ext_ != 0)
         G_mem->get_var_heap()->free_mem(ext_);
@@ -493,33 +493,33 @@ void CVmObjStringBuffer::restore_from_file(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   add an undo record 
+ *   add an undo record
  */
 void CVmObjStringBuffer::add_undo_rec(
     VMG_ vm_obj_id_t self, strbuf_undo_action action,
     int32_t idx, int32_t old_len, int32_t new_len)
 {
-    /* 
+    /*
      *   if we're not inserting or deleting anything, there's no change, so
-     *   there's no undo information to save 
+     *   there's no undo information to save
      */
     if (old_len == 0 && new_len == 0)
         return;
 
-    /* 
+    /*
      *   replacing zero bytes is simply an insertion; substituting zero bytes
-     *   is a deletion 
+     *   is a deletion
      */
     if (action == STRBUF_UNDO_REPL && old_len == 0)
         action = STRBUF_UNDO_INS;
     if (action == STRBUF_UNDO_REPL && new_len == 0)
         action = STRBUF_UNDO_DEL;
 
-    /* 
+    /*
      *   Figure the size for the extension record.  For an insertion, we
      *   don't need any extra data, since we're replacing zero characters.
      *   For a deletion or replacement, we need to make a copy of the
-     *   characters we're removing, so we need old_len extra wchar_t's.  
+     *   characters we're removing, so we need old_len extra wchar_t's.
      */
     int32_t siz = sizeof(strbuf_undo_rec);
     if (action == STRBUF_UNDO_DEL || action == STRBUF_UNDO_REPL)
@@ -537,26 +537,26 @@ void CVmObjStringBuffer::add_undo_rec(
     /* if we're deleting or replacing text, save the old text */
     if (action == STRBUF_UNDO_DEL || action == STRBUF_UNDO_REPL)
         memcpy(rec->str, get_ext()->buf + idx, old_len * sizeof(rec->str[0]));
-    
-    /* 
+
+    /*
      *   Add the record to the global undo stream.  (We don't have anything
-     *   to store in the 'value' field, so just store nil.) 
+     *   to store in the 'value' field, so just store nil.)
      */
     vm_val_t nilval;
     nilval.set_nil();
     if (!G_undo->add_new_record_ptr_key(vmg_ self, rec, &nilval))
     {
-        /* 
+        /*
          *   we didn't add an undo record, so our extra undo information
          *   isn't actually going to be stored in the undo system - hence we
-         *   must delete our extra information 
+         *   must delete our extra information
          */
         t3free(rec);
     }
 }
 
 /*
- *   Create a string representation of the number 
+ *   Create a string representation of the number
  */
 const char *CVmObjStringBuffer::cast_to_string(VMG_ vm_obj_id_t self,
                                                vm_val_t *new_str) const
@@ -566,14 +566,14 @@ const char *CVmObjStringBuffer::cast_to_string(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   Test for equality 
+ *   Test for equality
  */
 int CVmObjStringBuffer::equals(VMG_ vm_obj_id_t self,
                                const vm_val_t *val, int /*depth*/) const
 {
-    /* 
+    /*
      *   we can compare our contents to another string buffer, or to a
-     *   regular string object 
+     *   regular string object
      */
     const char *str;
     if (val->typ == VM_OBJ && is_string_buffer_obj(vmg_ val->val.obj))
@@ -604,8 +604,8 @@ int CVmObjStringBuffer::equals(VMG_ vm_obj_id_t self,
     }
 }
 
-/* 
- *   test for equality against a constant string 
+/*
+ *   test for equality against a constant string
  */
 int CVmObjStringBuffer::equals_str(const char *str) const
 {
@@ -630,14 +630,14 @@ int CVmObjStringBuffer::equals_str(const char *str) const
 }
 
 /*
- *   Compare value 
+ *   Compare value
  */
 int CVmObjStringBuffer::compare_to(VMG_ vm_obj_id_t self,
                                    const vm_val_t *val) const
 {
-    /* 
+    /*
      *   we can compare our contents to another string buffer, or to a
-     *   regular string object 
+     *   regular string object
      */
     const char *str;
     if (val->typ == VM_OBJ && is_string_buffer_obj(vmg_ val->val.obj))
@@ -655,10 +655,10 @@ int CVmObjStringBuffer::compare_to(VMG_ vm_obj_id_t self,
                 return 1;
         }
 
-        /* 
+        /*
          *   They're equal up to the full length of the shorter string.  If
          *   we ran out of strings at the same time, they're equal; otherwise
-         *   the longer string compares greater 
+         *   the longer string compares greater
          */
         return len1 - len2;
     }
@@ -675,8 +675,8 @@ int CVmObjStringBuffer::compare_to(VMG_ vm_obj_id_t self,
     }
 }
 
-/* 
- *   compare to a constant string 
+/*
+ *   compare to a constant string
  */
 int CVmObjStringBuffer::compare_str(const char *str) const
 {
@@ -695,9 +695,9 @@ int CVmObjStringBuffer::compare_str(const char *str) const
             return 1;
     }
 
-    /* 
+    /*
      *   the strings are equal up to the length of the shorter string; the
-     *   longer string compares higher 
+     *   longer string compares higher
      */
     return len1 - len2;
 }
@@ -705,7 +705,7 @@ int CVmObjStringBuffer::compare_str(const char *str) const
 /*
  *   Calculate my hash value.  We yield the same hash value as a regular
  *   string with our contents.  (This is a requirement, since we compare
- *   equal to a regular string with the same contents.)  
+ *   equal to a regular string with the same contents.)
  */
 uint CVmObjStringBuffer::calc_hash(VMG_ vm_obj_id_t self, int) const
 {
@@ -727,22 +727,22 @@ uint CVmObjStringBuffer::calc_hash(VMG_ vm_obj_id_t self, int) const
  *   is the length of the existing chunk we're extracting, deleting, or
  *   replacing.  If 'ins' is non-null, '*ins' is the length of the new chunk
  *   we're inserting or substituting for the deleted chunk.
- *   
+ *
  *   Note that if both 'len' and 'ins' are provided, we assume the operation
  *   will delete '*len' characters and insert '*ins' characters in their
- *   place.  
+ *   place.
  */
 void CVmObjStringBuffer::adjust_args(
     int32_t *idx, int32_t *len, int32_t *ins) const
 {
     vm_strbuf_ext *ext = get_ext();
-    
+
     /* make sure the index is in the range 1..len */
     if (*idx < 0)
         *idx = 0;
     else if (*idx > ext->len)
         *idx = ext->len;
-    
+
     /* make sure the length is in range 0..(len-idx) */
     if (len != 0)
     {
@@ -764,7 +764,7 @@ void CVmObjStringBuffer::adjust_args(
 }
 
 /*
- *   Calculate the length in bytes in UTF-8 format 
+ *   Calculate the length in bytes in UTF-8 format
  */
 int32_t CVmObjStringBuffer::utf8_length() const
 {
@@ -787,20 +787,20 @@ int32_t CVmObjStringBuffer::utf8_length() const
 
 /*
  *   Copy a portion of the string to a buffer as UTF-8 bytes.
- *   
+ *
  *   'idx' is an in-out variable.  On input, it's the starting character
  *   index requested for the copy.  On output, it's updated to the index of
  *   the next character after the last character copied.  This can be used
  *   for piecewise copies, since it's updated to point to the start of the
  *   next piece after copying each piece.
- *   
+ *
  *   'bytelen' is an in-out variable.  On input, this is the number of bytes
  *   requested to copy to the buffer.  On output, it's the actual number of
  *   bytes copied.  This might be smaller than the request size, because (a)
  *   we won't copy past the end of the string, and (b) we'll only copy whole,
  *   well-formed character sequences, so if the requested number of bytes
  *   would copy a fractional character, we'll omit that fractional character
- *   and stop at the previous whole character.  
+ *   and stop at the previous whole character.
  */
 void CVmObjStringBuffer::to_utf8(char *buf, int32_t &idx, int32_t &bytelen)
 {
@@ -815,16 +815,16 @@ void CVmObjStringBuffer::to_utf8(char *buf, int32_t &idx, int32_t &bytelen)
     /* set up a utf8 pointer for the output buffer */
     utf8_ptr dst(buf);
 
-    /* 
+    /*
      *   copy characters until we reach the end of the string, or exhaust the
-     *   requested number of bytes 
+     *   requested number of bytes
      */
     for (actual = 0 ; actual < bytelen && idx < (int32_t)ext->len ; ++idx)
     {
         /* get the next source character */
         wchar_t c = ext->buf[idx];
         int clen = utf8_ptr::s_wchar_size(c);
-        
+
         /* make sure it fits in the remaining output buffer space */
         if (clen > bytelen - actual)
             break;
@@ -841,7 +841,7 @@ void CVmObjStringBuffer::to_utf8(char *buf, int32_t &idx, int32_t &bytelen)
 }
 
 /*
- *   Make a String object out of a substring of the buffer 
+ *   Make a String object out of a substring of the buffer
  */
 const char *CVmObjStringBuffer::substr_to_string(
     VMG_ vm_val_t *new_str, int32_t idx, int32_t len) const
@@ -868,7 +868,7 @@ const char *CVmObjStringBuffer::substr_to_string(
 }
 
 /*
- *   Index the buffer - returns the character at the given index 
+ *   Index the buffer - returns the character at the given index
  */
 int CVmObjStringBuffer::index_val_q(VMG_ vm_val_t *result, vm_obj_id_t self,
                                     const vm_val_t *index_val)
@@ -892,7 +892,7 @@ int CVmObjStringBuffer::index_val_q(VMG_ vm_val_t *result, vm_obj_id_t self,
 
 
 /*
- *   Set a character in the buffer by index 
+ *   Set a character in the buffer by index
  */
 int CVmObjStringBuffer::set_index_val_q(VMG_ vm_val_t *result,
                                         vm_obj_id_t self,
@@ -909,10 +909,10 @@ int CVmObjStringBuffer::set_index_val_q(VMG_ vm_val_t *result,
     if (idx < 0 || idx >= (int32_t)get_ext()->len)
         err_throw(VMERR_INDEX_OUT_OF_RANGE);
 
-    /* 
+    /*
      *   If the new value is an integer, interpret it as a unicode character
      *   value to set at the given character.  Otherwise, cast it to a string
-     *   and take its first character.  
+     *   and take its first character.
      */
     wchar_t ch;
     if (new_val->is_numeric(vmg0_))
@@ -937,7 +937,7 @@ int CVmObjStringBuffer::set_index_val_q(VMG_ vm_val_t *result,
 
     /* splice the character at the desired index */
     splice_text(vmg_ self, (int)idx, 1, &ch, 1, TRUE);
-    
+
     /* we change in place, so the result is 'self' */
     result->set_obj(self);
 
@@ -947,7 +947,7 @@ int CVmObjStringBuffer::set_index_val_q(VMG_ vm_val_t *result,
 
 /*
  *   Ensure that the buffer is big enough to hold the given number of
- *   characters 
+ *   characters
  */
 void CVmObjStringBuffer::ensure_space(VMG_ int32_t len)
 {
@@ -964,22 +964,22 @@ void CVmObjStringBuffer::ensure_space(VMG_ int32_t len)
 }
 
 /*
- *   Open a gap for an insertion and/or delete characters for a deletion. 
+ *   Open a gap for an insertion and/or delete characters for a deletion.
  */
 void CVmObjStringBuffer::splice_move(
     VMG_ int32_t idx, int32_t del, int32_t ins)
 {
-    /* 
+    /*
      *   if we're adding more than we're deleting, expand the buffer if
-     *   necessary to accommodate the added length 
+     *   necessary to accommodate the added length
      */
     if (ins > del)
         ensure_added_space(vmg_ ins - del);
 
-    /* 
+    /*
      *   if we're doing a net insertion or deletion, move the part of the
      *   string after the deleted text so that it'll be aligned at the end of
-     *   the inserted text 
+     *   the inserted text
      */
     if (ins != del && idx + del < get_ext()->len)
         memmove(get_ext()->buf + idx + ins,
@@ -990,7 +990,7 @@ void CVmObjStringBuffer::splice_move(
     get_ext()->len += ins - del;
 }
 
-/* 
+/*
  *   splice text into the buffer
  */
 void CVmObjStringBuffer::splice_text(VMG_ vm_obj_id_t self,
@@ -1012,7 +1012,7 @@ void CVmObjStringBuffer::splice_text(VMG_ vm_obj_id_t self,
     memcpy(get_ext()->buf + idx, src, ins_chars * sizeof(get_ext()->buf[0]));
 }
 
-/* 
+/*
  *   splice UTF-8 text into the buffer
  */
 void CVmObjStringBuffer::splice_text(VMG_ vm_obj_id_t self,
@@ -1038,8 +1038,8 @@ void CVmObjStringBuffer::splice_text(VMG_ vm_obj_id_t self,
     p.to_wchar(get_ext()->buf + idx, ins_chars, src, ins_bytes);
 }
 
-/* 
- *   property evaluator - get length 
+/*
+ *   property evaluator - get length
  */
 int CVmObjStringBuffer::getp_len(VMG_ vm_obj_id_t self,
                                  vm_val_t *retval, uint *argc)
@@ -1056,7 +1056,7 @@ int CVmObjStringBuffer::getp_len(VMG_ vm_obj_id_t self,
     return TRUE;
 }
 
-/* 
+/*
  *   property evaluator - charAt
  */
 int CVmObjStringBuffer::getp_char_at(VMG_ vm_obj_id_t self,
@@ -1082,7 +1082,7 @@ int CVmObjStringBuffer::getp_char_at(VMG_ vm_obj_id_t self,
     return TRUE;
 }
 
-/* 
+/*
  *   property evaluator - append text
  */
 int CVmObjStringBuffer::getp_append(VMG_ vm_obj_id_t self,
@@ -1110,7 +1110,7 @@ int CVmObjStringBuffer::getp_append(VMG_ vm_obj_id_t self,
     return TRUE;
 }
 
-/* 
+/*
  *   property evaluator - insert
  */
 int CVmObjStringBuffer::getp_insert(VMG_ vm_obj_id_t self,
@@ -1141,8 +1141,8 @@ int CVmObjStringBuffer::getp_insert(VMG_ vm_obj_id_t self,
     return TRUE;
 }
 
-/* 
- *   property evaluator - copyChars 
+/*
+ *   property evaluator - copyChars
  */
 int CVmObjStringBuffer::getp_copyChars(VMG_ vm_obj_id_t self,
                                        vm_val_t *retval, uint *argc)
@@ -1161,14 +1161,14 @@ int CVmObjStringBuffer::getp_copyChars(VMG_ vm_obj_id_t self,
     const char *src = G_stk->get(0)->cast_to_string(vmg_ &srcval);
     *G_stk->get(0) = srcval;
 
-    /* 
+    /*
      *   Get the character length of the new text.  This is the number of
      *   characters we're overwriting (effectively deleting) in the current
-     *   buffer.  
+     *   buffer.
      */
     size_t src_bytes = vmb_get_len(src);
     src += VMB_LEN;
-    
+
     /* get the new text's character length */
     utf8_ptr srcp((char *)src);
     size_t src_chars = srcp.len(src_bytes);
@@ -1184,7 +1184,7 @@ int CVmObjStringBuffer::getp_copyChars(VMG_ vm_obj_id_t self,
     return TRUE;
 }
 
-/* 
+/*
  *   property evaluator - delete
  */
 int CVmObjStringBuffer::getp_delete(VMG_ vm_obj_id_t self,
@@ -1215,7 +1215,7 @@ int CVmObjStringBuffer::getp_delete(VMG_ vm_obj_id_t self,
     return TRUE;
 }
 
-/* 
+/*
  *   property evaluator - splice
  */
 int CVmObjStringBuffer::getp_splice(VMG_ vm_obj_id_t self,
@@ -1249,7 +1249,7 @@ int CVmObjStringBuffer::getp_splice(VMG_ vm_obj_id_t self,
     return TRUE;
 }
 
-/* 
+/*
  *   property evaluator - substr
  */
 int CVmObjStringBuffer::getp_substr(VMG_ vm_obj_id_t self,
@@ -1257,7 +1257,7 @@ int CVmObjStringBuffer::getp_substr(VMG_ vm_obj_id_t self,
 {
     /* remember the argument count */
     uint argc = (oargc != 0 ? *oargc : 0);
-    
+
     /* check arguments */
     static CVmNativeCodeDesc desc(1, 2);
     if (get_prop_check_argc(retval, oargc, &desc))

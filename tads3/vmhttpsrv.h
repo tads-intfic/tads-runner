@@ -1,18 +1,18 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 2010 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmhttpsrv.h - CVmObjHTTPServer object
 Function
-  
+
 Notes
-  
+
 Modified
   04/22/10 MJRoberts  - Creation
 */
@@ -31,7 +31,7 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   HTTP server objects have no image file representation, because these
- *   objects are inherently transient.  
+ *   objects are inherently transient.
  */
 
 
@@ -62,7 +62,7 @@ struct vm_httpsrv_ext
 class CVmObjHTTPServer: public CVmObject
 {
     friend class CVmMetaclassHTTPServer;
-    
+
 public:
     /* metaclass registration object */
     static class CVmMetaclass *metaclass_reg_;
@@ -84,9 +84,9 @@ public:
     static vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr,
                                          uint argc);
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -107,18 +107,18 @@ public:
     int get_prop(VMG_ vm_prop_id_t prop, vm_val_t *val,
                  vm_obj_id_t self, vm_obj_id_t *source_obj, uint *argc);
 
-    /* 
+    /*
      *   receive savepoint notification - we don't keep any
-     *   savepoint-relative records, so we don't need to do anything here 
+     *   savepoint-relative records, so we don't need to do anything here
      */
     void notify_new_savept() { }
-    
+
     /* apply an undo record - we don't keep any undo */
     void apply_undo(VMG_ struct CVmUndoRecord *) { }
-    
+
     /* discard an undo record */
     void discard_undo(VMG_ struct CVmUndoRecord *) { }
-    
+
     /* mark our undo record references - we don't have undo or references */
     void mark_undo_ref(VMG_ struct CVmUndoRecord *) { }
 
@@ -146,14 +146,14 @@ public:
     void restore_from_file(VMG_ vm_obj_id_t self,
                            class CVmFile *fp, class CVmObjFixup *fixups);
 
-    /* 
+    /*
      *   determine if we've been changed since loading - assume we have (if
      *   we haven't, the only harm is the cost of unnecessarily reloading or
-     *   saving) 
+     *   saving)
      */
     int is_changed_since_load() const { return TRUE; }
 
-    /* 
+    /*
      *   Get my listening address and port number.  'host' is the host name
      *   original specified in the constructor, and 'ip' is the listener IP
      *   address in decimal 1.2.3.4 notation.  'port' is the actual listening
@@ -199,7 +199,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjHTTPServer metaclass registration table object 
+ *   CVmObjHTTPServer metaclass registration table object
  */
 class CVmMetaclassHTTPServer: public CVmMetaclass
 {
@@ -226,7 +226,7 @@ public:
     /* create dynamically using stack arguments */
     vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr, uint argc)
         { return CVmObjHTTPServer::create_from_stack(vmg_ pc_ptr, argc); }
-    
+
     /* call a static property */
     int call_stat_prop(VMG_ vm_val_t *result,
                        const uchar **pc_ptr, uint *argc,
@@ -240,6 +240,6 @@ public:
 #endif /* VMHTTPSRV_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjHTTPServer)

@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 2002 by Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -11,7 +11,7 @@ Function
   Provides a base class for the T3 VM Host Interface for implementing
   text-only applications.
 Notes
-  
+
 Modified
   06/16/02 MJRoberts  - Creation
 */
@@ -24,7 +24,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Hash table entry for a resource descriptor 
+ *   Hash table entry for a resource descriptor
  */
 class CResEntry: public CVmHashEntryCI
 {
@@ -73,7 +73,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   construction 
+ *   construction
  */
 CVmHostIfcText::CVmHostIfcText()
 {
@@ -93,7 +93,7 @@ CVmHostIfcText::CVmHostIfcText()
 }
 
 /*
- *   deletion 
+ *   deletion
  */
 CVmHostIfcText::~CVmHostIfcText()
 {
@@ -111,9 +111,9 @@ CVmHostIfcText::~CVmHostIfcText()
     lib_free_str(res_dir_);
 }
 
-/* 
+/*
  *   set the image file name - we always use resource file slot zero to
- *   store the image file 
+ *   store the image file
  */
 void CVmHostIfcText::set_image_name(const char *fname)
 {
@@ -125,7 +125,7 @@ void CVmHostIfcText::set_image_name(const char *fname)
 }
 
 /*
- *   set the resource directory 
+ *   set the resource directory
  */
 void CVmHostIfcText::set_res_dir(const char *dir)
 {
@@ -134,8 +134,8 @@ void CVmHostIfcText::set_res_dir(const char *dir)
     res_dir_ = lib_copy_str(dir);
 }
 
-/* 
- *   add a resource file 
+/*
+ *   add a resource file
  */
 int CVmHostIfcText::add_resfile(const char *fname)
 {
@@ -152,22 +152,22 @@ int CVmHostIfcText::add_resfile(const char *fname)
     /* store the new entry */
     ext_[ext_cnt_++] = lib_copy_str(fname);
 
-    /* 
+    /*
      *   return the new entry's file number (we've already bumped the index,
-     *   so it's the current count minus one) 
+     *   so it's the current count minus one)
      */
     return ext_cnt_ - 1;
 }
 
-/* 
- *   add a resource 
+/*
+ *   add a resource
  */
 void CVmHostIfcText::add_resource(unsigned long ofs, unsigned long siz,
                                   const char *resname, size_t resnamelen,
                                   int fileno)
 {
     CResEntry *entry;
-    
+
     /* create a new entry desribing the resource */
     entry = new CResEntry(resname, resnamelen, TRUE, ofs, siz, fileno);
 
@@ -175,8 +175,8 @@ void CVmHostIfcText::add_resource(unsigned long ofs, unsigned long siz,
     restab_->add(entry);
 }
 
-/* 
- *   add a resource 
+/*
+ *   add a resource
  */
 void CVmHostIfcText::add_resource(const char *fname, size_t fnamelen,
                                   const char *resname, size_t resnamelen)
@@ -189,8 +189,8 @@ void CVmHostIfcText::add_resource(const char *fname, size_t fnamelen,
     restab_->add(entry);
 }
 
-/* 
- *   find a resource 
+/*
+ *   find a resource
  */
 osfildef *CVmHostIfcText::find_resource(const char *resname,
                                         size_t resnamelen,
@@ -202,9 +202,9 @@ osfildef *CVmHostIfcText::find_resource(const char *resname,
     char fname_buf[OSFNMAX];
     char res_dir[OSFNMAX] = "";
 
-    /* 
+    /*
      *   get the resource directory - if there's an explicit resource path
-     *   specified, use that, otherwise use the image file folder 
+     *   specified, use that, otherwise use the image file folder
      */
     if (res_dir_ != 0)
         lib_strcpy(res_dir, sizeof(res_dir), res_dir_);
@@ -220,14 +220,14 @@ osfildef *CVmHostIfcText::find_resource(const char *resname,
         {
             /* it's a stored binary resource - load it */
             fp = osfoprb(ext_[entry->fileno_], OSFTBIN);
-            
+
             /* if that succeeded, seek to the start of the resource */
             if (fp != 0)
                 osfseek(fp, entry->ofs_, OSFSK_SET);
-            
+
             /* tell the caller the size of the resource */
             *res_size = entry->siz_;
-            
+
             /* return the file handle */
             return fp;
         }
@@ -239,19 +239,19 @@ osfildef *CVmHostIfcText::find_resource(const char *resname,
     }
     else
     {
-        /* 
+        /*
          *   There's no entry in the resource map, so convert the resource
          *   name from the URL notation to local file system conventions, and
          *   look for a file with the given name.  This is allowed only if
          *   the file safety level setting is 3 (read only local directory
-         *   access) or lower.  
+         *   access) or lower.
          */
         if (get_io_safety_read() > 3)
             return 0;
-        
-        /*   
+
+        /*
          *   Make a null-terminated copy of the resource name, limiting the
-         *   copy to our buffer size.  
+         *   copy to our buffer size.
          */
         if (resnamelen > sizeof(buf) - 1)
             resnamelen = sizeof(buf) - 1;
@@ -266,7 +266,7 @@ osfildef *CVmHostIfcText::find_resource(const char *resname,
         if (os_is_file_absolute(fname))
             return 0;
 
-        /* 
+        /*
          *   If it's not in the resource file folder, it's also an error - we
          *   don't allow paths to parent folders via "..", for example.  If
          *   we don't have an resource file folder to compare it to, fail,
@@ -279,9 +279,9 @@ osfildef *CVmHostIfcText::find_resource(const char *resname,
             return 0;
     }
 
-    /* 
+    /*
      *   If we get this far, it's because we have a local file name in
-     *   'fname' that we need to look up.  
+     *   'fname' that we need to look up.
      */
 
     /* check the path for relativity */
@@ -292,17 +292,17 @@ osfildef *CVmHostIfcText::find_resource(const char *resname,
     }
     else
     {
-        /* 
+        /*
          *   it's a relative path - make sure we have a resource directory
-         *   for it to be relative to 
+         *   for it to be relative to
          */
         if (res_dir[0] == 0)
             return 0;
 
-        /* 
+        /*
          *   build the full path name by combining the image file path with
          *   the relative path we got from the resource name URL, as
-         *   converted local file system conventions 
+         *   converted local file system conventions
          */
         os_build_full_path(buf, sizeof(buf), res_dir, fname);
     }
@@ -314,25 +314,25 @@ osfildef *CVmHostIfcText::find_resource(const char *resname,
     if (fp == 0)
         return 0;
 
-    /* 
+    /*
      *   the entire file is the resource data, so figure out how big the file
-     *   is, and tell the caller that the resource size is the file size 
+     *   is, and tell the caller that the resource size is the file size
      */
     osfseek(fp, 0, OSFSK_END);
     *res_size = osfpos(fp);
 
-    /* 
+    /*
      *   seek back to the start of the resource data (which is simply the
-     *   start of the file, since the entire file is the resource data) 
+     *   start of the file, since the entire file is the resource data)
      */
     osfseek(fp, 0, OSFSK_SET);
-        
+
     /* return the file handle */
     return fp;
 }
 
-/* 
- *   determine if a resource exists 
+/*
+ *   determine if a resource exists
  */
 int CVmHostIfcText::resfile_exists(const char *resname, size_t resnamelen)
 {

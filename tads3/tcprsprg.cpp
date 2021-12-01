@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2010 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -20,7 +20,7 @@ Function
   needed for tools that need only to compile expressions or code fragments,
   such as debuggers or interpreters equipped with "eval()" functionality.
 Notes
-  
+
 Modified
   01/09/10 MJRoberts  - Creation
 */
@@ -44,7 +44,7 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   Add an entry to a global symbol table, and mark the symbol as
- *   referenced.  
+ *   referenced.
  */
 void CTcPrsSymtab::add_to_global_symtab(CTcPrsSymtab *tab, CTcSymbol *entry)
 {
@@ -59,13 +59,13 @@ void CTcPrsSymtab::add_to_global_symtab(CTcPrsSymtab *tab, CTcSymbol *entry)
 /* ------------------------------------------------------------------------ */
 /*
  *   Callback context for enumerating the global symbol table entries for
- *   writing a symbol export file 
+ *   writing a symbol export file
  */
 struct prs_wsf_ctx
 {
     /* number of symbols so far */
     ulong cnt;
-    
+
     /* the file we're writing */
     CVmFile *fp;
 
@@ -83,12 +83,12 @@ struct prs_wsf_ctx
  *   derived directly from source files via compilation, the worst case is
  *   that the user has to do a full recompile when upgrading to a new
  *   compiler version, so we don't bother trying to maintain upward
- *   compatibility among the symbol file formats.  
+ *   compatibility among the symbol file formats.
  */
 static const char symbol_export_sig[] = "TADS3.SymbolExport.0007\n\r\032";
 
 /*
- *   Write a symbol export file.  
+ *   Write a symbol export file.
  */
 void CTcParser::write_symbol_file(CVmFile *fp, CTcMake *make_obj)
 {
@@ -123,9 +123,9 @@ void CTcParser::write_symbol_file(CVmFile *fp, CTcMake *make_obj)
         fp->set_pos(end_ofs);
     }
 
-    /* 
+    /*
      *   write the number of intrinsic function sets, followed by the
-     *   function set names 
+     *   function set names
      */
     fp->write_uint4(cnt = G_cg->get_fnset_cnt());
     for (i = 0 ; i < cnt ; ++i)
@@ -141,9 +141,9 @@ void CTcParser::write_symbol_file(CVmFile *fp, CTcMake *make_obj)
         fp->write_bytes(nm, len);
     }
 
-    /* 
+    /*
      *   write the number of intrinsic classes, followed by the intrinsic
-     *   class names 
+     *   class names
      */
     fp->write_uint4(cnt = G_cg->get_meta_cnt());
     for (i = 0 ; i < cnt ; ++i)
@@ -159,10 +159,10 @@ void CTcParser::write_symbol_file(CVmFile *fp, CTcMake *make_obj)
         fp->write_bytes(nm, len);
     }
 
-    /* 
+    /*
      *   write a placeholder for the symbol count, first remembering where
      *   we put it so that we can come back and fix it up after we know
-     *   how many symbols there actually are 
+     *   how many symbols there actually are
      */
     cnt_ofs = fp->get_pos();
     fp->write_uint4(0);
@@ -178,17 +178,17 @@ void CTcParser::write_symbol_file(CVmFile *fp, CTcMake *make_obj)
     fp->set_pos(cnt_ofs);
     fp->write_uint4(ctx.cnt);
 
-    /* 
+    /*
      *   seek back to the ending offset, in case the caller is embedding
      *   the symbol data stream in a larger file structure of some kind
-     *   and will be writing additional data after the end of our portion 
+     *   and will be writing additional data after the end of our portion
      */
     fp->set_pos(end_ofs);
 }
 
 /*
  *   Callback for symbol table enumeration for writing a symbol export
- *   file.  Writes one symbol to the file.  
+ *   file.  Writes one symbol to the file.
  */
 void CTcParser::write_sym_cb(void *ctx0, CTcSymbol *sym)
 {
@@ -205,7 +205,7 @@ void CTcParser::write_sym_cb(void *ctx0, CTcSymbol *sym)
 /* ------------------------------------------------------------------------ */
 /*
  *   Seek to the start of the build configuration information in an object
- *   file 
+ *   file
  */
 ulong CTcParser::seek_sym_file_build_config_info(class CVmFile *fp)
 {
@@ -234,17 +234,17 @@ ulong CTcParser::seek_sym_file_build_config_info(class CVmFile *fp)
     }
     err_end;
 
-    /* 
+    /*
      *   if an error occurred, indicate that no configuration block is
-     *   available 
+     *   available
      */
     if (err)
         return 0;
 
-    /* 
+    /*
      *   tell the caller the size of the block; the block immediately
      *   follows the size prefix, so the file pointer is set to the right
-     *   position now 
+     *   position now
      */
     return siz;
 }
@@ -252,7 +252,7 @@ ulong CTcParser::seek_sym_file_build_config_info(class CVmFile *fp)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Read a symbol file 
+ *   Read a symbol file
  */
 int CTcParser::read_symbol_file(CVmFile *fp)
 {
@@ -260,7 +260,7 @@ int CTcParser::read_symbol_file(CVmFile *fp)
     ulong cnt;
     ulong i;
     ulong skip_len;
-    
+
     /* read the signature and ensure it's valid */
     fp->read_bytes(buf, sizeof(symbol_export_sig) - 1);
     if (memcmp(buf, symbol_export_sig, sizeof(symbol_export_sig) - 1) != 0)
@@ -272,9 +272,9 @@ int CTcParser::read_symbol_file(CVmFile *fp)
         return 1;
     }
 
-    /* 
+    /*
      *   read the make-config data size and skip the data block - it's here
-     *   for use by the make utility, and we don't have any use for it here 
+     *   for use by the make utility, and we don't have any use for it here
      */
     skip_len = fp->read_uint4();
     fp->set_pos(fp->get_pos() + skip_len);
@@ -299,7 +299,7 @@ int CTcParser::read_symbol_file(CVmFile *fp)
     for (i = 0 ; i < cnt ; ++i)
     {
         char buf[256];
-        
+
         /* read the metaclass external name */
         if (CTcParser::read_len_prefix_str(fp, buf, sizeof(buf),
                                            TCERR_SYMEXP_SYM_TOO_LONG))
@@ -326,9 +326,9 @@ int CTcParser::read_symbol_file(CVmFile *fp)
         CTcSymbol *old_sym = global_symtab_->find(
             sym->get_sym(), sym->get_sym_len());
 
-        /* 
+        /*
          *   if we're redefining a weak property symbol, delete the old
-         *   property symbol 
+         *   property symbol
          */
         if (old_sym != 0
             && old_sym != sym
@@ -339,23 +339,23 @@ int CTcParser::read_symbol_file(CVmFile *fp)
             old_sym = 0;
         }
 
-        /* 
+        /*
          *   If the symbol is already in the symbol table, log a warning
          *   and ignore the symbol.  If the new symbol we loaded is the
          *   same object as the original symbol table entry, it means that
          *   this is a valid redefinition - the symbol subclass loader
-         *   indicated this by returning the same entry.  
+         *   indicated this by returning the same entry.
          */
         if (old_sym == sym)
         {
-            /* 
+            /*
              *   it's a harmless redefinition - there's no need to warn
-             *   and no need to add the symbol to the table again 
+             *   and no need to add the symbol to the table again
              */
         }
         else if (old_sym != 0)
         {
-            /* 
+            /*
              *   it's already defined - log it as a pedantic warning (it's
              *   not a standard-level warning because, if it is actually a
              *   problem, it'll cause an actual error at link time, so
@@ -377,7 +377,7 @@ int CTcParser::read_symbol_file(CVmFile *fp)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Write to an object file 
+ *   Write to an object file
  */
 
 /*
@@ -397,16 +397,16 @@ void CTcParser::write_to_object_file(CVmFile *fp)
     CTcPrsExport *exp;
     ulong exp_cnt;
 
-    /* 
+    /*
      *   reset the object file symbol and dictionary index values - start
-     *   with 1, since 0 is a "null pointer" index value 
+     *   with 1, since 0 is a "null pointer" index value
      */
     obj_file_sym_idx_ = 1;
     obj_file_dict_idx_ = 1;
 
-    /* 
+    /*
      *   write a placeholder for the symbol index table count, the
-     *   dictionary table count, and the actual symbol count 
+     *   dictionary table count, and the actual symbol count
      */
     cnt_ofs = fp->get_pos();
     fp->write_uint4(0);
@@ -456,9 +456,9 @@ void CTcParser::write_to_object_file(CVmFile *fp)
     /* write the total named symbol count */
     fp->write_uint4(ctx.cnt);
 
-    /* 
+    /*
      *   seek back to the ending offset so we can continue on to write the
-     *   remainder of the file 
+     *   remainder of the file
      */
     fp->set_pos(end_ofs);
 
@@ -466,11 +466,11 @@ void CTcParser::write_to_object_file(CVmFile *fp)
     cnt_ofs = fp->get_pos();
     fp->write_uint4(0);
 
-    /* 
+    /*
      *   enumerate entries again, this time writing cross-object
      *   references (this must be done after we've written out the main
      *   part of each object, so that we have a full table of all of the
-     *   objects loaded before we write any references) 
+     *   objects loaded before we write any references)
      */
     ctx.cnt = 0;
     global_symtab_->enum_entries(&write_obj_ref_cb, &ctx);
@@ -497,10 +497,10 @@ void CTcParser::write_to_object_file(CVmFile *fp)
     /* write the number of productions */
     fp->write_uint4(prod_cnt);
 
-    /* 
+    /*
      *   write the main list of grammar rules - this is the list of
      *   productions that are associated with anonymous match objects and
-     *   hence cannot be replaced or modified 
+     *   hence cannot be replaced or modified
      */
     for (prod = gramprod_head_ ; prod != 0 ; prod = prod->get_next())
     {
@@ -512,11 +512,11 @@ void CTcParser::write_to_object_file(CVmFile *fp)
     cnt_ofs = fp->get_pos();
     fp->write_uint4(0);
 
-    /* 
+    /*
      *   write the private grammar rules - this is the set of rules
      *   associated with named match objects, so we write these by
      *   enumerating the symbol table again through the grammar rule writer
-     *   callback 
+     *   callback
      */
     ctx.cnt = 0;
     global_symtab_->enum_entries(&write_obj_gram_cb, &ctx);
@@ -544,7 +544,7 @@ void CTcParser::write_to_object_file(CVmFile *fp)
 
 /*
  *   Callback for symbol table enumeration for writing an object file.
- *   Writes one symbol to the file.  
+ *   Writes one symbol to the file.
  */
 void CTcParser::write_obj_cb(void *ctx0, CTcSymbol *sym)
 {
@@ -560,7 +560,7 @@ void CTcParser::write_obj_cb(void *ctx0, CTcSymbol *sym)
 
 /*
  *   Callback for symbol table numeration - write object references to the
- *   object file. 
+ *   object file.
  */
 void CTcParser::write_obj_ref_cb(void *ctx0, CTcSymbol *sym)
 {
@@ -571,8 +571,8 @@ void CTcParser::write_obj_ref_cb(void *ctx0, CTcSymbol *sym)
         ++(ctx->cnt);
 }
 
-/* 
- *   Callback for symbol table enumeration - write named grammar rules 
+/*
+ *   Callback for symbol table enumeration - write named grammar rules
  */
 void CTcParser::write_obj_gram_cb(void *ctx0, CTcSymbol *sym)
 {
@@ -602,20 +602,20 @@ void CTcParser::write_obj_gram_cb(void *ctx0, CTcSymbol *sym)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Turn sourceTextGroup mode on or off 
+ *   Turn sourceTextGroup mode on or off
  */
 void CTcParser::set_source_text_group_mode(int f)
 {
     /* set the new mode */
     src_group_mode_ = (f != 0);
 
-    /* 
+    /*
      *   If we're turning this mode on for the first time, add the object
      *   definition for the sourceTextGroup object - this is an anonymous
      *   object that we automatically create, once per source module; all of
      *   the sourceTextGroup properties in the module point to this same
      *   object, which is how we can tell at run-time that they were defined
-     *   in the same module.  
+     *   in the same module.
      */
     if (f && src_group_id_ == TCTARG_INVALID_OBJ)
     {
@@ -635,9 +635,9 @@ void CTcParser::set_source_text_group_mode(int f)
         obj_stm = new CTPNStmObject(obj, FALSE);
         obj->set_obj_stm(obj_stm);
 
-        /* 
+        /*
          *   if we know the module name and sequence number, set properties
-         *   for them in the referent object 
+         *   for them in the referent object
          */
         if (module_name_ != 0)
         {
@@ -660,7 +660,7 @@ void CTcParser::set_source_text_group_mode(int f)
 /* ------------------------------------------------------------------------ */
 /*
  *   Parse top-level definitions.  Returns the head of a list of statement
- *   nodes; the statements are the top-level statements in the program.  
+ *   nodes; the statements are the top-level statements in the program.
  */
 class CTPNStmProg *CTcParser::parse_top()
 {
@@ -681,7 +681,7 @@ class CTPNStmProg *CTcParser::parse_top()
 
     /* do not suppress errors */
     int suppress_error = FALSE;
-    
+
     /* no end-of-file error yet */
     int err = FALSE;
 
@@ -691,12 +691,12 @@ class CTPNStmProg *CTcParser::parse_top()
         /* we don't have a statement yet */
         CTPNStmTop *cur_stm = 0;
 
-        /* 
+        /*
          *   presume we'll find a valid statement and hence won't need to
-         *   suppress subsequent errors 
+         *   suppress subsequent errors
          */
         int suppress_next_error = FALSE;
-        
+
         /* see what we have */
         switch(G_tok->cur())
         {
@@ -704,7 +704,7 @@ class CTPNStmProg *CTcParser::parse_top()
             /* we're done */
             done = TRUE;
             break;
-            
+
         case TOKT_FUNCTION:
         case TOKT_METHOD:
             /* parse the function definition */
@@ -729,9 +729,9 @@ class CTPNStmProg *CTcParser::parse_top()
             break;
 
         case TOKT_OBJECT:
-            /* 
+            /*
              *   it's an anonymous object with 'object' superclass, or an
-             *   'object template' definition 
+             *   'object template' definition
              */
             cur_stm = parse_object_stm(&err, FALSE);
             break;
@@ -787,28 +787,28 @@ class CTPNStmProg *CTcParser::parse_top()
             break;
 
         default:
-            /* 
+            /*
              *   note the error, unless we just generated the same error
              *   for the previous token - if we did, there's no point in
              *   showing it again, since we're probably skipping lots of
-             *   tokens trying to get resynchronized 
+             *   tokens trying to get resynchronized
              */
             if (!suppress_error)
                 G_tok->log_error_curtok(TCERR_REQ_FUNC_OR_OBJ);
 
             /* suppress the next error of the same kind */
             suppress_next_error = TRUE;
-            
+
             /* skip the errant token */
             G_tok->next();
             break;
         }
 
-        /* 
+        /*
          *   set the error suppression status according to whether we just
          *   found an error - if we did, don't report another of the same
          *   kind twice in a row, since we're probably just scanning
-         *   through tons of stuff trying to get re-synchronized 
+         *   through tons of stuff trying to get re-synchronized
          */
         suppress_error = suppress_next_error;
 
@@ -833,9 +833,9 @@ class CTPNStmProg *CTcParser::parse_top()
             first_stm = nested_stm_head_;
     }
 
-    /* 
+    /*
      *   we've now moved the nested top-level statement list into the normal
-     *   program statement list, so we can forget this as a separate list 
+     *   program statement list, so we can forget this as a separate list
      */
     nested_stm_head_ = nested_stm_tail_ = 0;
 
@@ -845,12 +845,12 @@ class CTPNStmProg *CTcParser::parse_top()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parse a 'property' top-level statement 
+ *   Parse a 'property' top-level statement
  */
 void CTcParser::parse_property(int *err)
 {
     int done;
-    
+
     /* skip the 'property' token */
     G_tok->next();
 
@@ -860,13 +860,13 @@ void CTcParser::parse_property(int *err)
         /* we should be looking at a property name */
         if (G_tok->cur() == TOKT_SYM)
         {
-            /* 
+            /*
              *   look up the property; this will add it to the symbol table
              *   if it isn't already in there, and will generate an error if
-             *   it's already defined as something other than a property 
+             *   it's already defined as something other than a property
              */
             look_up_prop(G_tok->getcur(), TRUE);
-            
+
             /* skip the symbol and check what follows */
             if (G_tok->next() == TOKT_COMMA)
             {
@@ -875,54 +875,54 @@ void CTcParser::parse_property(int *err)
             }
             else if (G_tok->cur() == TOKT_SEM)
             {
-                /* 
+                /*
                  *   end of the statement - skip the semicolon and we're
-                 *   done 
+                 *   done
                  */
                 G_tok->next();
                 break;
             }
             else
             {
-                /* 
+                /*
                  *   if it's a brace, they probably left out the semicolon;
                  *   if it's a symbol, they probably left out the comma;
-                 *   otherwise, it's probably a stray token 
+                 *   otherwise, it's probably a stray token
                  */
                 switch(G_tok->cur())
                 {
                 case TOKT_SYM:
-                    /* 
+                    /*
                      *   probably left out a comma - flag an error, but
-                     *   proceed with parsing this new symbol 
+                     *   proceed with parsing this new symbol
                      */
                     G_tok->log_error_curtok(TCERR_PROPDECL_REQ_COMMA);
                     break;
-                    
+
                 case TOKT_LBRACE:
                 case TOKT_RBRACE:
                 case TOKT_EOF:
                     /* they probably left out the semicolon */
                     G_tok->log_error_curtok(TCERR_EXPECTED_SEMI);
                     return;
-                    
+
                 default:
                     /* log an error */
                     G_tok->log_error_curtok(TCERR_PROPDECL_REQ_COMMA);
-                    
+
                     /* skip the errant symbol */
                     G_tok->next();
-                    
-                    /* 
+
+                    /*
                      *   if a comma follows, something was probably just
                      *   inserted - skip the comma; if a semicolon follows,
-                     *   assume we're at the end of the statement 
+                     *   assume we're at the end of the statement
                      */
                     if (G_tok->cur() == TOKT_COMMA)
                     {
-                        /* 
+                        /*
                          *   we're probably okay again - skip the comma and
-                         *   continue 
+                         *   continue
                          */
                         G_tok->next();
                     }
@@ -932,7 +932,7 @@ void CTcParser::parse_property(int *err)
                         G_tok->next();
                         done = TRUE;
                     }
-                    
+
                     /* proceed with what follows */
                     break;
                 }
@@ -953,26 +953,26 @@ void CTcParser::parse_property(int *err)
                 return;
 
             case TOKT_COMMA:
-                /* 
+                /*
                  *   they probably just doubled a comma - skip it and
-                 *   continue 
+                 *   continue
                  */
                 G_tok->next();
                 break;
-                
+
             default:
                 /* skip this token */
                 G_tok->next();
-                
-                /* 
+
+                /*
                  *   if a comma follows, they probably put in a keyword or
-                 *   something like that - skip the comma and continue 
+                 *   something like that - skip the comma and continue
                  */
                 if (G_tok->cur() == TOKT_COMMA)
                     G_tok->next();
                 break;
             }
-            
+
             /* if a semicolon follows, we're done */
             if (G_tok->cur() == TOKT_SEM)
             {
@@ -986,12 +986,12 @@ void CTcParser::parse_property(int *err)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parse an 'export' top-level statement 
+ *   Parse an 'export' top-level statement
  */
 void CTcParser::parse_export(int *err)
 {
     CTcPrsExport *exp;
-    
+
     /* skip the 'export' token and see what follows */
     switch(G_tok->next())
     {
@@ -1000,11 +1000,11 @@ void CTcParser::parse_export(int *err)
         exp = add_export(G_tok->getcur()->get_text(),
                          G_tok->getcur()->get_text_len());
 
-        /* 
+        /*
          *   Check to see what follows.  We can either have a single-quoted
          *   string giving the external name by which this symbol should be
          *   known, or the end of the statement.  If it's the latter, the
-         *   external name is the same as the symbol name. 
+         *   external name is the same as the symbol name.
          */
         switch(G_tok->next())
         {
@@ -1014,9 +1014,9 @@ void CTcParser::parse_export(int *err)
             break;
 
         case TOKT_SSTR:
-            /* 
+            /*
              *   it's an explicit external name specification - save the
-             *   name with the export record 
+             *   name with the export record
              */
             exp->set_extern_name(G_tok->getcur()->get_text(),
                                  G_tok->getcur()->get_text_len());
@@ -1034,9 +1034,9 @@ void CTcParser::parse_export(int *err)
             break;
 
         default:
-            /* 
+            /*
              *   anything else is an error; assume they simply omitted the
-             *   semicolon 
+             *   semicolon
              */
             G_tok->log_error_curtok(TCERR_EXPECTED_SEMI);
         }
@@ -1048,17 +1048,17 @@ void CTcParser::parse_export(int *err)
     case TOKT_LBRACE:
     case TOKT_RBRACE:
     case TOKT_EOF:
-        /* 
+        /*
          *   they probably just left something out; consider this the end of
-         *   the statement, but log an error about it 
+         *   the statement, but log an error about it
          */
         G_tok->log_error_curtok(TCERR_EXPORT_REQ_SYM);
         break;
-        
+
     default:
-        /* 
+        /*
          *   something weird happened; skip the errant token, and consider
-         *   it the end of the statement 
+         *   it the end of the statement
          */
         G_tok->log_error_curtok(TCERR_EXPORT_REQ_SYM);
         G_tok->next();
@@ -1067,12 +1067,12 @@ void CTcParser::parse_export(int *err)
 }
 
 /*
- *   Add an export 
+ *   Add an export
  */
 CTcPrsExport *CTcParser::add_export(const char *sym, size_t len)
 {
     CTcPrsExport *exp;
-    
+
     /* create a new record */
     exp = new CTcPrsExport(sym, len);
 
@@ -1084,7 +1084,7 @@ CTcPrsExport *CTcParser::add_export(const char *sym, size_t len)
 }
 
 /*
- *   Add an export to our list 
+ *   Add an export to our list
  */
 void CTcParser::add_export_to_list(CTcPrsExport *exp)
 {
@@ -1097,20 +1097,20 @@ void CTcParser::add_export_to_list(CTcPrsExport *exp)
 }
 
 /*
- *   Parse a 'dictionary' top-level statement 
+ *   Parse a 'dictionary' top-level statement
  */
 CTPNStmTop *CTcParser::parse_dict(int *err)
 {
     int done;
-        
+
     /* skip the 'dictionary' token and check what follows */
     switch(G_tok->next())
     {
     case TOKT_PROPERTY:
-        /* 
+        /*
          *   'dictionary property' definition - what follows is a list of
          *   properties that are going to be considered dictionary
-         *   properties. 
+         *   properties.
          */
 
         /* skip the 'property' token */
@@ -1127,9 +1127,9 @@ CTPNStmTop *CTcParser::parse_dict(int *err)
                 /* look up the property */
                 sym = look_up_prop(G_tok->getcur(), TRUE);
 
-                /* 
+                /*
                  *   if it's already marked as a dictionary property,
-                 *   there's nothing we need to do now; otherwise, mark it 
+                 *   there's nothing we need to do now; otherwise, mark it
                  */
                 if (sym != 0 && !sym->is_vocab())
                 {
@@ -1138,14 +1138,14 @@ CTPNStmTop *CTcParser::parse_dict(int *err)
                     /* mark it as a vocabulary property */
                     sym->set_vocab(TRUE);
 
-                    /* 
+                    /*
                      *   include the symbol in our master dictionary
-                     *   property list 
+                     *   property list
                      */
-                    
+
                     /* create a new list entry */
                     entry = new (G_prsmem) CTcDictPropEntry(sym);
-                    
+
                     /* link it into our list */
                     entry->nxt_ = dict_prop_head_;
                     dict_prop_head_ = entry;
@@ -1159,27 +1159,27 @@ CTPNStmTop *CTcParser::parse_dict(int *err)
                 }
                 else if (G_tok->cur() == TOKT_SEM)
                 {
-                    /* 
+                    /*
                      *   end of the statement - skip the semicolon and
-                     *   we're done 
+                     *   we're done
                      */
                     G_tok->next();
                     break;
                 }
                 else
                 {
-                    /* 
+                    /*
                      *   if it's a brace, they probably left out the
                      *   semicolon; if it's a symbol, they probably left
                      *   out the comma; otherwise, it's probably a stray
-                     *   token 
+                     *   token
                      */
                     switch(G_tok->cur())
                     {
                     case TOKT_SYM:
-                        /* 
+                        /*
                          *   probably left out a comma - flag an error,
-                         *   but proceed with parsing this new symbol 
+                         *   but proceed with parsing this new symbol
                          */
                         G_tok->log_error_curtok(TCERR_DICT_PROP_REQ_COMMA);
                         break;
@@ -1198,17 +1198,17 @@ CTPNStmTop *CTcParser::parse_dict(int *err)
                         /* skip the errant symbol */
                         G_tok->next();
 
-                        /* 
+                        /*
                          *   if a comma follows, something was probably
                          *   just inserted - skip the comma; if a
                          *   semicolon follows, assume we're at the end of
-                         *   the statement 
+                         *   the statement
                          */
                         if (G_tok->cur() == TOKT_COMMA)
                         {
-                            /* 
+                            /*
                              *   we're probably okay again - skip the
-                             *   comma and continue 
+                             *   comma and continue
                              */
                             G_tok->next();
                         }
@@ -1239,9 +1239,9 @@ CTPNStmTop *CTcParser::parse_dict(int *err)
                     return 0;
 
                 case TOKT_COMMA:
-                    /* 
+                    /*
                      *   they probably just doubled a comma - skip it and
-                     *   continue 
+                     *   continue
                      */
                     G_tok->next();
                     break;
@@ -1250,10 +1250,10 @@ CTPNStmTop *CTcParser::parse_dict(int *err)
                     /* skip this token */
                     G_tok->next();
 
-                    /* 
+                    /*
                      *   if a comma follows, they probably put in a
                      *   keyword or something like that - skip the comma
-                     *   and continue 
+                     *   and continue
                      */
                     if (G_tok->cur() == TOKT_COMMA)
                         G_tok->next();
@@ -1270,17 +1270,17 @@ CTPNStmTop *CTcParser::parse_dict(int *err)
             }
         }
 
-        /* 
+        /*
          *   this statement doesn't result in adding anything to the parse
-         *   tree 
+         *   tree
          */
         return 0;
 
     case TOKT_SYM:
-        /* 
+        /*
          *   Dictionary object definition - what follows is the name of an
          *   object to be created of metaclass 'dictionary'.  This object
-         *   is to become the active dictionary for subsequent parsing. 
+         *   is to become the active dictionary for subsequent parsing.
          */
         {
             CTcDictEntry *dict;
@@ -1289,17 +1289,17 @@ CTPNStmTop *CTcParser::parse_dict(int *err)
             /* find the dictionary entry */
             dict = declare_dict(G_tok->getcur()->get_text(),
                                 G_tok->getcur()->get_text_len());
-            
+
             /* if we have a symbol, create the statement node */
             if (dict != 0)
             {
                 /* create the 'dictionary' statement node */
                 dict_stm = new CTPNStmDict(dict);
 
-                /* 
+                /*
                  *   remember the active dictionary - this is the
                  *   dictionary into which subsequent vocabulary will be
-                 *   inserted 
+                 *   inserted
                  */
                 dict_cur_ = dict;
 
@@ -1329,7 +1329,7 @@ CTPNStmTop *CTcParser::parse_dict(int *err)
 /* ------------------------------------------------------------------------ */
 /*
  *   Grammar tree parser compiler interface functions for the regular static
- *   compiler 
+ *   compiler
  */
 class CTcGramAltFuncsStatic: public CTcGramAltFuncs
 {
@@ -1348,7 +1348,7 @@ public:
     /* check the given enum for use as a production token */
     virtual void check_enum_tok(class CTcSymEnum *enumsym)
     {
-        /* 
+        /*
          *   Only allow 'enum token' values in static compilation.  I'm not
          *   actually sure at this point what the rationale ever was for this
          *   bit of strictness; there's no separate meaning for regular enums
@@ -1361,7 +1361,7 @@ public:
          *   the same lines in mind for 'enum token', but whatever it was
          *   turned out to be superfluous or just wrong.  So 'enum token'
          *   amounts to documentation at this point.
-         *   
+         *
          *   The reason for abstracting this test into the AltFuncs structure
          *   is that the dynamic compiler doesn't have any information on
          *   'enum token' or 'dictionary property' attributes - it just knows
@@ -1375,7 +1375,7 @@ public:
          *   dynamic compilation, and allow any enum value to be used.  We
          *   can probably drop the test for static compilation as well, but
          *   I'm keeping it for now on the general principle of avoiding
-         *   gratuitous changes.  
+         *   gratuitous changes.
          */
         if (!enumsym->is_token())
             G_tok->log_error_curtok(TCERR_GRAMMAR_BAD_ENUM);
@@ -1449,9 +1449,9 @@ CTPNStmTop *CTcParser::parse_grammar(int *err, int replace, int modify)
         /* skip the paren - the name token follows */
         G_tok->next();
 
-        /* 
+        /*
          *   limit the added copying so we don't overflow our buffer - note
-         *   that we need two bytes for parens 
+         *   that we need two bytes for parens
          */
         size_t copy_len = G_tok->getcur()->get_text_len();
         if (copy_len > sizeof(tag_buf) - name_tag_len - 2)
@@ -1487,7 +1487,7 @@ CTPNStmTop *CTcParser::parse_grammar(int *err, int replace, int modify)
         /*
          *   There's a tag, so the grammar match object has a symbol name
          *   given by the full "prod(tag)" string.  Note that grammar match
-         *   definitions are inherently classes.  
+         *   definitions are inherently classes.
          */
         int is_class = TRUE;
         int trans = FALSE;
@@ -1504,13 +1504,13 @@ CTPNStmTop *CTcParser::parse_grammar(int *err, int replace, int modify)
          *   time, we'll merge this private grammar rule list with the
          *   master list for the production, but we must keep a private list
          *   until link time in case this match object is modified or
-         *   replaced.  
+         *   replaced.
          */
         need_private_prod = TRUE;
     }
     else if (!replace && !modify && G_tok->cur() == TOKT_SEM)
     {
-        /* 
+        /*
          *   It's an empty 'grammar x;' statement, with no rule definition
          *   and no properties.  This is a simple declaration of the
          *   production name and defines no rules for it; the only thing we
@@ -1522,25 +1522,25 @@ CTPNStmTop *CTcParser::parse_grammar(int *err, int replace, int modify)
         /* skip the semicolon */
         G_tok->next();
 
-        /* 
+        /*
          *   we're done - a simple grammar production declaration generates
-         *   no parse tree object 
+         *   no parse tree object
          */
         return 0;
     }
     else
     {
-        /* 
+        /*
          *   There's no tag, so the grammar match object is anonymous.
-         *   Create a new anonymous object symbol for it.  
+         *   Create a new anonymous object symbol for it.
          */
         gram_obj = new CTcSymObj(".anon", 5, FALSE, G_cg->new_obj_id(),
                                  FALSE, TC_META_TADSOBJ, 0);
 
-        /* 
+        /*
          *   'replace' and 'modify' can only be used with tagged grammar
          *   rules, since that's the only way we can refer to a specific rule
-         *   previously defined 
+         *   previously defined
          */
         if (replace || modify)
             G_tok->log_error(TCERR_GRAMMAR_MOD_REQ_TAG);
@@ -1554,16 +1554,16 @@ CTPNStmTop *CTcParser::parse_grammar(int *err, int replace, int modify)
     }
     else
     {
-        /* 
+        /*
          *   log an error, then proceed on the assumption that the colon
-         *   was simply omitted 
+         *   was simply omitted
          */
         G_tok->log_error_curtok(TCERR_GRAMMAR_REQ_COLON);
     }
 
-    /* 
+    /*
      *   mark it as a class - this object exists as a factory for match tree
-     *   instances 
+     *   instances
      */
     if (gram_obj != 0)
         gram_obj->set_is_class(TRUE);
@@ -1571,28 +1571,28 @@ CTPNStmTop *CTcParser::parse_grammar(int *err, int replace, int modify)
     /*
      *   If we're modifying the rule, check for an empty rule list.  With
      *   'modify', an empty rule list has the special meaning that we retain
-     *   the original rule list of the base object being modified.  
+     *   the original rule list of the base object being modified.
      */
     CTcGramPropArrows arrows;
     if (modify && G_tok->cur() == TOKT_COLON)
     {
-        /* 
+        /*
          *   This is a 'modify', and the rule list is empty.  This means that
          *   we're to leave the original rule list of the base object intact,
          *   so we don't need to flatten the input syntax (since there's no
          *   input syntax to flatten), we don't need to create a new private
          *   list (since we want to leave the existing private list intact),
          *   and we don't need to set up the first alternative for the rule
-         *   (since there will be no alternatives at all).  
+         *   (since there will be no alternatives at all).
          */
         G_tok->next();
     }
     else
     {
-        /* 
+        /*
          *   We don't have an empty 'modify' rule list, so we're defining a
          *   rule list for this production.  If we decided that we need to
-         *   store the list in a private list, create the private list.  
+         *   store the list in a private list, create the private list.
          */
         if (need_private_prod && gram_obj != 0)
             prod = gram_obj->create_grammar_entry(
@@ -1614,8 +1614,8 @@ CTPNStmTop *CTcParser::parse_grammar(int *err, int replace, int modify)
      *   Add the grammarInfo property.  This property is a method that
      *   returns a list whose first element is the match's name tag, and
      *   whose subsequent elements are the arrow-assigned properties.
-     *   
-     *   This is only necessary if we managed to create a statement object.  
+     *
+     *   This is only necessary if we managed to create a statement object.
      */
     if (stm != 0)
     {
@@ -1652,7 +1652,7 @@ CTPNStmTop *CTcParser::parse_grammar(int *err, int replace, int modify)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Create a grammar rule list object 
+ *   Create a grammar rule list object
  */
 CTcGramProdEntry *CTcSymObjBase::create_grammar_entry(
     const char *prod_sym, size_t prod_sym_len)
@@ -1671,7 +1671,7 @@ CTcGramProdEntry *CTcSymObjBase::create_grammar_entry(
 /* ------------------------------------------------------------------------ */
 /*
  *   Find or add a grammar production symbol.  Returns the master
- *   CTcGramProdEntry object for the grammar production.  
+ *   CTcGramProdEntry object for the grammar production.
  */
 CTcGramProdEntry *CTcParser::declare_gramprod(const char *txt, size_t len)
 {
@@ -1685,7 +1685,7 @@ CTcGramProdEntry *CTcParser::declare_gramprod(const char *txt, size_t len)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Find or add a grammar production symbol.  
+ *   Find or add a grammar production symbol.
  */
 CTcSymObj *CTcParser::find_or_def_gramprod(const char *txt, size_t len,
                                            CTcGramProdEntry **entryp)
@@ -1731,11 +1731,11 @@ CTcSymObj *CTcParser::find_or_def_gramprod(const char *txt, size_t len,
             sym = 0;
         }
 
-        /* 
+        /*
          *   If we found the symbol, make sure it's not marked as external,
          *   since we're actually defining a rule for this production.  If
          *   the production is exported from any other modules, we'll share
-         *   the production object with the other modules.  
+         *   the production object with the other modules.
          */
         if (sym != 0)
             sym->set_extern(FALSE);
@@ -1743,17 +1743,17 @@ CTcSymObj *CTcParser::find_or_def_gramprod(const char *txt, size_t len,
         /* get the existing production object, if any */
         entry = get_gramprod_entry(sym);
 
-        /* 
+        /*
          *   if we didn't find the entry, we must have loaded the symbol from
-         *   a symbol file - add the entry now 
+         *   a symbol file - add the entry now
          */
         if (entry == 0)
             entry = create_gramprod_entry(sym);
     }
 
-    /* 
+    /*
      *   if the caller is interested in knowing the associated grammar rule
-     *   list entry, return it 
+     *   list entry, return it
      */
     if (entryp != 0)
         *entryp = entry;
@@ -1766,7 +1766,7 @@ CTcSymObj *CTcParser::find_or_def_gramprod(const char *txt, size_t len,
 /*
  *   Create a grammar production list entry.  This creates a CTcGramProdEntry
  *   object associated with the given grammar production symbol, and links
- *   the new entry into the master list of grammar production entries.  
+ *   the new entry into the master list of grammar production entries.
  */
 CTcGramProdEntry *CTcParser::create_gramprod_entry(CTcSymObj *sym)
 {
@@ -1782,9 +1782,9 @@ CTcGramProdEntry *CTcParser::create_gramprod_entry(CTcSymObj *sym)
         gramprod_head_ = entry;
     gramprod_tail_ = entry;
 
-    /* 
+    /*
      *   set the metaclass-specific data in the object symbol to point to the
-     *   grammar production list entry 
+     *   grammar production list entry
      */
     if (sym != 0)
         sym->set_meta_extra(entry);
@@ -1794,8 +1794,8 @@ CTcGramProdEntry *CTcParser::create_gramprod_entry(CTcSymObj *sym)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   find a grammar entry for a given (GrammarProd) object symbol 
+/*
+ *   find a grammar entry for a given (GrammarProd) object symbol
  */
 CTcGramProdEntry *CTcParser::get_gramprod_entry(CTcSymObj *obj)
 {
@@ -1805,7 +1805,7 @@ CTcGramProdEntry *CTcParser::get_gramprod_entry(CTcSymObj *obj)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Find or add a dictionary symbol 
+ *   Find or add a dictionary symbol
  */
 CTcDictEntry *CTcParser::declare_dict(const char *txt, size_t len)
 {
@@ -1853,9 +1853,9 @@ CTcDictEntry *CTcParser::declare_dict(const char *txt, size_t len)
         /* find it in our dictionary list */
         entry = get_dict_entry(sym);
 
-        /* 
+        /*
          *   if we didn't find the entry, we must have loaded the symbol from
-         *   a symbol file - add the dictionary list entry now 
+         *   a symbol file - add the dictionary list entry now
          */
         if (entry == 0)
             entry = create_dict_entry(sym);
@@ -1867,11 +1867,11 @@ CTcDictEntry *CTcParser::declare_dict(const char *txt, size_t len)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Object symbols 
+ *   Object symbols
  */
 
 /*
- *   Build my dictionary 
+ *   Build my dictionary
  */
 void CTcSymObjBase::build_dictionary()
 {
@@ -1881,10 +1881,10 @@ void CTcSymObjBase::build_dictionary()
     if (dict_ == 0)
         return;
 
-    /* 
+    /*
      *   if I'm a class, there's nothing to do, since vocabulary defined in a
      *   class is only entered in the dictionary for the instances of the
-     *   class, not for the class itself 
+     *   class, not for the class itself
      */
     if (is_class_)
         return;
@@ -1903,11 +1903,11 @@ void CTcSymObjBase::build_dictionary()
 
 /*
  *   Synthesize a placeholder symbol for a modified object.
- *   
+ *
  *   The new symbol is not for use by the source code; we add it merely as a
  *   placeholder.  Build its name starting with a space so that it can never
  *   be reached from source code, and use the object number to ensure it's
- *   unique within the file.  
+ *   unique within the file.
  */
 CTcSymObj *CTcSymObjBase::synthesize_modified_obj_sym(int anon)
 {
@@ -1956,15 +1956,15 @@ CTcSymObj *CTcSymObjBase::synthesize_modified_obj_sym(int anon)
 
 /*
  *   Build the name of a synthesized placeholder symbol for a given object
- *   number.  The buffer should be TOK_SYM_MAX_LEN + 1 bytes long.  
+ *   number.  The buffer should be TOK_SYM_MAX_LEN + 1 bytes long.
  */
 void CTcSymObjBase::
     synthesize_modified_obj_name(char *buf, tctarg_obj_id_t obj_id)
 {
-    /* 
+    /*
      *   Build the fake name, based on the object ID to ensure uniqueness and
      *   so that we can look it up based on the object ID.  Start it with a
-     *   space so that no source token can ever refer to it.  
+     *   space so that no source token can ever refer to it.
      */
     sprintf(buf, " %lx", (ulong)obj_id);
 }
@@ -1972,7 +1972,7 @@ void CTcSymObjBase::
 
 /* ------------------------------------------------------------------------ */
 /*
- *   create a new dictionary list entry 
+ *   create a new dictionary list entry
  */
 CTcDictEntry *CTcParser::create_dict_entry(CTcSymObj *sym)
 {
@@ -1988,9 +1988,9 @@ CTcDictEntry *CTcParser::create_dict_entry(CTcSymObj *sym)
         dict_head_ = entry;
     dict_tail_ = entry;
 
-    /* 
+    /*
      *   set the metaclass-specific extra data in the object symbol to point
-     *   to the dictionary list entry 
+     *   to the dictionary list entry
      */
     sym->set_meta_extra(entry);
 
@@ -1999,8 +1999,8 @@ CTcDictEntry *CTcParser::create_dict_entry(CTcSymObj *sym)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   find a dictionary list entry for a given object symbol 
+/*
+ *   find a dictionary list entry for a given object symbol
  */
 CTcDictEntry *CTcParser::get_dict_entry(CTcSymObj *obj)
 {
@@ -2010,7 +2010,7 @@ CTcDictEntry *CTcParser::get_dict_entry(CTcSymObj *obj)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parse an 'enum' top-level statement 
+ *   Parse an 'enum' top-level statement
  */
 void CTcParser::parse_enum(int *err)
 {
@@ -2019,13 +2019,13 @@ void CTcParser::parse_enum(int *err)
 
     /* presume it's not a 'token' enum */
     is_token = FALSE;
-    
+
     /* skip the 'enum' token */
     G_tok->next();
 
-    /* 
+    /*
      *   if this is the 'token' context-sensitive keyword, note it and
-     *   skip it 
+     *   skip it
      */
     if (G_tok->cur() == TOKT_SYM && G_tok->cur_tok_matches("token", 5))
     {
@@ -2040,7 +2040,7 @@ void CTcParser::parse_enum(int *err)
     for (done = FALSE ; !done ; )
     {
         CTcSymEnum *sym;
-        
+
         switch (G_tok->cur())
         {
         case TOKT_SYM:
@@ -2060,9 +2060,9 @@ void CTcParser::parse_enum(int *err)
                 }
                 else if (is_token)
                 {
-                    /* 
+                    /*
                      *   we're defining a token - mark the old symbol as a
-                     *   token if it wasn't already 
+                     *   token if it wasn't already
                      */
                     sym->set_is_token(TRUE);
                 }
@@ -2088,7 +2088,7 @@ void CTcParser::parse_enum(int *err)
                 /* skip the comma and keep going */
                 G_tok->next();
                 break;
-                
+
             case TOKT_SEM:
                 /* end of the statement */
                 done = TRUE;
@@ -2118,10 +2118,10 @@ void CTcParser::parse_enum(int *err)
         case TOKT_LBRACE:
         case TOKT_RBRACE:
         case TOKT_EOF:
-            /* 
+            /*
              *   they probably omitted the closing semicolon - log an
              *   error, then stop scanning the statement, since we're
-             *   probably in the next statement already 
+             *   probably in the next statement already
              */
             G_tok->log_error_curtok(TCERR_EXPECTED_SEMI);
             done = TRUE;
@@ -2135,7 +2135,7 @@ void CTcParser::parse_enum(int *err)
             G_tok->next();
             done = TRUE;
             break;
-            
+
         default:
             /* anything else is an error */
             G_tok->log_error_curtok(TCERR_ENUM_REQ_SYM);
@@ -2149,7 +2149,7 @@ void CTcParser::parse_enum(int *err)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parse an 'extern' top-level statement 
+ *   Parse an 'extern' top-level statement
  */
 void CTcParser::parse_extern(int *err)
 {
@@ -2198,16 +2198,16 @@ void CTcParser::parse_extern(int *err)
                      && sym->get_metaclass() == TC_META_TADSOBJ
                      && ((sym->is_class() != 0) == (is_class != 0)))
             {
-                /* 
+                /*
                  *   It's already defined as this same type, so this
-                 *   definition is merely redundant - ignore it.  
+                 *   definition is merely redundant - ignore it.
                  */
             }
             else
             {
-                /* 
+                /*
                  *   it's already defined, but not as an object - log an
-                 *   error and ignore the redefinition 
+                 *   error and ignore the redefinition
                  */
                 G_tok->log_error_curtok(TCERR_OBJ_REDEF);
             }
@@ -2241,7 +2241,7 @@ void CTcParser::parse_extern(int *err)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parse a 'function' top-level statement 
+ *   Parse a 'function' top-level statement
  */
 CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
                                       int replace, int modify,
@@ -2278,7 +2278,7 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
     {
         /* log an error */
         G_tok->log_error_curtok(TCERR_FUNC_REQ_SYM);
-        
+
         /* proceed from this token */
         return 0;
     }
@@ -2289,10 +2289,10 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
     /* remember the location of the symbol (for later error reporting) */
     G_tok->get_last_pos(&sym_file, &sym_linenum);
 
-    /* 
+    /*
      *   Skip past the function name.  If the next token is a semicolon,
      *   this is a forward declaration; otherwise, we need either an open
-     *   brace or an argument list 
+     *   brace or an argument list
      */
     switch(G_tok->next())
     {
@@ -2300,9 +2300,9 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
         /* it's just a forward declaration - skip the semicolon */
         G_tok->next();
 
-        /* 
+        /*
          *   if this is an 'extern' declaration, then declare the function
-         *   as extern with zero arguments 
+         *   as extern with zero arguments
          */
         if (is_extern)
         {
@@ -2323,23 +2323,23 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
             goto decl_func;
         }
 
-        /* 
+        /*
          *   A non-extern forward declaration has no effect.  Ignore the
-         *   definition and keep going. 
+         *   definition and keep going.
          */
         return 0;
-        
+
     case TOKT_LPAR:
     case TOKT_LBRACE:
-        /* 
+        /*
          *   check whether this is an 'extern' declaration or the actual
          *   definition, and parse accordingly
          */
         if (is_extern)
         {
-            /* 
+            /*
              *   It's external - parse simply the formal parameter list.
-             *   A brace is not allowed here. 
+             *   A brace is not allowed here.
              */
             if (G_tok->cur() == TOKT_LPAR)
             {
@@ -2351,9 +2351,9 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
                                   &varargs_list, &varargs_list_local,
                                   err, 0, FALSE, &type_list);
 
-                /* 
+                /*
                  *   if it looks as though there's a code body, log an
-                 *   error and skip and ignore the code body 
+                 *   error and skip and ignore the code body
                  */
                 if (G_tok->cur() == TOKT_LBRACE
                     || G_tok->cur() == TOKT_EQ)
@@ -2401,7 +2401,7 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
         {
             /*
              *   We're parsing the actual definition.  Parse the formal
-             *   parameter list and the code body.  
+             *   parameter list and the code body.
              */
             code_body = parse_code_body(FALSE, FALSE, is_method,
                                         &argc, &opt_argc, &varargs,
@@ -2426,7 +2426,7 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
              *   parameter list to distinguish this version from other
              *   multi-methods with the same base name and different
              *   parameter type lists.
-             *   
+             *
              *   Before we generate the decorated name, though, define the
              *   base name as an external multi-method function, so that
              *   we'll know what to do when we see calls to the base
@@ -2439,23 +2439,23 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
              *   a function with the base name, but says that it will be
              *   defined elsewhere - this is, of course, the exact purpose of
              *   an external declaration.
-             *   
+             *
              *   So, if the base name isn't yet defined, define it as an
              *   external function, and mark it as a multi-method.  Start by
-             *   looking up the base function name.  
+             *   looking up the base function name.
              */
             func_sym = (CTcSymFunc *)global_symtab_->find_delete_weak(
                 tok.get_text(), tok.get_text_len());
 
-            /* 
+            /*
              *   if it's defined, make sure the existing definition is
-             *   compatible; if it's not defined, define it now 
+             *   compatible; if it's not defined, define it now
              */
             if (func_sym != 0)
             {
-                /* 
+                /*
                  *   it's previously defined: to be compatible, it has to be
-                 *   an external, multi-method function 
+                 *   an external, multi-method function
                  */
                 if (func_sym->get_type() != TC_SYM_FUNC)
                 {
@@ -2480,19 +2480,19 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
             }
             else
             {
-                /* 
+                /*
                  *   It's not defined yet, so add it as an external
                  *   multi-method function.  This base form is always a
                  *   varargs function with no fixed arguments, since the
                  *   parameter lists of the different definitions can vary.
                  *   We'll likewise assume that there's a return value, since
-                 *   some instances might have returns.  
+                 *   some instances might have returns.
                  */
                 func_sym = new CTcSymFunc(tok.get_text(), tok.get_text_len(),
                                           FALSE, 0, 0, TRUE, TRUE,
                                           TRUE, TRUE, TRUE, TRUE);
 
-                /* 
+                /*
                  *   Mark the function symbol as defined in this file.  This
                  *   will ensure that we export it to our symbol file, even
                  *   though it's defined here as an extern symbol.  We don't
@@ -2500,7 +2500,7 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
                  *   defining file to export them; but the base symbol for a
                  *   multi-method has no definer at all until link time, so
                  *   *someone* needs to export it.  So export it from any
-                 *   file that defines a multi-method with the base name.  
+                 *   file that defines a multi-method with the base name.
                  */
                 func_sym->set_mm_def(TRUE);
 
@@ -2508,14 +2508,14 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
                 global_symtab_->add_entry(func_sym);
             }
 
-            /* 
+            /*
              *   Now we can generate the decorated name.  This name
              *   distinguishes this type-list version of the function from
              *   other versions with the same base name, and is the name by
              *   which the actual function definition will be known.  We'll
              *   also operate on the decorated name for 'replace' or
              *   'modify', since what we're replacing or modifying is this
-             *   specific type-list version of the function.  
+             *   specific type-list version of the function.
              */
             type_list->decorate_name(&tok, &tok);
         }
@@ -2524,7 +2524,7 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
         func_sym = (CTcSymFunc *)global_symtab_->find_delete_weak(
             tok.get_text(), tok.get_text_len());
 
-        /* 
+        /*
          *   If the symbol was already defined, the previous definition must
          *   be external, or this new definition must be external, or the new
          *   definition must be a 'replace' definition.
@@ -2534,9 +2534,9 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
                      || (!func_sym->is_extern()
                          && !is_extern && !replace && !modify)));
 
-        /* 
+        /*
          *   In addition, if both function definitions have prototypes, the
-         *   prototypes must match. 
+         *   prototypes must match.
          */
         if (has_proto && func_sym != 0 && func_sym->has_proto())
         {
@@ -2545,30 +2545,30 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
                       || func_sym->is_multimethod() != (type_list != 0));
         }
 
-        /* 
+        /*
          *   If the symbol was already defined, log an error, then ignore
          *   the redefinition and return an empty statement.  Note that we
          *   waited until now because we still wanted to parse the syntax
          *   of the function, but we can't really do anything with it once
-         *   we're finished with the parsing.  
+         *   we're finished with the parsing.
          */
         if (redef)
         {
             int err;
-            
-            /* 
+
+            /*
              *   Note the problem.  Select the error message to display
              *   depending on whether the symbol was previously defined as
              *   a function (in which case the problem is the conflicting
-             *   prototype) or as another type.  
+             *   prototype) or as another type.
              */
             if (func_sym->get_type() == TC_SYM_FUNC)
             {
-                /* 
+                /*
                  *   if one or the other definition is external, or we're
                  *   replacing the function, the problem is a mismatch in
                  *   the parameter lists; otherwise, the problem is that
-                 *   the function is simply defined twice 
+                 *   the function is simply defined twice
                  */
                 if (func_sym->is_extern() || is_extern || replace || modify)
                     err = TCERR_INCOMPAT_FUNC_REDEF;
@@ -2589,9 +2589,9 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
             return 0;
         }
 
-        /* 
+        /*
          *   create a symbol table entry for the function if we didn't
-         *   have on already 
+         *   have on already
          */
         if (func_sym == 0)
         {
@@ -2604,10 +2604,10 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
             /* add the entry to the global symbol table */
             global_symtab_->add_entry(func_sym);
 
-            /* 
+            /*
              *   We can't replace/modify a function that wasn't previously
              *   defined - if we're replacing it, note the error.  Don't
-             *   bother with this check if we're parsing only for syntax.  
+             *   bother with this check if we're parsing only for syntax.
              */
             if ((replace || modify) && !syntax_only_)
                 G_tok->log_error(TCERR_REPFUNC_UNDEF);
@@ -2617,13 +2617,13 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
             /* replace or modify the previous definition if appropriate */
             if (replace)
             {
-                /* 
+                /*
                  *   check to see whether it's external or previously
-                 *   defined in the same translation unit 
+                 *   defined in the same translation unit
                  */
                 if (func_sym->is_extern())
                 {
-                    /* 
+                    /*
                      *   The function was previously external, and we're
                      *   replacing it -- mark it as such so that we'll
                      *   know to perform the replacement at link time.  We
@@ -2631,7 +2631,7 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
                      *   function, because if the function is defined in
                      *   the same translation unit then the replacement
                      *   will be completed right now, and we don't need to
-                     *   do any more work at link time.  
+                     *   do any more work at link time.
                      */
                     func_sym->set_ext_replace(TRUE);
                 }
@@ -2643,7 +2643,7 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
                      *   The function was previously defined in the same
                      *   translation unit.  Mark the previous code body as
                      *   replaced so that we don't bother generating any
-                     *   code for it. 
+                     *   code for it.
                      */
                     if (func_sym->get_code_body() != 0)
                         func_sym->get_code_body()->set_replaced(TRUE);
@@ -2656,7 +2656,7 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
                      *   only reachable through its modifying function; since
                      *   the function we're replacing is becoming
                      *   unreachable, therefore, all of its base functions
-                     *   are as well.  
+                     *   are as well.
                      */
                     for (mod_base = func_sym->get_mod_base() ; mod_base != 0 ;
                          mod_base = mod_base->get_mod_base())
@@ -2677,9 +2677,9 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
                         }
                     }
 
-                    /* 
+                    /*
                      *   since we're replacing the function, it no longer
-                     *   has any modified base functions 
+                     *   has any modified base functions
                      */
                     func_sym->set_mod_base(0);
                 }
@@ -2688,12 +2688,12 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
             {
                 CTcSymFunc *mod_sym;
 
-                /* 
+                /*
                  *   Create a new dummy symbol for the original version.
                  *   This symbol doesn't go in the symbol table; instead, we
                  *   link it into our modified base function list behind the
                  *   symbol table entry.
-                 *   
+                 *
                  *   The name is important, though: we have to give this an
                  *   empty name so that the object file reader will know that
                  *   this isn't an actual global symbol.  This will let the
@@ -2702,13 +2702,13 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
                  *   looking at the global symbol table.  (We have to write
                  *   some extra code in the function symbol loader to deal
                  *   with this, since the code stream reader can't.)
-                 *   
+                 *
                  *   Note that we want the new base function symbol to keep
                  *   the same 'extern' attribute as the original symbol.  If
                  *   we're modifying an external function, this will allow us
                  *   to apply the modification at link time between this
                  *   module and the module where the imported original
-                 *   function was defined.  
+                 *   function was defined.
                  */
                 mod_sym = new CTcSymFunc("", 0, FALSE,
                                          argc, opt_argc, varargs, has_retval,
@@ -2717,22 +2717,22 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
                                          func_sym->is_extern(),
                                          func_sym->has_proto());
 
-                /* 
+                /*
                  *   remember the original global function in the modified
-                 *   placeholder symbol 
+                 *   placeholder symbol
                  */
                 mod_sym->set_mod_global(func_sym);
 
-                /* 
+                /*
                  *   If the original has a code body, switch the code body to
                  *   use our new symbol's fixup list.
-                 *   
+                 *
                  *   The only way to reference the original code body is
                  *   through a 'replaced()' call in the modifying function,
                  *   so any fixups currently associated with the function
                  *   symbol should remain with the function symbol - in other
                  *   words, we don't have to move any existing fixups
-                 *   anywhere.  
+                 *   anywhere.
                  */
                 if (func_sym->get_code_body() != 0)
                     func_sym->get_code_body()->set_symbol_fixup_list(
@@ -2741,27 +2741,27 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
                 /* transfer the old code body to the modified base symbol */
                 mod_sym->set_code_body(func_sym->get_code_body());
 
-                /* 
+                /*
                  *   put the new modified base function at the head of the
-                 *   modified base list 
+                 *   modified base list
                  */
                 mod_sym->set_mod_base(func_sym->get_mod_base());
                 func_sym->set_mod_base(mod_sym);
             }
-            
-            /* 
+
+            /*
              *   The function was already defined.  If this is an actual
              *   definition (not an 'extern' declaration), then clear the
-             *   'extern' flag on the existing symbol.  
+             *   'extern' flag on the existing symbol.
              */
             if (!is_extern)
                 func_sym->set_extern(FALSE);
         }
 
-        /* 
+        /*
          *   If there's a code body, tell the code body about its symbol
          *   table entry.  (If the function is 'extern' it has no code
-         *   body at this point.)  
+         *   body at this point.)
          */
         if (code_body != 0)
             code_body->set_symbol_fixup_list(
@@ -2782,7 +2782,7 @@ CTPNStmTop *CTcParser::parse_function(int *err, int is_extern,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parse an 'intrinsic' top-level statement 
+ *   Parse an 'intrinsic' top-level statement
  */
 CTPNStmTop *CTcParser::parse_intrinsic(int *err)
 {
@@ -2790,7 +2790,7 @@ CTPNStmTop *CTcParser::parse_intrinsic(int *err)
     ushort fn_set_id;
     ushort fn_set_idx;
     tc_toktyp_t tok;
-    
+
     /* skip the 'intrinsic' keyword, and check for the function set name */
     if ((tok = G_tok->next()) == TOKT_SSTR)
     {
@@ -2808,9 +2808,9 @@ CTPNStmTop *CTcParser::parse_intrinsic(int *err)
     }
     else
     {
-        /* 
+        /*
          *   note the error, then keep going, assuming that the name was
-         *   missing but that the rest is correctly formed 
+         *   missing but that the rest is correctly formed
          */
         G_tok->log_error_curtok(TCERR_REQ_INTRINS_NAME);
 
@@ -2853,7 +2853,7 @@ CTPNStmTop *CTcParser::parse_intrinsic(int *err)
         case TOKT_EOF:
             /* end of file - log an error */
             G_tok->log_error(TCERR_EOF_IN_INTRINS);
-            
+
             /* return failure */
             *err = TRUE;
             return 0;
@@ -2879,9 +2879,9 @@ CTPNStmTop *CTcParser::parse_intrinsic(int *err)
                 G_tok->log_error_curtok(TCERR_REQ_INTRINS_LPAR);
             }
 
-            /* 
+            /*
              *   parse the formals - igore the names (hence 'count_only' =
-             *   true), and allow optional arguments 
+             *   true), and allow optional arguments
              */
             parse_formal_list(TRUE, TRUE, &argc, &optargc, &varargs,
                               &varargs_list, &varargs_list_local, err, 0,
@@ -2919,10 +2919,10 @@ CTPNStmTop *CTcParser::parse_intrinsic(int *err)
         }
     }
 
-    /* 
+    /*
      *   there's no node to return - a function set doesn't generate any
      *   code, but simply adds entries to the symbol table, which we've
-     *   already done 
+     *   already done
      */
     return 0;
 }
@@ -2938,16 +2938,16 @@ CTPNStmTop *CTcParser::parse_intrinsic_class(int *err)
     int got_name_tok = FALSE;
     CTcToken meta_tok;
     CTcSymMetaclass *meta_sym = 0;
-    
+
     /* skip the 'class' keyword and check the class name symbol */
     if (G_tok->next() == TOKT_SYM)
     {
         /* get the token */
         meta_tok = *G_tok->copycur();
 
-        /* 
+        /*
          *   See if it's defined yet.  If it was previously defined as an
-         *   external metaclass, 
+         *   external metaclass,
          */
         meta_sym = (CTcSymMetaclass *)global_symtab_->find(
             meta_tok.get_text(), meta_tok.get_text_len());
@@ -2970,9 +2970,9 @@ CTPNStmTop *CTcParser::parse_intrinsic_class(int *err)
     }
     else
     {
-        /* 
+        /*
          *   note the error, then keep going, assuming the name was
-         *   missing but that the rest is well-formed 
+         *   missing but that the rest is well-formed
          */
         G_tok->log_error_curtok(TCERR_REQ_INTRINS_CLASS_NAME_SYM);
     }
@@ -2994,7 +2994,7 @@ CTPNStmTop *CTcParser::parse_intrinsic_class(int *err)
             }
             else
             {
-                /* 
+                /*
                  *   we have a prior definition, which must have been an
                  *   external import from a symbol file; remove the external
                  *   attribute since we're actually defining it now
@@ -3007,7 +3007,7 @@ CTPNStmTop *CTcParser::parse_intrinsic_class(int *err)
                 G_tok->getcur()->get_text(), G_tok->getcur()->get_text_len(),
                 meta_sym);
 
-            /* 
+            /*
              *   if the metaclass was already defined for another symbol,
              *   it's an error
              */
@@ -3026,9 +3026,9 @@ CTPNStmTop *CTcParser::parse_intrinsic_class(int *err)
     }
     else
     {
-        /* 
+        /*
          *   note the error, then keep going, assuming that the name was
-         *   missing but that the rest is correctly formed 
+         *   missing but that the rest is correctly formed
          */
         G_tok->log_error_curtok(TCERR_REQ_INTRINS_CLASS_NAME);
     }
@@ -3151,7 +3151,7 @@ CTPNStmTop *CTcParser::parse_intrinsic_class(int *err)
 
                 /* skip the open paren */
                 G_tok->next();
-                
+
                 /* parse the list, ignoring the symbols defined */
                 parse_formal_list(TRUE, TRUE, &argc, &opt_argc, &varargs,
                                   &varargs_list, &varargs_list_local,
@@ -3182,10 +3182,10 @@ CTPNStmTop *CTcParser::parse_intrinsic_class(int *err)
         }
     }
 
-    /* 
+    /*
      *   there's no node to return - a metaclass definition doesn't
      *   generate any code, but simply adds entries to the symbol table,
-     *   which we've already done 
+     *   which we've already done
      */
     return 0;
 }
@@ -3193,24 +3193,24 @@ CTPNStmTop *CTcParser::parse_intrinsic_class(int *err)
 /* ------------------------------------------------------------------------ */
 /*
  *   Parse an 'object' statement - this can be either an 'object template'
- *   statement or an anonymous object definition for a base object.  
+ *   statement or an anonymous object definition for a base object.
  */
 CTPNStmTop *CTcParser::parse_object_stm(int *err, int trans)
 {
     /* it's either a template definition or an anonymous object */
     if (G_tok->next() == TOKT_TEMPLATE)
     {
-        /* 
+        /*
          *   it's an 'object template' statement - go parse the template,
-         *   with no superclass token 
+         *   with no superclass token
          */
         return parse_template_def(err, 0);
     }
     else
     {
-        /* 
+        /*
          *   no 'template' token, so this is an anonymous object instance
-         *   definition - put back the 'object' token 
+         *   definition - put back the 'object' token
          */
         G_tok->unget();
 
@@ -3223,7 +3223,7 @@ CTPNStmTop *CTcParser::parse_object_stm(int *err, int trans)
 /*
  *   Parse an object template definition.  If the class token is null, this
  *   is a root object template; otherwise, the class token gives the class
- *   symbol with which to associate the template.  
+ *   symbol with which to associate the template.
  */
 CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
 {
@@ -3240,38 +3240,38 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
     /* presume we won't find an 'inherited' token */
     int found_inh = FALSE;
 
-    /* 
+    /*
      *   If there's a class token, it must refer to an object class.  If
      *   there's no such symbol defined yet, define it as an external
      *   object; otherwise, make sure the existing symbol is an object of
-     *   metaclass tads-object.  
+     *   metaclass tads-object.
      */
     if (class_tok != 0)
     {
-        /* 
+        /*
          *   if the class token is 'string', it's a string template rather
-         *   than an object template - go parse that separately if so 
+         *   than an object template - go parse that separately if so
          */
         if (class_tok->text_matches("string"))
             return parse_string_template_def(err);
 
-        /* 
+        /*
          *   Look up the symbol.  Don't mark the symbol as referenced; merely
          *   defining a template for an object doesn't require an external
-         *   reference on the object.  
+         *   reference on the object.
          */
         class_sym = (CTcSymObj *)get_global_symtab()->find_noref(
             class_tok->get_text(), class_tok->get_text_len(), 0);
 
-        /* 
+        /*
          *   if we didn't find it, define it; otherwise, ensure it's defined
-         *   as an object 
+         *   as an object
          */
         if (class_sym == 0)
         {
-            /* 
+            /*
              *   it's undefined, so add a forward definition by creating the
-             *   symbol as an external object 
+             *   symbol as an external object
              */
             class_sym = new CTcSymObj(class_tok->get_text(),
                                       class_tok->get_text_len(), FALSE,
@@ -3322,9 +3322,9 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
         switch(G_tok->cur())
         {
         case TOKT_SEM:
-            /* 
+            /*
              *   that's the end of the statement - skip the semicolon, and
-             *   we're done 
+             *   we're done
              */
             G_tok->next();
             done = TRUE;
@@ -3348,15 +3348,15 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
                 /* this is our property name token */
                 prop_tok = *G_tok->copycur();
 
-                /* 
+                /*
                  *   this is also our defining token - the actual value in
-                 *   object instances will use this string type 
+                 *   object instances will use this string type
                  */
                 def_tok = G_tok->cur();
-                
-                /* 
+
+                /*
                  *   make sure that the contents of the string forms a
-                 *   valid symbol token 
+                 *   valid symbol token
                  */
 
                 /* set up at the start of the token */
@@ -3365,7 +3365,7 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
 
                 /* make sure the first character is valid */
                 valid = (rem != 0 && is_syminit(p.getch()));
-                
+
                 /* skip the first character */
                 if (rem != 0)
                     p.inc(&rem);
@@ -3373,18 +3373,18 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
                 /* scan the rest of the string */
                 for ( ; rem != 0 && valid ; p.inc(&rem))
                 {
-                    /* 
+                    /*
                      *   if this isn't a valid symbol character, we don't
-                     *   have a valid symbol 
+                     *   have a valid symbol
                      */
                     if (!is_sym(p.getch()))
                         valid = FALSE;
                 }
 
-                /* 
+                /*
                  *   if the string is lexically valid as a symbol, make
                  *   sure it's not a keyword - if it is, it can't be a
-                 *   property name 
+                 *   property name
                  */
                 if (valid && G_tok->look_up_keyword(G_tok->getcur(), &kwtok))
                     valid = FALSE;
@@ -3417,9 +3417,9 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
                 /* note that we don't have a valid token */
                 ok = FALSE;
 
-                /* 
+                /*
                  *   if this token isn't ']' or something that looks like
-                 *   an end-of-statement token, skip it 
+                 *   an end-of-statement token, skip it
                  */
                 switch(G_tok->cur())
                 {
@@ -3427,16 +3427,16 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
                 case TOKT_EOF:
                 case TOKT_LBRACE:
                 case TOKT_RBRACE:
-                    /* 
+                    /*
                      *   don't skip any of these - they might be statement
-                     *   enders 
+                     *   enders
                      */
                     break;
 
                 case TOKT_RBRACK:
-                    /* 
+                    /*
                      *   they must simply have left out the property - don't
-                     *   skip this, since we'll skip a token shortly anyway 
+                     *   skip this, since we'll skip a token shortly anyway
                      */
                     break;
 
@@ -3457,9 +3457,9 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
                     /* log the error */
                     G_tok->log_error_curtok(TCERR_OBJ_TPL_REQ_RBRACK);
 
-                    /* 
+                    /*
                      *   proceed on the assumption that they simply left
-                     *   out the ']' 
+                     *   out the ']'
                      */
                 }
             }
@@ -3487,7 +3487,7 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
                                  G_tok->get_op_text(def_tok),
                                  (int)G_tok->getcur()->get_text_len(),
                                  G_tok->getcur()->get_text());
-                
+
                 /* note that we don't have a valid token */
                 ok = FALSE;
             }
@@ -3503,9 +3503,9 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
             /* they must have left off the ';' */
             G_tok->log_error_curtok(TCERR_OBJ_TPL_BAD_TOK);
 
-            /* 
+            /*
              *   stop parsing here, assuming the statement should have
-             *   ended by now 
+             *   ended by now
              */
             done = TRUE;
             ok = FALSE;
@@ -3523,15 +3523,15 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
         is_opt = FALSE;
         is_alt = FALSE;
 
-        /* 
+        /*
          *   if we haven't reached the end of the statement, check to see if
-         *   the item is optional or an alternative 
+         *   the item is optional or an alternative
          */
         if (!done)
         {
             /* get the next token */
             G_tok->next();
-            
+
             /* check to see if the item is optional */
             if (G_tok->cur() == TOKT_QUESTION)
             {
@@ -3553,17 +3553,17 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
             }
         }
 
-        /* 
+        /*
          *   If the previous item was followed by '|', we're in the same
          *   alternative group with that item.  This means we're optional if
          *   it's marked as optional, and all of the preceding items in our
-         *   group are optional if we're marked as optional.  
+         *   group are optional if we're marked as optional.
          */
         if (item_tail != 0 && item_tail->is_alt_)
         {
-            /* 
+            /*
              *   if we're optional, mark all prior items in the group as
-             *   optional 
+             *   optional
              */
             if (is_opt)
             {
@@ -3573,15 +3573,15 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
                 for (item = alt_group_head ; item != 0 ; item = item->nxt_)
                     item->is_opt_ = TRUE;
             }
-            
+
             /* if the prior item was optional, we're optional */
             if (item_tail->is_opt_)
                 is_opt = TRUE;
         }
 
-        /* 
+        /*
          *   if we encountered any problems, note that we have an error in
-         *   the overall statement 
+         *   the overall statement
          */
         if (!ok)
             all_ok = FALSE;
@@ -3622,7 +3622,7 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
                 }
                 else
                 {
-                    /* 
+                    /*
                      *   Scan the list so far to ensure that this same
                      *   property isn't already part of the list.  However,
                      *   do allow duplicates within the run of alternatives
@@ -3632,7 +3632,7 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
                      *   property even if it appears multiple times in the
                      *   run.  The run of alternatives of which we're a part
                      *   is the final run in the list, since we're being
-                     *   added at the end of the list.  
+                     *   added at the end of the list.
                      */
                     for (item = item_head ; item != 0 ; item = item->nxt_)
                     {
@@ -3640,22 +3640,22 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
                         if (item->prop_ == prop_sym)
                         {
                             CTcObjTemplateItem *sub;
-                            
-                            /* 
+
+                            /*
                              *   if everything from here to the end of the
                              *   list is marked as an alternative, then we're
                              *   just adding a duplicate property to a run of
-                             *   alternatives, which is fine 
+                             *   alternatives, which is fine
                              */
                             for (sub = item ; sub != 0 && sub->is_alt_ ;
                                  sub = sub->nxt_) ;
 
-                            /* 
+                            /*
                              *   if we found a non-alternative following this
                              *   item, then this is indeed a duplicate; if we
                              *   didn't find any non-alternatives, we're just
                              *   adding this to a run of alternatives, so
-                             *   we're okay 
+                             *   we're okay
                              */
                             if (sub != 0)
                             {
@@ -3663,28 +3663,28 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
                                 G_tok->log_error(TCERR_OBJ_TPL_PROP_DUP,
                                     (int)prop_sym->get_sym_len(),
                                     prop_sym->get_sym());
-                            
+
                                 /* no need to look any further */
                                 break;
                             }
                         }
                     }
-                    
+
                     /* create the template item */
                     item = new (G_prsmem)
                            CTcObjTemplateItem(prop_sym, def_tok,
                                               is_alt, is_opt);
                 }
             }
-            
+
             /* if we have a valid new item, add it to our list */
             if (item != 0)
             {
-                /* 
+                /*
                  *   if we're an alternative and the prior item was not,
                  *   we're the head of a new alternative group; if we're not
                  *   an alternative, then we're not in an alternative group
-                 *   after this item 
+                 *   after this item
                  */
                 if (is_alt && (item_tail == 0 || !item_tail->is_alt_))
                 {
@@ -3703,7 +3703,7 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
                 else
                     item_head = item;
                 item_tail = item;
-            
+
                 /* count it */
                 ++item_cnt;
             }
@@ -3726,13 +3726,13 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
         /*
          *   If we found an 'inherited' keyword, we must expand the template
          *   with all inherited templates.  Otherwise, simply add the
-         *   template exactly as given. 
+         *   template exactly as given.
          */
         if (found_inh)
         {
             /*
              *   Traverse all superclass templates and add each inherited
-             *   form. 
+             *   form.
              */
             add_inherited_templates(class_sym, item_head, item_cnt);
         }
@@ -3748,21 +3748,21 @@ CTPNStmTop *CTcParser::parse_template_def(int *err, const CTcToken *class_tok)
 }
 
 /*
- *   Linked list structure for inherited template list 
+ *   Linked list structure for inherited template list
  */
 struct inh_tpl_entry
 {
     inh_tpl_entry() { }
-    
+
     /* this template */
     CTcObjTemplate *tpl;
-    
+
     /* next in list */
     inh_tpl_entry *nxt;
 };
 
 /*
- *   Expand a template definition for inherited superclass templates 
+ *   Expand a template definition for inherited superclass templates
  */
 void CTcParser::add_inherited_templates(CTcSymObj *sc_sym,
                                         CTcObjTemplateItem *item_head,
@@ -3772,13 +3772,13 @@ void CTcParser::add_inherited_templates(CTcSymObj *sc_sym,
     inh_tpl_entry *tail;
     inh_tpl_entry *cur;
     CTcObjTemplate *tpl;
-    
+
     /* start with an empty list */
     head = tail = 0;
 
-    /* 
+    /*
      *   traverse the superclass tree, building a list of all unique
-     *   templates inherited from the tree 
+     *   templates inherited from the tree
      */
     build_super_template_list(&head, &tail, sc_sym);
 
@@ -3790,9 +3790,9 @@ void CTcParser::add_inherited_templates(CTcSymObj *sc_sym,
     for (tpl = template_head_ ; tpl != 0 ; tpl = tpl->nxt_)
         expand_and_add_inherited_template(sc_sym, item_head, tpl);
 
-    /* 
+    /*
      *   finally, add the trivial expansion (in other words, with the
-     *   'inherited' keyword replaced by nothing) 
+     *   'inherited' keyword replaced by nothing)
      */
     expand_and_add_inherited_template(sc_sym, item_head, 0);
 }
@@ -3800,7 +3800,7 @@ void CTcParser::add_inherited_templates(CTcSymObj *sc_sym,
 /*
  *   Expand a template that contains an 'inherited' keyword, substituting
  *   the given inherited template list for the 'inherited' keyword, and add
- *   the resulting template to the template list for the given class. 
+ *   the resulting template to the template list for the given class.
  */
 void CTcParser::expand_and_add_inherited_template(
     CTcSymObj *sc_sym, CTcObjTemplateItem *item_head,
@@ -3818,23 +3818,23 @@ void CTcParser::expand_and_add_inherited_template(
     /*
      *   Build a new list.  Copy items from the original list until we find
      *   the 'inherited' item, then copy items from the inherited template,
-     *   and finally copy the remaining items from the original list. 
+     *   and finally copy the remaining items from the original list.
      */
     for (end_nxt = 0, cur = item_head, cnt = 0 ; cur != 0 ; cur = cur->nxt_)
     {
         CTcObjTemplateItem *new_item;
-        
+
         /* if this is the 'inherited' entry, switch to the superclass list */
         if (cur->tok_type_ == TOKT_INHERITED)
         {
-            /* 
+            /*
              *   if we're doing a trivial expansion, indicated by a null
              *   superclass template, simply skip the 'inherited' keyword
              *   altogether and proceed with copying the main list
              */
             if (sc_tpl == 0)
                 continue;
-            
+
             /* remember where to pick up in the containing list */
             end_nxt = cur;
 
@@ -3857,9 +3857,9 @@ void CTcParser::expand_and_add_inherited_template(
         /* count the item */
         ++cnt;
 
-        /* 
+        /*
          *   if we're at the end of the current list, and we have an outer
-         *   list to resume, resume the outer list 
+         *   list to resume, resume the outer list
          */
         if (cur->nxt_ == 0 && end_nxt != 0)
         {
@@ -3878,11 +3878,11 @@ void CTcParser::expand_and_add_inherited_template(
 /*
  *   Build a list of inherited templates given the base class.  We add only
  *   templates from superclasses of the given class.
- *   
+ *
  *   We add only templates that aren't already in the list, because the
  *   class could conceivably inherit from the same base class more than
  *   once, if it (or a superclass) inherits from multiple base classes that
- *   share a common base class.  
+ *   share a common base class.
  */
 void CTcParser::build_super_template_list(inh_tpl_entry **list_head,
                                           inh_tpl_entry **list_tail,
@@ -3893,21 +3893,21 @@ void CTcParser::build_super_template_list(inh_tpl_entry **list_head,
     /* if this object was defined as a subclass of 'object', we're done */
     if (sc_sym->sc_is_root())
         return;
-    
+
     /* scan all superclasses of the given superclass */
     for (sc = sc_sym->get_sc_name_head() ; sc != 0 ; sc = sc->nxt_)
     {
         CTcSymObj *sc_sym_cur;
         CTcObjTemplate *tpl;
-        
+
         /* if this item is not an object, skip it */
         sc_sym_cur = (CTcSymObj *)sc->get_sym();
         if (sc_sym_cur == 0 || sc_sym_cur->get_type() != TC_SYM_OBJ)
             continue;
 
-        /* 
+        /*
          *   scan this superclass's templates and add each one that's not
-         *   already in the list 
+         *   already in the list
          */
         for (tpl = sc_sym_cur->get_first_template() ; tpl != 0 ;
              tpl = tpl->nxt_)
@@ -3929,14 +3929,14 @@ void CTcParser::build_super_template_list(inh_tpl_entry **list_head,
                 entry = new (G_prsmem) inh_tpl_entry();
                 entry->tpl = tpl;
 
-                /* 
+                /*
                  *   Link it in at the end of the list.  Note that we want to
                  *   link it at the end because this puts the template
                  *   inheritance list in the same order as the superclass
                  *   definitions.  Since we search the template list in
                  *   order, this ensures that we find the first matching
                  *   template in superclass inheritance order in cases where
-                 *   there are multiple superclasses.  
+                 *   there are multiple superclasses.
                  */
                 if (*list_tail != 0)
                     (*list_tail)->nxt = entry;
@@ -3953,18 +3953,18 @@ void CTcParser::build_super_template_list(inh_tpl_entry **list_head,
 }
 
 /*
- *   Add a template definition 
+ *   Add a template definition
  */
 void CTcParser::add_template_def(
     CTcSymObj *class_sym, CTcObjTemplateItem *item_head, size_t item_cnt)
 {
     /* create the new template list entry */
     CTcObjTemplate *tpl = new (G_prsmem) CTcObjTemplate(item_head, item_cnt);
-    
-    /* 
+
+    /*
      *   link it into the appropriate list - if it's associated with a
      *   class, link it into the class symbol's list; otherwise link it into
-     *   the master list for the root object class 
+     *   the master list for the root object class
      */
     if (class_sym != 0)
     {
@@ -3980,21 +3980,21 @@ void CTcParser::add_template_def(
             template_head_ = tpl;
         template_tail_ = tpl;
     }
-    
-    /* 
+
+    /*
      *   if this is the longest template so far, extend the template
      *   instance expression array to make room for parsing this template's
-     *   instances 
+     *   instances
      */
     if (item_cnt > template_expr_max_)
     {
-        /* 
+        /*
          *   note the new length, rounding up to ensure that we don't have
          *   to repeatedly reallocate if we have several more of roughly
-         *   this same length 
+         *   this same length
          */
         template_expr_max_ = (item_cnt + 15) & ~15;
-        
+
         /* reallocate the list */
         template_expr_ = (CTcObjTemplateInst *)G_prsmem->
                          alloc(sizeof(template_expr_[0])
@@ -4005,7 +4005,7 @@ void CTcParser::add_template_def(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   String template definition 
+ *   String template definition
  */
 
 void CTcStrTemplate::append_tok(const CTcToken *tok)
@@ -4028,9 +4028,9 @@ void CTcStrTemplate::append_tok(const CTcToken *tok)
 /* ------------------------------------------------------------------------ */
 /*
  *   Parse a string template definition:
- *   
+ *
  *.    string template <<tok...>> funcName;
- *   
+ *
  *   The 'tok' entries are the literal tokens to match for the embedding
  *   contents.  We can have zero or more of these; a completely empty
  *   template sets up a function that processes every expression not
@@ -4040,7 +4040,7 @@ void CTcStrTemplate::append_tok(const CTcToken *tok)
  *   expression.  'funcName' is a symbol giving the name of the function
  *   that's to be invoked at run-time when this template is used.  If there's
  *   a '*', this function takes one argument giving the expression value for
- *   the '*', otherwise it takes no arguments.  
+ *   the '*', otherwise it takes no arguments.
  */
 CTPNStmTop *CTcParser::parse_string_template_def(int *err)
 {
@@ -4066,10 +4066,10 @@ CTPNStmTop *CTcParser::parse_string_template_def(int *err)
 
         case TOKT_SEM:
         case TOKT_RBRACE:
-            /* 
+            /*
              *   we must be missing the >> at the end of the list - log an
              *   error and return, since we're assuming we've run out of
-             *   tokens in the template definition 
+             *   tokens in the template definition
              */
             G_tok->log_error_curtok(TCERR_STRTPL_MISSING_RANGLE);
             return 0;
@@ -4101,15 +4101,15 @@ CTPNStmTop *CTcParser::parse_string_template_def(int *err)
         /* missing symbol - skip to the next semicolon or brace */
         if (skip_to_sem())
             *err = TRUE;
-        
+
         /* give up */
         return 0;
     }
 
-    /* 
+    /*
      *   Our requirement for the processor function is that it takes one
      *   argument if we have a '*' symbol in the token list, otherwise no
-     *   arguments.  
+     *   arguments.
      */
     int argc = tpl->star ? 1 : 0;
 
@@ -4118,9 +4118,9 @@ CTPNStmTop *CTcParser::parse_string_template_def(int *err)
     CTcSymFunc *funcsym = (CTcSymFunc *)global_symtab_->find(
         functok->get_text(), functok->get_text_len());
 
-    /* 
+    /*
      *   if it's defined, check that it matches; otherwise add an implicit
-     *   'extern' declaration for it 
+     *   'extern' declaration for it
      */
     if (funcsym != 0)
     {
@@ -4129,7 +4129,7 @@ CTPNStmTop *CTcParser::parse_string_template_def(int *err)
          *   we want to pass it.  If it's not external, make sure that it
          *   returns a value.  (We'll have to give it the benefit of the
          *   doubt if it's external, as the 'extern' declaration has no way
-         *   to say one way or the other.)  
+         *   to say one way or the other.)
          */
         if (!funcsym->argc_ok(argc)
             || (!funcsym->is_extern() && !funcsym->has_retval()))
@@ -4139,10 +4139,10 @@ CTPNStmTop *CTcParser::parse_string_template_def(int *err)
     }
     else
     {
-        /* 
+        /*
          *   It's not defined yet, so add an extern definition for it.  The
          *   function takes one argument if there's a '*' in the template,
-         *   otherwise no arguments. 
+         *   otherwise no arguments.
          */
         funcsym = new CTcSymFunc(
             functok->get_text(), functok->get_text_len(), FALSE,
@@ -4174,7 +4174,7 @@ CTPNStmTop *CTcParser::parse_string_template_def(int *err)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parse an object or function definition 
+ *   Parse an object or function definition
  */
 CTPNStmTop *CTcParser::parse_object_or_func(int *err, int replace,
                                             int suppress_error,
@@ -4189,10 +4189,10 @@ CTPNStmTop *CTcParser::parse_object_or_func(int *err, int replace,
         /* skip the 'transient' keyword */
         G_tok->next();
 
-        /* 
+        /*
          *   if 'object' follows, treat this as an object statement;
          *   otherwise, we'll process using our normal handling, nothing our
-         *   'transient' status 
+         *   'transient' status
          */
         if (G_tok->cur() == TOKT_OBJECT)
             return parse_object_stm(err, TRUE);
@@ -4200,14 +4200,14 @@ CTPNStmTop *CTcParser::parse_object_or_func(int *err, int replace,
 
     /* remember the initial token */
     init_tok = *G_tok->copycur();
-    
+
     /* check the next token */
     switch(G_tok->next())
     {
     case TOKT_COLON:
-        /* 
+        /*
          *   it's an object definition - back up to the object name symbol
-         *   and go parse the object definition 
+         *   and go parse the object definition
          */
         G_tok->unget();
         return parse_object(err, replace, FALSE, FALSE, 0, trans);
@@ -4217,9 +4217,9 @@ CTPNStmTop *CTcParser::parse_object_or_func(int *err, int replace,
         if (trans)
             G_tok->log_error(TCERR_INVAL_TRANSIENT);
 
-        /* 
+        /*
          *   it's a function definition - back up to the function name
-         *   symbol and go parse the function 
+         *   symbol and go parse the function
          */
         G_tok->unget();
         return parse_function(err, FALSE, replace, FALSE, FALSE);
@@ -4233,25 +4233,25 @@ CTPNStmTop *CTcParser::parse_object_or_func(int *err, int replace,
         return parse_template_def(err, &init_tok);
 
     default:
-        /* 
+        /*
          *   if the first token was a symbol that has already been defined
          *   as a class or object, this must be an anonymous object
-         *   definition 
+         *   definition
          */
         if (init_tok.gettyp() == TOKT_SYM)
         {
             CTcSymObj *sym;
-            
+
             /* look up the symbol in the global symbol table */
             sym = (CTcSymObj *)
                   global_symtab_->find(init_tok.get_text(),
                                        init_tok.get_text_len());
 
-            /* 
+            /*
              *   If it's a TADS Object symbol, this must be an anonymous
              *   instance definition.  If the symbol is not yet defined
              *   and we're doing a syntax-only pass, assume the same
-             *   thing.  
+             *   thing.
              */
             if ((sym !=0
                  && sym->get_type() == TC_SYM_OBJ
@@ -4260,7 +4260,7 @@ CTPNStmTop *CTcParser::parse_object_or_func(int *err, int replace,
             {
                 /*
                  *   If this is a 'replace' statement, we must have a class
-                 *   list with the replacement object, so this is invalid. 
+                 *   list with the replacement object, so this is invalid.
                  */
                 if (replace)
                 {
@@ -4277,25 +4277,25 @@ CTPNStmTop *CTcParser::parse_object_or_func(int *err, int replace,
         }
         else if (init_tok.gettyp() == TOKT_OBJECT)
         {
-            /* 
+            /*
              *   this is a base anonymous object - put the 'object' token
              *   back and go parse the object definition
              */
             G_tok->unget();
             return parse_anon_object(err, 0, FALSE, 0, trans);
         }
-        
-        /* 
+
+        /*
          *   anything else is an error - log an error, unless we just
-         *   logged this same error on the previous token 
+         *   logged this same error on the previous token
          */
         if (!suppress_error)
             G_tok->log_error_curtok(TCERR_REQ_FUNC_OR_OBJ);
 
-        /* 
+        /*
          *   suppress this same error if it occurs again on the next
          *   token, since if it does we're probably just scanning past
-         *   tons of garbage trying to resynchronize 
+         *   tons of garbage trying to resynchronize
          */
         if (suppress_next_error != 0)
             *suppress_next_error = TRUE;
@@ -4304,7 +4304,7 @@ CTPNStmTop *CTcParser::parse_object_or_func(int *err, int replace,
 }
 
 /*
- *   Parse a '+' object definition, or a '+ property' statement 
+ *   Parse a '+' object definition, or a '+ property' statement
  */
 CTPNStmTop *CTcParser::parse_plus_object(int *err)
 {
@@ -4312,7 +4312,7 @@ CTPNStmTop *CTcParser::parse_plus_object(int *err)
     int is_class;
     int anon;
     int trans;
-    
+
     /* count the '+' or '++' tokens */
     for (cnt = 0 ; G_tok->cur() == TOKT_PLUS || G_tok->cur() == TOKT_INC ;
           G_tok->next())
@@ -4325,9 +4325,9 @@ CTPNStmTop *CTcParser::parse_plus_object(int *err)
             ++cnt;
     }
 
-    /* 
+    /*
      *   if the count is one, and the next token is 'property', it's the
-     *   '+' property definition 
+     *   '+' property definition
      */
     if (cnt == 1 && G_tok->cur() == TOKT_PROPERTY)
     {
@@ -4384,9 +4384,9 @@ CTPNStmTop *CTcParser::parse_plus_object(int *err)
         trans = TRUE;
     }
 
-    /* 
+    /*
      *   check to see if the object name is followed by a colon - if not,
-     *   it's an anonymous object definition 
+     *   it's an anonymous object definition
      */
     if (G_tok->cur() == TOKT_SYM)
     {
@@ -4417,7 +4417,7 @@ CTPNStmTop *CTcParser::parse_plus_object(int *err)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Find or define an object symbol. 
+ *   Find or define an object symbol.
  */
 CTcSymObj *CTcParser::find_or_def_obj(
     const char *tok_txt, size_t tok_len, int replace, int modify,
@@ -4445,7 +4445,7 @@ CTcSymObj *CTcParser::find_or_def_obj(
          *   We're modifying an intrinsic class.  In this case, the base
          *   object is the previous modification object for the class, or no
          *   object at all.  In either case, we must create a new object and
-         *   assign it to the metaclass.  
+         *   assign it to the metaclass.
          */
 
         /* get the metaclass symbol */
@@ -4454,14 +4454,14 @@ CTcSymObj *CTcParser::find_or_def_obj(
         /* get the original modification object */
         CTcSymObj *old_mod_obj = (*meta_sym)->get_mod_obj();
 
-        /* 
+        /*
          *   If there is no original modification object, create one - this
          *   is necessary so that there's always a dummy object at the root
          *   of the modification chain in each object file.  During linking,
          *   when one object file modifies one of these chains loaded from
          *   another object file, we'll use the pointer to the dummy root
          *   object in the second object file to point instead to the top of
-         *   the chain in the first object file.  
+         *   the chain in the first object file.
          */
         if (old_mod_obj == 0)
         {
@@ -4475,18 +4475,18 @@ CTcSymObj *CTcParser::find_or_def_obj(
             CTPNStmObject *base_stm = new CTPNStmObject(old_mod_obj, FALSE);
             old_mod_obj->set_obj_stm(base_stm);
 
-            /* 
+            /*
              *   add the base statement to our nested top-level statement
-             *   list, so that we generate this object's code 
+             *   list, so that we generate this object's code
              */
             add_nested_stm(base_stm);
         }
 
-        /* 
+        /*
          *   note the superclass of the new modification object - this is
          *   simply the previous modification object, which we're further
          *   modifying, thus making this previous modification object the
-         *   base of the new modification 
+         *   base of the new modification
          */
         *mod_orig_sym = old_mod_obj;
 
@@ -4510,18 +4510,18 @@ CTcSymObj *CTcParser::find_or_def_obj(
     obj_sym = (CTcSymObj *)sym;
     if (obj_sym != 0)
     {
-        /* 
+        /*
          *   This symbol is already defined.  The previous definition must
          *   be an object, or this definition is incompatible.  If it's an
          *   object, then it must have been external, *or* we must be
-         *   replacing or modifying the previous definition.  
+         *   replacing or modifying the previous definition.
          */
         if (obj_sym->get_type() != TC_SYM_OBJ)
         {
-            /* 
+            /*
              *   it's not an object - log an error; continue parsing the
              *   definition for syntax, but the definition is ultimately
-             *   invalid because the object name is invalid 
+             *   invalid because the object name is invalid
              */
             G_tok->log_error_curtok(TCERR_REDEF_AS_OBJ);
 
@@ -4531,9 +4531,9 @@ CTcSymObj *CTcParser::find_or_def_obj(
         else if ((modify || replace)
                  && obj_sym->get_metaclass() != TC_META_TADSOBJ)
         {
-            /* 
+            /*
              *   we can't modify or replace BigNumber instances, Dictionary
-             *   instances, or anything other than ordinary TADS objects 
+             *   instances, or anything other than ordinary TADS objects
              */
             G_tok->log_error(TCERR_CANNOT_MOD_OR_REP_TYPE);
 
@@ -4545,37 +4545,37 @@ CTcSymObj *CTcParser::find_or_def_obj(
             CTPNStmObject *mod_orig_stm;
             CTcSymObj *mod_sym;
 
-            /* 
+            /*
              *   remember the original pre-modified object parse tree - we
              *   might need to delete properties in the tree (for any
-             *   properties defined with the "replace" keyword) 
+             *   properties defined with the "replace" keyword)
              */
             mod_orig_stm = obj_sym->get_obj_stm();
 
-            /* 
+            /*
              *   We're modifying the previous definition.  The object was
              *   previously defined within this translation unit, so the
              *   modification can be conducted entirely within the
              *   translation unit (i.e., there's no link-time work we'll
              *   need to do).
-             *   
+             *
              *   Create a new fake symbol for the original object, and
              *   assign it a new ID.  We need a symbol table entry because
              *   the object statement parse tree depends upon having a
              *   symbol table entry, and because the symbol table entry is
              *   the mechanism by which the linker can fix up the object ID
              *   from object file local numbering to image file global
-             *   numbering.  
+             *   numbering.
              */
             mod_sym = CTcSymObj::synthesize_modified_obj_sym(FALSE);
 
             if (mod_orig_stm != 0)
             {
-                /* 
+                /*
                  *   transfer the old object definition tree to the new
                  *   symbol, since the new symbol now holds the original
                  *   object - the real symbol is going to have the new
-                 *   (modified) object definition instead 
+                 *   (modified) object definition instead
                  */
                 mod_sym->set_obj_stm(mod_orig_stm);
                 mod_orig_stm->set_obj_sym(mod_sym);
@@ -4591,17 +4591,17 @@ CTcSymObj *CTcParser::find_or_def_obj(
             }
             else
             {
-                /* 
+                /*
                  *   it's external - use the class and transient status of
-                 *   the imported symbol 
+                 *   the imported symbol
                  */
                 *is_class = obj_sym->is_class();
                 *trans = obj_sym->is_transient();
             }
 
-            /* 
+            /*
              *   transfer the property deletion list from the original
-             *   symbol to the new symbol 
+             *   symbol to the new symbol
              */
             mod_sym->set_del_prop_head(obj_sym->get_first_del_prop());
             obj_sym->set_del_prop_head(0);
@@ -4617,21 +4617,21 @@ CTcSymObj *CTcParser::find_or_def_obj(
             /*
              *   Build a token containing the synthesized object name for
              *   the pre-modified object, so that we can refer to it in the
-             *   superclass list of the new object.  
+             *   superclass list of the new object.
              */
             *mod_orig_sym = mod_sym;
 
-            /* 
+            /*
              *   transfer the base 'modify' symbol to the new symbol for the
-             *   original object 
+             *   original object
              */
             mod_sym->set_mod_base_sym(obj_sym->get_mod_base_sym());
 
-            /* 
+            /*
              *   If we're modifying an external object, we must mark the
              *   symbol as such - this will put the 'modify' flag with the
              *   symbol in the object file, so that we'll apply the 'modify'
-             *   at link time.  
+             *   at link time.
              */
             if (obj_sym->is_extern())
             {
@@ -4648,20 +4648,20 @@ CTcSymObj *CTcParser::find_or_def_obj(
             /* remember the base symbol */
             obj_sym->set_mod_base_sym(mod_sym);
 
-            /* 
+            /*
              *   keep the original version's dictionary with the base
              *   symbol, and change the modified symbol to use the
-             *   dictionary now active 
+             *   dictionary now active
              */
             mod_sym->set_dict(obj_sym->get_dict());
             obj_sym->set_dict(dict_cur_);
         }
         else if (obj_sym->is_extern())
         {
-            /* 
+            /*
              *   it was previously defined as external, so this definition
              *   is acceptable - simply remove the 'extern' flag from the
-             *   object symbol now that we have the real definition 
+             *   object symbol now that we have the real definition
              */
             obj_sym->set_extern(FALSE);
 
@@ -4672,18 +4672,18 @@ CTcSymObj *CTcParser::find_or_def_obj(
              *   If we're replacing an external object, we must mark the
              *   symbol as a replacement - this will put the 'replace' flag
              *   with the symbol in the object file, so that we'll apply the
-             *   replacement at link time.  
+             *   replacement at link time.
              */
             if (replace)
                 obj_sym->set_ext_replace(TRUE);
         }
         else if (replace)
         {
-            /* 
+            /*
              *   We're replacing the previous definition.  We can simply
              *   discard the previous definition and replace its parse tree
              *   with our own.  Mark the original object parse tree as
-             *   replaced, so that we do not generate any code for it.  
+             *   replaced, so that we do not generate any code for it.
              */
             obj_sym->get_obj_stm()->set_replaced(TRUE);
 
@@ -4693,15 +4693,15 @@ CTcSymObj *CTcParser::find_or_def_obj(
              *   defined within this translation unit, the replacement is
              *   now completed - there is no need to apply any replacement
              *   from this object at link time, and in fact it would be
-             *   incorrect to do so.  
+             *   incorrect to do so.
              */
         }
         else
         {
-            /* 
+            /*
              *   the symbol is already defined in this module, and we're not
              *   replacing or modifying it -- this is an error, because we
-             *   can only define an object once 
+             *   can only define an object once
              */
             G_tok->log_error(TCERR_OBJ_REDEF, (int)tok_len, tok_txt);
 
@@ -4711,9 +4711,9 @@ CTcSymObj *CTcParser::find_or_def_obj(
     }
     else
     {
-        /* 
+        /*
          *   the object is not already defined in the global symbol table --
-         *   create a new object symbol 
+         *   create a new object symbol
          */
         obj_sym = new CTcSymObj(tok_txt, tok_len, FALSE,
                                 G_cg->new_obj_id(), FALSE,
@@ -4722,11 +4722,11 @@ CTcSymObj *CTcParser::find_or_def_obj(
         /* add the object to the global symbol table */
         global_symtab_->add_entry(obj_sym);
 
-        /* 
+        /*
          *   We can't replace or modify an object that hasn't been defined
          *   yet (it has to have been defined at least as an external).
          *   Do not make this check in syntax-only mode, because it's not
-         *   important to the syntax.  
+         *   important to the syntax.
          */
         if (replace || modify)
         {
@@ -4745,7 +4745,7 @@ CTcSymObj *CTcParser::find_or_def_obj(
                  *   In particular, if we're building a symbol file, we
                  *   don't want to write undefined 'modify' or 'replace'
                  *   symbols, because such symbols are not really defined
-                 *   by this module.  
+                 *   by this module.
                  */
                 if (replace)
                     obj_sym->set_ext_replace(TRUE);
@@ -4814,7 +4814,7 @@ CTPNStmObject *CTcParser::parse_anon_object(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Object statement 
+ *   Object statement
  */
 
 /*
@@ -4829,22 +4829,22 @@ int CTPNStmObjectBase::parse_nested_obj_prop(
     /* parse the body of the nested object */
     CTPNStmObject *nested_obj = G_prs->parse_anon_object(
         err, 0, TRUE, term_info, FALSE);
-    
-    /* 
+
+    /*
      *   If we encountered a termination error, assume the error is actually
      *   in the enclosing object, and that this wasn't meant to be a nested
      *   object after all.  Do not define the symbol we took as a property to
      *   be a property, since it might well have been meant as an object name
      *   instead.  If a termination error did occur, simply return, so that
-     *   the caller can handle the assumed termination.  
+     *   the caller can handle the assumed termination.
      */
     if (term_info->unterm_)
         return FALSE;
-    
+
     /* make sure we didn't encounter an error */
     if (*err != 0 )
         return FALSE;
-    
+
     /* make sure we created a valid parse tree for the object */
     if (nested_obj == 0)
     {
@@ -4857,26 +4857,26 @@ int CTPNStmObjectBase::parse_nested_obj_prop(
     cval.set_obj(nested_obj->get_obj_sym()->get_obj_id(),
                  nested_obj->get_obj_sym()->get_metaclass());
     CTcPrsNode *expr = new CTPNConst(&cval);
-    
-    /* 
+
+    /*
      *   look up the property symbol - we can finally look it up with
      *   reasonable confidence, since it appears we do indeed have a valid
      *   nested object definition, hence we can stop waiting to see if
-     *   something goes wrong 
+     *   something goes wrong
      */
     CTcSymProp *prop_sym = G_prs->look_up_prop(prop_tok, TRUE);
-    
+
     /* if it's a vocabulary property, this type isn't allowed */
     if (prop_sym != 0 && prop_sym->is_vocab())
         G_tok->log_error(TCERR_VOCAB_REQ_SSTR, 1, ":");
-    
+
     /* if we have a valid property and expression, add it */
     if (prop_sym != 0)
         new_prop = add_prop(prop_sym, expr, replace, FALSE);
-    
+
     /*
      *   Define the lexicalParent property in the nested object with a
-     *   reference back to the parent object. 
+     *   reference back to the parent object.
      */
     cval.set_obj(get_obj_sym() != 0
                  ? get_obj_sym()->get_obj_id() : TCTARG_INVALID_OBJ,
@@ -4884,12 +4884,12 @@ int CTPNStmObjectBase::parse_nested_obj_prop(
                  ? get_obj_sym()->get_metaclass() : TC_META_UNKNOWN);
     expr = new CTPNConst(&cval);
     nested_obj->add_prop(G_prs->get_lexical_parent_sym(), expr, FALSE, FALSE);
-    
-    /* 
+
+    /*
      *   add the nested object's parse tree to the queue of nested top-level
      *   statements - since an object is a top-level statement, but we're not
      *   parsing it at the top level, we need to add it to the pending queue
-     *   explicitly 
+     *   explicitly
      */
     G_prs->add_nested_stm(nested_obj);
 
@@ -4899,7 +4899,7 @@ int CTPNStmObjectBase::parse_nested_obj_prop(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parse an object body 
+ *   Parse an object body
  */
 CTPNStmObject *CTcParser::parse_object_body(
     int *err, CTcSymObj *obj_sym,
@@ -4907,12 +4907,12 @@ CTPNStmObject *CTcParser::parse_object_body(
     int modify, CTcSymObj *mod_orig_sym, int plus_cnt,
     CTcSymMetaclass *meta_sym, tcprs_term_info *term_info, int trans)
 {
-    /* 
+    /*
      *   If we don't have an enclosing term_info, use my own; if a valid
      *   term_info was passed in, continue using the enclosing one.  We
      *   always want to use the outermost term_info, because our heuristic
      *   is to assume that any lack of termination applies to the first
-     *   object it possibly could apply to. 
+     *   object it possibly could apply to.
      */
     tcprs_term_info my_term_info;
     if (term_info == 0)
@@ -4940,33 +4940,33 @@ CTPNStmObject *CTcParser::parse_object_body(
     if (is_anon && obj_sym != 0)
         add_anon_obj(obj_sym);
 
-    /* 
+    /*
      *   set the object's line location (we must do this explicitly
      *   because we're in a top-level statement and hence do not have a
-     *   current source position saved at the moment) 
+     *   current source position saved at the moment)
      */
     obj_stm->set_source_pos(G_tok->get_last_desc(),
                             G_tok->get_last_linenum());
 
-    /* 
+    /*
      *   If we're not modifying, parse the class list.  If this is a
-     *   'modify' statement, there's no class list.  
+     *   'modify' statement, there's no class list.
      */
     if (!modify)
     {
-        /* 
+        /*
          *   Parse and skip the colon, if required.  All objects except
          *   anonymous objects and grammar rule definitions have the colon;
          *   for anonymous objects and grammar definitions, the caller is
          *   required to advance us to the class list before parsing the
-         *   object body.  
+         *   object body.
          */
         if (is_anon || is_grammar)
         {
-            /* 
+            /*
              *   it's anonymous, or it's a grammar definition - the caller
              *   will have already advanced us to the class list, so there's
-             *   no need to look for a colon 
+             *   no need to look for a colon
              */
         }
         else if (G_tok->cur() == TOKT_COLON)
@@ -4980,14 +4980,14 @@ CTPNStmObject *CTcParser::parse_object_body(
             G_tok->log_error_curtok(TCERR_OBJDEF_REQ_COLON);
         }
 
-        /* 
+        /*
          *   Drop any existing list of superclass names from the symbol.  We
          *   might have a list of names from loading the symbol file; if so,
-         *   forget that, and use the list defined here instead.  
+         *   forget that, and use the list defined here instead.
          */
         if (obj_sym != 0)
             obj_sym->clear_sc_names();
-        
+
         /* parse the superclass list */
         parse_superclass_list(obj_sym, obj_stm->get_superclass_list());
     }
@@ -4995,22 +4995,22 @@ CTPNStmObject *CTcParser::parse_object_body(
     {
         /*
          *   This is a 'modify' statement.  The original pre-modified
-         *   object is our single superclass. 
-         *   
+         *   object is our single superclass.
+         *
          *   Note that we do not do anything with the superclass name list,
          *   because we're reassigning the symbol representing the global
          *   name of the object (obj_sym) to refer to the new modifier
          *   object.  As far as the name structure of the program is
          *   concerned, this object's superclass list is the same as the
-         *   original object's superclass list.  
+         *   original object's superclass list.
          */
         if (mod_orig_sym != 0)
             obj_stm->add_superclass(mod_orig_sym);
     }
 
-    /* 
+    /*
      *   clear the list of dictionary properties, so we can keep track of
-     *   which dictionary properties this object explicitly defines 
+     *   which dictionary properties this object explicitly defines
      */
     for (CTcDictPropEntry *dict_prop = dict_prop_head_ ; dict_prop != 0 ;
          dict_prop = dict_prop->nxt_)
@@ -5021,14 +5021,14 @@ CTPNStmObject *CTcParser::parse_object_body(
 
     /*
      *   If we have a '+' list, figure the object's location by finding
-     *   the item in the location stack at the desired depth. 
+     *   the item in the location stack at the desired depth.
      */
     if (plus_cnt != 0)
     {
-        /* 
+        /*
          *   if no '+' property has been defined, or they're asking for a
          *   nesting level that doesn't exist, note the error and ignore the
-         *   '+' setting 
+         *   '+' setting
          */
         if (plus_prop_ == 0
             || (size_t)plus_cnt > plus_stack_alloc_
@@ -5039,10 +5039,10 @@ CTPNStmObject *CTcParser::parse_object_body(
         }
         else
         {
-            /* 
+            /*
              *   find the object - the location of an object with N '+'
              *   signs is the object most recently defined with N-1 '+'
-             *   signs 
+             *   signs
              */
             CTPNStmObject *loc = plus_stack_[plus_cnt - 1];
 
@@ -5054,14 +5054,14 @@ CTPNStmObject *CTcParser::parse_object_body(
                 cval.set_obj(loc->get_obj_sym()->get_obj_id(),
                              loc->get_obj_sym()->get_metaclass());
                 CTcPrsNode *expr = new CTPNConst(&cval);
-                
+
                 /* add the location property */
                 CTPNObjProp *prop = obj_stm->add_prop(
                     plus_prop_, expr, FALSE, FALSE);
 
-                /* 
+                /*
                  *   mark it as overwritable, since it was added via the '+'
-                 *   notation 
+                 *   notation
                  */
                 prop->set_overwritable();
             }
@@ -5074,7 +5074,7 @@ CTPNStmObject *CTcParser::parse_object_body(
      *   objects - if this is a nested object, it doesn't participate in the
      *   '+' mechanism at all.  Also, ignore classes defined with no '+'
      *   signs - the '+' mechanism is generally only useful for instances,
-     *   so ignore it for classes that don't use the notation explicitly.  
+     *   so ignore it for classes that don't use the notation explicitly.
      */
     if (!is_nested && (!is_class || plus_cnt != 0))
     {
@@ -5083,25 +5083,25 @@ CTPNStmObject *CTcParser::parse_object_body(
         {
             size_t new_alloc;
             size_t i;
-            
-            /* 
+
+            /*
              *   allocate more space - go a bit above what we need to avoid
              *   having to reallocate again immediately if they a few levels
-             *   deeper 
+             *   deeper
              */
             new_alloc = plus_cnt + 16;
             plus_stack_ = (CTPNStmObject **)
                           t3realloc(plus_stack_,
                                     new_alloc * sizeof(*plus_stack_));
-            
+
             /* clear out the newly-allocated entries */
             for (i = plus_stack_alloc_ ; i < new_alloc ; ++i)
                 plus_stack_[i] = 0;
-            
+
             /* remember the new allocation size */
             plus_stack_alloc_ = new_alloc;
         }
-        
+
         /* remember this object as the last object at its depth */
         plus_stack_[plus_cnt] = obj_stm;
     }
@@ -5109,7 +5109,7 @@ CTPNStmObject *CTcParser::parse_object_body(
     /*
      *   Check for an open brace.  If the object uses braces around its
      *   property list, template properties can be either before the open
-     *   brace or just inside it. 
+     *   brace or just inside it.
      */
     if (G_tok->cur() == TOKT_LBRACE)
     {
@@ -5132,7 +5132,7 @@ CTPNStmObject *CTcParser::parse_object_body(
      *   If we didn't already find an open brace, try again now that we've
      *   scanned the template properties, since template properties can
      *   either immediately precede or immediately follow the open brace, if
-     *   present. 
+     *   present.
      */
     if (!braces && G_tok->cur() == TOKT_LBRACE)
     {
@@ -5145,16 +5145,16 @@ CTPNStmObject *CTcParser::parse_object_body(
 
     /*
      *   If this is a nested object, the property list must be enclosed in
-     *   braces.  If we haven't found a brace by this point, it's an error.  
+     *   braces.  If we haven't found a brace by this point, it's an error.
      */
     if (is_nested && !braces)
     {
-        /* 
+        /*
          *   No braces - this is illegal, because a nested object requires
          *   braces.  The most likely error is that the previous object was
          *   not properly terminated, and this is simply a new object
          *   definition.  Flag the error as a missing terminator on the
-         *   enclosing object.  
+         *   enclosing object.
          */
         G_tcmain->log_error(term_info->desc_, term_info->linenum_,
                             TC_SEV_ERROR, TCERR_UNTERM_OBJ_DEF);
@@ -5170,7 +5170,7 @@ CTPNStmObject *CTcParser::parse_object_body(
      *   used to order a set of objects into the same sequence in which they
      *   appeared in the original source file, which is often useful for
      *   assembling pre-initialized structures.  sourceTextGroup identifies
-     *   the file itself.  
+     *   the file itself.
      */
     if (!is_class && !modify)
     {
@@ -5210,14 +5210,14 @@ CTPNStmObject *CTcParser::parse_object_body(
         return 0;
     }
 
-    /* 
+    /*
      *   Finish the object by adding dictionary property placeholders.  Don't
      *   bother if this is an intrinsic class modifier, since intrinsic class
-     *   objects can't have dictionary associations.  
+     *   objects can't have dictionary associations.
      */
     if (obj_stm != 0 && meta_sym == 0)
     {
-        /* 
+        /*
          *   Add a placeholder for each dictionary property we didn't
          *   explicitly define for the object.  This will ensure that we have
          *   enough property slots pre-allocated at link time if the object
@@ -5251,7 +5251,7 @@ CTPNStmObject *CTcParser::parse_object_body(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parse a class definition 
+ *   Parse a class definition
  */
 CTPNStmTop *CTcParser::parse_class(int *err)
 {
@@ -5289,14 +5289,14 @@ CTPNStmTop *CTcParser::parse_modify(int *err)
         /* if a paren follows the symbol, it's a function */
         if (is_lpar)
             return parse_function(err, FALSE, FALSE, TRUE, FALSE);
-    }        
+    }
 
     /* parse the object definition */
     return parse_object(err, FALSE, TRUE, FALSE, 0, FALSE);
 }
 
 /*
- *   Parse a 'replace' statement 
+ *   Parse a 'replace' statement
  */
 CTPNStmTop *CTcParser::parse_replace(int *err)
 {
@@ -5336,14 +5336,14 @@ CTPNStmTop *CTcParser::parse_replace(int *err)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Generic statement node 
+ *   Generic statement node
  */
 
 /*
  *   Add a debugging line record for the current statement.  Call this just
  *   before generating instructions for the statement; we'll create a line
  *   record associating the current byte-code location with our source file
- *   and line number.  
+ *   and line number.
  */
 void CTPNStmBase::add_debug_line_rec()
 {
@@ -5353,7 +5353,7 @@ void CTPNStmBase::add_debug_line_rec()
 }
 
 /*
- *   Add a debugging line record for a given position 
+ *   Add a debugging line record for a given position
  */
 void CTPNStmBase::add_debug_line_rec(CTcTokFileDesc *desc, long linenum)
 {
@@ -5363,11 +5363,11 @@ void CTPNStmBase::add_debug_line_rec(CTcTokFileDesc *desc, long linenum)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Export symbol 
+ *   Export symbol
  */
 
 /*
- *   write to object file 
+ *   write to object file
  */
 void CTcPrsExport::write_to_obj_file(CVmFile *fp)
 {
@@ -5381,7 +5381,7 @@ void CTcPrsExport::write_to_obj_file(CVmFile *fp)
 }
 
 /*
- *   read from object file 
+ *   read from object file
  */
 CTcPrsExport *CTcPrsExport::read_from_obj_file(CVmFile *fp)
 {
@@ -5417,7 +5417,7 @@ CTcPrsExport *CTcPrsExport::read_from_obj_file(CVmFile *fp)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Add a generated object - static compilation mode only. 
+ *   Add a generated object - static compilation mode only.
  */
 CTcSymObj *CTcParser::add_gen_obj_stat(CTcSymObj *cls)
 {
@@ -5445,7 +5445,7 @@ CTcSymObj *CTcParser::add_gen_obj_stat(CTcSymObj *cls)
 }
 
 /*
- *   Add a property to a generated object - static compilation mode only. 
+ *   Add a property to a generated object - static compilation mode only.
  */
 void CTcParser::add_gen_obj_prop_stat(
     CTcSymObj *obj, CTcSymProp *prop, const CTcConstVal *val)
@@ -5457,11 +5457,11 @@ void CTcParser::add_gen_obj_prop_stat(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Program Statement node 
+ *   Program Statement node
  */
 
 /*
- *   fold constants - we simply fold constants in each of our statements 
+ *   fold constants - we simply fold constants in each of our statements
  */
 CTcPrsNode *CTPNStmProg::fold_constants(class CTcPrsSymtab *symtab)
 {
@@ -5471,33 +5471,33 @@ CTcPrsNode *CTPNStmProg::fold_constants(class CTcPrsSymtab *symtab)
     for (cur = first_stm_ ; cur != 0 ; cur = cur->get_next_stm_top())
         cur->fold_constants(symtab);
 
-    /* 
+    /*
      *   although nodes within our subtree might have been changed, this
-     *   compound statement itself is unchanged by constant folding 
+     *   compound statement itself is unchanged by constant folding
      */
     return this;
 }
 
 /*
- *   Generate code 
+ *   Generate code
  */
 void CTPNStmProg::gen_code(int, int)
 {
     CTPNStmTop *cur;
 
-    /* 
+    /*
      *   iterate through our statements and generate code for each in
-     *   sequence 
+     *   sequence
      */
     for (cur = first_stm_ ; cur != 0 ; cur = cur->get_next_stm_top())
         cur->gen_code(TRUE, TRUE);
 
-    /* 
+    /*
      *   iterate again, this time checking local symbol tables - we must wait
      *   to do this until after we've generated all of the code, because
      *   local symbol tables can be cross-referenced in some cases (in
      *   particular, when locals are shared through contexts, such as with
-     *   anonymous functions) 
+     *   anonymous functions)
      */
     for (cur = first_stm_ ; cur != 0 ; cur = cur->get_next_stm_top())
         cur->check_locals();
@@ -5506,11 +5506,11 @@ void CTPNStmProg::gen_code(int, int)
 /* ------------------------------------------------------------------------ */
 /*
  *   Dictionary entry - each dictionary object gets one of these objects to
- *   track it 
+ *   track it
  */
 
 /*
- *   construction 
+ *   construction
  */
    CTcDictEntry::CTcDictEntry(CTcSymObj *sym)
 {
@@ -5533,7 +5533,7 @@ void CTPNStmProg::gen_code(int, int)
 }
 
 /*
- *   Add a word to the table 
+ *   Add a word to the table
  */
 void CTcDictEntry::add_word(const char *txt, size_t len, int copy,
                             tc_obj_id obj, tc_prop_id prop)
@@ -5558,7 +5558,7 @@ void CTcDictEntry::add_word(const char *txt, size_t len, int copy,
 }
 
 /*
- *   Write my symbol to an object file 
+ *   Write my symbol to an object file
  */
 void CTcDictEntry::write_sym_to_obj_file(CVmFile *fp)
 {
@@ -5579,7 +5579,7 @@ void CTcDictEntry::write_sym_to_obj_file(CVmFile *fp)
  */
 
 /*
- *   Write to an object file 
+ *   Write to an object file
  */
 void CTcGramProdEntry::write_to_obj_file(CVmFile *fp)
 {
@@ -5617,7 +5617,7 @@ void CTcGramProdEntry::write_to_obj_file(CVmFile *fp)
  */
 
 /*
- *   Write to an object file 
+ *   Write to an object file
  */
 void CTcGramProdAlt::write_to_obj_file(CVmFile *fp)
 {
@@ -5648,11 +5648,11 @@ void CTcGramProdAlt::write_to_obj_file(CVmFile *fp)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Grammar production token object 
+ *   Grammar production token object
  */
 
 /*
- *   write to an object file 
+ *   write to an object file
  */
 void CTcGramProdTok::write_to_obj_file(CVmFile *fp)
 {

@@ -1,10 +1,10 @@
 /* $Header: d:/cvsroot/tads/tads3/vmres.h,v 1.2 1999/05/17 02:52:30 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -15,7 +15,7 @@ Function
   resource name table, and provides access to the byte stream to the
   user program.
 Notes
-  
+
 Modified
   04/03/99 MJRoberts  - Creation
 */
@@ -29,7 +29,7 @@ Modified
 class CVmResource
 {
     friend class CVmImageLoader;
-    
+
 public:
     CVmResource(long seek_pos, uint32_t len, size_t name_len);
     ~CVmResource();

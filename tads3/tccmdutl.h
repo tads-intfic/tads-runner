@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 2002 by Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -43,17 +43,17 @@ public:
 class CTcOptFileHelper
 {
 public:
-    /* 
+    /*
      *   Allocate an option string.  Allocates the given number of bytes of
      *   memory.  Strings allocated with this must be freed with
-     *   free_opt_file_str().  
+     *   free_opt_file_str().
      */
     virtual char *alloc_opt_file_str(size_t len) = 0;
 
     /* free a string allocated with alloc_opt_file_str() */
     virtual void free_opt_file_str(char *str) = 0;
 
-    /* 
+    /*
      *   Process a comment line.  We call this for each line that we find
      *   starting with "#" and for each blank line.
      */
@@ -62,21 +62,21 @@ public:
     /* process a non-comment line */
     virtual void process_non_comment_line(const char *str) = 0;
 
-    /* 
+    /*
      *   Process a configuration line.  Once we see a configuration flag (a
      *   line reading "[Config:xxx]"), we'll process all subsequent text in
      *   the file through this function.
-     *   
+     *
      *   'config_id' is the 'xxx' value in the [Config:xxx] configuration
      *   flag line that started the section.  'is_id_line' is true if we're
      *   processing the "[Config:xxx]" line itself, false if it's any other
      *   line within the [Config:xxx] section.
-     *   
+     *
      *   Note that this routine receives ALL lines within a configuration
      *   section, including comment lines.  Once we're inside a configuration
      *   block, the entire contents are opaque to the generic processor,
      *   since even the comment format is up to the configuration section's
-     *   owner to define.  
+     *   owner to define.
      */
     virtual void process_config_line(const char *config_id,
                                      const char *str,

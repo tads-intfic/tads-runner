@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/VOCCOMP.C,v 1.2 1999/05/17 02:52:13 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1992, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -37,7 +37,7 @@ void vocdelinh(voccxdef *ctx)
     uint      idx;
     uint      nxtidx;
     int       deleted_vocdef;
-    
+
     /* go through each hash value looking for matching words */
     for (i = VOCHASHSIZ, vp = ctx->voccxhsh ; i ; ++vp, --i)
     {
@@ -70,14 +70,14 @@ void vocdelinh(voccxdef *ctx)
 
                     /*
                      *   if there's nothing left in the vocdef's list,
-                     *   delete the vocdef as well 
+                     *   delete the vocdef as well
                      */
                     if (v->vocwlst == VOCCXW_NONE)
                     {
                         /* unlink from hash chain */
                         if (prv) prv->vocnxt = v->vocnxt;
                         else *vp = v->vocnxt;
-                        
+
                         /* link into free chain */
                         v->vocnxt = ctx->voccxfre;
                         ctx->voccxfre = v;
@@ -116,7 +116,7 @@ void vociren(voccxdef *ctx, objnum oldnum, objnum newnum)
     /* make the old object an honorary class object */
     vocinh(ctx, newnum)->vociflg |= VOCIFCLASS;
 
-    /* 
+    /*
      *   Renumber any vocabulary associated with the old object to the new
      *   object.
      */
@@ -129,10 +129,10 @@ void vociren(voccxdef *ctx, objnum oldnum, objnum newnum)
             for (vw = vocwget(ctx, v->vocwlst) ; vw ;
                  vw = vocwget(ctx, vw->vocwnxt))
             {
-                /* 
+                /*
                  *   renumber this word and mark it as being associated
                  *   with a class if it's associated with the original
-                 *   object 
+                 *   object
                  */
                 if (vw->vocwobj == oldnum)
                 {

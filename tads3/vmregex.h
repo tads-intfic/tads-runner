@@ -1,14 +1,14 @@
-/* 
+/*
  *   Copyright (c) 1998, 2012 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmregex.h - regular expression parser for T3
 Function
-  
+
 Notes
   Adapted from the TADS 2 regular expression parser.  This version
   uses UTF-8 strings rather than simple single-byte character strings,
@@ -41,7 +41,7 @@ typedef int re_state_id;
 
 /* ------------------------------------------------------------------------ */
 /*
- *   forward declarations 
+ *   forward declarations
  */
 typedef struct regex_scan_frame regex_scan_frame;
 
@@ -49,7 +49,7 @@ typedef struct regex_scan_frame regex_scan_frame;
 /*
  *   Group register structure.  Each register keeps track of the starting
  *   and ending offset of the group's text within the original search
- *   string.  
+ *   string.
  */
 struct re_group_register
 {
@@ -63,10 +63,10 @@ struct re_group_register
 /* maximum group nesting depth */
 #define RE_GROUP_NESTING_MAX  20
 
-/* 
+/*
  *   the maximum number of separate loop variables we need is the same as
  *   the group nesting level, since we only need one loop variable per
- *   nested group 
+ *   nested group
  */
 #define RE_LOOP_VARS_MAX  RE_GROUP_NESTING_MAX
 
@@ -74,7 +74,7 @@ struct re_group_register
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Recognizer types. 
+ *   Recognizer types.
  */
 
 enum re_recog_type
@@ -101,10 +101,10 @@ enum re_recog_type
     RE_TEXT_BEGIN,
     RE_TEXT_END,
 
-    /* 
+    /*
      *   same position as parent lookback assertion - this is used for
      *   lookback assertions to assert that the assertion ends at the point
-     *   where the assertion occurs in the match string 
+     *   where the assertion occurs in the match string
      */
     RE_LOOKBACK_POS,
 
@@ -128,9 +128,9 @@ enum re_recog_type
     RE_GROUP_ENTER,
     RE_GROUP_EXIT,
 
-    /* 
+    /*
      *   group matcher - the character code has the group number (0 for
-     *   group 0, etc) rather than a literal to match 
+     *   group 0, etc) rather than a literal to match
      */
     RE_GROUP_MATCH,
 
@@ -188,13 +188,13 @@ enum re_recog_type
 
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   Denormalized state transition tuple.  Each tuple represents the
  *   complete set of transitions out of a particular state.  A particular
  *   state can have one character transition, or two epsilon transitions.
  *   Note that we don't need to store the state ID of the tuple itself in
  *   the tuple, because the state ID is the index of the tuple in an array
- *   of state tuples.  
+ *   of state tuples.
  */
 struct re_tuple
 {
@@ -204,14 +204,14 @@ struct re_tuple
     /* the character we must match to transition to the target state */
     union
     {
-        /* 
+        /*
          *   if this is a character transition, this is the character (used
          *   as the character literal in RE_LITERAL, and as the group ID in
-         *   RE_GROUP_MATCH and in RE_EPSILON nodes with the group flag set) 
+         *   RE_GROUP_MATCH and in RE_EPSILON nodes with the group flag set)
          */
         wchar_t ch;
 
-        /* 
+        /*
          *   If this is a character string transition, this is the string;
          *   it's stored as a null-terminated string of wchar_t's, allocated
          *   with new wchar_t[].  'src' is the original state number for an
@@ -223,10 +223,10 @@ struct re_tuple
             re_state_id src;
         } str;
 
-        /* 
+        /*
          *   if this has a sub-machine, this is the start and end info (used
          *   for the assertion entry states: RE_ASSERT_POS, RE_ASSERT_NEG,
-         *   RE_ASSERT_BACKPOS, RE_ASSERT_BACKNEG) 
+         *   RE_ASSERT_BACKPOS, RE_ASSERT_BACKNEG)
          */
         struct
         {
@@ -239,9 +239,9 @@ struct re_tuple
             int maxlen;
         } sub;
 
-        /* 
+        /*
          *   if this is a loop, the loop parameters (used for RE_ZERO_VAR,
-         *   RE_LOOP_BRANCH) 
+         *   RE_LOOP_BRANCH)
          */
         struct
         {
@@ -250,31 +250,31 @@ struct re_tuple
             int loop_var;
         } loop;
 
-        /* 
+        /*
          *   Character range match table - this is used if the recognizer
          *   type is RE_RANGE or RE_RANGE_EXCL; for other recognizer types,
          *   this is not used.
-         *   
+         *
          *   If used, this is an array of pairs of characters.  In each pair,
          *   the first is the low end of the range, and the second is the
          *   high end of the range, both ends inclusive.  A single character
          *   takes up two entries, both identical, to specify a range of only
          *   one character.
-         *   
+         *
          *   If the first character is '\0', then neither wchar_t is a
          *   character in the ordinary sense described above.  Instead, the
          *   second wchar_t is actually one of the recognizer type codes
          *   (re_recog_type) for a character class (RE_ALPHA, RE_DIGIT, etc).
          *   The pair in this case is to be taken to match (or exclude) the
          *   entire class.
-         *   
+         *
          *   To represent a match for '\0', use '\0' for the first wchar_t
          *   and RE_NULLCHAR for the second wchar_t.  Note that the special
          *   meaning of '\0' in the first character of a pair makes it
          *   impossible to represent a range including a null byte with a
          *   single pair; instead, representing a range like [\000-\017]
          *   requires two pairs: the first pair is ('\0', RE_NULLCHAR), and
-         *   the second pair is ('\001', '\017').  
+         *   the second pair is ('\001', '\017').
          */
         struct
         {
@@ -294,15 +294,15 @@ struct re_tuple
 
 
 /*
- *   Tuple flags 
+ *   Tuple flags
  */
 
 /* this state is being tested for a cycle */
 #define RE_STATE_CYCLE_TEST   0x08
 
-/* 
+/*
  *   for branching states: take the shortest, rather than longest, branch
- *   when both branches are successful 
+ *   when both branches are successful
  */
 #define RE_STATE_SHORTEST     0x10
 
@@ -310,7 +310,7 @@ struct re_tuple
 /* ------------------------------------------------------------------------ */
 /*
  *   A "machine" description.  A machines is fully described by its initial
- *   and final state ID's.  
+ *   and final state ID's.
  */
 struct re_machine
 {
@@ -346,24 +346,24 @@ struct re_compiled_pattern_base
     /*
      *   <Case> or <NoCase> mode.  If this flag is clear, the search is not
      *   case-sensitive, so alphabetic characters in the pattern are matched
-     *   without regard to case.  
+     *   without regard to case.
      */
     unsigned int case_sensitive : 1;
 
     /* is the case sensitivity explicit or defaulted? */
     unsigned int case_sensitivity_specified : 1;
 
-    /* 
+    /*
      *   <MIN> or <MAX> match mode -- if this flag is set, we match the
      *   longest string in case of ambiguity; otherwise we match the
-     *   shortest.  
+     *   shortest.
      */
     unsigned int longest_match : 1;
 
-    /* 
+    /*
      *   <FirstEnd> or <FirstBeg> match mode -- if this flag is set, we
      *   match (in a search) the string that starts first in case of
-     *   ambiguity; otherwise, we match the string that ends first 
+     *   ambiguity; otherwise, we match the string that ends first
      */
     unsigned int first_begin : 1;
 };
@@ -372,20 +372,20 @@ struct re_compiled_pattern_base
  *   Compiled pattern object.  This is a pattern compiled and saved for use
  *   in searches and matches.  This is a compiled pattern description
  *   coupled with its tuple array, which in combination provide a complete
- *   compiled pattern.  
+ *   compiled pattern.
  */
 struct re_compiled_pattern: re_compiled_pattern_base
 {
-    /* 
+    /*
      *   the tuple array (the structure is overallocated to make room for
-     *   tuple_cnt entries in this array) 
+     *   tuple_cnt entries in this array)
      */
     re_tuple tuples[1];
 };
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Status codes 
+ *   Status codes
  */
 typedef enum
 {
@@ -402,13 +402,13 @@ typedef enum
 /*
  *   Regular expression compilation context structure.  This tracks the
  *   state of the compilation and stores the resources associated with the
- *   compiled expression.  
+ *   compiled expression.
  */
 class CRegexParser
 {
     friend class CRegexSearcher;
     friend class CRegexSearcherSimple;
-        
+
 public:
     /* initialize */
     CRegexParser();
@@ -416,11 +416,11 @@ public:
     /* delete */
     ~CRegexParser();
 
-    /* 
+    /*
      *   Compile an expression and create a compiled pattern object, filling
      *   in *pattern with a pointer to the newly-allocated pattern object.
      *   The caller is responsible for freeing the pattern by calling
-     *   free_pattern(pattern).  
+     *   free_pattern(pattern).
      */
     re_status_t compile_pattern(const char *expr_str, size_t exprlen,
                                 re_compiled_pattern **pattern);
@@ -539,7 +539,7 @@ protected:
 
     /*
      *   The array of transition tuples.  We'll allocate this array and
-     *   expand it as necessary.  
+     *   expand it as necessary.
      */
     re_tuple *tuple_arr_;
 
@@ -562,21 +562,21 @@ protected:
  *   sub-state (a two-way epsilon, or a nested assertion), we stack the
  *   current state so that we can backtrack when we're done with the
  *   sub-expression.  The state we store consists of:
- *   
+ *
  *   - backtrack type - this is an arbitrary uchar identifier that the
  *   pattern matcher uses to identify where to go when we pop the state
- *   
+ *
  *   - the current state ID
- *   
+ *
  *   - the current offset in the string being matched
- *   
+ *
  *   - the state ID of the terminating state of the machine
- *   
+ *
  *   - saved group registers; we only store the ones we've actually
  *   modified, to avoid unnecessary copying
- *   
+ *
  *   - saved loop variables; we only store the ones we've actually modified,
- *   to avoid unnecessary copying 
+ *   to avoid unnecessary copying
  */
 
 enum regex_frame_type
@@ -615,7 +615,7 @@ struct regex_stack_entry
      *   check each starting point over the range of possible match lengths,
      *   until we've either found a success condition or exhausted the range
      *   of possible match lengths.  This keeps track of where we are in the
-     *   iteration.  
+     *   iteration.
      */
     int iter;
 
@@ -626,13 +626,13 @@ struct regex_stack_entry
 /* saved group/loop entry */
 struct regex_stack_var
 {
-    /* 
+    /*
      *   The ID - this is in the range 0..RE_GROUP_REG_CNT-1 for group
      *   registers, RE_GROUP_REG_CNT..RE_GROUP_REG_CNT+RE_LOOP_VARS_MAX-1
      *   for loop variables.  In other words, a loop variable is identified
      *   by its loop variable number plus RE_GROUP_REG_CNT.  The special ID
      *   value -1 indicates the integer 'retval' value (a saved return value
-     *   for the stack state).  
+     *   for the stack state).
      */
     int id;
 
@@ -649,7 +649,7 @@ struct regex_stack_var
 class CRegexStack
 {
     friend class reg_deltas;
-    
+
 public:
     CRegexStack()
     {
@@ -680,14 +680,14 @@ public:
     void push(regex_frame_type typ, int start_ofs, int str_ofs, int curlen,
               re_state_id state, re_state_id final, int iter)
     {
-        /* 
+        /*
          *   Ensure we have enough space for the base state structure plus a
          *   full complement of group registers, loop variables, and return
          *   value.  We might not actually need all of the registers and
          *   loop variables, so we won't commit all of this space yet, but
          *   check in advance to make sure we have it so that we don't have
          *   to check again when and if we get around to consuming
-         *   group/loop slots.  
+         *   group/loop slots.
          */
         ensure_space(sizeof(regex_stack_entry)
                      + ((RE_GROUP_REG_CNT + RE_LOOP_VARS_MAX + 1)
@@ -723,10 +723,10 @@ public:
     /* save a loop variable */
     void save_loop_var(int id, const short *loop_vars)
     {
-        /* 
+        /*
          *   allocate a new slot if needed and save the value; note that
          *   loop variables are identified by the loop variable ID plus the
-         *   base index RE_GROUP_REG_CNT 
+         *   base index RE_GROUP_REG_CNT
          */
         regex_stack_var *var;
         if (sp_ != -1 && (var = new_reg_or_var(id + RE_GROUP_REG_CNT)) != 0)
@@ -741,15 +741,15 @@ public:
             memcpy(dst, src, sizeof(*dst));
     }
 
-    /* 
+    /*
      *   get the type of the state at top of stack; if there is no state,
-     *   returns -1 
+     *   returns -1
      */
     int get_top_type()
     {
-        /* 
+        /*
          *   if there's nothing on the stack, so indicate, otherwise get the
-         *   type from the top stack element 
+         *   type from the top stack element
          */
         if (sp_ == -1)
             return -1;
@@ -769,10 +769,10 @@ public:
         return fp;
     }
 
-    /* 
+    /*
      *   Get the parent lookback assertion match position.  This scans up the
      *   stack for the nearest assertion frame, and returns its match
-     *   position.  
+     *   position.
      */
     int get_lookback_pos()
     {
@@ -813,7 +813,7 @@ public:
         *state = fp->state;
         *final = fp->final;
         *iter = fp->iter;
-        
+
         /* run through the saved registers/variables in the state */
         for (regex_stack_var *var = (regex_stack_var *)(fp + 1) ;
              var < (regex_stack_var *)(buf_ + used_) ; ++var)
@@ -846,14 +846,14 @@ public:
         sp_ = fp->prv_sp;
     }
 
-    /* 
+    /*
      *   Swap the current state with the state at the top of the stack, and
      *   push a second copy of the restored state.  This is used to traverse
      *   the second branch of a two-branch epsilon: we first have to save the
      *   results of the first branch, including the return value and its
      *   registers, and we then have to restore the initial register/loop
      *   state as it was before the first branch.
-     *   
+     *
      *   We save the final state and restore the initial state by swapping
      *   the group registers in the saved state with those in the current
      *   state.  This brings back the initial conditions to the current
@@ -862,12 +862,12 @@ public:
      *   state and string offset.  Later, this same final machine state can
      *   be restored by first restoring the machine state to the initial
      *   state, then popping this frame.
-     *   
+     *
      *   On return, the stack frame that was active on entry will be set to
      *   contain the current machine state, and the current machine state
      *   will be replaced with what was in that stack frame.  In addition,
      *   we'll have pushed a new stack frame for the new current machine
-     *   state.  
+     *   state.
      */
     void swap_and_push(int retval, regex_frame_type typ,
                        int *start_ofs, int *str_ofs, size_t *curlen,
@@ -887,7 +887,7 @@ public:
 
     /*
      *   Swap the current active state with the top of stack, then pop the
-     *   frame. 
+     *   frame.
      */
     void swap_and_pop(int *start_ofs, int *str_ofs, size_t *curlen,
                       re_state_id *state, re_state_id *final,
@@ -905,7 +905,7 @@ public:
     }
 
     /*
-     *   Swap the current state with the top stack frame 
+     *   Swap the current state with the top stack frame
      */
     void swap(int *start_ofs, int *str_ofs, size_t *curlen,
               re_state_id *state, re_state_id *final,
@@ -947,7 +947,7 @@ public:
             if (var->id < RE_GROUP_REG_CNT)
             {
                 re_group_register tmp;
-                
+
                 /* it's a group register */
                 tmp = regs[var->id];
                 regs[var->id] = var->val.group;
@@ -956,7 +956,7 @@ public:
             else
             {
                 short tmp;
-                
+
                 /* it's a loop variable */
                 tmp = loop_vars[var->id - RE_GROUP_REG_CNT];
                 loop_vars[var->id - RE_GROUP_REG_CNT] = var->val.loopvar;
@@ -966,10 +966,10 @@ public:
     }
 
 protected:
-    /* 
+    /*
      *   allocate a new register or group variable in the stack frame; if we
      *   find an existing copy of the same variable, we'll return null to
-     *   indicate that we don't have to save it again 
+     *   indicate that we don't have to save it again
      */
     regex_stack_var *new_reg_or_var(int id)
     {
@@ -991,7 +991,7 @@ protected:
         var->id = id;
         return var;
     }
-    
+
     /* ensure space in our stack buffer */
     void ensure_space(size_t siz)
     {
@@ -1014,9 +1014,9 @@ protected:
             err_throw(VMERR_OUT_OF_MEMORY);
     }
 
-    /* 
+    /*
      *   allocate space - the caller must have already checked that space is
-     *   available 
+     *   available
      */
     char *alloc_space(size_t siz)
     {
@@ -1044,7 +1044,7 @@ protected:
 /* ------------------------------------------------------------------------ */
 /*
  *   Regular Expression Searcher/Matcher.  This object encapsulates the
- *   group registers associated with a search.  
+ *   group registers associated with a search.
  */
 class CRegexSearcher
 {
@@ -1058,11 +1058,11 @@ public:
      *   the byte length of the match if we found one.  Note that the
      *   returned index and result_len values are byte lengths, not
      *   character lengths.
-     *   
+     *
      *   The caller is responsible for providing a set of group registers,
      *   which must be an array of registers of size RE_GROUP_REG_CNT.  The
      *   caller also must save the original search string if it will be
-     *   necessary to extract substrings based on the group registers.  
+     *   necessary to extract substrings based on the group registers.
      */
     int search_for_pattern(const re_compiled_pattern *pattern,
                            const char *entirestr,
@@ -1074,7 +1074,7 @@ public:
      *   search_for_pattern(), but searches backwards from the starting
      *   position.  The match must end BEFORE the character at the starting
      *   position; the match can't overlap or include that character.
-     *   
+     *
      *   On success, the return value is non-negative, and gives the number
      *   of bytes before the starting position where the match begins.  To
      *   get the starting byte pointer, subtract the return value from the
@@ -1090,12 +1090,12 @@ public:
      *   length of the match if we found a match, -1 if we found no match.
      *   This is not a search function; we merely match the leading
      *   substring of the given string to the given pattern.  Note that the
-     *   returned length is a byte length, not a character length.  
-     *   
+     *   returned length is a byte length, not a character length.
+     *
      *   The caller is responsible for providing a set of group registers,
      *   which must be an array of registers of size RE_GROUP_REG_CNT.  The
      *   caller also must save the original search string if it will be
-     *   necessary to extract substrings based on the group registers.  
+     *   necessary to extract substrings based on the group registers.
      */
     int match_pattern(const re_compiled_pattern *pattern,
                       const char *entirestr,
@@ -1106,7 +1106,7 @@ public:
      *   Get/set the default case sensititivy for searching and matching.
      *   This controls the case sensitivity for patterns that don't include
      *   explicit <case> or <nocase> flags.  Explicit flags in the pattern
-     *   override this default.  
+     *   override this default.
      */
     int get_default_case_sensitive() const { return default_case_sensitive_; }
     void set_default_case_sensitive(int f) { default_case_sensitive_ = f; }
@@ -1148,7 +1148,7 @@ protected:
 
     /*
      *   Determine if a character is part of a word.  We consider letters
-     *   and numbers to be word characters.  
+     *   and numbers to be word characters.
      */
     static int is_word_char(wchar_t c)
     {
@@ -1165,7 +1165,7 @@ protected:
 /*
  *   Simplified Searcher - this class provides some high-level methods that
  *   simplify one-off searches that combine compilation and searching into
- *   one step. 
+ *   one step.
  */
 class CRegexSearcherSimple: public CRegexSearcher
 {
@@ -1275,7 +1275,7 @@ public:
      *   string.  Returns the byte offset of the match, or -1 if no match
      *   was found.  *result_len is filled in with the byte length of the
      *   match if we found one.  Note that the returned index and result_len
-     *   values are byte lengths, not character lengths.  
+     *   values are byte lengths, not character lengths.
      */
     int compile_and_search(const char *pattern, size_t patlen,
                            const char *entirestr,
@@ -1293,7 +1293,7 @@ public:
      *   length of the match if we found a match, -1 if we found no match.
      *   This is not a search function; we merely match the leading
      *   substring of the given string to the given pattern.  Note that the
-     *   returned length is a byte length, not a character length.  
+     *   returned length is a byte length, not a character length.
      */
     int compile_and_match(const char *pattern, size_t patlen,
                           const char *entirestr,
@@ -1301,7 +1301,7 @@ public:
 
     /*
      *   Get a group register.  0 refers to the first group; groups are
-     *   numbered in left-to-right order by their opening parenthesis.  
+     *   numbered in left-to-right order by their opening parenthesis.
      */
     const re_group_register *get_group_reg(int i) const { return &regs_[i]; }
 

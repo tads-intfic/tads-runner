@@ -1,10 +1,10 @@
 /* $Header: d:/cvsroot/tads/tads3/vmimage.h,v 1.3 1999/07/11 00:46:59 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -40,7 +40,7 @@ Function
   the VM to operate when available memory is smaller than the image
   file.
 Notes
-  
+
 Modified
   12/12/98 MJRoberts  - Creation
 */
@@ -58,22 +58,22 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Image file constants 
+ *   Image file constants
  */
 
-/* 
+/*
  *   signature - this is at the beginning of every image file so that we
- *   can easily detect a completely invalid file 
+ *   can easily detect a completely invalid file
  */
 #define VMIMAGE_SIG "T3-image\015\012\032"
 
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Data Block Flags 
+ *   Data Block Flags
  */
 
-/* 
+/*
  *   Mandatory: this block must be recognized and loaded.  When new types
  *   of blocks are added in future versions, the compiler can use this
  *   flag to indicate whether or not an old VM can safely ignore the new
@@ -85,7 +85,7 @@ Modified
  *   be ignored by an old VM without losing the ability to correctly load
  *   the image for the old VM's functionality, the mandatory flag will be
  *   set to 0; when a new block carries information without which the
- *   image cannot be properly loaded, the mandatory flag will be set to 1. 
+ *   image cannot be properly loaded, the mandatory flag will be set to 1.
  */
 #define VMIMAGE_DBF_MANDATORY    0x0001
 
@@ -94,7 +94,7 @@ Modified
 /*
  *   Constant pool image tracking structure.  For each constant pool, we
  *   maintain information on the locations in the image file of the pages
- *   in the pool.  
+ *   in the pool.
  */
 
 /* number of entries in each subarray */
@@ -119,10 +119,10 @@ public:
     CVmImagePool();
     ~CVmImagePool();
 
-    /* 
+    /*
      *   Initialize the pool with a given number of pages and page size.
      *   This can only be called once, and must be called before any page
-     *   locations can be established. 
+     *   locations can be established.
      */
     void init(class CVmImageFile *fp, ulong page_count, ulong page_size);
 
@@ -133,10 +133,10 @@ public:
     /* apply an XOR mask to a block of bytes */
     static void apply_xor_mask(char *p, size_t len, uchar xor_mask)
     {
-        /* 
+        /*
          *   apply the mask only if it's non-zero - xor'ing zero with
          *   anything yields the original value, so we can avoid a lot of
-         *   pointless memory traversal by checking this first 
+         *   pointless memory traversal by checking this first
          */
         if (xor_mask != 0)
         {
@@ -148,7 +148,7 @@ public:
 
     /* -------------------------------------------------------------------- */
     /*
-     *   CVmPoolBackingStore implementation 
+     *   CVmPoolBackingStore implementation
      */
 
     /* get the total number of pages */
@@ -176,8 +176,8 @@ public:
 
     /* determine if the backing store pages are writable */
     int vmpbs_is_writable();
-    
-    
+
+
     /* -------------------------------------------------------------------- */
 
 private:
@@ -199,21 +199,21 @@ private:
     CVmImagePool_pg *get_page_info_ofs(pool_ofs_t ofs) const
         { return get_page_info(ofs / page_size_); }
 
-    /* 
+    /*
      *   Given a pool offset, seek to the image file data for the page, in
-     *   preparation for loading the data from the image file into memory. 
+     *   preparation for loading the data from the image file into memory.
      */
     void seek_page_ofs(pool_ofs_t ofs);
-    
+
     /* number of pages in the pool */
     ulong page_count_;
 
     /* page size - each page in the pool has a common size */
     ulong page_size_;
 
-    /* 
+    /*
      *   Page seek array.  To accommodate 16-bit platforms, we keep this as a
-     *   set of arrays, with each subarray smaller than 64k.  
+     *   set of arrays, with each subarray smaller than 64k.
      */
     CVmImagePool_pg **page_info_;
 
@@ -224,7 +224,7 @@ private:
 /* ------------------------------------------------------------------------ */
 /*
  *   Image loader.  This takes an image file interface object (see below),
- *   and loads the underlying image data into memory.  
+ *   and loads the underlying image data into memory.
  */
 class CVmImageLoader
 {
@@ -235,15 +235,15 @@ public:
     /* destruction */
     ~CVmImageLoader();
 
-    /* 
+    /*
      *   Load the image.
      */
     void load(VMG0_);
 
-    /* 
+    /*
      *   Load a resource-only image file.  'fileno' is the file number
      *   assigned by the host application (via the add_resfile()
-     *   interface) to the resource file. 
+     *   interface) to the resource file.
      */
     void load_resource_file(class CVmImageLoaderMres *res_ifc);
 
@@ -255,28 +255,28 @@ public:
     static void load_resources_from_fp(osfildef *fp, const char *fname,
                                        class CVmImageLoaderMres *res_ifc);
 
-    /* 
+    /*
      *   Run the image.  This transfers control to the entrypoint defined in
      *   the image file.  This function doesn't return until the program
      *   defined in the image terminates its execution by returning from the
      *   entrypoint function or throwing an unhandled exception.
-     *   
+     *
      *   If 'saved_state' is not null, it gives a null-terminated character
      *   string with the name of a saved state file to be restored
      *   immediately.  We'll pass this information to the program's
      *   entrypoint so it can handle the restore appropriately.
-     *   
+     *
      *   The caller must create the code and constant pools before invoking
      *   this.  We'll set up the pools with their backing stores as loaded
      *   from the image file.
-     *   
+     *
      *   The global_symtab argument optionally provides the global symbol
      *   table; if this is null, we'll use our own global symbol table that
      *   we loaded from the debug records, if we found any.
-     *   
+     *
      *   If an unhandled exception is thrown, this function throws
      *   VMERR_UNHANDLED_EXC, with the exception object as the first
-     *   parameter.  
+     *   parameter.
      */
     void run(VMG_ const char *const *argv, int argc,
              class CVmRuntimeSymbols *global_symtab,
@@ -289,11 +289,11 @@ public:
     /*
      *   Unload the image.  This should be called after execution is
      *   finished to disactivate the pools, which must be done before the
-     *   image file is deleted.  
+     *   image file is deleted.
      */
     void unload(VMG0_);
 
-    /* 
+    /*
      *   Create a global LookupTable to hold the symbols in the global
      *   symbol table.
      */
@@ -309,13 +309,13 @@ public:
         return (memcmp(type1, type2, 4) == 0);
     }
 
-    /* 
+    /*
      *   Get the image file's timestamp.  This is a 24-byte array in the
      *   format "Sun Aug 01 17:05:20 1999".  The purpose of the image file
      *   timestamp is to provide a reasonably unique identifier that can
      *   be stored in a saved state file and then checked upon loading the
      *   file to ensure that it was created by the identical version of
-     *   the image file.  
+     *   the image file.
      */
     const char *get_timestamp() const { return &timestamp_[0]; }
 
@@ -325,15 +325,15 @@ public:
     /* get the fully-qualified, absolute directory path of the loaded image */
     const char *get_path() const { return path_; }
 
-    /* 
+    /*
      *   check to see if the image file has a global symbol table (GSYM
-     *   block) 
+     *   block)
      */
     int has_gsym() const { return has_gsym_ != 0; }
 
-    /* 
+    /*
      *   get the object ID of the LookupTable with the global symbol table
-     *   for reflection purposes 
+     *   for reflection purposes
      */
     vm_obj_id_t get_reflection_symtab() const { return reflection_symtab_; }
 
@@ -341,13 +341,13 @@ public:
     vm_obj_id_t get_reflection_macros() const { return reflection_macros_; }
 
     /*
-     *   perform dynamic linking after loading, resetting, or restoring 
+     *   perform dynamic linking after loading, resetting, or restoring
      */
     void do_dynamic_link(VMG0_);
 
-    /* 
+    /*
      *   delete all synthesized exports - this must be called just prior to
-     *   resetting to image file state or loading a saved state 
+     *   resetting to image file state or loading a saved state
      */
     void discard_synth_exports();
 
@@ -374,7 +374,7 @@ private:
 
     /* read and verify an image file header */
     void read_image_header();
-    
+
     /* load an Entrypoint block */
     void load_entrypt(VMG_ ulong siz);
 
@@ -423,28 +423,28 @@ private:
     /* load a Static Initializer List block */
     void load_sini(VMG_ ulong siz);
 
-    /* 
+    /*
      *   Fix up the debugging global symbol table's object entries with the
      *   correct metaclass IDs.  This has to wait until the whole image file
      *   is loaded so that we're sure we have all of the objects loaded
-     *   already. 
+     *   already.
      */
     void fix_gsym_meta(VMG0_);
 
-    /* 
+    /*
      *   Copy data from the file into a buffer, decrementing a size
      *   counter.  We'll throw a BLOCK_TOO_SMALL error if the read length
-     *   exceeds the remaining size. 
+     *   exceeds the remaining size.
      */
     void read_data(char *buf, size_t read_len, ulong *remaining_size);
 
     /* skip data */
     void skip_data(size_t skipo_len, ulong *remaining_size);
 
-    /* 
+    /*
      *   Allocate memory for data and read the data from the file,
      *   decrementing the amount read from a size counter.  Throws
-     *   BLOCK_TOO_SMALL if the read length exceeds the remaining size. 
+     *   BLOCK_TOO_SMALL if the read length exceeds the remaining size.
      */
     const char *alloc_and_read(size_t read_len, ulong *remaining_size);
 
@@ -456,7 +456,7 @@ private:
      *   synthesize a value because we didn't find the associated symbol
      *   exported from the image file, we must add an entry to this table.
      *   On saving state, we'll save these symbols to the saved state file
-     *   so they will be restored on load. 
+     *   so they will be restored on load.
      */
     void add_synth_export_obj(const char *nm, vm_obj_id_t val);
     void add_synth_export_prop(const char *nm, vm_prop_id_t val);
@@ -473,9 +473,9 @@ private:
     /* image filename */
     char *fname_;
 
-    /* 
+    /*
      *   fully-qualified, absolute directory path to the file (this is just
-     *   the directory path, sans the filename) 
+     *   the directory path, sans the filename)
      */
     char *path_;
 
@@ -494,9 +494,9 @@ private:
     /* pool tracking objects */
     class CVmImagePool *pools_[2];
 
-    /* 
+    /*
      *   The image's exported symbols.  These are the symbols that the
-     *   program explicitly exported for dynamic linking from the VM. 
+     *   program explicitly exported for dynamic linking from the VM.
      */
     class CVmHashTable *exports_;
 
@@ -504,7 +504,7 @@ private:
      *   List of exports synthesized after loading by the VM.  These exports
      *   are not in the image file, so they must be saved in the saved state
      *   file so that we can reattach to the same objects and properties on
-     *   restore.  
+     *   restore.
      */
     class CVmHashTable *synth_exports_;
 
@@ -512,20 +512,20 @@ private:
      *   The runtime global symbol table, if we have one.  We'll build this
      *   from the debug records if we find any, or from the records passed
      *   in from the compiler when we run preinitialization.
-     *   
+     *
      *   Note that the runtime global symbols are not the same as the
      *   exported symbols.  The exports are the symbols explicitly exported
      *   for dynamic linking, so that the VM can attach to particular
      *   objects defined in the image file.  The runtime globals are all of
      *   the compile-time global symbols as reflected in the debugging
-     *   records, and are used for reflection-type operations.  
+     *   records, and are used for reflection-type operations.
      */
     class CVmRuntimeSymbols *runtime_symtab_;
 
-    /* 
+    /*
      *   The runtime macro definitions table, if we have one.  As with the
      *   runtime global symbol table, we build this from the debug records,
-     *   or from the records passed in from the compiler during preinit. 
+     *   or from the records passed in from the compiler during preinit.
      */
     class CVmRuntimeSymbols *runtime_macros_;
 
@@ -539,11 +539,11 @@ private:
     class CVmStaticInitPage *static_head_;
     class CVmStaticInitPage *static_tail_;
 
-    /* 
+    /*
      *   starting offset in code pool of static initializer code - the
      *   compiler groups all static initializer code, and only static
      *   initializer code, above this point, so after preinit, we can omit
-     *   all code above this point from the rewritten image file 
+     *   all code above this point from the rewritten image file
      */
     ulong static_cs_ofs_;
 
@@ -556,9 +556,9 @@ private:
     /* flag: entrypoint loaded */
     uint loaded_entrypt_ : 1;
 
-    /* 
+    /*
      *   flag: the image file has a GSYM (global symbol table), which
-     *   implies that it was compiled for debugging 
+     *   implies that it was compiled for debugging
      */
     uint has_gsym_ : 1;
 };
@@ -567,7 +567,7 @@ private:
 /* ------------------------------------------------------------------------ */
 /*
  *   Static initializer page.  Each page contains a fixed number of
- *   initializers. 
+ *   initializers.
  */
 const size_t VM_STATIC_INIT_PAGE_MAX = 1000;
 class CVmStaticInitPage
@@ -600,10 +600,10 @@ public:
     /* number of records in the page */
     size_t cnt_;
 
-    /* 
+    /*
      *   The data of the page.  Each record is six bytes long, in portable
      *   format: a UINT4 for the object ID, and a UINT2 for the property
-     *   ID. 
+     *   ID.
      */
     const char *data_;
 };
@@ -613,7 +613,7 @@ public:
 /*
  *   Image file resource loader interface.  This is an abstract class
  *   interface that must be provided to load_resource_file() to provide
- *   per-resource loading.  
+ *   per-resource loading.
  */
 class CVmImageLoaderMres
 {
@@ -634,7 +634,7 @@ public:
 /*
  *   Image file interface.  This is an abstract interface that provides
  *   access to the data in an image file independently of the location of
- *   the data.  
+ *   the data.
  */
 class CVmImageFile
 {
@@ -644,21 +644,21 @@ public:
 
     /* duplicate the image file interface, a la stdio freopen() */
     virtual CVmImageFile *dup(const char *mode) = 0;
-    
-    /* 
+
+    /*
      *   Copy data from the image file to the caller's buffer.  Reads from
-     *   the current file position. 
+     *   the current file position.
      */
     virtual void copy_data(char *buf, size_t len) = 0;
 
-    /* 
+    /*
      *   Allocate memory for and load data from the image file.  Reads from
      *   the current file position.  Returns a pointer to the allocated data.
-     *   
+     *
      *   'remaining_in_page' is the amount of space remaining in the current
      *   block being read from the image, including the space being read
      *   here; this can be used as an upper bound for a new allocation if
-     *   the concrete subclass wishes to allocate blocks for suballocation.  
+     *   the concrete subclass wishes to allocate blocks for suballocation.
      */
     virtual const char *alloc_and_read(size_t len, uchar xor_mask,
                                        ulong remaining_in_page) = 0;
@@ -669,7 +669,7 @@ public:
      *   alloc_and_read() returns is a copy of the external file (rather
      *   than mapped to the original external data, as might be the case
      *   on a small machine without external storage, such as a palm-top
-     *   computer), this should return true. 
+     *   computer), this should return true.
      */
     virtual int allow_write_to_alloc() = 0;
 
@@ -689,16 +689,16 @@ public:
 
 /*
  *   Implementation of the generic stream interface for an image file block.
- *   This will limit reading to the data in the block.  
+ *   This will limit reading to the data in the block.
  */
 class CVmImageFileStream: public CVmStream
 {
 public:
     CVmImageFileStream(CVmImageFile *fp, size_t len)
     {
-        /* 
+        /*
          *   remember the underlying image file, and the amount of space in
-         *   our data block 
+         *   our data block
          */
         fp_ = fp;
         len_ = len;
@@ -742,14 +742,14 @@ private:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Image file interface - external disk file 
+ *   Image file interface - external disk file
  */
 class CVmImageFileExt: public CVmImageFile
 {
 public:
     /* delete the image file loader */
     ~CVmImageFileExt();
-    
+
     /* initialize with an underlying file */
     CVmImageFileExt(class CVmFile *fp)
     {
@@ -772,8 +772,8 @@ public:
         return new CVmImageFileExt(fpdup);
     }
 
-    /* 
-     *   CVmImageFile interface implementation 
+    /*
+     *   CVmImageFile interface implementation
      */
 
     /* copy data to the caller's buffer */
@@ -786,11 +786,11 @@ public:
     /* allow writing to alloc_and_read blocks */
     virtual int allow_write_to_alloc() { return TRUE; }
 
-    /* 
+    /*
      *   Free memory previously allocated with alloc_and_read.  We don't
      *   need to do anything here; once we allocate and load a block, we
      *   keep it in memory until the entire load image is deleted, at
-     *   which time we free all of the associated memory.  
+     *   which time we free all of the associated memory.
      */
     void free_mem(const char *) { }
 
@@ -806,11 +806,11 @@ public:
 private:
     /* allocate memory for loading data */
     char *alloc_mem(size_t siz, ulong remaining_in_page);
-    
+
     /* the underlying file */
     class CVmFile *fp_;
 
-    /* 
+    /*
      *   Memory block list.  We keep a set of memory blocks for loading
      *   data via the alloc_and_read() method.  Rather than allocating an
      *   individual "malloc" block for each alloc_and_read() call, we
@@ -825,17 +825,17 @@ private:
     class CVmImageFileExt_blk *mem_tail_;
 };
 
-/* 
+/*
  *   aggregate allocation block size - use a size that should be reasonably
  *   safe for 16-bit platforms (not over 64k, and a bit less to allow for
- *   some malloc overhead) 
+ *   some malloc overhead)
  */
 const size_t VMIMAGE_EXT_BLK_SIZE = 65000;
 
 /*
  *   Memory tracking structure for external file reader.  For each large
  *   memory block we allocate (for suballocation), we allocate one of
- *   these structures.  
+ *   these structures.
  */
 class CVmImageFileExt_blk
 {
@@ -845,7 +845,7 @@ public:
 
     /* delete the block */
     ~CVmImageFileExt_blk();
-    
+
     /* suballocate memory out of the current block */
     char *suballoc(size_t siz);
 
@@ -870,13 +870,13 @@ public:
 /*
  *   Image file interface - memory-mapped implementation.  This
  *   implementation assumes that the file is loaded into memory in a
- *   contiguous chunk, which can be addressed linearly.  
+ *   contiguous chunk, which can be addressed linearly.
  */
 class CVmImageFileMem: public CVmImageFile
 {
 public:
     ~CVmImageFileMem() { }
-    
+
     /* initialize with an underlying block of pre-loaded data */
     CVmImageFileMem(const char *mem, long len)
     {
@@ -894,8 +894,8 @@ public:
         return new CVmImageFileMem(mem_, len_);
     }
 
-    /* 
-     *   CVmImageFile interface implementation 
+    /*
+     *   CVmImageFile interface implementation
      */
 
     /* copy data to the caller's buffer */
@@ -905,13 +905,13 @@ public:
     const char *alloc_and_read(size_t len, uchar xor_mask,
                                ulong remaining_in_page);
 
-    /* 
+    /*
      *   do not allow writing to alloc_and_read blocks, since we map these
-     *   blocks directly to the underlying in-memory data 
+     *   blocks directly to the underlying in-memory data
      */
     virtual int allow_write_to_alloc() { return FALSE; }
 
-    /* 
+    /*
      *   Free memory allocated by alloc_and_read.  Since our underlying
      *   file is entirely in memory to start with, we don't actually ever
      *   allocate any memory; hence, we don't actually need to free any
@@ -924,7 +924,7 @@ public:
 
     /* get the current seek position */
     long get_seek() const { return pos_; }
-    
+
     /* skip the given number of bytes */
     void skip_ahead(long len) { pos_ += len; }
 

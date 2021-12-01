@@ -1,10 +1,10 @@
 /* $Header: d:/cvsroot/tads/tads3/TCT3UNAS.H,v 1.2 1999/05/17 02:52:28 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -12,7 +12,7 @@ Name
 Function
   Takes a T3 byte-code stream and disassembles it to a printable display
 Notes
-  
+
 Modified
   05/10/99 MJRoberts  - Creation
 */
@@ -23,8 +23,8 @@ Modified
 #include "tcunas.h"
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   operand types, for instruction descriptions 
+/*
+ *   operand types, for instruction descriptions
  */
 enum t3_oper_type_t
 {
@@ -76,9 +76,9 @@ enum t3_oper_type_t
 
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   Instruction information - this structure describes one T3 byte-code
- *   instruction.  
+ *   instruction.
  */
 struct t3_instr_info_t
 {
@@ -88,9 +88,9 @@ struct t3_instr_info_t
     /* number of operands */
     int op_cnt;
 
-    /* 
+    /*
      *   operand types (allow for a fixed upper limit to the number of
-     *   operands) 
+     *   operands)
      */
     t3_oper_type_t op_type[3];
 };
@@ -98,7 +98,7 @@ struct t3_instr_info_t
 
 /* ------------------------------------------------------------------------ */
 /*
- *   T3 Disassembler 
+ *   T3 Disassembler
  */
 class CTcT3Unasm
 {

@@ -8,7 +8,7 @@ Function
   operations, such as an HTTP server, using the low-level socket and thread
   API defined in osifcnet.h.
 Notes
-  
+
 Modified
   04/11/10 MJRoberts  - Creation
 */
@@ -37,7 +37,7 @@ Modified
 /*
  *   Web server configuration.  We create a global singleton of this
  *   structure when the interpreter reads a web configuration file at
- *   startup.  
+ *   startup.
  */
 class TadsNetConfig
 {
@@ -47,7 +47,7 @@ public:
         first_var = 0;
         last_var = 0;
     }
-    
+
     ~TadsNetConfig();
 
     /* read a config file */
@@ -70,7 +70,7 @@ public:
         return strcmp(val, strval) == 0;
     }
 
-    /* 
+    /*
      *   Does the given configuration variable equal the given integer?  If
      *   the configuration variable isn't defined, returns false.  Otherwise,
      *   converts the configuration string value to an integer with atoi(),
@@ -110,7 +110,7 @@ public:
         lib_free_str(name);
         lib_free_str(val);
     }
-    
+
     /* get the name/value */
     const char *getname() const { return name; }
     const char *getval() const { return val; }
@@ -143,21 +143,21 @@ protected:
  *   Check a storage server API reply, and throw an error if appropriate.
  *   Storage server API replies conventionally are plain text buffers of the
  *   form:
- *   
+ *
  *      Code Message
- *   
+ *
  *   where 'Code' is an alphanumeric token giving an error code, and Message
  *   is a human-readable result message.  On success, the Code token is "OK";
  *   other token strings indicate errors.
- *   
+ *
  *   Functions that also return regular body data (such as GETFILE) return
  *   the status message in an X-IFDBStorage-Status header instead of the
  *   body.  If the status header is present, we'll use that rather than
  *   checking the reply body.
- *   
+ *
  *   If the HTML status, headers, or reply indicates an error, we'll throw a
  *   storage server run-time error, so this won't return.  On success, we
- *   simply return.  
+ *   simply return.
  */
 void vmnet_check_storagesrv_reply(VMG_ int htmlstat, CVmDataSource *reply,
                                   const char *headers);
@@ -166,15 +166,15 @@ void vmnet_check_storagesrv_reply(VMG_ int htmlstat, CVmDataSource *reply,
  *   Retrieve the storage server status from the reply.  This returns an
  *   allocated string buffer containing the status code as the first
  *   space-delimited token, with a printable error message following.
- *   
+ *
  *   The status code is "OK" on success.  If the request failed due to a
  *   storage server error, the first token is a non-numeric error ID.  If the
  *   request failed due to an HTTP, the first token is the numeric HTTP
  *   status.  If the request failed due to a lower-level network error, the
  *   code is a negative numeric code giving the internal OS_HttpClient ErrXxx
  *   code.
- *   
- *   The caller must delete the returned buffer with t3free().  
+ *
+ *   The caller must delete the returned buffer with t3free().
  */
 char *vmnet_get_storagesrv_stat(VMG_ int htmlstat, CVmDataSource *reply,
                                 const char *headers);
@@ -183,7 +183,7 @@ char *vmnet_get_storagesrv_stat(VMG_ int htmlstat, CVmDataSource *reply,
  *   Check the reply code returned by vmnet_get_storagesrv_reply().  On
  *   success, frees the status code buffer and returns.  On failure, frees
  *   the status code buffer and throws a StorageServerError exception.  Note
- *   that we free the buffer in either case.  
+ *   that we free the buffer in either case.
  */
 void vmnet_check_storagesrv_stat(VMG_ char *stat);
 
@@ -197,16 +197,16 @@ void vmnet_check_storagesrv_stat(VMG_ char *stat);
  *   before terminating the overall process.  It could also be useful for
  *   debugging purposes, such as to display a list of active threads on the
  *   console at various times.
- *   
+ *
  *   If the OS layer uses this object, OS_Thread should register each new
  *   thread in its constructor, and unregister each outgoing thread in its
  *   destructor.  Doing so is optional - it's purely for the OS layer's
  *   benefit, so if the OS layer doesn't need the master thread list
- *   information, it can ignore this object.  
+ *   information, it can ignore this object.
  */
 
 /*
- *   thread list link 
+ *   thread list link
  */
 struct TadsThreadLink
 {
@@ -236,7 +236,7 @@ struct TadsThreadLink
 
 
 /*
- *   thread list 
+ *   thread list
  */
 class TadsThreadList: public CVmRefCntObj
 {
@@ -252,9 +252,9 @@ public:
         mu->release_ref();
     }
 
-    /* 
+    /*
      *   add a thread to the master list - the OS_Thread constructor must
-     *   call this 
+     *   call this
      */
     void add(OS_Thread *thread)
     {
@@ -274,17 +274,17 @@ public:
         /* lock the list */
         mu->lock();
 
-        /* 
+        /*
          *   Unlink the thread from the list.  It's possible that it's not in
          *   the list any longer, since wait_all() removes threads before
-         *   waiting for them to exit.  
+         *   waiting for them to exit.
          */
         TadsThreadLink *cur, *prv, *nxt;
         for (prv = 0, cur = head ; cur != 0 ; cur = nxt)
         {
             /* remember the next thread */
             nxt = cur->nxt;
-            
+
             /* check to see if this thread is still alive */
             if (cur->thread->test())
             {
@@ -308,10 +308,10 @@ public:
         mu->unlock();
     }
 
-    /* 
+    /*
      *   Wait for all threads to exit.  The 'timeout' (given in milliseconds)
      *   is applied to each individual thread.  Returns true if all threads
-     *   exited successfully, false if one or more threads timed out.  
+     *   exited successfully, false if one or more threads timed out.
      */
     int wait_all(long timeout)
     {
@@ -328,10 +328,10 @@ public:
             /* if we got an element, remove it from the list */
             if (link != 0)
             {
-                /* 
+                /*
                  *   Unlink it from the list.  Note that our local variable
                  *   't' has now assumed the reference count that the list
-                 *   previously held on the thread.  
+                 *   previously held on the thread.
                  */
                 head = link->nxt;
             }
@@ -350,10 +350,10 @@ public:
                 /* wait for this thread to exit */
                 if (t->wait(timeout) != OSWAIT_EVENT)
                 {
-                    /* 
+                    /*
                      *   the wait timed out or failed - note that we have at
                      *   least one thread that didn't exit successfully
-                     *   within the timeout 
+                     *   within the timeout
                      */
                     ok = FALSE;
                 }
@@ -384,12 +384,12 @@ protected:
 /* ------------------------------------------------------------------------ */
 /*
  *   Network service registration.
- *   
+ *
  *   The usual way that a client finds a server on the Web is via an Internet
  *   address and a "well-known" port number.  For example, any time you
  *   connect to a Web server, you generally connect to port 80, which is the
  *   standard port for HTTP servers.
- *   
+ *
  *   TADS games DON'T use these standard well-known ports.  This is an
  *   important part of the design, because it allows many TADS games to run
  *   on a single shared server.  If each game tried to take over the same
@@ -400,21 +400,21 @@ protected:
  *   until it's actually running.  Therefore, we need some mechanism to
  *   convey the port number to the client so that the client knows where to
  *   connect.
- *   
+ *
  *   Registration is the solution.  When a game starts a server, it registers
  *   that server, by sending its IP address and listening port number to a
  *   registration server.  The registration server makes an entry in its
  *   database of active servers, and then makes this information available to
  *   clients through its own well-known port.  The registration server CAN
  *   use a well-known port because we only need one registration server per
- *   machine.  
+ *   machine.
  */
 
 
 /* ------------------------------------------------------------------------ */
 /*
  *   Server manager.  This is the global object that manages all of the
- *   servers in the process.  
+ *   servers in the process.
  */
 class TadsServerManager: public CVmRefCntObj
 {
@@ -422,19 +422,19 @@ public:
     TadsServerManager();
     ~TadsServerManager();
 
-    /* 
+    /*
      *   Generate a random ID string - this can be used for anything
      *   requiring a universally unique identifier, such as a session ID.
-     *   
+     *
      *   'obj' is a pointer to the object on whose behalf we're constructing
      *   the string.  This is used to contribute to the randomness of the
      *   result, but can be null if no object is involved.
-     *   
+     *
      *   This returns an allocated buffer, which the caller must free with
-     *   lib_free_str() when done with it.  
+     *   lib_free_str() when done with it.
      */
     static char *gen_rand_id(void *obj);
-    
+
     /* get a random number */
     ulong rand();
 
@@ -450,12 +450,12 @@ protected:
 /* ------------------------------------------------------------------------ */
 /*
  *   Network listener.  This object creates a thread that binds to a network
- *   port and listens for incoming connections.  
+ *   port and listens for incoming connections.
  */
 class TadsListener: public CVmRefCntObj
 {
 public:
-    /* 
+    /*
      *   Create a web server listener.  This binds to the given network port,
      *   then launches the given listener thread to listen for new
      *   connections on the port.
@@ -467,10 +467,10 @@ public:
      *   Shut down the listener.  This sends a control message to the
      *   listener thread telling it to shut down.  The listener will close
      *   its network port and exit its thread.
-     *   
+     *
      *   This returns immediately without waiting for the listener to finish
      *   shutting down.  If you want to wait until the thread has exited,
-     *   wait for the thread object.  
+     *   wait for the thread object.
      */
     void shutdown();
 
@@ -478,9 +478,9 @@ public:
     class TadsListenerThread *get_thread() const { return thread; }
 
 protected:
-    /* 
+    /*
      *   construction - this is protected because callers create this object
-     *   via the static method launch() 
+     *   via the static method launch()
      */
     TadsListener(TadsListenerThread *thread);
 
@@ -493,13 +493,13 @@ protected:
 
 /*
  *   Listener thread.  This is the generic class for listener threads; it
- *   must be subclassed for each specific type of network object.  
+ *   must be subclassed for each specific type of network object.
  */
 class TadsListenerThread: public OS_Thread
 {
     friend class TadsListener;
     friend class TadsServerThread;
-    
+
 public:
     /* construction */
     TadsListenerThread(OS_Event *quit_evt)
@@ -510,7 +510,7 @@ public:
         /* no error message yet */
         errmsg = 0;
 
-        /* 
+        /*
          *   use the caller's quit event, if they supplied one, otherwise
          *   create our own; if we create one, it's sticky - once signaled,
          *   it stays signaled, no matter how many threads are waiting on it
@@ -544,7 +544,7 @@ public:
 
     /*
      *   Create the server thread object.  This must be subclassed for each
-     *   type of server to create the appropriate thread subclass.  
+     *   type of server to create the appropriate thread subclass.
      */
     virtual class TadsServerThread *create_server_thread(OS_Socket *s) = 0;
 
@@ -558,10 +558,10 @@ public:
     /* main thread entrypoint */
     void thread_main();
 
-    /* 
+    /*
      *   Check for an error message.  If the server encounters an error it
      *   can't recover from, it'll store a status message and exit the
-     *   listener thread. 
+     *   listener thread.
      */
     const char *get_errmsg() const { return errmsg; }
 
@@ -591,12 +591,12 @@ protected:
     /* time the server started running */
     os_time_t start_time;
 
-    /* 
+    /*
      *   Password: this is a random string generated at startup, to secure
      *   network access to control functions.  The idea is that the server
      *   displays this on its console, so only someone with console access to
      *   the server will be able to also gain remote access to the server
-     *   control functions.  
+     *   control functions.
      */
     char *password;
 
@@ -606,7 +606,7 @@ protected:
     /* our listener port object */
     OS_Listener *port;
 
-    /* 
+    /*
      *   Application-wide quit event.  This is the global event object that
      *   signals application termination.  We'll abort any blocking operation
      *   when this event is signaled so that we can promptly terminate the
@@ -619,13 +619,13 @@ protected:
      *   our owner tell us to shut down the listener thread.  This only
      *   applies to this thread, not to the rest of the application, so it
      *   can be used to selectively terminate this single listener while
-     *   leaving other server threads running. 
+     *   leaving other server threads running.
      */
     OS_Event *shutdown_evt;
 
-    /* 
+    /*
      *   error message - if the server encounters an error that it can't
-     *   recover from, it will store status information here and shut down 
+     *   recover from, it will store status information here and shut down
      */
     char *errmsg;
 
@@ -643,7 +643,7 @@ protected:
 class TadsServerThread: public OS_Thread
 {
     friend class TadsListenerThread;
-    
+
 public:
     TadsServerThread(TadsListenerThread *l, OS_Socket *s)
     {
@@ -688,7 +688,7 @@ public:
      *   from the socket and send the response, then return a success or
      *   failure indication to the caller.  Returns true on success, false if
      *   an unrecoverable error occurs.  A false return tells the server loop
-     *   to close the socket and terminate the thread.  
+     *   to close the socket and terminate the thread.
      */
     virtual int process_request() = 0;
 
@@ -697,15 +697,15 @@ public:
      *   available, then returns as much data as can be read without
      *   blocking.  On success, returns the number of bytes read.  On error,
      *   returns -1.
-     *   
+     *
      *   If 'buf' is null, we'll read and discard data until we've read
      *   'buflen' bytes.
-     *   
+     *
      *   'minlen' gives the minimum number of bytes desired.  This can be
      *   less than the buffer length, since we might not know in advance how
      *   many bytes the client will be sending.  We'll read up to the buffer
      *   size, but we won't return until we read the minimum size (or
-     *   encounter an error or timeout).  
+     *   encounter an error or timeout).
      */
     long read(char *buf, size_t buflen, long minlen,
               unsigned long timeout = OS_FOREVER);
@@ -713,7 +713,7 @@ public:
     /*
      *   Send data to our peer.  This blocks until the request completes, but
      *   we'll abort immediately if the 'quit' event in our listener fires.
-     *   Returns true on success, false on error or a 'quit' signal.  
+     *   Returns true on success, false on error or a 'quit' signal.
      */
     int send(const char *buf, size_t len);
     int send(const char *buf) { return send(buf, strlen(buf)); }
@@ -721,9 +721,9 @@ public:
     /* get the last send/receive error from the socket */
     int last_error() const { return socket->last_error(); }
 
-    /* 
+    /*
      *   Get the state string.  The caller must release the reference when
-     *   done with it. 
+     *   done with it.
      */
     StringRef *get_state() const
     {
@@ -777,17 +777,17 @@ public:
     }
 
 protected:
-    /* 
+    /*
      *   Thread ID - this is a serial number set by the listener when we
      *   start up, used for human-readable identification.  It has no other
      *   significance; in particular, it's NOT an operating system thread
-     *   handle or ID.  
+     *   handle or ID.
      */
     int thread_id;
 
-    /* 
+    /*
      *   our connection socket - this is the two-way network channel we use
-     *   to communicate with our client 
+     *   to communicate with our client
      */
     OS_Socket *socket;
 
@@ -830,7 +830,7 @@ public:
     /* process a request */
     int process_request();
 
-    /* 
+    /*
      *   Send a simple HTTP response.  Returns true on success, false on
      *   error.  The status code and mime type strings are required.  The
      *   message body is optional; if it's null, we'll simply send the
@@ -840,7 +840,7 @@ public:
      *   (INCLUDING the last one) terminated by a CR-LF (\r\n) sequence.  If
      *   this is null we'll only include a set of standard headers describing
      *   the message body (content-type, content-length, cache-control,
-     *   connection).  
+     *   connection).
      */
     int send_simple(const char *status_code, const char *mime_type,
                     const char *msg_body, size_t msg_len,
@@ -858,11 +858,11 @@ public:
     int send_file(const char *fname, const char *mime_type);
 
 protected:
-    /* 
+    /*
      *   Read until we reach the desired number of newlines.  The states are
      *   0->base, 1->first CR, 2->first LF, 3->second CR, 4->second LF.  To
      *   stop after one contiguous newline, stop at state 2; to stop after
-     *   two newlines, stop at state 4.  
+     *   two newlines, stop at state 4.
      */
     int read_to_nl(StringRef *dst, long startofs,
                    int init_state, int end_state);
@@ -877,7 +877,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   HTTP server listener 
+ *   HTTP server listener
  */
 class TadsHttpListenerThread: public TadsListenerThread
 {
@@ -889,9 +889,9 @@ public:
     virtual class TadsServerThread *create_server_thread(OS_Socket *s)
         { return new TadsHttpServerThread(this, queue, upload_limit, s); }
 
-    /* 
+    /*
      *   Get the HTTPServer object that created the listener.
-     *   
+     *
      *   For thread safety, this routine should only be called from the main
      *   VM thread.  The garbage collector can delete the server object and
      *   thus invalidate the value returned here.  The GC runs in the main VM
@@ -900,7 +900,7 @@ public:
      */
     vm_obj_id_t get_server_obj() const { return srv_obj; }
 
-    /* 
+    /*
      *   Detach from the HTTPServer object.  The HTTPServer calls this when
      *   it's about to be deleted by the garbage collector.  We have a
      *   reference on the HTTPServer object, but we're not ourselves a
@@ -908,7 +908,7 @@ public:
      *   alive.  It can thus be collected while we're still pointing to it.
      *   To deal with this, the HTTPServer lets us know when it's about to be
      *   deleted, so that we can clear our reference.
-     *   
+     *
      *   This routine should only be called from the main VM thread.  This is
      *   designed to be called from the HTTPServer object's notify_delete()
      *   method, which is called by the garbage collector, which always runs
@@ -918,7 +918,7 @@ public:
 
 protected:
     ~TadsHttpListenerThread();
-    
+
     /* the message queue we use to handle incoming requests */
     class TadsMessageQueue *queue;
 
@@ -933,7 +933,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   XML helper class 
+ *   XML helper class
  */
 class TadsXml
 {
@@ -950,11 +950,11 @@ public:
  *   network connections to be handled by dedicated threads, while keeping
  *   the byte-code program itself single-threaded.  The queue handles the
  *   communications between threads, and also serializes requests so that
- *   they can be serviced by a single thread.  
+ *   they can be serviced by a single thread.
  */
 
-/* 
- *   Base message object 
+/*
+ *   Base message object
  */
 class TadsMessage: public CVmRefCntObj
 {
@@ -963,7 +963,7 @@ public:
     {
         /* remember the message type */
         this->typ = typ;
-        
+
         /* we're not in a queue yet */
         nxt = 0;
 
@@ -975,7 +975,7 @@ public:
         if ((this->quit_evt = quit_evt) != 0)
             quit_evt->add_ref();
     }
-    
+
     virtual ~TadsMessage()
     {
         /* destroy our completion event */
@@ -986,9 +986,9 @@ public:
             quit_evt->release_ref();
     }
 
-    /* 
+    /*
      *   wait for completion: returns true on success, false if the wait
-     *   failed (due to error, timeout, or Quit) 
+     *   failed (due to error, timeout, or Quit)
      */
     int wait_for_completion(unsigned long timeout)
     {
@@ -1014,14 +1014,14 @@ public:
     /* next message in queue */
     TadsMessage *nxt;
 
-    /* 
+    /*
      *   completion event - this is signaled when the message has been
      *   processed by the recipient, and if a reply is expected, the reply is
-     *   available 
+     *   available
      */
     OS_Event *ev;
 
-    /* 
+    /*
      *   the 'quit' event - our owner signals this event to tell us to shut
      *   down the server without doing any more processing
      */
@@ -1040,7 +1040,7 @@ public:
 /*
  *   Network Event message.  This is the base class for messages used within
  *   the TADS 3 getNetEvent() queue for sending messages to the byte-code
- *   program.  
+ *   program.
  */
 class TadsEventMessage: public TadsMessage
 {
@@ -1053,25 +1053,25 @@ public:
      *   Set up the event object for the byte-code program.  This pushes the
      *   constructor arguments onto the run-time stack, and returns the
      *   appropriate NetEvent subclass object ID (from G_predef).
-     *   
+     *
      *   '*argc' is to be filled in with the number of constructor arguments
      *   pushed.  Note that the caller will push one additional constructor
      *   argument giving the request type code (which is common to all
      *   NetEvent subclass constructors), so this routine doesn't have to
      *   push that value.
-     *   
+     *
      *   '*evt_code' is to be filled in with the event type code.  This is an
      *   integer giving the type of the event, as defined in the TADS header
      *   include/tadsnet.h - see the NetEvXxx code list.
-     *   
+     *
      *   Each server type must subclass this to generate the suitable
-     *   information for the request.  
+     *   information for the request.
      */
     virtual vm_obj_id_t prep_event_obj(VMG_ int *argc, int *evt_code) = 0;
 };
 
-/* 
- *   Message queue. 
+/*
+ *   Message queue.
  */
 class TadsMessageQueue: public CVmRefCntObj
 {
@@ -1098,7 +1098,7 @@ public:
         return quit_evt != 0 && quit_evt->test();
     }
 
-    /* 
+    /*
      *   Add a message to the queue, without waiting for completion.  This is
      *   a one-way send: posting effectively transfers ownership of the
      *   reference on the message to the queue, and thence to the recipient.
@@ -1106,7 +1106,7 @@ public:
      *   their purposes it's effectively gone after they send it.  If the
      *   caller does want to hang onto its own reference to the message after
      *   sending it, just use add_ref() on the message (BEFORE posting, of
-     *   course, in keeping with the usual ref-count transaction rules).  
+     *   course, in keeping with the usual ref-count transaction rules).
      */
     void post(TadsMessage *m)
     {
@@ -1121,9 +1121,9 @@ public:
         tail = m;
         m->nxt = 0;
 
-        /* 
+        /*
          *   if the message doesn't have a 'quit' event, and we do, copy our
-         *   quit event to the message 
+         *   quit event to the message
          */
         if (m->quit_evt == 0 && quit_evt != 0)
             (m->quit_evt = quit_evt)->add_ref();
@@ -1135,14 +1135,14 @@ public:
         mu->unlock();
     }
 
-    /* 
+    /*
      *   Send a message: post it to the queue and wait for completion.
      *   Returns true on success, false if the wait failed (due to error or
      *   timeout).
-     *   
+     *
      *   Unlike post(), the caller explicitly keeps its own reference to the
      *   message with send(), because the message object also provides
-     *   storage for the reply (if any).  
+     *   storage for the reply (if any).
      */
     int send(TadsMessage *m, unsigned long timeout)
     {
@@ -1151,42 +1151,42 @@ public:
          *   caller's original reference is about to be transfered to the
          *   queue (and later to the recipient) via post(), but the caller
          *   also wants to hang on to the message, so it needs a second
-         *   reference for its own copy. 
+         *   reference for its own copy.
          */
         m->add_ref();
 
         /* post the message */
         post(m);
-        
+
         /* wait for completion */
         return m->wait_for_completion(timeout);
     }
 
-    /* 
+    /*
      *   Wait for a message.  Blocks until a message is available in the
      *   queue, or the timeout expires.  If there's a message, removes the
      *   message from the queue and returns OSWAIT_EVENT.  Otherwise, returns
      *   another OSWAIT_xxx code indicating what happened.
-     *   
+     *
      *   The message queue has a 'quit' event object that's used to signal a
      *   general shutdown.  If this event fires, we'll return OSWAIT_EVENT+1
      *   and fill in *msgp with null.
-     *   
+     *
      *   The message queue also has a 'debug break' event that's used to
      *   signal that the user wants to pause execution and break into the
      *   debugger.  If this event is signaled, we'll return OSWAIT_EVENT+2
      *   and fill in *msgp with null.
-     *   
+     *
      *   If we return a message, the caller takes over our reference on it.
      *   The caller is thus responsible for calling release_ref() when done
-     *   with the message object.  
+     *   with the message object.
      */
     int wait(VMG_ unsigned long timeout, TadsMessage **msgp);
 
-    /* 
+    /*
      *   Pull the next message out of the queue without waiting.  The caller
      *   assumes our reference on the message, so they must call Release()
-     *   when done with it.  
+     *   when done with it.
      */
     TadsMessage *get()
     {
@@ -1295,9 +1295,9 @@ protected:
     /* event for signaling a message arrival */
     OS_Event *ev;
 
-    /* 
+    /*
      *   the server's general 'quit' event - the server signals this event to
-     *   tell message queues to shut down without further processing 
+     *   tell message queues to shut down without further processing
      */
     OS_Event *quit_evt;
 
@@ -1320,15 +1320,15 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   HTTP request header.  
+ *   HTTP request header.
  */
 struct TadsHttpRequestHeader
 {
-    /* 
+    /*
      *   Initialize given the start of a header line; returns a pointer to
      *   the start of the next header line.  This modifies the buffer in
      *   place: we add a null at the end of the header name, and we add a
-     *   null at the newline at the end of the header.  
+     *   null at the newline at the end of the header.
      */
     TadsHttpRequestHeader(char *&p, int parse)
     {
@@ -1344,18 +1344,18 @@ struct TadsHttpRequestHeader
         /* parse out the name and value, if desired */
         if (parse)
         {
-            /* 
+            /*
              *   find the end of the header name - it ends at the first
-             *   whitespace or colon character 
+             *   whitespace or colon character
              */
             for ( ; *p != '\0' && strchr(":\r\n \t", *p) == 0 ; ++p) ;
-            
+
             /* check what we found */
             if (*p == ':')
             {
                 /* found the delimiting colon - null it out and skip spaces */
                 for (*p++ = '\0' ; isspace(*p) ; ++p) ;
-                
+
                 /* the value is the rest of the line */
                 value = p;
             }
@@ -1363,19 +1363,19 @@ struct TadsHttpRequestHeader
             {
                 /* stopped at a space - null it out and skip any more spaces */
                 for (*p++ = '\0' ; isspace(*p) ; ++p) ;
-                
+
                 /* make sure we're at the colon */
                 if (*p == ':')
                 {
                     /* skip the colon and any subsequent spaces */
                     for (++p ; isspace(*p) ; ++p) ;
-                    
+
                     /* the value starts here */
                     value = p;
                 }
             }
         }
-        
+
         /* find the end of the line */
         for ( ; *p != '\0' && (*p != '\r' || *(p+1) != '\n') ; ++p) ;
 
@@ -1395,13 +1395,13 @@ struct TadsHttpRequestHeader
     }
 
     /*
-     *   Simplify multi-line headers into the single-line equivalents 
+     *   Simplify multi-line headers into the single-line equivalents
      */
     static void fix_multiline_headers(StringRef *hdrs, int start_ofs)
     {
         /*
          *   Look for CR LF <space>+ <^space> sequences, and delete the line
-         *   breaks in each one.  
+         *   breaks in each one.
          */
         char *p, *dst, *endp = hdrs->getend();
         for (dst = p = hdrs->get() + start_ofs ; p < endp ; )
@@ -1409,16 +1409,16 @@ struct TadsHttpRequestHeader
             /* check for a line break */
             if (*p == '\r' && *(p+1) == '\n')
             {
-                /* 
+                /*
                  *   if the next line starts with whitespace, it's a
-                 *   continuation line; otherwise it's a new header 
+                 *   continuation line; otherwise it's a new header
                  */
                 if (isspace(*(p+2) && *(p+2) != '\r' && *(p+2) != '\n'))
                 {
-                    /* 
+                    /*
                      *   it's a continuation line - replace the CR-LF with a
                      *   single space, then skip all of the whitespace at the
-                     *   start of this line 
+                     *   start of this line
                      */
                     *dst++ = ' ';
                     for (p += 2 ; isspace(*p) && *p != '\r' && *p != '\n' ;
@@ -1443,11 +1443,11 @@ struct TadsHttpRequestHeader
                 *dst++ = *p++;
             }
         }
-        
+
         /* set the new size of the headers */
         hdrs->truncate(dst - hdrs->get());
     }
-    
+
     /* parse headers from a StringRef starting at the given offset */
     static void parse_headers(TadsHttpRequestHeader *&hdr_list,
                               TadsHttpRequestHeader *&hdr_tail,
@@ -1459,18 +1459,18 @@ struct TadsHttpRequestHeader
 
         /* set up at the starting offset */
         char *p = str->get() + ofs;
-        
+
         /* if we're already at a blank line, there are no headers */
         if (*p == '\0' || *p == '\r' || *p == '\n')
             return;
-        
-        /* 
+
+        /*
          *   if there aren't any headers yet, parse the first one; otherwise
-         *   we'll just add to the existing list 
+         *   we'll just add to the existing list
          */
         if (hdr_list == 0)
             hdr_list = hdr_tail = new TadsHttpRequestHeader(p, parse_first);
-        
+
         /* now parse until we find a blank line */
         while (*p != '\r' && *p != '\n' && *p != '\0')
             hdr_tail = hdr_tail->nxt = new TadsHttpRequestHeader(p, TRUE);
@@ -1486,7 +1486,7 @@ struct TadsHttpRequestHeader
             if (stricmp(h->name, name) == 0)
                 return h->value;
         }
-        
+
         /* didn't find a match */
         return 0;
     }
@@ -1503,7 +1503,7 @@ struct TadsHttpRequestHeader
 
 /* ------------------------------------------------------------------------ */
 /*
- *   HTTP Request Message. 
+ *   HTTP Request Message.
  */
 class TadsHttpRequest: public TadsEventMessage
 {
@@ -1552,11 +1552,11 @@ public:
     /* mark the request as completed */
     void complete();
 
-    /* 
+    /*
      *   Prepare the event object.  This creates an HTTPRequest object (the
      *   intrinsic class representing an incoming HTTP request), and sets up
      *   a NetRequestEvent (the byte-code object representing a request) to
-     *   wrap it.  
+     *   wrap it.
      */
     virtual vm_obj_id_t prep_event_obj(VMG_ int *argc, int *evt_type);
 
@@ -1578,9 +1578,9 @@ public:
     /* message body, if any */
     StringRef *body;
 
-    /* 
+    /*
      *   Flag: the message body exceeded the upload size limit.  If this is
-     *   set, body is null, since we discard content that's too large. 
+     *   set, body is null, since we discard content that's too large.
      */
     int overflow;
 };
@@ -1591,7 +1591,7 @@ public:
  *   where the browser UI is an integrated part of the interpreter, this
  *   event is sent when the user explicitly closes the UI window.  In most
  *   cases, the game will simply want to terminate when this happens, because
- *   it indicates that the user has effectively dismissed the application.  
+ *   it indicates that the user has effectively dismissed the application.
  */
 class TadsUICloseEvent: public TadsEventMessage
 {

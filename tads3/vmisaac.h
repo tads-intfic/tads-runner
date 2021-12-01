@@ -3,9 +3,9 @@
 Name
   vmisaac.h - TADS 3 VM ISAAC random number generator implementation
 Function
-  
+
 Notes
-  
+
 Modified
   04/11/10 MJRoberts  - Creation
 */
@@ -36,18 +36,18 @@ struct isaacctx
      (isaac_gen_group(r), (r)->cnt=ISAAC_RANDSIZ-1, (r)->rsl[(r)->cnt]) : \
      (r)->rsl[(r)->cnt])
 
-/* 
+/*
  *   Initialize.  If flag is true, then use the contents of ctx->rsl[] to
  *   initialize ctx->mm[]; otherwise, we'll use a fixed starting
- *   configuration.  
+ *   configuration.
  */
 void isaac_init(isaacctx *ctx, int flag);
 
-/* 
+/*
  *   Get/set the internal state.  This allows saving and restoring the
  *   internal state of the RNG.  'get' returns the size of the byte buffer
  *   required; call with buf==0 to determine the size needed.
- *   
+ *
  *   'get' and 'set' both expect the caller to know the correct size from a
  *   size-query call to 'get'.  The size passed to 'set' must always exactly
  *   match the size returned from 'get', since anything else could corrupt

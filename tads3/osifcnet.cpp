@@ -8,9 +8,9 @@ static char RCSid[] =
 Name
   osifcnet.cpp - portable implementation for OS network interface
 Function
-  
+
 Notes
-  
+
 Modified
   08/19/10 MJRoberts  - Creation
 */
@@ -22,7 +22,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Payload item 
+ *   Payload item
  */
 
 /* payload item destruction */
@@ -91,7 +91,7 @@ void OS_HttpPayloadItem::init()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Request payload data 
+ *   Request payload data
  */
 
 
@@ -178,10 +178,10 @@ OS_HttpPayloadItem *OS_HttpPayload::get(int n) const
     return cur;
 }
 
-/* 
+/*
  *   Does the payload contain any multipart file data?  This returns true if
  *   any of the fields are uploaded files, false if they're all simple form
- *   fields.  
+ *   fields.
  */
 int OS_HttpPayload::is_multipart() const
 {
@@ -197,10 +197,10 @@ int OS_HttpPayload::is_multipart() const
     return FALSE;
 }
 
-/* 
+/*
  *   URL-encode a string into a buffer; returns the required length, not
  *   counting the terminating null byte.  If the buffer is null, we'll simply
- *   calculate and return the length.  
+ *   calculate and return the length.
  */
 static size_t urlencodestr(char *dst, const char *str)
 {
@@ -262,36 +262,36 @@ static size_t urlencodestr(char *dst, const char *str)
 
 
 /*
- *   Create an application/x-www-form-urlencoded buffer from the payload. 
+ *   Create an application/x-www-form-urlencoded buffer from the payload.
  */
 char *OS_HttpPayload::urlencode(size_t &len) const
 {
-    /* 
+    /*
      *   start by scanning the fields to figure the total buffer length we'll
-     *   need 
+     *   need
      */
     OS_HttpPayloadItem *item;
     for (len = 0, item = first_item ; item != 0 ; item = item->nxt)
     {
-        /* 
+        /*
          *   if this isn't the first item, we'll need a '&' to separate it
-         *   from the prior item 
+         *   from the prior item
          */
         if (item != first_item)
             len += 1;
-        
-        /* 
+
+        /*
          *   add the item's length: "name=value", with url encoding for both
-         *   strings 
+         *   strings
          */
         len += urlencodestr(0, item->name) + 1 + urlencodestr(0, item->val);
     }
-    
+
     /* allocate the buffer */
     char *putdata = (char *)t3malloc(len + 1);
     if (putdata == 0)
         return 0;
-    
+
     /* build the buffer */
     char *p;
     for (p = putdata, item = first_item ; item != 0 ; item = item->nxt)
@@ -299,7 +299,7 @@ char *OS_HttpPayload::urlencode(size_t &len) const
         /* if this isn't the first item, add the '&' */
         if (item != first_item)
             *p++ = '&';
-        
+
         /* add "name=urlencodestr(value)" */
         p += urlencodestr(p, item->name);
         *p++ = '=';

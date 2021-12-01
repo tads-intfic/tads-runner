@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 2001, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -46,29 +46,29 @@ Modified
 /*
  *   This is the imported symbol table.  Add symbols here as needed.  Define
  *   each imported symbol as follows:
- *   
+ *
  *   VM_IMPORT_OBJ("object_symbol_name", predef_member_name) - import an
  *   object
- *   
+ *
  *   VM_IMPORT_PROP("prop_symbol_name", predef_member_name) - import a
  *   property
- *   
+ *
  *   VM_NOIMPORT_OBJ("object_symbol_name", predef_member_name) - define a
  *   named object, but do not generate an import for it; objects defined in
  *   this way are created after load.  Any object that the VM creates on its
  *   own after load must be defined in this manner, so that the object can
  *   be identified in saved state files and restored properly.
- *   
+ *
  *   VM_NOIMPORT_PROP("prop_symbol_name", predef_member_name) - define a
- *   named property, but do not generate an import for it.  
+ *   named property, but do not generate an import for it.
  */
 
 /* the base class for VM run-time exceptions */
 VM_IMPORT_OBJ("RuntimeError", rterr)
 
-/* 
+/*
  *   the property in which we store the exception message text for VM
- *   run-time exceptions 
+ *   run-time exceptions
  */
 VM_IMPORT_PROP(VM_IMPORT_NAME_RTERRMSG, rterrmsg_prop)
 
@@ -94,9 +94,9 @@ VM_IMPORT_FUNC("mainRestore", main_restore_func)
 /* "length" method property */
 VM_IMPORT_PROP("length", length_prop)
 
-/* 
+/*
  *   the objects used to represent constant strings and lists, respectively,
- *   in method calls to such values 
+ *   in method calls to such values
  */
 VM_NOIMPORT_OBJ(VM_IMPORT_NAME_CONSTSTR, const_str_obj)
 VM_NOIMPORT_OBJ(VM_IMPORT_NAME_CONSTLST, const_lst_obj)
@@ -105,7 +105,7 @@ VM_NOIMPORT_OBJ(VM_IMPORT_NAME_CONSTLST, const_lst_obj)
  *   the array object that we use to keep track of the last allocated
  *   property ID (we keep this in an object so that property ID allocations
  *   can easily participate in the undo mechanism and are easily saved and
- *   restored) 
+ *   restored)
  */
 VM_NOIMPORT_OBJ(VM_IMPORT_NAME_LASTPROPOBJ, last_prop_obj)
 
@@ -116,9 +116,9 @@ VM_IMPORT_OBJ("StorageServerError", storage_server_error)
 VM_IMPORT_PROP("String.specialsToHtml.flags", string_sth_flags)
 VM_IMPORT_PROP("String.specialsToHtml.tag", string_sth_tag)
 
-/* 
+/*
  *   the properties that the GrammarProd intrinsic class uses to indicate in
- *   a match tree the first and last token index of each match 
+ *   a match tree the first and last token index of each match
  */
 VM_IMPORT_PROP("GrammarProd.firstTokenIndex", gramprod_first_tok)
 VM_IMPORT_PROP("GrammarProd.lastTokenIndex", gramprod_last_tok)
@@ -128,21 +128,21 @@ VM_IMPORT_PROP("GrammarProd.grammarTag", gramprod_tag)
 VM_IMPORT_PROP("GrammarProd.miscVocab", misc_vocab)
 VM_IMPORT_PROP("GrammarProd.altProps", gramprod_alt_props)
 
-/* 
+/*
  *   classes that GrammarProd.getGrammarInfo() instantiates to store the
- *   production description 
+ *   production description
  */
 VM_IMPORT_OBJ("GrammarProd.GrammarAltInfo", gramprod_gram_alt_info)
 VM_IMPORT_OBJ("GrammarProd.GrammarAltTokInfo", gramprod_gram_alt_tok_info)
 
-/* 
+/*
  *   for the CharacterSet intrinsic class, the exception class for unknown
- *   local character mappings 
+ *   local character mappings
  */
 VM_IMPORT_OBJ("CharacterSet.UnknownCharSetException", charset_unknown_exc)
 
 /*
- *   exceptions for the File intrinsic class 
+ *   exceptions for the File intrinsic class
  */
 VM_IMPORT_OBJ("File.FileNotFoundException", file_not_found_exc)
 VM_IMPORT_OBJ("File.FileCreationException", file_creation_exc)
@@ -204,7 +204,7 @@ VM_IMPORT_PROP("objToString", objToString)
 
 /*
  *   now that we've built the table, undefine the macros used to build it,
- *   so that future includers can redefine the macros differently 
+ *   so that future includers can redefine the macros differently
  */
 #undef VM_IMPORT_OBJ
 #undef VM_IMPORT_PROP

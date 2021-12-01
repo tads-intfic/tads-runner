@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/SUP.C,v 1.3 1999/07/11 00:46:30 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1992, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -42,7 +42,7 @@ Modified
  *   together, with the shorter sequences preceding the longer sequences.
  *   For example, ":" and ":=" must be adjacent, and ":" must precede
  *   ":=".  Other than this restriction, the order of tokens doesn't
- *   matter.  
+ *   matter.
  */
 tokldef supsctab[] =
 {
@@ -135,7 +135,7 @@ static supkwdef supkwtab[] =
     { "compoundWord", TOKTCOMPOUND },
     { "specialWords", TOKTSPECIAL },
     { "class", TOKTCLASS },
-        
+
     /* new keywords for V2 */
     { "\002", 0 },                  /* special flag for start of v2 section */
     { "for", TOKTFOR },
@@ -291,13 +291,13 @@ void suprsrv(supcxdef *sup, void (*bif[])(bifcxdef *, int),
             if (v1compat) break;               /* no v2 keywords - quit now */
             else continue;          /* keep going, but skip this flag entry */
         }
-        
+
         /* if this is the "do" keyword, change to user-supplied value */
         if (do_kw && new_do)
             kwname = new_do;
         else
             kwname = kw->supkwnam;
-        
+
         if (kw->supkwnam[0] == '\001')
         {
             do_kw = TRUE;
@@ -320,7 +320,7 @@ void suprsrv(supcxdef *sup, void (*bif[])(bifcxdef *, int),
     supaddsym(tab, "self", TOKSTSELF, 0, casefold);
     supaddsym(tab, "inherited", TOKSTINHERIT, 0, casefold);
     supaddsym(tab, "argcount", TOKSTARGC, 0, casefold);
-    
+
     /* add built-in properties */
     for (pr = supprtab ; pr->supprnam ; ++pr)
         supaddsym(tab, pr->supprnam, TOKSTPROP, pr->supprval, casefold);
@@ -330,13 +330,13 @@ void suprsrv(supcxdef *sup, void (*bif[])(bifcxdef *, int),
 void supgnam(char *buf, tokthdef *tab, objnum objn)
 {
     toksdef sym;
-    
+
     if (!tab)
     {
         strcpy(buf, "<NO SYMBOL TABLE>");
         return;
     }
-    
+
     if (tokthfind((toktdef *)tab, TOKSTOBJ, (uint)objn, &sym)
         || tokthfind((toktdef *)tab, TOKSTFWDOBJ, (uint)objn, &sym))
     {
@@ -357,10 +357,10 @@ void supivoc(supcxdef *ctx)
     int        i;
     int        j;
     objnum     obj;
-    
+
     /* delete all existing inherited words */
     vocdelinh(voc);
-    
+
     for (vpg = voc->voccxinh, i = 0 ; i < VOCINHMAX ; ++vpg, ++i)
     {
         if (!*vpg) continue;                     /* no entries on this page */

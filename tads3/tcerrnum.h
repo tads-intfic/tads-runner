@@ -1,10 +1,10 @@
 /* $Header: d:/cvsroot/tads/tads3/TCERRNUM.H,v 1.5 1999/07/11 00:46:53 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -23,7 +23,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Tokenizer and Preprocessor Errors 
+ *   Tokenizer and Preprocessor Errors
  */
 
 /* out of memory for source line - source line is too long */
@@ -35,10 +35,10 @@ Modified
 /* unable to load character set specified in #charset directive */
 #define TCERR_CANT_LOAD_CHARSET   10003
 
-/* 
+/*
  *   unexpected or invalid #charset - directive must be at the very
  *   beginning of the file, and must specify a character set name enclosed
- *   in double quotes 
+ *   in double quotes
  */
 #define TCERR_UNEXPECTED_CHARSET  10004
 
@@ -102,7 +102,7 @@ Modified
 /* division by zero in preprocessor constant expression */
 #define TCERR_PP_DIV_ZERO         10024
 
-/* 
+/*
  *   expected number, symbol, or single-quoted string in preprocessor
  *   constant expression, got "%.*s"
  */
@@ -240,31 +240,31 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   General Messages 
+ *   General Messages
  */
 
 /* internal error explanation */
 #define TCERR_INTERNAL_EXPLAN     10500
 
-/* 
+/*
  *   internal error - after we log an internal error, we'll throw this
  *   generic error code; since internal errors are unrecoverable, any
  *   frames that catch this error should simply clean up and terminate as
- *   gracefully as possible 
+ *   gracefully as possible
  */
 #define TCERR_INTERNAL_ERROR      10501
 
 /*
  *   fatal error - after we log a fatal error, we'll throw this generic
  *   error code; any frames that catch this error should simply clean up
- *   and terminate 
+ *   and terminate
  */
 #define TCERR_FATAL_ERROR         10502
 
 
 /* ------------------------------------------------------------------------ */
 /*
- *   "Make" errors 
+ *   "Make" errors
  */
 
 /* cannot create symbol file "%s" */
@@ -303,7 +303,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parsing Errors 
+ *   Parsing Errors
  */
 
 /* divide by zero in constant expression */
@@ -987,9 +987,9 @@ Modified
 /* 'for..in' variable %.*s is not defined as a local variable */
 #define TCERR_FOR_IN_NOT_LOCAL         11227
 
-/* 
+/*
  *   unexpected '%.*s' in << >> expression in string (mismatched 'end',
- *   'else', 'default', etc) 
+ *   'else', 'default', etc)
  */
 #define TCERR_BAD_EMBED_END_TOK        11228
 
@@ -1002,9 +1002,9 @@ Modified
 /* only one '*' is allowed in a string template */
 #define TCERR_STRTPL_MULTI_STAR        11231
 
-/* 
+/*
  *   wrong prototype for string template processor function %.*s - expected
- *   %d parameters and a return value 
+ *   %d parameters and a return value
  */
 #define TCERR_STRTPL_FUNC_MISMATCH     11232
 
@@ -1023,7 +1023,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   General Code Generator Errors 
+ *   General Code Generator Errors
  */
 
 /* out of memory for code generation */
@@ -1233,12 +1233,12 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Errors related to symbol export files 
+ *   Errors related to symbol export files
  */
 
-/* 
+/*
  *   invalid symbol type in symbol file - file is corrupted or was created
- *   by an incompatible version of the compiler 
+ *   by an incompatible version of the compiler
  */
 #define TCERR_SYMEXP_INV_TYPE     11700
 
@@ -1248,16 +1248,16 @@ Modified
 /* symbol name too long in symbol file */
 #define TCERR_SYMEXP_SYM_TOO_LONG 11702
 
-/* 
+/*
  *   symbol "%.*s" found in symbol file is already defined; ignoring the
- *   redefinition 
+ *   redefinition
  */
 #define TCERR_SYMEXP_REDEF        11703
 
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Errors related to object files 
+ *   Errors related to object files
  */
 
 /* invalid object file signature */
@@ -1314,9 +1314,9 @@ Modified
 /* "construct" cannot return a value */
 #define TCERR_CONSTRUCT_CANNOT_RET_VAL 11817
 
-/* 
+/*
  *   object file doesn't contain debugging information (required because
- *   we're linking for debugging) 
+ *   we're linking for debugging)
  */
 #define TCERR_OBJFILE_NO_DBG      11818
 
@@ -1347,7 +1347,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   T3 Code Generator Errors 
+ *   T3 Code Generator Errors
  */
 
 /* constant string or list exceeds 32k - won't run on 16-bit machines */
@@ -1413,7 +1413,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Javascript code generator errors 
+ *   Javascript code generator errors
  */
 
 /* invalid expression template */

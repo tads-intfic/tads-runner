@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/charmap.cpp,v 1.3 1999/07/11 00:46:58 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   charmap.cpp - character mapper
 Function
-  
+
 Notes
-  
+
 Modified
   10/17/98 MJRoberts  - Creation
 */
@@ -33,11 +33,11 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Basic Mapper Class 
+ *   Basic Mapper Class
  */
 
 /*
- *   match a name prefix (for the various Latin-X synonym names) 
+ *   match a name prefix (for the various Latin-X synonym names)
  */
 static int prefixeq(const char *table_name, size_t digit_ofs,
                     const char *prefix)
@@ -47,21 +47,21 @@ static int prefixeq(const char *table_name, size_t digit_ofs,
 }
 
 /*
- *   Open a mapping file, applying synonyms for character set names 
+ *   Open a mapping file, applying synonyms for character set names
  */
 osfildef *CCharmap::open_map_file_syn(class CResLoader *res_loader,
                                       const char *table_name,
                                       charmap_type_t *map_type)
 {
     osfildef *fp;
-    
+
     /* try opening the file/resource with the exact name given */
     if ((fp = open_map_file(res_loader, table_name, map_type)) != 0)
         return fp;
-    
-    /*     
+
+    /*
      *   We didn't find a file with the exact name given.  Try various
-     *   synonyms for the Latin-X character sets.  
+     *   synonyms for the Latin-X character sets.
      */
     const char *p;
     for (p = table_name + strlen(table_name) ;
@@ -85,17 +85,17 @@ osfildef *CCharmap::open_map_file_syn(class CResLoader *res_loader,
             /* rebuild the name as "isoX" */
             char buf[25];
             sprintf(buf, "iso%d", num);
-            
+
             /* try loading it */
             if ((fp = open_map_file(res_loader, buf, map_type)) != 0)
                 return fp;
         }
     }
 
-    /* 
+    /*
      *   if that didn't work, and the whole string looks like just a number,
      *   try putting "cp" in front of it - i.e., allow loading cp1252 as just
-     *   "1252" 
+     *   "1252"
      */
     if (found_suffix && p == table_name)
     {
@@ -105,10 +105,10 @@ osfildef *CCharmap::open_map_file_syn(class CResLoader *res_loader,
         if ((fp = open_map_file(res_loader, buf, map_type)) != 0)
             return fp;
     }
-    
-    /* 
+
+    /*
      *   if we still don't have a file, check for "winXXXX" and "dosXXXX", as
-     *   synonyms for cpXXXX 
+     *   synonyms for cpXXXX
      */
     if (found_suffix
         && (prefixeq(table_name, ofs, "win")
@@ -130,7 +130,7 @@ osfildef *CCharmap::open_map_file_syn(class CResLoader *res_loader,
 }
 
 /*
- *   Open and characterize a mapping file 
+ *   Open and characterize a mapping file
  */
 osfildef *CCharmap::open_map_file(class CResLoader *res_loader,
                                   const char *table_name,
@@ -149,7 +149,7 @@ osfildef *CCharmap::open_map_file(class CResLoader *res_loader,
      *   always start with "charmap/" followed by the table name, plus the
      *   ".tcm" extension.  We use lower-case names for the mapping files, so
      *   explicitly convert to lower, in case we're on a case-sensitive file
-     *   system like Unix.  
+     *   system like Unix.
      */
     t3sprintf(respath, sizeof(respath), "charmap/%s.tcm", table_name);
     t3strlwr(respath);
@@ -171,9 +171,9 @@ osfildef *CCharmap::open_map_file(class CResLoader *res_loader,
     /* get the number of entries from the local-to-unicode header */
     entry_cnt = osrp2(buf + 4);
 
-    /* 
+    /*
      *   Scan the entries to determine if we have single-byte,
-     *   double-byte, or both.  
+     *   double-byte, or both.
      */
     found_single = found_double = FALSE;
     while (entry_cnt > 0)
@@ -196,13 +196,13 @@ osfildef *CCharmap::open_map_file(class CResLoader *res_loader,
         /* scan the entries */
         for (p = buf ; cur > 0 ; --cur, p += 4)
         {
-            /* 
+            /*
              *   Note whether this is a single-byte or double-byte entry.
              *   If the high-order byte is non-zero, it's a double-byte
              *   entry; otherwise, it's a single-byte entry.
-             *   
+             *
              *   Note that we read the UINT2 at (p+2), because that's the
-             *   local character-set code point in this tuple.  
+             *   local character-set code point in this tuple.
              */
             if (((uint)osrp2(p + 2)) > 0xFF)
                 found_double = TRUE;
@@ -210,18 +210,18 @@ osfildef *CCharmap::open_map_file(class CResLoader *res_loader,
                 found_single = TRUE;
         }
 
-        /* 
+        /*
          *   if we've found both single- and double-byte characters so
          *   far, there's no need to look any further, since we know
-         *   everything about the file now 
+         *   everything about the file now
          */
         if (found_single && found_double)
             break;
     }
 
-    /* 
+    /*
      *   create the appropriate mapper, depending on whether we found
-     *   single, double, or mixed characters 
+     *   single, double, or mixed characters
      */
     if (found_single && found_double)
     {
@@ -259,11 +259,11 @@ fail:
 /* ------------------------------------------------------------------------ */
 /*
  *   Special built-in mapper to 7-bit ASCII.  This is available as a last
- *   resort when no external mapping file can be found.  
+ *   resort when no external mapping file can be found.
  */
 
 /*
- *   create a plain ascii translator 
+ *   create a plain ascii translator
  */
 CCharmapToLocalASCII::CCharmapToLocalASCII()
 {
@@ -599,9 +599,9 @@ CCharmapToLocalASCII::CCharmapToLocalASCII()
         /* we need space for this mapping string, plus a length prefix byte */
         siz += strlen(p->asc) + 1;
 
-        /* 
+        /*
          *   if this is a multi-character expansion, count it in the
-         *   expansion array size 
+         *   expansion array size
          */
         if (strlen(p->asc) > 1)
             exp_siz += strlen(p->asc) + 1;
@@ -613,22 +613,22 @@ CCharmapToLocalASCII::CCharmapToLocalASCII()
     /* allocate the translation array */
     xlat_array_ = (unsigned char *)t3malloc(siz);
 
-    /* 
+    /*
      *   allocate the expansion array; allocate one extra entry for the null
-     *   mapping at index zero 
+     *   mapping at index zero
      */
     exp_array_ = (wchar_t *)t3malloc((exp_siz + 1) * sizeof(wchar_t));
 
-    /* 
+    /*
      *   start at element 1 of the expansion array (element zero is reserved
-     *   to indicate the null mapping) 
+     *   to indicate the null mapping)
      */
     dst = xlat_array_;
     exp_dst = exp_array_ + 1;
 
-    /* 
+    /*
      *   Add the zeroeth entry, which serves as the default mapping for
-     *   characters that aren't otherwise mappable.  
+     *   characters that aren't otherwise mappable.
      */
     set_mapping(0, 0);
     *dst++ = 1;
@@ -676,7 +676,7 @@ CCharmapToLocalASCII::CCharmapToLocalASCII()
 /*
  *   Special built-in mapper to ISO-8859-1.  Because of the widespread use
  *   of this character set, we make this mapping available even when no
- *   external mapping file is available.  
+ *   external mapping file is available.
  */
 
 /*
@@ -688,10 +688,10 @@ CCharmapToLocal8859_1::CCharmapToLocal8859_1()
     size_t siz;
     wchar_t c;
 
-    /* 
+    /*
      *   Determine how much space we'll need in the translation array - we
      *   need one byte for each character, plus one byte for the length of
-     *   each character.  We also need two bytes for the default entry.  
+     *   each character.  We also need two bytes for the default entry.
      */
     siz = 256 + 256 + 2;
 
@@ -701,17 +701,17 @@ CCharmapToLocal8859_1::CCharmapToLocal8859_1()
     /* start at the start of the array */
     dst = xlat_array_;
 
-    /* 
+    /*
      *   Add the zeroeth entry, which serves as the default mapping for
-     *   characters that aren't otherwise mappable.  
+     *   characters that aren't otherwise mappable.
      */
     set_mapping(0, 0);
     *dst++ = 1;
     *dst++ = '?';
 
-    /* 
+    /*
      *   Set up the mappings - this is easy because each Unicode code point
-     *   from 0 to 255 maps to the same ISO 8859-1 code point.  
+     *   from 0 to 255 maps to the same ISO 8859-1 code point.
      */
     for (c = 0 ; c < 256 ; ++c)
     {
@@ -727,11 +727,11 @@ CCharmapToLocal8859_1::CCharmapToLocal8859_1()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Character mapping for Unicode to Local 
+ *   Character mapping for Unicode to Local
  */
 
 /*
- *   create the translator 
+ *   create the translator
  */
 CCharmapToLocal::CCharmapToLocal()
 {
@@ -745,7 +745,7 @@ CCharmapToLocal::CCharmapToLocal()
 }
 
 /*
- *   delete the translator 
+ *   delete the translator
  */
 CCharmapToLocal::~CCharmapToLocal()
 {
@@ -777,41 +777,41 @@ CCharmapToLocal::~CCharmapToLocal()
 }
 
 /*
- *   Set a mapping 
+ *   Set a mapping
  */
 void CCharmapToLocal::set_mapping(wchar_t unicode_char,
                                   unsigned int xlat_offset)
 {
     int master_idx;
-    
+
     /* get the master table index for this unicode character */
     master_idx = (int)((unicode_char >> 8) & 0xff);
-    
+
     /* if there's no sub-table here yet, create one */
     if (map_[master_idx] == 0)
     {
         int i;
-        
+
         /* allocate it */
         map_[master_idx] =
             (unsigned int *)t3malloc(256 * sizeof(unsigned int));
-        
-        /* 
+
+        /*
          *   Set each entry to the default character, so that it will
          *   produce valid results if no mapping is ever specified for the
          *   character.  The default character is always at offset zero in
-         *   the translation array.  
+         *   the translation array.
          */
         for (i = 0 ; i < 256 ; ++i)
             map_[master_idx][i] = 0;
     }
-    
+
     /* set the mapping for the character's entry in the sub-table */
     map_[master_idx][unicode_char & 0xff] = xlat_offset;
 }
 
 /*
- *   Set an expansion mapping 
+ *   Set an expansion mapping
  */
 void CCharmapToLocal::set_exp_mapping(wchar_t unicode_char,
                                       unsigned int exp_offset)
@@ -830,11 +830,11 @@ void CCharmapToLocal::set_exp_mapping(wchar_t unicode_char,
         exp_map_[master_idx] =
             (unsigned int *)t3malloc(256 * sizeof(unsigned int));
 
-        /* 
+        /*
          *   Set each entry to the default character, so that it will produce
          *   valid results if no mapping is ever specified for the character.
          *   The default character is always at offset zero in the expansion
-         *   array.  
+         *   array.
          */
         for (i = 0 ; i < 256 ; ++i)
             exp_map_[master_idx][i] = 0;
@@ -854,13 +854,13 @@ size_t CCharmapToLocal::map_utf8(char *dest, size_t dest_len,
     utf8_ptr src_start;
     size_t cur_total;
     char *srcend;
-        
+
     /* remember where we started */
     src_start = src;
 
     /* compute where the source buffer ends */
     srcend = src.getptr() + src_byte_len;
-    
+
     /* copy characters until we reach the end of the source string */
     for (cur_total = 0 ; src.getptr() < srcend ; src.inc())
     {
@@ -910,23 +910,23 @@ size_t CCharmapToLocal::map_utf8z(char *dest, size_t dest_len,
                                   utf8_ptr src) const
 {
     size_t cur_total;
-    
+
     /* copy characters until we find the terminating null */
     for (cur_total = 0 ; src.getch() != 0 ; src.inc())
     {
-        /* 
+        /*
          *   map this character into the output, if it will fit, but in
-         *   any case count the space it needs in the output 
+         *   any case count the space it needs in the output
          */
         cur_total += map(src.getch(), &dest, &dest_len);
     }
 
-    /* 
+    /*
      *   add a null terminator if there's room, but don't count it in the
-     *   result length 
+     *   result length
      */
     map(0, &dest, &dest_len);
-    
+
     /* return the total length of the result */
     return cur_total;
 }
@@ -942,7 +942,7 @@ size_t CCharmapToLocal::map_utf8_alo(
 
     /* allocate the buffer, adding space for null termination */
     *buf = (char *)t3malloc(buflen + 1);
-    
+
     /* if that failed, return null */
     if (buf == 0)
         return 0;
@@ -959,7 +959,7 @@ size_t CCharmapToLocal::map_utf8_alo(
 
 /*
  *   Map a null-terminated UTF-8 string to the local character set, escaping
- *   characters that aren't part of the local character set.  
+ *   characters that aren't part of the local character set.
  */
 size_t CCharmapToLocal::map_utf8z_esc(
     char *dest, size_t dest_len, utf8_ptr src,
@@ -971,7 +971,7 @@ size_t CCharmapToLocal::map_utf8z_esc(
     for (cur_total = 0 ; src.getch() != 0 ; src.inc())
     {
         wchar_t ch = src.getch();
-        
+
         /* if this character is mappable, map it; otherwise, escape it */
         if (is_mappable(src.getch()))
         {
@@ -985,9 +985,9 @@ size_t CCharmapToLocal::map_utf8z_esc(
         }
     }
 
-    /* 
+    /*
      *   add a null terminator if there's room, but don't count it in the
-     *   result length 
+     *   result length
      */
     map(0, &dest, &dest_len);
 
@@ -997,13 +997,13 @@ size_t CCharmapToLocal::map_utf8z_esc(
 
 /*
  *   Escape callback for map_utf8z_esc() - prepares source-code-style
- *   'backslash' escape sequences for unmappable characters.  
+ *   'backslash' escape sequences for unmappable characters.
  */
 size_t CCharmapToLocal::source_esc_cb(wchar_t ch, char **dest, size_t *len)
 {
     char buf[7];
     size_t copylen;
-    
+
     /* prepare our own representation */
     sprintf(buf, "\\u%04x", (unsigned int)ch);
 
@@ -1024,7 +1024,7 @@ size_t CCharmapToLocal::source_esc_cb(wchar_t ch, char **dest, size_t *len)
 }
 
 /*
- *   Map to UTF8 
+ *   Map to UTF8
  */
 size_t CCharmapToLocal::map_utf8(char *dest, size_t dest_len,
                                  const char *src, size_t src_byte_len,
@@ -1040,7 +1040,7 @@ size_t CCharmapToLocal::map_utf8(char *dest, size_t dest_len,
 }
 
 /*
- *   Create a mapper and load a mapping file 
+ *   Create a mapper and load a mapping file
  */
 CCharmapToLocal *CCharmapToLocal::load(CResLoader *res_loader,
                                        const char *table_name)
@@ -1119,7 +1119,7 @@ CCharmapToLocal *CCharmapToLocal::load(CResLoader *res_loader,
 }
 
 /*
- *   Load the character set translation table 
+ *   Load the character set translation table
  */
 void CCharmapToLocal::load_table(osfildef *fp)
 {
@@ -1130,7 +1130,7 @@ void CCharmapToLocal::load_table(osfildef *fp)
     ulong xbytes;
     ulong xchars;
     uint next_ofs;
-    
+
     /* note the initial seek position */
     startpos = osfpos(fp);
 
@@ -1148,10 +1148,10 @@ void CCharmapToLocal::load_table(osfildef *fp)
     cnt = osrp2(buf);
     xbytes = t3rp4u(buf + 2);
 
-    /* 
+    /*
      *   Allocate space for the translation table.  Note that we cannot
      *   handle translation tables bigger than the maximum allowed in a
-     *   single allocation unit on the operating system. 
+     *   single allocation unit on the operating system.
      */
     if (xbytes > OSMALMAX)
         return;
@@ -1160,13 +1160,13 @@ void CCharmapToLocal::load_table(osfildef *fp)
         return;
 
     /*
-     *   Read each mapping 
+     *   Read each mapping
      */
     for (next_ofs = 0 ; cnt > 0 ; --cnt)
     {
         wchar_t codept;
         uint xlen;
-        
+
         /* read the code point and translation length */
         if (osfrb(fp, buf, 3))
             return;
@@ -1191,11 +1191,11 @@ void CCharmapToLocal::load_table(osfildef *fp)
 
     /*
      *   Next, read the expansions, if present.
-     *   
+     *
      *   If we find the $EOF marker, it means it's an old-format file without
      *   the separate expansion definitions.  Otherwise, we'll have the
      *   expansion entry count and the aggregate number of unicode characters
-     *   in all of the expansions.  
+     *   in all of the expansions.
      */
     if (osfrb(fp, buf, 6) || memcmp(buf, "$EOF", 4) == 0)
         return;
@@ -1204,9 +1204,9 @@ void CCharmapToLocal::load_table(osfildef *fp)
     cnt = osrp2(buf);
     xchars = t3rp4u(buf + 2);
 
-    /* 
+    /*
      *   add one entry so that we can leave index zero unused, to indicate
-     *   unmapped characters 
+     *   unmapped characters
      */
     ++xchars;
 
@@ -1218,9 +1218,9 @@ void CCharmapToLocal::load_table(osfildef *fp)
     if (exp_array_ == 0)
         return;
 
-    /* 
+    /*
      *   read the mappings; start loading them at index 1, since we want to
-     *   leave index 0 unused so that it can indicate unused mappings 
+     *   leave index 0 unused so that it can indicate unused mappings
      */
     for (next_ofs = 1 ; cnt > 0 ; --cnt)
     {
@@ -1256,7 +1256,7 @@ void CCharmapToLocal::load_table(osfildef *fp)
 }
 
 /*
- *   Write to a file 
+ *   Write to a file
  */
 int CCharmapToLocal::write_file(CVmDataSource *fp,
                                 const char *buf, size_t bufl)
@@ -1265,7 +1265,7 @@ int CCharmapToLocal::write_file(CVmDataSource *fp,
 
     /* set up to read from the buffer */
     p.set((char *)buf);
-    
+
     /* map and write one buffer-full at a time */
     while (bufl > 0)
     {
@@ -1297,14 +1297,14 @@ int CCharmapToLocal::write_file(CVmDataSource *fp,
  */
 
 /*
- *   map a character 
+ *   map a character
  */
 size_t CCharmapToLocalUTF8::map(wchar_t unicode_char, char **output_ptr,
                                 size_t *output_len) const
 {
     /* get the character size */
     size_t map_len = utf8_ptr::s_wchar_size(unicode_char);
-    
+
     /* if we don't have room for one more character, abort */
     if (*output_len < map_len)
     {
@@ -1332,10 +1332,10 @@ size_t CCharmapToLocalUTF8::map_utf8(char *dest, size_t dest_len,
                                      utf8_ptr src, size_t src_byte_len,
                                      size_t *src_bytes_used) const
 {
-    /* 
+    /*
      *   if they didn't give us a destination buffer, tell them how much
      *   space is needed for the copy - this is identical to the length of
-     *   the source string since we make no changes to it 
+     *   the source string since we make no changes to it
      */
     if (dest == 0)
     {
@@ -1353,7 +1353,7 @@ size_t CCharmapToLocalUTF8::map_utf8(char *dest, size_t dest_len,
         /* copy no more than the output buffer length */
         copy_len = dest_len;
 
-        /* 
+        /*
          *   If this splits a character into two pieces, back up until we're
          *   at a character boundary - that is, the first byte of the next
          *   chunk is a non-continuation character.
@@ -1362,7 +1362,7 @@ size_t CCharmapToLocalUTF8::map_utf8(char *dest, size_t dest_len,
                && utf8_ptr::s_is_continuation(src.getptr() + copy_len))
             --copy_len;
 
-        /* 
+        /*
          *   If that left us with zero bytes, just do the partial copy to
          *   ensure we don't get stuck in a zero-at-a-time infinite loop.
          */
@@ -1394,17 +1394,17 @@ size_t CCharmapToLocalUTF8::map_utf8z(char *dest, size_t dest_len,
     /* copy the bytes */
     map_utf8(dest, dest_len, src, src_len, 0);
 
-    /* 
+    /*
      *   if there's room for the null terminator (which takes up just one
-     *   byte in UTF-8), add it 
+     *   byte in UTF-8), add it
      */
     if (dest_len > src_len)
         *(dest + src_len) = '\0';
 
-    /* 
+    /*
      *   return the amount of space needed to copy the whole string --
      *   this is identical to the source length, since we don't make any
-     *   changes to it 
+     *   changes to it
      */
     return src_len;
 }
@@ -1412,11 +1412,11 @@ size_t CCharmapToLocalUTF8::map_utf8z(char *dest, size_t dest_len,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Character mapper - Unicode to Single-byte 
+ *   Character mapper - Unicode to Single-byte
  */
 
 /*
- *   map a character 
+ *   map a character
  */
 size_t CCharmapToLocalSB::map(wchar_t unicode_char, char **output_ptr,
                               size_t *output_len) const
@@ -1424,29 +1424,29 @@ size_t CCharmapToLocalSB::map(wchar_t unicode_char, char **output_ptr,
     /* get the mapping */
     size_t map_len;
     const unsigned char *mapping = get_xlation(unicode_char, &map_len);
-    
+
     /* if we don't have room for one more character, abort */
     if (*output_len < map_len)
     {
         *output_len = 0;
         return map_len;
     }
-    
+
     /* copy the mapping */
     memcpy(*output_ptr, mapping, map_len);
-    
+
     /* increment the pointer by the number of characters we copied */
     *output_ptr += map_len;
 
     /* adjust the remaining output length */
     *output_len -= map_len;
-    
+
     /* return the size of the result */
     return map_len;
 }
 
 /*
- *   Map a UTF-8 string of known byte length to the local character set 
+ *   Map a UTF-8 string of known byte length to the local character set
  */
 size_t CCharmapToLocalSB::map_utf8(char *dest, size_t dest_len,
                                    utf8_ptr src, size_t src_byte_len,
@@ -1464,13 +1464,13 @@ size_t CCharmapToLocalSB::map_utf8(char *dest, size_t dest_len,
     {
         const unsigned char *mapping;
         size_t map_len;
-        
+
         /* get the mapping for this character */
         mapping = get_xlation(src.getch(), &map_len);
 
-        /* 
+        /*
          *   if we have room, add it; otherwise, zero the output length
-         *   remaining so we don't try to add anything more 
+         *   remaining so we don't try to add anything more
          */
         if (dest == 0)
         {
@@ -1504,7 +1504,7 @@ size_t CCharmapToLocalSB::map_utf8(char *dest, size_t dest_len,
 }
 
 /*
- *   Map a null-terminated UTF-8 string to the local character set 
+ *   Map a null-terminated UTF-8 string to the local character set
  */
 size_t CCharmapToLocalSB::map_utf8z(char *dest, size_t dest_len,
                                     utf8_ptr src) const
@@ -1520,9 +1520,9 @@ size_t CCharmapToLocalSB::map_utf8z(char *dest, size_t dest_len,
         /* get the mapping for this character */
         mapping = get_xlation(src.getch(), &map_len);
 
-        /* 
+        /*
          *   if we have room, add it; otherwise, zero the output length
-         *   remaining so we don't try to add anything more 
+         *   remaining so we don't try to add anything more
          */
         if (map_len <= dest_len)
         {
@@ -1543,13 +1543,13 @@ size_t CCharmapToLocalSB::map_utf8z(char *dest, size_t dest_len,
         cur_total += map_len;
     }
 
-    /* 
+    /*
      *   add a null terminator, if there's room, but don't count it in the
-     *   output length 
+     *   output length
      */
     if (dest_len > 0)
         *dest = '\0';
-    
+
     /* return the total length of the result */
     return cur_total;
 }
@@ -1557,11 +1557,11 @@ size_t CCharmapToLocalSB::map_utf8z(char *dest, size_t dest_len,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Character mapper - Unicode to 16-bit Wide Unicode local character set 
+ *   Character mapper - Unicode to 16-bit Wide Unicode local character set
  */
 
 /*
- *   map a character 
+ *   map a character
  */
 size_t CCharmapToLocalWideUnicode::map(wchar_t unicode_char,
                                        char **output_ptr,
@@ -1573,26 +1573,26 @@ size_t CCharmapToLocalWideUnicode::map(wchar_t unicode_char,
         *output_len = 0;
         return sizeof(wchar_t);
     }
-    
-    /* 
+
+    /*
      *   Set the wide character to the unicode value, with no translation
      *   - unicode is the same everywhere.
-     *   
+     *
      *   Note that the need to perform this trivial translation for this
      *   character set is a secondary reason that this routine is virtual
-     *   (the primary reason is to handle the default ASCII translation).  
+     *   (the primary reason is to handle the default ASCII translation).
      */
     **(wchar_t **)output_ptr = unicode_char;
-    
+
     /* increment the pointer by the size of a wide character */
     ++(*(wchar_t **)output_ptr);
-    
+
     /* return the size of the result */
     return sizeof(wchar_t);
 }
 
 /*
- *   Map a UTF-8 string of known byte length to the local character set 
+ *   Map a UTF-8 string of known byte length to the local character set
  */
 size_t CCharmapToLocalWideUnicode::
    map_utf8(char *dest, size_t dest_len,
@@ -1616,9 +1616,9 @@ size_t CCharmapToLocalWideUnicode::
     /* copy characters until we reach the end of the source string */
     for (cur_total = 0 ; src.getptr() < srcend ; src.inc())
     {
-        /* 
+        /*
          *   if we have room, add it; otherwise, zero the output length
-         *   remaining so we don't try to add anything more 
+         *   remaining so we don't try to add anything more
          */
         if (dest == 0)
         {
@@ -1651,7 +1651,7 @@ size_t CCharmapToLocalWideUnicode::
 }
 
 /*
- *   Map a null-terminated UTF-8 string to the local character set 
+ *   Map a null-terminated UTF-8 string to the local character set
  */
 size_t CCharmapToLocalWideUnicode::
    map_utf8z(char *dest, size_t dest_len, utf8_ptr src) const
@@ -1665,9 +1665,9 @@ size_t CCharmapToLocalWideUnicode::
     /* copy characters until we find the terminating null */
     for (cur_total = 0 ; src.getch() != 0 ; src.inc())
     {
-        /* 
+        /*
          *   if we have room, add it; otherwise, zero the output length
-         *   remaining so we don't try to add anything more 
+         *   remaining so we don't try to add anything more
          */
         if (dest_len >= sizeof(wchar_t))
         {
@@ -1687,14 +1687,14 @@ size_t CCharmapToLocalWideUnicode::
         cur_total += sizeof(wchar_t);
     }
 
-    /* 
+    /*
      *   if there's room for a null terminator character (not byte - we need
      *   to add an entire wide character), add it, but don't count it in the
-     *   return length 
+     *   return length
      */
     if (dest_len >= sizeof(wchar_t))
         *destw = '\0';
-    
+
     /* return the total length of the result */
     return cur_total;
 }
@@ -1703,16 +1703,16 @@ size_t CCharmapToLocalWideUnicode::
 /* ------------------------------------------------------------------------ */
 /*
  *   Character mapper for 16-bit Wide Unicode, big-endian.  Stores the
- *   characters in big-endian UCS-2 representation.  
+ *   characters in big-endian UCS-2 representation.
  */
 size_t CCharmapToLocalUcs2Big::map(wchar_t unicode_char, char **output_ptr,
                                    size_t *output_len) const
 {
-    /* 
+    /*
      *   If we don't have room for another byte pair, abort.  Note that we
      *   really do want to store exactly two bytes, not sizeof(anything),
      *   since we're storing to the UCS-2 file format, which encodes each
-     *   character in two bytes.  
+     *   character in two bytes.
      */
     if (*output_len < 2)
     {
@@ -1723,13 +1723,13 @@ size_t CCharmapToLocalUcs2Big::map(wchar_t unicode_char, char **output_ptr,
     /*
      *   Store the big-endian 16-bit value with no translation - unicode
      *   is the same everywhere.
-     *   
+     *
      *   Note that the need to perform this trivial translation for this
      *   character set is a secondary reason that this routine is virtual
      *   (the primary reason is to handle the default ASCII translation).
-     *   
+     *
      *   Store the high-order 8 bits in the first byte, and the low-order
-     *   8 bits in the second byte.  
+     *   8 bits in the second byte.
      */
     **output_ptr = ((unicode_char >> 8) & 0xff);
     *(*output_ptr + 1) = (unicode_char & 0xff);
@@ -1743,7 +1743,7 @@ size_t CCharmapToLocalUcs2Big::map(wchar_t unicode_char, char **output_ptr,
 }
 
 /*
- *   Map a UTF-8 string of known byte length to the local character set 
+ *   Map a UTF-8 string of known byte length to the local character set
  */
 size_t CCharmapToLocalUcs2Big::
    map_utf8(char *dest, size_t dest_len,
@@ -1763,9 +1763,9 @@ size_t CCharmapToLocalUcs2Big::
     /* copy characters until we reach the end of the source string */
     for (cur_total = 0 ; src.getptr() < srcend ; src.inc())
     {
-        /* 
+        /*
          *   if we have room, add it; otherwise, zero the output length
-         *   remaining so we don't try to add anything more 
+         *   remaining so we don't try to add anything more
          */
         if (dest == 0)
         {
@@ -1804,7 +1804,7 @@ size_t CCharmapToLocalUcs2Big::
 }
 
 /*
- *   Map a null-terminated UTF-8 string to the local character set 
+ *   Map a null-terminated UTF-8 string to the local character set
  */
 size_t CCharmapToLocalUcs2Big::
    map_utf8z(char *dest, size_t dest_len, utf8_ptr src) const
@@ -1814,9 +1814,9 @@ size_t CCharmapToLocalUcs2Big::
     /* copy characters until we find the terminating null */
     for (cur_total = 0 ; src.getch() != 0 ; src.inc())
     {
-        /* 
+        /*
          *   if we have room, add it; otherwise, zero the output length
-         *   remaining so we don't try to add anything more 
+         *   remaining so we don't try to add anything more
          */
         if (dest_len >= 2)
         {
@@ -1841,7 +1841,7 @@ size_t CCharmapToLocalUcs2Big::
         /* count the length in the total */
         cur_total += 2;
     }
-    
+
     /* return the total length of the result */
     return cur_total;
 }
@@ -1850,17 +1850,17 @@ size_t CCharmapToLocalUcs2Big::
 /* ------------------------------------------------------------------------ */
 /*
  *   Character mapper for 16-bit Wide Unicode, little-endian.  Stores the
- *   characters in little-endian UCS-2 representation.  
+ *   characters in little-endian UCS-2 representation.
  */
 size_t CCharmapToLocalUcs2Little::map(wchar_t unicode_char,
                                       char **output_ptr,
                                       size_t *output_len) const
 {
-    /* 
+    /*
      *   If we don't have room for another byte pair, abort.  Note that we
      *   really do want to store exactly two bytes, not sizeof(anything),
      *   since we're storing to the UCS-2 file format, which encodes each
-     *   character in two bytes.  
+     *   character in two bytes.
      */
     if (*output_len < 2)
     {
@@ -1871,13 +1871,13 @@ size_t CCharmapToLocalUcs2Little::map(wchar_t unicode_char,
     /*
      *   Store the little-endian 16-bit value with no translation -
      *   unicode is the same everywhere.
-     *   
+     *
      *   Note that the need to perform this trivial translation for this
      *   character set is a secondary reason that this routine is virtual
      *   (the primary reason is to handle the default ASCII translation).
-     *   
+     *
      *   Store the low-order 8 bits in the first byte, and the high-order
-     *   8 bits in the second byte.  
+     *   8 bits in the second byte.
      */
     **output_ptr = (unicode_char & 0xff);
     *(*output_ptr + 1) = ((unicode_char >> 8) & 0xff);
@@ -1891,7 +1891,7 @@ size_t CCharmapToLocalUcs2Little::map(wchar_t unicode_char,
 }
 
 /*
- *   Map a UTF-8 string of known byte length to the local character set 
+ *   Map a UTF-8 string of known byte length to the local character set
  */
 size_t CCharmapToLocalUcs2Little::
    map_utf8(char *dest, size_t dest_len,
@@ -1911,9 +1911,9 @@ size_t CCharmapToLocalUcs2Little::
     /* copy characters until we reach the end of the source string */
     for (cur_total = 0 ; src.getptr() < srcend ; src.inc())
     {
-        /* 
+        /*
          *   if we have room, add it; otherwise, zero the output length
-         *   remaining so we don't try to add anything more 
+         *   remaining so we don't try to add anything more
          */
         if (dest == 0)
         {
@@ -1952,7 +1952,7 @@ size_t CCharmapToLocalUcs2Little::
 }
 
 /*
- *   Map a null-terminated UTF-8 string to the local character set 
+ *   Map a null-terminated UTF-8 string to the local character set
  */
 size_t CCharmapToLocalUcs2Little::
    map_utf8z(char *dest, size_t dest_len, utf8_ptr src) const
@@ -1962,9 +1962,9 @@ size_t CCharmapToLocalUcs2Little::
     /* copy characters until we find the terminating null */
     for (cur_total = 0 ; src.getch() != 0 ; src.inc())
     {
-        /* 
+        /*
          *   if we have room, add it; otherwise, zero the output length
-         *   remaining so we don't try to add anything more 
+         *   remaining so we don't try to add anything more
          */
         if (dest_len >= 2)
         {
@@ -1989,17 +1989,17 @@ size_t CCharmapToLocalUcs2Little::
         /* count the length in the total */
         cur_total += 2;
     }
-    
-    /* 
+
+    /*
      *   if there's room for a null terminator character (which takes two
-     *   bytes in UCS-2), add it, but don't count it in the return length 
+     *   bytes in UCS-2), add it, but don't count it in the return length
      */
     if (dest_len >= 2)
     {
         *dest++ = '\0';
         *dest++ = '\0';
     }
-    
+
     /* return the total length of the result */
     return cur_total;
 }
@@ -2007,11 +2007,11 @@ size_t CCharmapToLocalUcs2Little::
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Character mapper - local to UTF-8 
+ *   Character mapper - local to UTF-8
  */
 
 /*
- *   create an appropriate mapping object for the given mapping file 
+ *   create an appropriate mapping object for the given mapping file
  */
 CCharmapToUni *CCharmapToUni::load(class CResLoader *res_loader,
                                    const char *table_name)
@@ -2039,9 +2039,9 @@ CCharmapToUni *CCharmapToUni::load(class CResLoader *res_loader,
     /* check to make sure we opened a file */
     if (fp == 0)
     {
-        /* 
+        /*
          *   if there was no file, and they want a plain ASCII translator,
-         *   return a default ASCII translator 
+         *   return a default ASCII translator
          */
         if (name_is_ascii_synonym(table_name))
             return new CCharmapToUniASCII();
@@ -2093,7 +2093,7 @@ CCharmapToUni *CCharmapToUni::load(class CResLoader *res_loader,
 
 
 /*
- *   load a mapping table 
+ *   load a mapping table
  */
 void CCharmapToUni::load_table(osfildef *fp)
 {
@@ -2135,7 +2135,7 @@ void CCharmapToUni::load_table(osfildef *fp)
 }
 
 /*
- *   Map a null-terminated string into a buffer 
+ *   Map a null-terminated string into a buffer
  */
 size_t CCharmapToUni::map_str(char *outbuf, size_t outbuflen,
                               const char *input_str)
@@ -2152,7 +2152,7 @@ size_t CCharmapToUni::map_str(char *outbuf, size_t outbuflen,
 }
 
 /*
- *   Map a counted-length string into a buffer 
+ *   Map a counted-length string into a buffer
  */
 size_t CCharmapToUni::map_str(char *outbuf, size_t outbuflen,
                               const char *input_str, size_t input_len)
@@ -2162,7 +2162,7 @@ size_t CCharmapToUni::map_str(char *outbuf, size_t outbuflen,
 }
 
 /*
- *   Map a null-terminated string, allocating space for the result 
+ *   Map a null-terminated string, allocating space for the result
  */
 size_t CCharmapToUni::map_str_alo(char **outbuf, const char *input_str)
 {
@@ -2177,7 +2177,7 @@ size_t CCharmapToUni::map_str_alo(char **outbuf, const char *input_str)
 }
 
 /*
- *   Validate a buffer of utf-8 characters 
+ *   Validate a buffer of utf-8 characters
  */
 void CCharmapToUni::validate(char *buf, size_t len)
 {
@@ -2191,22 +2191,22 @@ void CCharmapToUni::validate(char *buf, size_t len)
         }
         else if ((c & 0xC0) == 0x80)
         {
-            /* 
+            /*
              *   This byte has the pattern 10xxxxxx, which makes it a
              *   continuation byte.  Since we didn't just come from a
              *   multi-byte intro byte, this is invalid.  Change this byte to
-             *   '?'.  
+             *   '?'.
              */
             *buf = '?';
         }
         else if ((c & 0xE0) == 0xC0)
         {
-            /* 
+            /*
              *   This byte has the pattern 110xxxxx, which makes it the first
              *   byte of a two-byte character sequence.  The next byte must
              *   have the pattern 10xxxxxx - if not, mark the current
              *   character as invalid, since it's not part of a valid
-             *   sequence, and deal with the next byte separately.  
+             *   sequence, and deal with the next byte separately.
              */
             if (len > 1 && (*(buf+1) & 0xC0) == 0x80)
             {
@@ -2216,19 +2216,19 @@ void CCharmapToUni::validate(char *buf, size_t len)
             }
             else
             {
-                /* 
+                /*
                  *   the next byte isn't a continuation, so the current byte
-                 *   is invalid 
+                 *   is invalid
                  */
                 *buf = '?';
             }
         }
         else
         {
-            /* 
+            /*
              *   This byte has the pattern 111xxxxx, which makes it the first
              *   byte of a three-byte sequence.  The next two bytes must be
-             *   marked as continuation bytes.  
+             *   marked as continuation bytes.
              */
             if (len > 2
                 && (*(buf+1) & 0xC0) == 0x80
@@ -2250,7 +2250,7 @@ void CCharmapToUni::validate(char *buf, size_t len)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Basic single-byte character set to UTF-8 mapper 
+ *   Basic single-byte character set to UTF-8 mapper
  */
 
 /*
@@ -2261,11 +2261,11 @@ size_t CCharmapToUniSB_basic::read_file(CVmDataSource *fp,
 {
     size_t inlen;
 
-    /* 
+    /*
      *   Compute how much to read from the file.  The input file is
      *   composed of single-byte characters, so only read up to one third
      *   of the buffer length; this will ensure that we can always fit
-     *   what we read into the caller's buffer.  
+     *   what we read into the caller's buffer.
      */
     inlen = bufl / 3;
 
@@ -2276,16 +2276,16 @@ size_t CCharmapToUniSB_basic::read_file(CVmDataSource *fp,
     /* read from the file */
     inlen = fp->readc(inbuf_, inlen);
 
-    /* 
+    /*
      *   Map data to the caller's buffer, and return the result.  We're
      *   certain that the data will fit in the caller's buffer: we're
      *   mapping only a third as many characters as we have bytes
      *   available, and each character can take up at most three bytes,
      *   hence the worst case is that we fill the buffer completely.
-     *   
+     *
      *   On the other hand, we may only fill the buffer to a third of its
      *   capacity, but this is okay too, since we're not required to give
-     *   the caller everything they asked for.  
+     *   the caller everything they asked for.
      */
     return map(&buf, &bufl, inbuf_, inlen);
 }
@@ -2293,11 +2293,11 @@ size_t CCharmapToUniSB_basic::read_file(CVmDataSource *fp,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Plain ASCII local to UTF-8 mapper 
+ *   Plain ASCII local to UTF-8 mapper
  */
 
 /*
- *   map a string from the single-byte local character set to UTF-8 
+ *   map a string from the single-byte local character set to UTF-8
  */
 size_t CCharmapToUniASCII::map(char **outp, size_t *outlen,
                                const char *inp, size_t inlen) const
@@ -2313,11 +2313,11 @@ size_t CCharmapToUniASCII::map(char **outp, size_t *outlen,
         wchar_t uni;
         size_t csiz;
 
-        /* 
+        /*
          *   map any character outside of the 7-bit range to U+FFFD, the
          *   Unicode REPLACEMENT CHARACTER, which is the standard way to
          *   represent characters that can't be mapped from an incoming
-         *   character set 
+         *   character set
          */
         if (((unsigned char)*inp) > 127)
             uni = 0xfffd;
@@ -2353,11 +2353,11 @@ size_t CCharmapToUniASCII::map(char **outp, size_t *outlen,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Single-byte mapped local to UTF-8 mapper 
+ *   Single-byte mapped local to UTF-8 mapper
  */
 
 /*
- *   map a string from the single-byte local character set to UTF-8 
+ *   map a string from the single-byte local character set to UTF-8
  */
 size_t CCharmapToUniSB::map(char **outp, size_t *outlen,
                             const char *inp, size_t inlen) const
@@ -2372,7 +2372,7 @@ size_t CCharmapToUniSB::map(char **outp, size_t *outlen,
     {
         wchar_t uni;
         size_t csiz;
-        
+
         /* get the unicode mapping for this character */
         uni = map_[(unsigned char)*inp];
 
@@ -2387,7 +2387,7 @@ size_t CCharmapToUniSB::map(char **outp, size_t *outlen,
         {
             /* write it out */
             *outp += utf8_ptr::s_putch(*outp, uni);
-            
+
             /* deduct it from the remaining output length */
             *outlen -= csiz;
         }
@@ -2404,11 +2404,11 @@ size_t CCharmapToUniSB::map(char **outp, size_t *outlen,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Trivial UTF8-to-UTF8 input mapper 
+ *   Trivial UTF8-to-UTF8 input mapper
  */
 
 /*
- *   map a string 
+ *   map a string
  */
 size_t CCharmapToUniUTF8::map2(char **outp, size_t *outlen,
                                const char *inp, size_t inlen,
@@ -2416,17 +2416,17 @@ size_t CCharmapToUniUTF8::map2(char **outp, size_t *outlen,
 {
     size_t copy_len;
 
-    /* 
+    /*
      *   Make sure we copy only whole characters, by truncating the string
-     *   to a length that includes only whole characters.  
+     *   to a length that includes only whole characters.
      */
     copy_len = utf8_ptr::s_trunc(inp, inlen);
 
-    /* 
+    /*
      *   note the length of any partial characters at the end of the buffer
      *   for the caller - this is simply the difference between the original
      *   length and the truncated copy length, since the truncation length
-     *   is simply the length excluding the partial last character bytes 
+     *   is simply the length excluding the partial last character bytes
      */
     *partial_len = inlen - copy_len;
 
@@ -2453,21 +2453,21 @@ size_t CCharmapToUniUTF8::map2(char **outp, size_t *outlen,
 
         /* validate that the bytes we copied are well-formed UTF-8 */
         validate(*outp, copy_len);
-        
+
         /* advance the output pointer past the copied data */
         *outp += copy_len;
     }
 
-    /* 
+    /*
      *   return the total input length -- the total output length is
      *   always identical to the input length, because we don't change
-     *   anything 
+     *   anything
      */
     return inlen;
 }
 
 /*
- *   read a file 
+ *   read a file
  */
 size_t CCharmapToUniUTF8::read_file(CVmDataSource *fp,
                                     char *buf, size_t bufl)
@@ -2476,18 +2476,18 @@ size_t CCharmapToUniUTF8::read_file(CVmDataSource *fp,
     char *last_start;
     size_t last_got_len;
     size_t last_need_len;
-    
-    /* 
+
+    /*
      *   Read directly from the file, up the buffer size minus two bytes.
      *   We want to leave two extra bytes so that we can read any extra
      *   continuation bytes for the last character, in order to ensure
      *   that we always read whole characters; in the worst case, the last
      *   character could be three bytes long, in which case we'd need to
      *   read two extra bytes.
-     *   
+     *
      *   If the available buffer size is less than three bytes, just read
      *   the number of bytes they asked for and don't bother trying to
-     *   keep continuation sequences intact.  
+     *   keep continuation sequences intact.
      */
     if (bufl < 3)
     {
@@ -2496,16 +2496,16 @@ size_t CCharmapToUniUTF8::read_file(CVmDataSource *fp,
         return read_len;
     }
 
-    /* 
+    /*
      *   read up to the buffer size, less two bytes for possible
-     *   continuation bytes 
+     *   continuation bytes
      */
     read_len = fp->readc(buf, bufl - 2);
 
-    /* 
+    /*
      *   if we didn't satisfy the entire request, we're at the end of the
      *   file, so there's no point in trying to finish off any
-     *   continuation sequences - in this case, just return what we have 
+     *   continuation sequences - in this case, just return what we have
      */
     if (read_len < bufl - 2)
     {
@@ -2513,22 +2513,22 @@ size_t CCharmapToUniUTF8::read_file(CVmDataSource *fp,
         return read_len;
     }
 
-    /* 
+    /*
      *   Check the last byte we read to see if there's another byte or two
-     *   following. 
-     *   
+     *   following.
+     *
      *   If the last byte is a continuation byte, this is a bit trickier.
      *   We must back up to the preceding lead byte to figure out what we
-     *   have in this case.  
+     *   have in this case.
      */
     last_start = &buf[read_len - 1];
     last_got_len = 1;
     if (utf8_ptr::s_is_continuation(last_start))
     {
-        /* 
+        /*
          *   if we only read one byte, simply return the one byte - we
          *   started in the middle of a sequence, so there's no way we can
-         *   read a complete sequence 
+         *   read a complete sequence
          */
         if (read_len == 1)
         {
@@ -2540,10 +2540,10 @@ size_t CCharmapToUniUTF8::read_file(CVmDataSource *fp,
         --last_start;
         ++last_got_len;
 
-        /* 
+        /*
          *   if this is another continuation byte, we've reached the maximum
          *   byte length of three for a single character, so there's no way
-         *   we could need to read anything more 
+         *   we could need to read anything more
          */
         if (utf8_ptr::s_is_continuation(last_start))
         {
@@ -2552,18 +2552,18 @@ size_t CCharmapToUniUTF8::read_file(CVmDataSource *fp,
         }
     }
 
-    /* 
+    /*
      *   Okay: we have last_start pointing to the start of the last
      *   character, and last_got_len the number of bytes we actually have for
      *   that last character.  If the needed length differs from the length
-     *   we actually have, we need to read more.  
+     *   we actually have, we need to read more.
      */
     last_need_len = utf8_ptr::s_charsize(*last_start);
     if (last_need_len > last_got_len)
     {
-        /* 
+        /*
          *   we need more than we actually read, so read the remaining
-         *   characters 
+         *   characters
          */
         read_len += fp->readc(buf + read_len, last_need_len - last_got_len);
     }
@@ -2577,27 +2577,27 @@ size_t CCharmapToUniUTF8::read_file(CVmDataSource *fp,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Basic UCS-2 to UTF-8 mapper 
+ *   Basic UCS-2 to UTF-8 mapper
  */
 
 /*
- *   Read from a file, translating to UTF-8 encoding 
+ *   Read from a file, translating to UTF-8 encoding
  */
 size_t CCharmapToUniUcs2::read_file(CVmDataSource *fp,
                                     char *buf, size_t bufl)
 {
     size_t inlen;
 
-    /* 
+    /*
      *   Compute how much to read from the file.  The input file is composed
      *   of two-byte characters, so only read up to two thirds of the buffer
      *   length; this will ensure that we can always fit what we read into
      *   the caller's buffer.
-     *   
+     *
      *   Note that we divide by three first, then double the result, to
      *   ensure that we read an even number of bytes.  Each UCS-2 character
      *   is represented in exactly two bytes, so we must always read pairs of
-     *   bytes to be sure we're reading whole characters.  
+     *   bytes to be sure we're reading whole characters.
      */
     inlen = bufl / 3;
     inlen *= 2;
@@ -2609,27 +2609,27 @@ size_t CCharmapToUniUcs2::read_file(CVmDataSource *fp,
     /* read from the file */
     inlen = fp->readc(inbuf_, inlen);
 
-    /* 
+    /*
      *   Map data to the caller's buffer, and return the result.  We're
      *   certain that the data will fit in the caller's buffer: we're
      *   mapping only a third as many characters as we have bytes
      *   available, and each character can take up at most three bytes,
      *   hence the worst case is that we fill the buffer completely.
-     *   
+     *
      *   On the other hand, we may only fill the buffer to a third of its
      *   capacity, but this is okay too, since we're not required to give
-     *   the caller everything they asked for.  
+     *   the caller everything they asked for.
      */
     return map(&buf, &bufl, inbuf_, inlen);
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   UCS-2 little-endian to UTF-8 mapper 
+ *   UCS-2 little-endian to UTF-8 mapper
  */
 
 /*
- *   map a string 
+ *   map a string
  */
 size_t CCharmapToUniUcs2Little::map(char **outp, size_t *outlen,
                                     const char *inp, size_t inlen) const
@@ -2645,10 +2645,10 @@ size_t CCharmapToUniUcs2Little::map(char **outp, size_t *outlen,
         wchar_t uni;
         size_t csiz;
 
-        /* 
+        /*
          *   read the little-endian two-byte value - no mapping is
          *   required, since UCS-2 uses the same code point assignments as
-         *   UTF-8 
+         *   UTF-8
          */
         uni = ((wchar_t)(unsigned char)*inp)
               + (((wchar_t)(unsigned char)*(inp + 1)) << 8);
@@ -2681,11 +2681,11 @@ size_t CCharmapToUniUcs2Little::map(char **outp, size_t *outlen,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   UCS-2 big-endian to UTF-8 mapper 
+ *   UCS-2 big-endian to UTF-8 mapper
  */
 
 /*
- *   map a string 
+ *   map a string
  */
 size_t CCharmapToUniUcs2Big::map(char **outp, size_t *outlen,
                                  const char *inp, size_t inlen) const
@@ -2701,9 +2701,9 @@ size_t CCharmapToUniUcs2Big::map(char **outp, size_t *outlen,
         wchar_t uni;
         size_t csiz;
 
-        /* 
+        /*
          *   read the big-endian two-byte value - no mapping is required,
-         *   since UCS-2 uses the same code point assignments as UTF-8 
+         *   since UCS-2 uses the same code point assignments as UTF-8
          */
         uni = (((wchar_t)(unsigned char)*inp) << 8)
               + ((wchar_t)(unsigned char)*(inp + 1));
@@ -2736,11 +2736,11 @@ size_t CCharmapToUniUcs2Big::map(char **outp, size_t *outlen,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Multi-byte character set translation to Unicode 
+ *   Multi-byte character set translation to Unicode
  */
 
 /*
- *   construct the mapper 
+ *   construct the mapper
  */
 CCharmapToUniMB::CCharmapToUniMB()
 {
@@ -2753,17 +2753,17 @@ CCharmapToUniMB::CCharmapToUniMB()
         /* assume this lead byte won't have a sub-table */
         p->sub = 0;
 
-        /* 
+        /*
          *   we don't have a mapping for this lead byte yet, so use U+FFFD
          *   (the Unicode REPLACEMENT CHARACTER) as the default mapping in
-         *   case we never assign it any other mapping 
+         *   case we never assign it any other mapping
          */
         p->ch = 0xFFFD;
     }
 }
 
-/* 
- *   delete the mapper 
+/*
+ *   delete the mapper
  */
 CCharmapToUniMB::~CCharmapToUniMB()
 {
@@ -2780,14 +2780,14 @@ CCharmapToUniMB::~CCharmapToUniMB()
 }
 
 /*
- *   Set a mapping 
+ *   Set a mapping
  */
 void CCharmapToUniMB::set_mapping(wchar_t uni_code_pt, wchar_t local_code_pt)
 {
-    /* 
+    /*
      *   Check to see if it's a one-byte or two-byte mapping.  If the local
      *   code point is in the range 0-255, it's a one-byte character;
-     *   otherwise, it's a two-byte character.  
+     *   otherwise, it's a two-byte character.
      */
     if (local_code_pt <= 255)
     {
@@ -2799,23 +2799,23 @@ void CCharmapToUniMB::set_mapping(wchar_t uni_code_pt, wchar_t local_code_pt)
         cmap_mb_entry *entp;
         wchar_t *subp;
 
-        /* 
+        /*
          *   Get the mapping table entry for the lead byte.  The lead byte of
          *   the local code point is given by the high-order byte of the
          *   local code point.  (Note that this doesn't have anything to do
          *   with the endian-ness of the local platform.  The generic Unicode
          *   mapping tables are specifically designed this way, independently
-         *   of endian-ness.)  
+         *   of endian-ness.)
          */
         entp = &map_[(unsigned char)((local_code_pt >> 8) & 0xff)];
 
-        /* 
+        /*
          *   It's a two-byte character.  The high-order byte is the lead
          *   byte, and the low-order byte is the trailing byte of the
-         *   two-byte sequence.  
-         *   
+         *   two-byte sequence.
+         *
          *   If we haven't previously set up a sub-table for the lead byte,
-         *   do so now.  
+         *   do so now.
          */
         if ((subp = entp->sub) == 0)
         {
@@ -2834,8 +2834,8 @@ void CCharmapToUniMB::set_mapping(wchar_t uni_code_pt, wchar_t local_code_pt)
     }
 }
 
-/* 
- *   map a string, providing partial character info 
+/*
+ *   map a string, providing partial character info
  */
 size_t CCharmapToUniMB::map2(char **output_ptr, size_t *output_buf_len,
                              const char *input_ptr, size_t input_len,
@@ -2875,9 +2875,9 @@ size_t CCharmapToUniMB::map2(char **output_ptr, size_t *output_buf_len,
         }
         else
         {
-            /* 
+            /*
              *   it's a two-byte character lead byte - make sure we have a
-             *   complete input character 
+             *   complete input character
              */
             if (input_len < 2)
             {
@@ -2905,10 +2905,10 @@ size_t CCharmapToUniMB::map2(char **output_ptr, size_t *output_buf_len,
         /* check for room to store the output character */
         if (wlen > *output_buf_len)
         {
-            /* 
+            /*
              *   there's no room to store this character - zero out the
              *   output buffer length so that we know not to try storing
-             *   anything else in the buffer 
+             *   anything else in the buffer
              */
             *output_buf_len = 0;
         }
@@ -2930,8 +2930,8 @@ size_t CCharmapToUniMB::map2(char **output_ptr, size_t *output_buf_len,
     return needed_out_len;
 }
 
-/* 
- *   read from a multi-byte input file, translating to UTF-8 
+/*
+ *   read from a multi-byte input file, translating to UTF-8
  */
 size_t CCharmapToUniMB::read_file(CVmDataSource *fp, char *buf, size_t bufl)
 {
@@ -2945,7 +2945,7 @@ size_t CCharmapToUniMB::read_file(CVmDataSource *fp, char *buf, size_t bufl)
      *   the caller's buffer length; this will ensure that in the worst case
      *   we can always fit what we read into the caller's buffer.  (The worst
      *   case is that the input is entirely single-byte local characters that
-     *   translate into three-byte UTF-8 characters.)  
+     *   translate into three-byte UTF-8 characters.)
      */
     inlen = bufl / 3;
 
@@ -2956,19 +2956,19 @@ size_t CCharmapToUniMB::read_file(CVmDataSource *fp, char *buf, size_t bufl)
     /* read raw bytes from the file */
     inlen = fp->readc(inbuf_, inlen);
 
-    /* 
+    /*
      *   Map data to the caller's buffer.  Note if we have a partial
      *   character at the end of the buffer (i.e., the last byte of the
      *   buffer is a lead byte that requires a second byte to make up a
      *   complete two-byte local character), so that we can read an
      *   additional byte to complete the two-byte final character if
-     *   necessary.  
+     *   necessary.
      */
     outlen = map2(&buf, &bufl, inbuf_, inlen, &partial);
 
-    /* 
+    /*
      *   if we have a partial trailing character, read the other half of the
-     *   final character 
+     *   final character
      */
     if (partial != 0)
     {

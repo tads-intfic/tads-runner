@@ -1,18 +1,18 @@
 /* $Header: d:/cvsroot/tads/tads3/VMTYPE.H,v 1.3 1999/05/17 02:52:29 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmtype.h - VM types
 Function
-  
+
 Notes
-  
+
 Modified
   10/21/98 MJRoberts  - Creation
 */
@@ -31,7 +31,7 @@ Modified
 
 /*
  *   Constant pool/code offset.  This is an address of an object in the
- *   pool.  Pool offsets are 32-bit values.  
+ *   pool.  Pool offsets are 32-bit values.
  */
 typedef uint32_t pool_ofs_t;
 
@@ -41,15 +41,15 @@ typedef uint32_t pool_ofs_t;
  *   list head), we want to save some space on this type.  This limits us
  *   to 256 simultaneous savepoints, but this should be more than we
  *   actually want to keep around anyway, because of the amount of memory
- *   it would consume to try to keep more than that around.  
+ *   it would consume to try to keep more than that around.
  */
 typedef uchar vm_savept_t;
 const vm_savept_t VM_SAVEPT_MAX = 255;
 
-/* 
+/*
  *   Object ID type.  VM_INVALID_OBJ is a distinguished value that serves
  *   as an invalid object ID (a null pointer, effectively); no object can
- *   ever have this ID.  
+ *   ever have this ID.
  */
 typedef uint32_t vm_obj_id_t;
 const vm_obj_id_t VM_INVALID_OBJ = 0;
@@ -57,7 +57,7 @@ const vm_obj_id_t VM_INVALID_OBJ = 0;
 /*
  *   Property ID.  Property ID's are 16-bit values.  VM_INVALID_PROP is a
  *   distinguished value that serves as an invalid property ID, which can
- *   be used to indicate the absence of a property value.  
+ *   be used to indicate the absence of a property value.
  */
 typedef uint16_t vm_prop_id_t;
 const vm_prop_id_t VM_INVALID_PROP = 0;
@@ -65,7 +65,7 @@ const vm_prop_id_t VM_INVALID_PROP = 0;
 /*
  *   Maximum recursion depth for recursive equality tests and hash
  *   calculations.
- *   
+ *
  *   When we're comparing or hashing a tree of references by value, such as
  *   when we're comparing two vectors or hashing a vector, we'll keep track
  *   of the recursion depth of our tree traversal.  If we reach this depth,
@@ -73,7 +73,7 @@ const vm_prop_id_t VM_INVALID_PROP = 0;
  *   thus cannot be hashed or compared by value.  This depth is chosen to be
  *   large enough that it's unlikely we'll exceed it with acyclical trees,
  *   but small enough that we probably won't blow the C++ stack before we
- *   reach this depth.  
+ *   reach this depth.
  */
 const int VM_MAX_TREE_DEPTH_EQ = 256;
 
@@ -88,17 +88,17 @@ enum vm_datatype_t
     /* true - boolean true */
     VM_TRUE,
 
-    /* 
+    /*
      *   Stack pointer (this is used to store a pointer to the enclosing
-     *   frame in a stack frame).  This is a native machine pointer.  
+     *   frame in a stack frame).  This is a native machine pointer.
      */
     VM_STACK,
 
-    /* 
+    /*
      *   Code pointer (this is used to store a pointer to the return
      *   address in a stack frame, for example).  This is a native machine
      *   pointer.  This differs from VM_CODEOFS in that this is a native
-     *   machine pointer.  
+     *   machine pointer.
      */
     VM_CODEPTR,
 
@@ -110,30 +110,30 @@ enum vm_datatype_t
 
     /* 32-bit signed integer */
     VM_INT,
-    
-    /* 
+
+    /*
      *   string constant value - the value is an offset into the constant
-     *   pool of the string descriptor 
+     *   pool of the string descriptor
      */
     VM_SSTRING,
-    
-    /* 
+
+    /*
      *   self-printing string value - the value is an offset into the
-     *   constant pool of the string descriptor 
+     *   constant pool of the string descriptor
      */
     VM_DSTRING,
 
-    /* 
+    /*
      *   list constant - the value is an offset into the constant pool of
-     *   the list descriptor 
+     *   the list descriptor
      */
     VM_LIST,
 
-    /* 
+    /*
      *   byte-code constant offset - this is an offset into the byte-code
      *   pool.  This differs from VM_CODEPTR in that this is an offset in
      *   the byte-code constant pool rather than a native machine pointer.
-     *   
+     *
      */
     VM_CODEOFS,
 
@@ -144,7 +144,7 @@ enum vm_datatype_t
      *   whenever the value is evaluated, whereas VM_FUNCPTR values are
      *   used to convey function pointers, so the underlying code is not
      *   executed implicitly on evaluation of such a value but must be
-     *   explicitly invoked. 
+     *   explicitly invoked.
      */
     VM_FUNCPTR,
 
@@ -153,7 +153,7 @@ enum vm_datatype_t
      *   not present.  This differs from nil, in that nil is a null
      *   reference or false value, whereas this indicates that there's no
      *   specified value at all.  This is used, for example, to indicate
-     *   in an undo record that a property did not previously exist. 
+     *   in an undo record that a property did not previously exist.
      */
     VM_EMPTY,
 
@@ -161,12 +161,12 @@ enum vm_datatype_t
      *   This is a special pseudo-type used to indicate that evaluating an
      *   expression requires executing system code.  The value stored is a
      *   pointer to a constant CVmNativeCodeDesc object, which describes a
-     *   native code method.  
+     *   native code method.
      */
     VM_NATIVE_CODE,
 
     /*
-     *   Enumerated constant 
+     *   Enumerated constant
      */
     VM_ENUM,
 
@@ -174,7 +174,7 @@ enum vm_datatype_t
      *   Built-in function pointer.  This is represented as an integer value
      *   with the BIF table entry index (the function set ID) in the high 16
      *   bits, and the function index (the index of the function within its
-     *   function set) in the low 16 bits.  
+     *   function set) in the low 16 bits.
      */
     VM_BIFPTR,
 
@@ -186,7 +186,7 @@ enum vm_datatype_t
      *   object value.  This is never stored in an image file, but it can be
      *   stored in a saved game file.  It's never used in a value that's
      *   visible to user code; it's only for internal storage within
-     *   TadsObject property tables and the like.  
+     *   TadsObject property tables and the like.
      */
     VM_OBJX,
 
@@ -196,12 +196,12 @@ enum vm_datatype_t
     /*
      *   First invalid type ID.  Tools (such as compilers and debuggers)
      *   can use this ID and any higher ID values to flag their own
-     *   internal types.  
+     *   internal types.
      */
     VM_FIRST_INVALID_TYPE
 };
 
-/* 
+/*
  *   Macro to create a private type constant for internal use in a tool.  The
  *   compiler uses this to create special non-VM values for its own use
  *   during compilation.  Types created with this macro must never appear in
@@ -212,7 +212,7 @@ enum vm_datatype_t
 
 /*
  *   Value container.  Local variables, stack locations, and other value
- *   holders use this structure to store a value and its type.  
+ *   holders use this structure to store a value and its type.
  */
 struct vm_val_t
 {
@@ -277,13 +277,13 @@ struct vm_val_t
      *   object ID.  This sets the object ID field to invalid in addition to
      *   setting the value type to nil, so that callers that just look at the
      *   object ID will see an explicitly invalid object value rather than
-     *   something random.  
+     *   something random.
      */
     void set_nil_obj() { typ = VM_NIL; val.obj = VM_INVALID_OBJ; }
 
-    /* 
+    /*
      *   set an object or nil value: if the object ID is VM_INVALID_OBJ,
-     *   we'll set the type to nil 
+     *   we'll set the type to nil
      */
     void set_obj_or_nil(vm_obj_id_t obj)
     {
@@ -311,10 +311,10 @@ struct vm_val_t
     /* determine if the value is logical (nil or true) */
     int is_logical() const { return (typ == VM_NIL || typ == VM_TRUE); }
 
-    /* 
+    /*
      *   Get a logical as numeric TRUE or FALSE.  This doesn't perform
      *   any type checking; the caller must ensure that the value is
-     *   either true or nil, or this may return meaningless results.  
+     *   either true or nil, or this may return meaningless results.
      */
     int get_logical() const { return (typ == VM_TRUE); }
 
@@ -335,36 +335,36 @@ struct vm_val_t
     /*
      *   Get the underlying string constant value.  If the value does not
      *   have an underlying string constant (because it is of a type that
-     *   does not store a string value), this will return null. 
+     *   does not store a string value), this will return null.
      */
     const char *get_as_string(VMG0_) const;
 
     /*
      *   Cast the value to a string.  This attempts to reinterpret the value
-     *   as a string.   
+     *   as a string.
      */
     const char *cast_to_string(VMG_ vm_val_t *new_str) const;
 
     /*
      *   Get the underlying list constant value.  If the value does not
      *   have an underlying list constant (because it is of a type that
-     *   does not store list data), this returns null. 
+     *   does not store list data), this returns null.
      */
     const char *get_as_list(VMG0_) const;
 
     /*
      *   Is the value indexable as a list?  This returns true for types that
-     *   have contiguous integer indexes from 1..number of elements.  
+     *   have contiguous integer indexes from 1..number of elements.
      */
     int is_listlike(VMG0_) const;
 
-    /* 
+    /*
      *   For a list-like object, get the number of elements.  If this isn't a
-     *   list-like object, returns -1. 
+     *   list-like object, returns -1.
      */
     int ll_length(VMG0_) const;
 
-    /* 
+    /*
      *   For a list-like object, get an indexed element.  The index is
      *   1-based, per our usual conventions.
      */
@@ -381,16 +381,16 @@ struct vm_val_t
     /* get as a native code pointer value */
     const uchar *get_as_codeptr(VMG0_) const;
 
-    /* 
+    /*
      *   Is this a function pointer of some kind?  This returns true if it's
      *   a plain function pointer, a built-in function pointer, or an object
-     *   with an invoker (which covers anonymous and dynamic functions). 
+     *   with an invoker (which covers anonymous and dynamic functions).
      */
     int is_func_ptr(VMG0_) const;
 
     /*
      *   Convert a numeric value to an integer value.  If the value isn't
-     *   numeric, throws an error. 
+     *   numeric, throws an error.
      */
     void num_to_logical()
     {
@@ -427,7 +427,7 @@ struct vm_val_t
         }
     }
 
-    /* 
+    /*
      *   determine if the type is numeric - this returns true for integer and
      *   BigNumber values, and could match future types that are numeric
      */
@@ -442,7 +442,7 @@ struct vm_val_t
      */
     void promote_int(VMG_ vm_val_t *val) const;
 
-    /* 
+    /*
      *   Convert a numeric value to an integer.  This converts any type for
      *   which is_numeric() returns true, but doesn't convert non-numeric
      *   types.
@@ -462,7 +462,7 @@ struct vm_val_t
             : nonint_num_to_double(vmg0_);
     }
 
-    /* 
+    /*
      *   Cast to an integer.  This is more aggressive than num_to_int(), in
      *   that we actively try to convert non-numeric types.
      */
@@ -475,13 +475,13 @@ struct vm_val_t
      *   automatic conversion to a numeric type is possible, we'll return the
      *   converted value.  We'll return the "simplest" type that can
      *   precisely represent the value, meaning the type that uses the least
-     *   memory and that's fastest for computations.  
+     *   memory and that's fastest for computations.
      */
     void cast_to_num(VMG_ vm_val_t *val) const;
 
-    /* 
+    /*
      *   determine if the numeric value is zero; throws an error if the
-     *   value is not numeric 
+     *   value is not numeric
      */
     int num_is_zero() const
     {
@@ -504,25 +504,25 @@ struct vm_val_t
     /*
      *   Determine if this value equals a given value.  The nature of the
      *   match depends on the type of this value:
-     *   
+     *
      *   integers, property ID's, code offsets: the types and values must
      *   match exactly.
-     *   
+     *
      *   string and list constants: the other value must either be the same
      *   type of constant, or an object that has an underlying value of the
      *   same type; and the contents of the strings or lists must match.
-     *   
+     *
      *   objects: the match depends on the type of the object.  We invoke the
      *   object's virtual equals() routine to make this determination.
-     *   
-     *   'depth' has the same meaning as in calc_hash().  
+     *
+     *   'depth' has the same meaning as in calc_hash().
      */
     int equals(VMG_ const vm_val_t *val, int depth = 0) const;
 
     /*
      *   Calculate a hash for the value.  The meaning of the hash varies by
      *   type, but is stable for a given value.  'depth' is a recursion depth
-     *   counter, with the same meaning as in CVmObject::calc_hash().  
+     *   counter, with the same meaning as in CVmObject::calc_hash().
      */
     uint calc_hash(VMG_ int depth = 0) const;
 
@@ -531,12 +531,12 @@ struct vm_val_t
      *   zero if this value is greater than 'val', a value less than zero if
      *   this value is less than 'val', or 0 if the two values are equal.
      *   Throws an error if the two values are not comparable.
-     *   
+     *
      *   By far the most common type of comparison is between integers, so we
      *   test in-line to see if we have two integer values, and if so, use a
      *   fast in-line comparison.  If we don't have two integers, we'll use
      *   our full out-of-line test, which will look at other more interesting
-     *   type combinations.  
+     *   type combinations.
      */
     int compare_to(VMG_ const vm_val_t *b) const
     {
@@ -548,7 +548,7 @@ struct vm_val_t
     }
 
     /*
-     *   relative value comparisons 
+     *   relative value comparisons
      */
 
     /* self > b */
@@ -591,10 +591,10 @@ private:
     /* out-of-line comparison, used when we don't have two integers */
     int gen_compare_to(VMG_ const vm_val_t *val) const;
 
-    /* 
+    /*
      *   internal int conversion and casting - we separate these from
      *   num_to_int and cast_to_int so that cast_to_int can be inlined for
-     *   the common case where the value is already an int 
+     *   the common case where the value is already an int
      */
     int nonint_is_numeric(VMG0_) const;
     int32_t nonint_num_to_int(VMG0_) const;
@@ -605,7 +605,7 @@ private:
 /* ------------------------------------------------------------------------ */
 /*
  *   Native code descriptor.  This describes a native method call of an
- *   intrinsic class object.  
+ *   intrinsic class object.
  */
 class CVmNativeCodeDesc
 {
@@ -640,11 +640,11 @@ public:
     /* check the given number of arguments for validity */
     int args_ok(int argc) const
     {
-        /* 
+        /*
          *   the actual parameters must number at least the minimum, and
          *   cannot exceed the maximum (i.e., the minimum plus the
          *   optionals) unless we have varargs, in which case there is no
-         *   maximum 
+         *   maximum
          */
         return (argc >= min_argc_
                 && (varargs_ || argc <= min_argc_ + opt_argc_));
@@ -656,7 +656,7 @@ public:
     /* number of optional named arguments beyond the minimum */
     int opt_argc_;
 
-    /* 
+    /*
      *   true -> varargs: any number of arguments greater than or equal to
      *   min_argc_ are valid
      */
@@ -670,7 +670,7 @@ public:
  *   if we're compiling interface routines for the HTML TADS environment,
  *   since HTML TADS has its own similar definitions for these, and we don't
  *   need these for interface code.
- *   
+ *
  *   NOTE: The purpose of this macro is to indicate that we're being
  *   #included by an HTML TADS source file - that is, the current compile run
  *   is for an htmltads/xxx.cpp file.  Do NOT #define this macro when
@@ -680,7 +680,7 @@ public:
  *   interface definitions for these functions.  The conflict is in the other
  *   direction: some of the htmltads source files explicitly depend on tads3
  *   headers, so they indirectly #include this header.  So, this macro needs
- *   to be defined only when compiling htmltads/xxx.cpp files.  
+ *   to be defined only when compiling htmltads/xxx.cpp files.
  */
 #ifdef T3_COMPILING_FOR_HTML
 #include "tadshtml.h"
@@ -704,42 +704,42 @@ inline void do_strcpy(textchar_t *dst, const textchar_t *src)
 /*
  *   Portable binary LENGTH indicator.  This is used to store length
  *   prefixes for strings, lists, and similar objects.  We use a UINT2
- *   (16-bit unsigned integer) for this type of value.  
+ *   (16-bit unsigned integer) for this type of value.
  */
 const size_t VMB_LEN = 2;
 inline void vmb_put_len(char *buf, size_t len) { oswp2(buf, len); }
 inline size_t vmb_get_len(const char *buf) { return osrp2(buf); }
 
 /*
- *   Portable binary unsigned 2-byte integer 
+ *   Portable binary unsigned 2-byte integer
  */
 const size_t VMB_UINT2 = 2;
 inline void vmb_put_uint2(char *buf, uint16_t i) { oswp2(buf, i); }
 inline uint16_t vmb_get_uint2(const char *buf) { return osrp2(buf); }
 
 /*
- *   Portable binary unsigned 4-byte integer 
+ *   Portable binary unsigned 4-byte integer
  */
 const size_t VMB_UINT4 = 4;
 inline void vmb_put_uint4(char *buf, uint32_t i) { oswp4(buf, i); }
 inline uint32_t vmb_get_uint4(const char *buf) { return osrp4(buf); }
 
 /*
- *   Portable binary signed 4-byte integer 
+ *   Portable binary signed 4-byte integer
  */
 const size_t VMB_INT4 = 4;
 inline void vmb_put_int4(char *buf, int32_t i) { oswp4s(buf, i); }
 inline int32_t vmb_get_int4(const char *buf) { return osrp4s(buf); }
 
 /*
- *   Portable binary object ID. 
+ *   Portable binary object ID.
  */
 const size_t VMB_OBJECT_ID = 4;
 inline void vmb_put_objid(char *buf, vm_obj_id_t obj) { oswp4(buf, obj); }
 inline vm_obj_id_t vmb_get_objid(const char *buf) { return t3rp4u(buf); }
 
 /*
- *   Portable binary property ID 
+ *   Portable binary property ID
  */
 const size_t VMB_PROP_ID = 2;
 inline void vmb_put_propid(char *buf, vm_obj_id_t prop) { oswp2(buf, prop); }
@@ -751,7 +751,7 @@ inline vm_prop_id_t vmb_get_propid(const char *buf) { return osrp2(buf); }
  *   of a property in an object.  This type of value stores a one-byte
  *   prefix indicating the type of the value, and a four-byte area in
  *   which the value is stored.  The actual use of the four-byte value
- *   area depends on the type.  
+ *   area depends on the type.
  */
 const size_t VMB_DATAHOLDER = 5;
 

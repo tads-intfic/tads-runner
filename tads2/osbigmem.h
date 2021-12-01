@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 2001, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -14,7 +14,7 @@ Function
   TADS 2 tools.  Many modern systems have sufficient memory that there's
   no reason not to choose the largest values for these parameters.
 Notes
-  
+
 Modified
   12/04/01 MJRoberts  - Creation
 */
@@ -23,7 +23,7 @@ Modified
 #define OSBIGMEM_H
 
 /*
- *   Define the largest sizes for the memory configuration parameters 
+ *   Define the largest sizes for the memory configuration parameters
  */
 #define TCD_SETTINGS_DEFINED
 #define TCD_POOLSIZ  (24 * 1024)
@@ -44,8 +44,8 @@ Modified
 #define TDD_POOLSIZ  (24 * 1024)
 #define TDD_LCLSIZ   0
 
-/* 
- *   define usage strings for the new defaults 
+/*
+ *   define usage strings for the new defaults
  */
 #define TCD_HEAPSIZ_MSG "  -mh size      heap size (default 65535 bytes)"
 #define TCD_POOLSIZ_MSG \

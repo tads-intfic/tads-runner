@@ -6,7 +6,7 @@ static char RCSid[] =
 /* Copyright (c) 2010 by Michael J. Roberts.  All Rights Reserved. */
 /*
 Name
-  vmnetfil.cpp - network file operations, local mode 
+  vmnetfil.cpp - network file operations, local mode
 Function
   This module contains network file functions that are needed in both
   server and local modes.  This file should be linked into all builds,
@@ -47,14 +47,14 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Open a network file 
+ *   Open a network file
  */
 CVmNetFile *CVmNetFile::open(VMG_ const vm_val_t *val, const vm_rcdesc *rc,
                              int mode, os_filetype_t typ,
                              const char *mime_type)
 {
     vm_val_t filespec;
-    
+
     /* check for a TadsObject implementing getFilename */
     if (G_predef->filespec_getFilename != VM_INVALID_PROP
         && vm_val_cast_ok(CVmObjTads, val))
@@ -92,9 +92,9 @@ CVmNetFile *CVmNetFile::open(VMG_ const vm_val_t *val, const vm_rcdesc *rc,
              || ((ofn = vm_val_cast(CVmObjFileName, &filespec)) != 0
                  && ofn->is_special_file()))
     {
-        /* 
+        /*
          *   It's a special file ID, either as an integer or as a FileName
-         *   wrapping a special file int.  Get the value. 
+         *   wrapping a special file int.  Get the value.
          */
         int32_t sfid = (ofn != 0 ? ofn->get_sfid()
                                  : filespec.num_to_int(vmg0_));
@@ -113,9 +113,9 @@ CVmNetFile *CVmNetFile::open(VMG_ const vm_val_t *val, const vm_rcdesc *rc,
         char fname[OSFNMAX];
         CVmBif::get_fname_val(vmg_ fname, sizeof(fname), &filespec);
 
-        /* 
+        /*
          *   if it's a local file, and it has a relative path, explicitly
-         *   apply the image file path as the default working directory 
+         *   apply the image file path as the default working directory
          */
         if (!os_is_file_absolute(fname) && !is_net_mode(vmg0_))
         {
@@ -160,7 +160,7 @@ void CVmNetFile::rename_to_local(VMG_ CVmNetFile *newname)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Create a local directory 
+ *   Create a local directory
  */
 void CVmNetFile::mkdir_local(VMG_ int create_parents)
 {
@@ -171,7 +171,7 @@ void CVmNetFile::mkdir_local(VMG_ int create_parents)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Empty a local directory 
+ *   Empty a local directory
  */
 static void empty_dir(VMG_ const char *dir)
 {
@@ -197,16 +197,16 @@ static void empty_dir(VMG_ const char *dir)
                     /* check whether it's a directory or an ordinary file */
                     if ((fmode & OSFMODE_DIR) != 0)
                     {
-                        /* 
+                        /*
                          *   directory - skip the special '.' and '..' links,
-                         *   since they'd get us stuck in a loop 
+                         *   since they'd get us stuck in a loop
                          */
                         os_specfile_t st = os_is_special_file(fname);
                         if (st != OS_SPECFILE_SELF && st != OS_SPECFILE_PARENT)
                         {
                             /* recursively empty the directory */
                             empty_dir(vmg_ path);
-                            
+
                             /* remove this directory */
                             if (!os_rmdir(path))
                                 err_throw(VMERR_DELETE_FILE);
@@ -228,10 +228,10 @@ static void empty_dir(VMG_ const char *dir)
         }
         err_end;
     }
-}       
+}
 
 /*
- *   Remove a local directory 
+ *   Remove a local directory
  */
 void CVmNetFile::rmdir_local(VMG_ int remove_contents)
 {
@@ -245,8 +245,8 @@ void CVmNetFile::rmdir_local(VMG_ int remove_contents)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   static directory lister 
+/*
+ *   static directory lister
  */
 static int s_readdir_local(VMG_ const char *lclfname,
                            const char *nominal_path,
@@ -256,7 +256,7 @@ static int s_readdir_local(VMG_ const char *lclfname,
     /* note the nominal path string length */
     size_t nominal_path_len = strlen(nominal_path);
 
-    /* 
+    /*
      *   If the caller wants a result list, create a list for the return
      *   value.  We don't know how many elements the list will need, so
      *   create it with an arbitrary initial size, and expand it later as
@@ -299,12 +299,12 @@ static int s_readdir_local(VMG_ const char *lclfname,
                     /* map the filename to UTF8 */
                     size_t unmlen = G_cmap_from_fname->map_str_alo(
                         &unm, curname);
-                
+
                     /* create the FileName object */
                     fnobj = CVmObjFileName::combine_path(
                         vmg_ nominal_path, nominal_path_len,
                         unm, unmlen, TRUE);
-                
+
                     /* push it for gc protection */
                     G_stk->push()->set_obj(fnobj);
                 }
@@ -314,7 +314,7 @@ static int s_readdir_local(VMG_ const char *lclfname,
                         t3free(unm);
                 }
                 err_end;
-            
+
                 /* if we're building a list, add the file to the list */
                 if (retval != 0)
                 {
@@ -324,15 +324,15 @@ static int s_readdir_local(VMG_ const char *lclfname,
                     lst->cons_set_element(idx, &ele);
                     lst->cons_set_len(++idx);
                 }
-            
+
                 /* if there's a callback, invoke it */
                 if (cb != 0)
                 {
                     G_stk->push()->set_obj(fnobj);
                     G_interpreter->call_func_ptr(vmg_ cb, 1, rc, 0);
                 }
-            
-                /* 
+
+                /*
                  *   If we're doing a recursive listing, and this is a
                  *   directory, list its ocntents.  Skip self and parent
                  *   directory links ('.'  and '..' on Unix), since those
@@ -357,18 +357,18 @@ static int s_readdir_local(VMG_ const char *lclfname,
                         /* get the combined path from the FileName object */
                         const char *path = vm_objid_cast(CVmObjFileName, fnobj)
                                            ->get_path_string();
-                
+
                         /* build the actual combined path */
                         char subfname[OSFNMAX];
                         os_build_full_path(
                             subfname, sizeof(subfname), lclfname, curname);
-                
+
                         /* do the recursive listing */
                         ok |= s_readdir_local(vmg_ subfname, path + VMB_LEN,
                                               retval, rc, cb, TRUE);
                     }
                 }
-            
+
                 /* we're done with the FileName object for this iteration */
                 G_stk->discard(1);
             }
@@ -405,9 +405,9 @@ int CVmNetFile::readdir_local(VMG_ const char *nominal_path,
         || (mode & OSFMODE_DIR) == 0)
         return FALSE;
 
-    /* 
+    /*
      *   if the caller didn't specify a nominal path to use in constructed
-     *   FileName objects, use the actual local path 
+     *   FileName objects, use the actual local path
      */
     if (nominal_path == 0)
         nominal_path = lclfname;
@@ -419,7 +419,7 @@ int CVmNetFile::readdir_local(VMG_ const char *nominal_path,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Mark references for the garbage collector 
+ *   Mark references for the garbage collector
  */
 void CVmNetFile::mark_refs(VMG_ uint state)
 {

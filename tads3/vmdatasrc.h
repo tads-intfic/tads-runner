@@ -10,7 +10,7 @@ Function
   interface essentially identical to the osifc file interface, but can be
   implemented with a variety of underlying data sources.
 Notes
-  
+
 Modified
   05/05/10 MJRoberts  - Creation
 */
@@ -29,7 +29,7 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   Abstract file interface.  This allows the File intrinsic class to
- *   present a common interface on multiple underlying data sources.  
+ *   present a common interface on multiple underlying data sources.
  */
 class CVmDataSource
 {
@@ -63,11 +63,11 @@ public:
     /* close the underlying system resource */
     virtual void close() = 0;
 
-    /* 
+    /*
      *   Read a line of text (fgets() semantics).  This default
      *   implementation reads a character at a time from the underlying
      *   source; subclasses should override this if they can implement it
-     *   more efficiently. 
+     *   more efficiently.
      */
     virtual char *read_line(char *buf, size_t len)
     {
@@ -87,15 +87,15 @@ public:
             /* check for a line terminator */
             if (ch == 10 || ch == 13)
             {
-                /* 
+                /*
                  *   add a newline to the result (it's always '\n' in the
                  *   result buffer regardless of the type of newline in the
-                 *   source) 
+                 *   source)
                  */
                 *dst++ = '\n';
                 --len;
 
-                /* 
+                /*
                  *   if this is a CR-LF sequence, skip both characters;
                  *   otherwise just skip the single CR or LF
                  */
@@ -115,7 +115,7 @@ public:
 
             /* copy this byte */
             *dst++ = ch;
-            
+
             /* count it against the remaining buffer length */
             --len;
         }
@@ -133,7 +133,7 @@ public:
     {
         char *ret = 0;
         size_t retlen = 0;
-        
+
         /* keep going until we satisfy the request */
         for (;;)
         {
@@ -141,36 +141,36 @@ public:
             char buf[1024];
             if (read_line(buf, sizeof(buf)) == 0)
                 break;
-            
+
             /* get the length of this chunk */
             size_t len = strlen(buf);
-            
+
             /* allocate or expand the buffer to accommodate the new text */
             if (ret == 0)
                 ret = (char *)t3malloc(len + 1);
             else
                 ret = (char *)t3realloc(ret, retlen + len + 1);
-            
+
             /* fail if out of memory */
             if (ret == 0)
                 return 0;
-            
+
             /* add the new chunk to the result (including the null) */
             memcpy(ret + retlen, buf, len + 1);
             retlen += len;
-            
+
             /* if the buffer ends with a newline, we're done */
             if (retlen != 0 && ret[retlen-1] == '\n')
                 break;
         }
-        
+
         /* return our buffer */
         return ret;
     }
 
-    /* 
+    /*
      *   Create a duplicate data source.
-     *   
+     *
      *   'mode' is a simplified version of the stdio fopen() mode string.
      *   The first letter is 'r' for read access, 'w' for write access.  This
      *   can be followed by '+' for both read and write access; 'r+' and 'w+'
@@ -266,7 +266,7 @@ protected:
 /* ------------------------------------------------------------------------ */
 /*
  *   Resource file data source.  A resource file is a contiguous byte range
- *   within a larger file.  
+ *   within a larger file.
  */
 class CVmResFileSource: public CVmDataSource
 {
@@ -320,9 +320,9 @@ public:
         if (ret == 0)
             return 0;
 
-        /* 
+        /*
          *   if that moved us past the end of our segment, go back and
-         *   re-read the exact number of bytes remaining 
+         *   re-read the exact number of bytes remaining
          */
         if ((unsigned long)osfpos(fp) > end)
         {
@@ -421,7 +421,7 @@ protected:
 /* ------------------------------------------------------------------------ */
 /*
  *   Read-only string data source.  This takes a buffer in memory and
- *   presents a read-only file interface to it. 
+ *   presents a read-only file interface to it.
  */
 class CVmStringSource: public CVmDataSource
 {
@@ -468,7 +468,7 @@ public:
 
         /* advance the read pointer */
         pos += len;
-        
+
         /* return the amount read */
         return (int)len;
     }
@@ -479,7 +479,7 @@ public:
         /* if we have no bytes left, return null for EOF */
         if (pos == memlen)
             return 0;
-        
+
         /* read bytes until we encounter a CR, LF, or CR-LF */
         char *dst = buf;
         while (pos < memlen && len > 0)
@@ -487,15 +487,15 @@ public:
             /* check for a line terminator */
             if (mem[pos] == 10 || mem[pos] == 13)
             {
-                /* 
+                /*
                  *   add a newline to the result (it's always '\n' in the
                  *   result buffer regardless of the type of newline in the
-                 *   source) 
+                 *   source)
                  */
                 *dst++ = '\n';
                 --len;
 
-                /* 
+                /*
                  *   if this is a CR-LF sequence, skip both characters;
                  *   otherwise just skip the single CR or LF
                  */
@@ -581,7 +581,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Private string source - makes a private copy of a string buffer 
+ *   Private string source - makes a private copy of a string buffer
  */
 
 class CVmPrivateStringSource: public CVmStringSource
@@ -616,7 +616,7 @@ protected:
 /* ------------------------------------------------------------------------ */
 /*
  *   Memory data source.  This automatically allocates additional buffer
- *   space as needed.  
+ *   space as needed.
  */
 
 /* page block for a memory source */
@@ -671,16 +671,16 @@ public:
     /* read bytes */
     int read(void *buf, size_t len)
     {
-        /* 
+        /*
          *   if the request would take us past the current content length,
-         *   fail immediately, since we know we can't satisfy the request 
+         *   fail immediately, since we know we can't satisfy the request
          */
         if (cur_block_->ofs + cur_block_ofs_ + (long)len > len_)
             return 1;
 
-        /* 
+        /*
          *   do the read; return success == 0 if the amount read exactly
-         *   matches the requested length 
+         *   matches the requested length
          */
         return (size_t)readc(buf, len) != len;
     }
@@ -782,10 +782,10 @@ public:
             cur_block_ofs_ = 0;
         }
 
-        /* 
+        /*
          *   if the seek pointer is past the current content length, we've
          *   written past the old end of the file and thus expanded the file
-         *   - note the new length 
+         *   - note the new length
          */
         if (cur_block_->ofs + cur_block_ofs_ > len_)
             len_ = cur_block_->ofs + cur_block_ofs_;
@@ -800,9 +800,9 @@ public:
     /* get the current seek offset */
     long get_pos()
     {
-        /* 
+        /*
          *   figure the seek position as the current block's base offset plus
-         *   the current offset within that block 
+         *   the current offset within that block
          */
         return cur_block_->ofs + cur_block_ofs_;
     }
@@ -840,11 +840,11 @@ public:
         }
         else if (pos >= len_)
         {
-            /* 
+            /*
              *   At end of file.  This is a special case for setting the
              *   block pointer, because we could be positioned at the last
              *   byte of the last block, which we won't find in our scan.
-             *   Explicitly set the position here.  
+             *   Explicitly set the position here.
              */
             pos = len_;
             cur_block_ = last_block_;
@@ -912,7 +912,7 @@ protected:
 };
 
 /*
- *   Paged memory source 
+ *   Paged memory source
  */
 class CVmMemorySource: public CVmDataSource
 {
@@ -935,7 +935,7 @@ public:
         /* release our underlying page list */
         pl->release_ref();
     }
-    
+
     /* read bytes */
     virtual int read(void *buf, size_t len) { return pl->read(buf, len); }
 
@@ -958,9 +958,9 @@ public:
     /* flush - we don't buffer, so this does nothing */
     virtual int flush() { return 0; }
 
-    /* 
+    /*
      *   close - we don't have underlying system resources (other than
-     *   our memory buffers), so there's nothing to do here 
+     *   our memory buffers), so there's nothing to do here
      */
     virtual void close() { }
 

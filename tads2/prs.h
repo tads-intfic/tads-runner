@@ -2,11 +2,11 @@
 $Header: d:/cvsroot/tads/TADS2/PRS.H,v 1.3 1999/07/11 00:46:30 MJRoberts Exp $
 */
 
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -58,7 +58,7 @@ struct prsndef
  *   another array is added to the list, providing essentially unlimited
  *   cases in a switch.  Note that this is the parser's internal record of
  *   a case table as it's being parsed, and is converted to a different
- *   representation during code generation. 
+ *   representation during code generation.
  */
 #define PRSCTSIZE 50            /* number of case entries in one case array */
 typedef struct prsctdef prsctdef;
@@ -140,20 +140,20 @@ void prsdelgoto(prscxdef *ctx);
 /* parse an expression and generate code for it */
 void prsxgen(prscxdef *ctx);
 
-/* 
+/*
  *   Parse an expression and generate code for it, using speculative
  *   rules: we prohibit assignments, method calls, and function calls (in
  *   short, we prohibit anything that could change game state).  This is
  *   meant to support the debugger's speculative evaluation mode (see
  *   dbgcompile() for information).  Throws an error if a prohibited
- *   operation is found.  
+ *   operation is found.
  */
 void prsxgen_spec(prscxdef *ctx);
 
 
 /*
  *   parse and generate an expression, checking for a possibly incorrect
- *   assignment if in C operator mode 
+ *   assignment if in C operator mode
  */
 void prsxgen_pia(prscxdef *ctx);
 
@@ -191,7 +191,7 @@ void prsdefobj(prscxdef *ctx, tokdef *tok, int typ);
 /*
  *   Require a property identifier, returning the property number. The
  *   token containing the property identifier is removed from the input
- *   stream.  
+ *   stream.
  */
 prpnum prsrqpr(prscxdef *ctx);
 

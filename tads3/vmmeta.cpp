@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/VMMETA.CPP,v 1.3 1999/07/11 00:46:58 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmmeta.cpp - metaclass dependency table
 Function
-  
+
 Notes
-  
+
 Modified
   12/01/98 MJRoberts  - Creation
 */
@@ -38,7 +38,7 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   Create the metaclass dependency table with a given number of initial
- *   entries 
+ *   entries
  */
 CVmMetaTable::CVmMetaTable(size_t init_entries)
 {
@@ -69,16 +69,16 @@ CVmMetaTable::CVmMetaTable(size_t init_entries)
     for (entry = G_meta_reg_table, cnt = 0 ; entry->meta != 0 ;
          ++entry, ++cnt) ;
 
-    /* 
+    /*
      *   allocate the reverse dependency table -- this table lets us get
      *   the dependency index of a metaclass given its registration table
-     *   index 
+     *   index
      */
     reverse_map_ = (int *)t3malloc(cnt * sizeof(reverse_map_[0]));
 
-    /* 
+    /*
      *   set each element of the table to -1, since we have no dependency
-     *   table entries yet 
+     *   table entries yet
      */
     for (i = 0 ; i < cnt ; ++i)
         reverse_map_[i] = -1;
@@ -86,13 +86,13 @@ CVmMetaTable::CVmMetaTable(size_t init_entries)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Delete the table 
+ *   Delete the table
  */
 CVmMetaTable::~CVmMetaTable()
 {
     /* clear the table */
     clear();
-    
+
     /* free the table, if we ever allocated one */
     if (table_ != 0)
         t3free(table_);
@@ -103,29 +103,29 @@ CVmMetaTable::~CVmMetaTable()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Clear all entries from the table 
+ *   Clear all entries from the table
  */
 void CVmMetaTable::clear()
 {
     size_t i;
-    
+
     /* delete all of the property tables in the entries */
     for (i = 0 ; i < count_ ; ++i)
         table_[i].release_mem();
-    
-    /* 
+
+    /*
      *   Reset the entry counter.  Note that this doesn't affect any
      *   allocation; we keep a separate count of the number of table slots
      *   we have allocated.  Table slots don't have any additional
      *   associated memory, so we don't need to worry about cleaning
-     *   anything up at this point. 
+     *   anything up at this point.
      */
     count_ = 0;
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Ensure that we have space for a given number of entries 
+ *   Ensure that we have space for a given number of entries
  */
 void CVmMetaTable::ensure_space(size_t entries, size_t increment)
 {
@@ -133,7 +133,7 @@ void CVmMetaTable::ensure_space(size_t entries, size_t increment)
     if (entries >= alloc_)
     {
         size_t new_size;
-        
+
         /* increase the allocation size by the given increment */
         alloc_ += increment;
 
@@ -143,10 +143,10 @@ void CVmMetaTable::ensure_space(size_t entries, size_t increment)
 
         /* compute the new size */
         new_size = alloc_ * sizeof(table_[0]);
-        
-        /* 
+
+        /*
          *   if we have a table already, reallocate it at the larger size;
-         *   otherwise, allocate a new table 
+         *   otherwise, allocate a new table
          */
         if (table_ != 0)
             table_ = (vm_meta_entry_t *)t3realloc(table_, new_size);
@@ -157,7 +157,7 @@ void CVmMetaTable::ensure_space(size_t entries, size_t increment)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Add an entry to the table 
+ *   Add an entry to the table
  */
 void CVmMetaTable::add_entry(const char *metaclass_id, size_t func_cnt,
                              vm_prop_id_t min_prop, vm_prop_id_t max_prop)
@@ -169,7 +169,7 @@ void CVmMetaTable::add_entry(const char *metaclass_id, size_t func_cnt,
 
     /* find the version suffix in the metaclass name, if any */
     vsn = lib_find_vsn_suffix(metaclass_id, '/', "000000", &name_len);
-    
+
     /* ensure we have space for one more entry */
     ensure_space(count_ + 1, 5);
 
@@ -179,26 +179,26 @@ void CVmMetaTable::add_entry(const char *metaclass_id, size_t func_cnt,
     {
         const char *entry_vsn;
         size_t entry_name_len;
-        
+
         /* find the version number in this entry */
         entry_vsn = lib_find_vsn_suffix((*entry->meta)->get_meta_name(),
                                         '/', "000000", &entry_name_len);
-        
+
         /* see if this is a match */
         if (name_len == entry_name_len
             && memcmp(metaclass_id, (*entry->meta)->get_meta_name(),
                       name_len) == 0)
         {
-            /* 
+            /*
              *   make sure the version provided in the VM is at least as
-             *   high as the requested version 
+             *   high as the requested version
              */
             if (strcmp(vsn, entry_vsn) > 0)
             {
-                /* 
+                /*
                  *   throw the error; this is a version mismatch error, so
                  *   flag it as a version error and include the metaclass
-                 *   dependency information 
+                 *   dependency information
                  */
                 err_throw_a(VMERR_METACLASS_TOO_OLD, 4,
                             ERR_TYPE_TEXTCHAR, metaclass_id,
@@ -206,7 +206,7 @@ void CVmMetaTable::add_entry(const char *metaclass_id, size_t func_cnt,
                             ERR_TYPE_METACLASS, metaclass_id,
                             ERR_TYPE_VERSION_FLAG);
             }
-            
+
             /* add this entry */
             add_entry(metaclass_id, idx, func_cnt, min_prop, max_prop);
 
@@ -215,10 +215,10 @@ void CVmMetaTable::add_entry(const char *metaclass_id, size_t func_cnt,
         }
     }
 
-    /* 
+    /*
      *   We didn't find it.  This is probably an out-of-date VM issue, so
      *   flag it as a version error, and include the metaclass dependency
-     *   information.  
+     *   information.
      */
     err_throw_a(VMERR_UNKNOWN_METACLASS, 3,
                 ERR_TYPE_TEXTCHAR, metaclass_id,
@@ -236,7 +236,7 @@ void CVmMetaTable::add_entry(const char *metaclass_id,
 {
     /* get the registration table entry from the index */
     vm_meta_reg_t *entry = &G_meta_reg_table[idx];
-    
+
     /* remember the defining class object */
     table_[count_].meta_ = *entry->meta;
 
@@ -267,15 +267,15 @@ void CVmMetaTable::add_entry(const char *metaclass_id,
 
         /* calculate the table size */
         siz = prop_xlat_cnt * sizeof(table_[count_].prop_xlat_[0]);
-        
+
         /* allocate the table */
         table_[count_].prop_xlat_ = (unsigned short *)t3malloc(siz);
 
-        /* 
+        /*
          *   initialize each entry in the table to zero - this will ensure
          *   that each entry that is never set to a valid function index
          *   will properly yield function index zero, which is defined as
-         *   the "not found" invalid function index 
+         *   the "not found" invalid function index
          */
         memset(table_[count_].prop_xlat_, 0, siz);
     }
@@ -290,7 +290,7 @@ void CVmMetaTable::add_entry(const char *metaclass_id,
     {
         size_t i;
         vm_prop_id_t *prop_ptr;
-        
+
         /* allocate the table */
         table_[count_].func_xlat_ =
             (vm_prop_id_t *)t3malloc(func_cnt * sizeof(vm_prop_id_t));
@@ -306,9 +306,9 @@ void CVmMetaTable::add_entry(const char *metaclass_id,
         table_[count_].func_xlat_ = 0;
     }
 
-    /* 
+    /*
      *   store the reverse mapping for this entry, so that we can find the
-     *   dependency entry given the registration index 
+     *   dependency entry given the registration index
      */
     reverse_map_[idx] = count_;
 
@@ -320,15 +320,15 @@ void CVmMetaTable::add_entry(const char *metaclass_id,
 /*
  *   Add an entry to the dependency table only if it doesn't already
  *   appear in the dependency table.  We add the entry based on its
- *   registration table index. 
+ *   registration table index.
  */
 void CVmMetaTable::add_entry_if_new(uint reg_table_idx, size_t func_cnt,
                                     vm_prop_id_t min_prop,
                                     vm_prop_id_t max_prop)
 {
-    /* 
+    /*
      *   if the entry already has a valid dependency table index, as
-     *   obtained from the reverse mapping, we need not add it again 
+     *   obtained from the reverse mapping, we need not add it again
      */
     if (reverse_map_[reg_table_idx] != -1)
         return;
@@ -341,7 +341,7 @@ void CVmMetaTable::add_entry_if_new(uint reg_table_idx, size_t func_cnt,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Look up an entry by external ID 
+ *   Look up an entry by external ID
  */
 vm_meta_entry_t *CVmMetaTable::get_entry_by_id(const char *id) const
 {
@@ -363,9 +363,9 @@ vm_meta_entry_t *CVmMetaTable::get_entry_by_id(const char *id) const
         if (name_len == entry_name_len
             && memcmp(id, entry->image_meta_name_, name_len) == 0)
         {
-            /* 
+            /*
              *   we found a match to the name; make sure the version is at
-             *   least as high as requested 
+             *   least as high as requested
              */
             if (strcmp(vsn, entry_vsn) <= 0)
             {
@@ -387,7 +387,7 @@ vm_meta_entry_t *CVmMetaTable::get_entry_by_id(const char *id) const
 /* ------------------------------------------------------------------------ */
 /*
  *   Invoke the VM-stack-based constructor for the metaclass at the given
- *   index 
+ *   index
  */
 vm_obj_id_t CVmMetaTable::create_from_stack(VMG_ const uchar **pc_ptr,
                                             uint idx, uint argc)
@@ -395,14 +395,14 @@ vm_obj_id_t CVmMetaTable::create_from_stack(VMG_ const uchar **pc_ptr,
     /* make sure the entry is defined */
     if (idx >= count_)
         err_throw(VMERR_BAD_METACLASS_INDEX);
-    
+
     /* invoke the appropriate constructor */
     return table_[idx].meta_->create_from_stack(vmg_ pc_ptr, argc);
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Call a static property in the metaclass at the given index 
+ *   Call a static property in the metaclass at the given index
  */
 int CVmMetaTable::call_static_prop(VMG_ vm_val_t *result,
                                    const uchar **pc_ptr, uint idx,
@@ -419,7 +419,7 @@ int CVmMetaTable::call_static_prop(VMG_ vm_val_t *result,
 /* ------------------------------------------------------------------------ */
 /*
  *   Create an object with the given ID and load the object from the image
- *   file. 
+ *   file.
  */
 void CVmMetaTable::create_from_image(VMG_ uint idx, vm_obj_id_t id,
                                      const char *ptr, size_t siz)
@@ -443,20 +443,20 @@ void CVmMetaTable::create_from_image(VMG_ uint idx, vm_obj_id_t id,
  *   preparation for restoring the object's data from saved state
  *   information.  This doesn't fill in the object with the saved state
  *   data, but merely creates the object.
- *   
+ *
  *   The caller is responsible for having allocated the object ID before
- *   calling this function.  
+ *   calling this function.
  */
 void CVmMetaTable::create_for_restore(VMG_ uint idx, vm_obj_id_t id)
 {
     /* make sure the entry is defined in our table of metaclasses */
     if (idx >= count_)
         err_throw(VMERR_BAD_METACLASS_INDEX);
-    
-    /* 
+
+    /*
      *   Invoke the appropriate constructor.  Note that the caller must
      *   already have allocated the object ID, so we simply use the given ID
-     *   without further consideration.  
+     *   without further consideration.
      */
     table_[idx].meta_->create_for_restore(vmg_ id);
 }
@@ -464,7 +464,7 @@ void CVmMetaTable::create_for_restore(VMG_ uint idx, vm_obj_id_t id)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Write the table to a file.  
+ *   Write the table to a file.
  */
 void CVmMetaTable::write_to_file(CVmFile *fp)
 {
@@ -493,24 +493,24 @@ void CVmMetaTable::write_to_file(CVmFile *fp)
         /* write our associated IntrinsicClass object's ID */
         fp->write_uint4(entry->class_obj_);
 
-        /* 
+        /*
          *   Write the property table information - write the number of
-         *   function entries, and the minimum and maximum property ID's. 
+         *   function entries, and the minimum and maximum property ID's.
          */
         fp->write_uint2(entry->func_xlat_cnt_);
         fp->write_uint2(entry->min_prop_);
         fp->write_uint2(entry->min_prop_ + entry->prop_xlat_cnt_);
 
-        /* 
+        /*
          *   Write out the property translation table.  The function
          *   translation table will always be smaller than (at worst, it
          *   will be the same size as) the property translation table;
          *   both tables contain the same information, so since we only
          *   need to write out one or the other, write out the smaller of
          *   the two.
-         *   
+         *
          *   Note that xlat_func() requires a 1-based function index, so
-         *   run our counter from 1 to the function table count.  
+         *   run our counter from 1 to the function table count.
          */
         for (j = 1 ; j <= entry->func_xlat_cnt_ ; ++j)
             fp->write_uint2(entry->xlat_func(j));
@@ -518,7 +518,7 @@ void CVmMetaTable::write_to_file(CVmFile *fp)
 }
 
 /*
- *   Read the table from a file. 
+ *   Read the table from a file.
  */
 int CVmMetaTable::read_from_file(CVmFile *fp)
 {
@@ -569,11 +569,11 @@ int CVmMetaTable::read_from_file(CVmFile *fp)
         /* set the class ID */
         entry->class_obj_ = class_obj;
 
-        /* 
+        /*
          *   Read the property mappings.  We stored the function table
          *   entries, so we simply need to load those entries.  Note that
          *   the function table has a 1-based index, so run our counter
-         *   from 1 to the function count. 
+         *   from 1 to the function count.
          */
         for (j = 1 ; j <= func_cnt ; ++j)
             entry->add_prop_xlat((short)fp->read_int2(), j);
@@ -586,16 +586,16 @@ int CVmMetaTable::read_from_file(CVmFile *fp)
 #if 0 // moved inline, since it's small and used a lot
 /*
  *   Get the function vector index for a property given the metaclass's
- *   registration table index. 
+ *   registration table index.
  */
 int CVmMetaTable::prop_to_vector_idx(uint reg_table_idx, vm_prop_id_t prop)
 {
     /* get the entry for the registration table index */
     vm_meta_entry_t *entry = get_entry_from_reg(reg_table_idx);
 
-    /* 
+    /*
      *   if there's no entry for this registration index, there's
-     *   obviously no metaclass function mapping for the property 
+     *   obviously no metaclass function mapping for the property
      */
     if (entry == 0)
         return 0;
@@ -607,27 +607,27 @@ int CVmMetaTable::prop_to_vector_idx(uint reg_table_idx, vm_prop_id_t prop)
 
 /*
  *   Create an IntrinsicClass object for each metaclass that doesn't
- *   already have one. 
+ *   already have one.
  */
 void CVmMetaTable::create_intrinsic_class_instances(VMG0_)
 {
     size_t idx;
     vm_meta_entry_t *entry;
-    
+
     /* go through our table */
     for (idx = 0, entry = table_ ; idx < count_ ; ++idx, ++entry)
     {
         /* if this entry has no associated class object, create one for it */
         if (entry->class_obj_ == VM_INVALID_OBJ)
         {
-            /* 
+            /*
              *   create the class object - it will automatically register
-             *   itself to fill in the entry 
+             *   itself to fill in the entry
              */
             CVmObjClass::create_dyn(vmg_ idx);
         }
 
-        /* 
+        /*
          *   Add this object to the machine globals, if it's not a root
          *   object.  Any dynamically-created intrinsic class instance must
          *   be made a machine global because it will always be reachable as
@@ -642,7 +642,7 @@ void CVmMetaTable::create_intrinsic_class_instances(VMG0_)
 /*
  *   Forget the IntrinsicClass objects we created dynamically in
  *   create_intrinsic_class_instances().  This simply drops our references
- *   to those objects from the metaclass table.  
+ *   to those objects from the metaclass table.
  */
 void CVmMetaTable::forget_intrinsic_class_instances(VMG0_)
 {
@@ -657,7 +657,7 @@ void CVmMetaTable::forget_intrinsic_class_instances(VMG0_)
 /* ------------------------------------------------------------------------ */
 /*
  *   Build a translation table from run-time metaclass index to compiler
- *   TC_META_xxx ID. 
+ *   TC_META_xxx ID.
  */
 tc_metaclass_t *CVmMetaTable::build_runtime_to_compiler_id_table(VMG0_)
 {
@@ -668,10 +668,10 @@ tc_metaclass_t *CVmMetaTable::build_runtime_to_compiler_id_table(VMG0_)
     for (entry = G_meta_reg_table, cnt = 0 ; entry->meta != 0 ;
          ++entry, ++cnt) ;
 
-    /* 
+    /*
      *   allocate the translation table - this is simply an array indexed by
      *   metaclass registration index and yielding the corresponding compiler
-     *   metaclass ID 
+     *   metaclass ID
      */
     tc_metaclass_t *xlat = (tc_metaclass_t *)t3malloc(cnt * sizeof(xlat[0]));
 

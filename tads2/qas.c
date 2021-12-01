@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All rights reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -62,7 +62,7 @@ void qasclose()
  *   Read the next line from the script file (this is essentially the
  *   script-redirected os_gets).  Only lines starting with '>' are
  *   considered script input lines; all other lines are comments, and are
- *   ignored.  
+ *   ignored.
  */
 char *qasgets(char *buf, int bufl)
 {
@@ -77,11 +77,11 @@ char *qasgets(char *buf, int bufl)
     for (;;)
     {
         char c;
-        
+
         /*
          *   Read the next character of input.  If it's not a newline,
          *   there's more on the same line, so read the rest and see what
-         *   to do.  
+         *   to do.
          */
         c = osfgetc(scrfp);
         if (c != '\n' && c != '\r')
@@ -93,7 +93,7 @@ char *qasgets(char *buf, int bufl)
                 qasclose();
                 return 0;
             }
-            
+
             /* if the line started with '>', strip '\n' and return line */
             if (c == '>')
             {
@@ -104,9 +104,9 @@ char *qasgets(char *buf, int bufl)
                     && (buf[l-1] == '\n' || buf[l-1] == '\r'))
                     buf[l-1] = 0;
 
-                /* 
+                /*
                  *   if we're not in quiet mode, echo the command to the
-                 *   display 
+                 *   display
                  */
                 if (!scrquiet)
                     outformat(buf);

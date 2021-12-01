@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmfunc.cpp - T3 VM function header operations
 Function
-  
+
 Notes
-  
+
 Modified
   11/24/99 MJRoberts  - Creation
 */
@@ -32,7 +32,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Initialize from a code pool address 
+ *   Initialize from a code pool address
  */
 CVmFuncPtr::CVmFuncPtr(VMG_ pool_ofs_t ofs)
 {
@@ -40,12 +40,12 @@ CVmFuncPtr::CVmFuncPtr(VMG_ pool_ofs_t ofs)
 }
 
 /*
- *   Initialize from a vm_val_t 
+ *   Initialize from a vm_val_t
  */
 int CVmFuncPtr::set(VMG_ const vm_val_t *val)
 {
     vm_val_t invoker;
-    
+
     /* we might need to re-resolve from an invoker, so loop until resolved */
     for (;;)
     {
@@ -67,33 +67,33 @@ int CVmFuncPtr::set(VMG_ const vm_val_t *val)
                 return FALSE;
             }
             break;
-            
+
         case VM_FUNCPTR:
         case VM_CODEOFS:
             /* function pointer - get the address from the code pool */
             set((const uchar *)G_code_pool->get_ptr(val->val.ofs));
             return TRUE;
-            
+
         case VM_CODEPTR:
             /* direct code pointer - the value contains the address */
             set((const uchar *)val->val.ptr);
             return TRUE;
-            
+
         case VM_BIFPTR:
         case VM_BIFPTRX:
             /* built-in function pointer */
             {
-                /* 
+                /*
                  *   decode the function set information from the value, and
-                 *   look up the bif descriptor in the registration table 
+                 *   look up the bif descriptor in the registration table
                  */
                 const vm_bif_desc *desc = G_bif_table->get_desc(
                     val->val.bifptr.set_idx, val->val.bifptr.func_idx);
-                
+
                 /* fail if there's no descriptor */
                 if (desc == 0)
                     return FALSE;
-                
+
                 /* point to the synthetic header */
                 set((const uchar *)desc->synth_hdr);
             }
@@ -114,9 +114,9 @@ int CVmFuncPtr::set(VMG_ const vm_val_t *val)
  */
 int CVmFuncPtr::get_fnptr(VMG_ vm_val_t *v)
 {
-    /* 
+    /*
      *   Try translating the method address to a code pool offset.  If that
-     *   succeeds, it's a regular static function.  
+     *   succeeds, it's a regular static function.
      */
     pool_ofs_t entry_ofs;
     if (G_code_pool->get_ofs((const char *)p_, &entry_ofs))
@@ -126,11 +126,11 @@ int CVmFuncPtr::get_fnptr(VMG_ vm_val_t *v)
         return TRUE;
     }
 
-    /* 
+    /*
      *   It's not a static function pointer, so it must be a dynamic
      *   function.  A DynamicFunc stores a prefix header before the start of
      *   our method header, containing the DynamicFunc object ID.  Read the
-     *   object ID, and return it as a VM_OBJ value.  
+     *   object ID, and return it as a VM_OBJ value.
      */
     vm_obj_id_t obj = CVmDynamicFunc::get_obj_from_prefix(vmg_ p_);
     if (obj != VM_INVALID_OBJ)
@@ -146,9 +146,9 @@ int CVmFuncPtr::get_fnptr(VMG_ vm_val_t *v)
 
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   Set up an exception table pointer for this function.  Returns true if
- *   successful, false if there's no exception table.  
+ *   successful, false if there's no exception table.
  */
 int CVmFuncPtr::set_exc_ptr(CVmExcTablePtr *exc_ptr) const
 {
@@ -158,7 +158,7 @@ int CVmFuncPtr::set_exc_ptr(CVmExcTablePtr *exc_ptr) const
 
 /*
  *   Set up a debug table pointer for this function.  Returns true if
- *   successful, false if there's no debug table.  
+ *   successful, false if there's no debug table.
  */
 int CVmFuncPtr::set_dbg_ptr(CVmDbgTablePtr *dbg_ptr)const
 {
@@ -175,9 +175,9 @@ const char *CVmDbgFrameSymPtr::get_symptr(VMG0_) const
     /* get a pointer to the symbol field in this record */
     const char *symp = (const char *)p_ + G_dbg_lclsym_hdr_size;
 
-    /* 
+    /*
      *   if it's stored inline, this points directly to the symbol data;
-     *   otherwise it's a constant pool offset pointing to the symbol data 
+     *   otherwise it's a constant pool offset pointing to the symbol data
      */
     if (is_sym_inline())
         return symp;
@@ -204,8 +204,8 @@ void CVmDbgFrameSymPtr::get_str_val(VMG_ vm_val_t *val) const
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   is this frame nested in the given frame? 
+/*
+ *   is this frame nested in the given frame?
  */
 int CVmDbgFramePtr::is_nested_in(VMG_ const class CVmDbgTablePtr *dp, int i)
 {

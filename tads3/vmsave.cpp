@@ -3,26 +3,26 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmsave.cpp - T3 save/restore state
 Function
-  
+
 Notes
-  
+
 Modified
   08/02/99 MJRoberts  - Creation
 */
 
 /*
  *   Saved game header structure:
- *   
+ *
  *.    <17 bytes>  - signature, "T3-state-vXXX\015\012\032", where XXX is
  *.                  the hex version number
  *.    UINT4       - stream size, counting from the timestamp on
@@ -34,20 +34,20 @@ Modified
  *.    UINT2       - number of bytes in metadata table
  *.    <? bytes>   - metadata table
  *.    <? bytes>   - object stream data
- *   
+ *
  *   The metadata table contains any number of name/value string pairs.
  *   These are arbitrary values that allow the game to store descriptive
  *   information about the saved game that the interpreter and other tools
  *   can display to the user, to jog the user's memory when reviewing a
  *   collection of saved game files.  The format of the table is:
- *   
+ *
  *.    UINT2       - number of string/value pairs
  *.    <? bytes>   - first pair
  *.    <? bytes>   - second pair
  *.    ...etc...
- *   
+ *
  *   Each pair has this format:
- *   
+ *
  *.    UINT2       - length of the name string
  *.    UINT2       - length of the value string
  *.    <? bytes>   - name string
@@ -75,10 +75,10 @@ Modified
  *   Saved state signature.  This signature is tied to a specific format
  *   version; it should be changed whenever the format version is modified
  *   so that it is incompatible with older versions.
- *   
+ *
  *   Note that incompatible changes to intrinsic class serialization formats
  *   will require updating the version number.
- *   
+ *
  *   Incompatible changes to the format are not a particularly big deal.
  *   Saved states tend to be local to a particular machine, since they're
  *   mostly used to suspend sessions for later resumption and to "branch"
@@ -86,7 +86,7 @@ Modified
  *   point, then returning later to that same point to play again, but doing
  *   different things this time; this is used particularly to save "good"
  *   positions as a precaution against later getting into unwinnable
- *   states).  
+ *   states).
  */
 #define VMSAVEFILE_SIG "T3-state-v000A\015\012\032"
 
@@ -95,7 +95,7 @@ Modified
 /*
  *   Compute the checksum of the contents of a file stream.  We'll compute
  *   the checksum of the given file, starting at the current seek position
- *   and running for the requested number of bytes.  
+ *   and running for the requested number of bytes.
  */
 static unsigned long compute_checksum(CVmFile *fp, unsigned long len)
 {
@@ -106,7 +106,7 @@ static unsigned long compute_checksum(CVmFile *fp, unsigned long len)
     {
         char buf[256];
         size_t cur_len;
-        
+
         /* figure out how much we can load from the file */
         cur_len = sizeof(buf);
         if (cur_len > len)
@@ -130,7 +130,7 @@ static unsigned long compute_checksum(CVmFile *fp, unsigned long len)
 /* ------------------------------------------------------------------------ */
 /*
  *   Callback for enumerating the LookupTable entries for the metadata table
- *   while saving a game 
+ *   while saving a game
  */
 struct metatab_saver
 {
@@ -159,7 +159,7 @@ struct metatab_saver
         if (keystr != 0 && valstr != 0)
         {
             size_t len;
-            
+
             /* save the key string */
             fp->write_uint2(len = vmb_get_len(keystr));
             fp->write_bytes(keystr + VMB_LEN, len);
@@ -177,7 +177,7 @@ struct metatab_saver
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Save VM state to a file 
+ *   Save VM state to a file
  */
 void CVmSaveFile::save(VMG_ CVmFile *fp, CVmObjLookupTable *metatab)
 {
@@ -197,11 +197,11 @@ void CVmSaveFile::save(VMG_ CVmFile *fp, CVmObjLookupTable *metatab)
     /* get the image filename */
     const char *fname = G_image_loader->get_filename();
     size_t fname_len = strlen(fname);
-    
-    /* 
+
+    /*
      *   write the image filename, so we can figure out what image file to
      *   load if we start the interpreter specifying only the saved state
-     *   to be restored 
+     *   to be restored
      */
     fp->write_uint2(fname_len);
     fp->write_bytes(fname, fname_len);
@@ -246,25 +246,25 @@ void CVmSaveFile::save(VMG_ CVmFile *fp, CVmObjLookupTable *metatab)
     /* remember where the file ends */
     long endpos = fp->get_pos();
 
-    /* 
+    /*
      *   compute the size of the data stream - this includes everything
-     *   after the size/checksum fields 
+     *   after the size/checksum fields
      */
     unsigned long datasize = endpos - startpos - 8;
 
-    /* 
+    /*
      *   seek back to just after the size/checksum header - this is the
      *   start of the section of the file for which we must compute the
-     *   checksum 
+     *   checksum
      */
     fp->set_pos(startpos + 8);
 
     /* compute the checksum */
     unsigned long crcval = compute_checksum(fp, datasize);
 
-    /* 
+    /*
      *   seek back to the size/checksum header, and fill in those fields now
-     *   that we know their values 
+     *   that we know their values
      */
     fp->set_pos(startpos);
     fp->write_uint4(datasize);
@@ -277,7 +277,7 @@ void CVmSaveFile::save(VMG_ CVmFile *fp, CVmObjLookupTable *metatab)
 /* ------------------------------------------------------------------------ */
 /*
  *   Given a saved state file, get the name of the image file that was
- *   loaded when the state file was created. 
+ *   loaded when the state file was created.
  */
 int CVmSaveFile::restore_get_image(osfildef *fp,
                                    char *fname_buf, size_t fname_buf_len)
@@ -316,7 +316,7 @@ int CVmSaveFile::restore_get_image(osfildef *fp,
 /* ------------------------------------------------------------------------ */
 /*
  *   Restore VM state from a file.  Returns zero on success, non-zero on
- *   error.  
+ *   error.
  */
 int CVmSaveFile::restore(VMG_ CVmFile *fp)
 {
@@ -341,9 +341,9 @@ int CVmSaveFile::restore(VMG_ CVmFile *fp)
     /* compute the checksum of the file data */
     unsigned long new_crcval = compute_checksum(fp, datasize);
 
-    /* 
+    /*
      *   if the checksum we computed doesn't match the one stored in the
-     *   file, the file is corrupted 
+     *   file, the file is corrupted
      */
     if (new_crcval != old_crcval)
         return VMERR_BAD_SAVED_STATE;
@@ -356,32 +356,32 @@ int CVmSaveFile::restore(VMG_ CVmFile *fp)
     if (memcmp(buf, G_image_loader->get_timestamp(), 24) != 0)
         return VMERR_WRONG_SAVED_STATE;
 
-    /* 
+    /*
      *   skip the image filename - since we already have an image file
      *   loaded, this information is of no use to us here (it's only
      *   useful when we want to restore a saved state before we know what
-     *   the image file is) 
+     *   the image file is)
      */
     fp->set_pos_from_cur(fp->read_int2());
 
-    /* 
+    /*
      *   skip the metadata table - it's provided for browsing tools, and we
-     *   have no use for it ourselves 
+     *   have no use for it ourselves
      */
     fp->set_pos_from_cur(fp->read_int2());
 
-    /* 
+    /*
      *   discard all undo information - any undo information we currently
-     *   have obviously can't be applied to the restored state 
+     *   have obviously can't be applied to the restored state
      */
     G_undo->drop_undo(vmg0_);
 
-    /* 
+    /*
      *   Disable garbage collection while restoring.  This is necessary
      *   because there are possible intermediate states where we have
      *   restored some of the objects but not all of them, so objects that
      *   are reachable from the fully restored state won't necessarily appear
-     *   to be reachable from all possible intermediate states. 
+     *   to be reachable from all possible intermediate states.
      */
     int old_gc_enabled = G_obj_table->enable_gc(vmg_ FALSE);
 
@@ -394,15 +394,15 @@ int CVmSaveFile::restore(VMG_ CVmFile *fp)
         /* load the object data from the file */
         if ((err = G_obj_table->restore(vmg_ fp, &fixups)) != 0)
             goto read_done;
-        
+
         /* load the synthesized exports from the file */
         err = G_image_loader->restore_synth_exports(vmg_ fp, fixups);
         if (err != 0)
             goto read_done;
 
-        /* 
+        /*
          *   re-link to the exports and synthesized exports loaded from the
-         *   saved session 
+         *   saved session
          */
         G_image_loader->do_dynamic_link(vmg0_);
 
@@ -432,11 +432,11 @@ int CVmSaveFile::restore(VMG_ CVmFile *fp)
     if (err != 0)
         err_throw(err);
 
-    /* 
+    /*
      *   explicitly run garbage collection, since any dynamic objects that
      *   were reachable before the restore only through non-transient
      *   references will no longer be reachable, all of the non-transient
-     *   references having been replaced now 
+     *   references having been replaced now
      */
     G_obj_table->gc_full(vmg0_);
 
@@ -446,20 +446,20 @@ int CVmSaveFile::restore(VMG_ CVmFile *fp)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Reset to initial image file state 
+ *   Reset to initial image file state
  */
 void CVmSaveFile::reset(VMG0_)
 {
-    /* 
+    /*
      *   discard undo information, since it applies only to the current VM
      *   state and obviously is no longer relevant after we reset to the
-     *   initial state 
+     *   initial state
      */
     G_undo->drop_undo(vmg0_);
 
-    /* 
+    /*
      *   discard all synthesized exports, since we want to dynamically link
-     *   to the base image file state 
+     *   to the base image file state
      */
     G_image_loader->discard_synth_exports();
 
@@ -469,10 +469,10 @@ void CVmSaveFile::reset(VMG0_)
     /* reset all objects to initial image file load state */
     G_obj_table->reset_to_image(vmg0_);
 
-    /* 
+    /*
      *   forget the previous dynamic linking information and relink to the
      *   image file again - this will ensure that any objects created after
-     *   load are properly re-created now 
+     *   load are properly re-created now
      */
     G_image_loader->do_dynamic_link(vmg0_);
 
@@ -482,7 +482,7 @@ void CVmSaveFile::reset(VMG0_)
     /* perform any requested post-load object initializations */
     G_obj_table->do_all_post_load_init(vmg0_);
 
-    /* 
+    /*
      *   explicitly run garbage collection to clean up dynamic objects that
      *   are no longer reachable from the initial state
      */

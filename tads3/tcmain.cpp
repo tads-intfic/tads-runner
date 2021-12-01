@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/TCMAIN.CPP,v 1.4 1999/07/11 00:46:53 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   tcmain.cpp - TADS 3 Compiler - main compiler driver
 Function
-  
+
 Notes
-  
+
 Modified
   04/22/99 MJRoberts  - Creation
 */
@@ -39,7 +39,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   statics 
+ *   statics
  */
 
 /* references to the error subsystem */
@@ -54,7 +54,7 @@ CCharmapToLocal *CTcMain::console_mapper_ = 0;
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Initialize the error subsystem for the compiler 
+ *   Initialize the error subsystem for the compiler
  */
 void CTcMain::tc_err_init(size_t param_stack_size,
                           CResLoader *res_loader)
@@ -70,7 +70,7 @@ void CTcMain::tc_err_init(size_t param_stack_size,
             && tc_messages == &tc_messages_english[0])
         {
             osfildef *fp;
-            
+
             /* try finding a message file */
             fp = res_loader->open_res_file("t3make.msg", 0, "XMSG");
             if (fp != 0)
@@ -79,7 +79,7 @@ void CTcMain::tc_err_init(size_t param_stack_size,
                 err_load_message_file(fp, &tc_messages, &tc_message_count,
                                       &tc_messages_english[0],
                                       tc_message_count_english);
-                
+
                 /* done with the file */
                 osfcls(fp);
             }
@@ -96,7 +96,7 @@ void CTcMain::tc_err_init(size_t param_stack_size,
 }
 
 /*
- *   terminate the error subsystem for the compiler 
+ *   terminate the error subsystem for the compiler
  */
 void CTcMain::tc_err_term()
 {
@@ -118,25 +118,25 @@ void CTcMain::tc_err_term()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Initialize the compiler 
+ *   Initialize the compiler
  */
 void CTcMain::init(CTcHostIfc *hostifc, CResLoader *res_loader,
                    const char *default_charset)
 {
     /* initialize the error subsystem */
     tc_err_init(1024, res_loader);
-    
+
     /* remember the host interface */
     G_hostifc = hostifc;
 
     /* perform static initializations on the parser symbol table class */
     CTcPrsSymtab::s_init();
 
-    /* 
+    /*
      *   Set the image file structure sizes for the current T3 VM spec we're
      *   targeting.  When we're doing dynamic compilation, the DynamicFunc
      *   object will overwrite these with the actual settings for the loaded
-     *   image file before it invokes the code generator.  
+     *   image file before it invokes the code generator.
      */
     G_sizes.mhdr = TCT3_METHOD_HDR_SIZE;
     G_sizes.exc_entry = TCT3_EXC_ENTRY_SIZE;
@@ -157,7 +157,7 @@ void CTcMain::init(CTcHostIfc *hostifc, CResLoader *res_loader,
 }
 
 /*
- *   Terminate the compiler 
+ *   Terminate the compiler
  */
 void CTcMain::terminate()
 {
@@ -174,9 +174,9 @@ void CTcMain::terminate()
     G_propfixup = 0;
     G_enumfixup = 0;
 
-    /* 
+    /*
      *   make sure we explicitly turn the fixup flags on again if we want
-     *   them in a future run 
+     *   them in a future run
      */
     G_keep_objfixups = FALSE;
     G_keep_propfixups = FALSE;
@@ -194,24 +194,24 @@ void CTcMain::terminate()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   set up the compiler 
+ *   set up the compiler
  */
 CTcMain::CTcMain(CResLoader *res_loader, const char *default_charset)
 {
     char csbuf[OSFNMAX];
-    
-    /* 
+
+    /*
      *   if the caller didn't provide a default character set, ask the OS
      *   what we should use
      */
     if (default_charset == 0)
     {
-        /* 
+        /*
          *   ask the OS what to use for file contents, since we use this
-         *   character set to translate the text we read from source files 
+         *   character set to translate the text we read from source files
          */
         os_get_charmap(csbuf, OS_CHARMAP_FILECONTENTS);
-        
+
         /* use our OS-provided character set */
         default_charset = csbuf;
     }
@@ -231,13 +231,13 @@ CTcMain::CTcMain(CResLoader *res_loader, const char *default_charset)
         if (console_mapper_ == 0)
             console_mapper_ = CCharmapToLocal::load(res_loader, "us-ascii");
     }
-    
+
     /* remember our resource loader */
     res_loader_ = res_loader;
-    
-    /* 
+
+    /*
      *   set default options - minimum verbosity, no numeric error codes,
-     *   show standard warnings but not pedantic warnings, not test mode 
+     *   show standard warnings but not pedantic warnings, not test mode
      */
     err_options_ = TCMAIN_ERR_WARNINGS;
 
@@ -250,10 +250,10 @@ CTcMain::CTcMain(CResLoader *res_loader, const char *default_charset)
 
     /* create the tokenizer */
     G_tok = new CTcTokenizer(res_loader_, default_charset_);
-    
-    /* 
+
+    /*
      *   Create the parser and node memory pool.  Create the memory pool
-     *   first, because the parser allocates objects out of the pool. 
+     *   first, because the parser allocates objects out of the pool.
      */
     G_prsmem = new CTcPrsMem();
     G_prs = new CTcParser();
@@ -319,7 +319,7 @@ CTcMain::CTcMain(CResLoader *res_loader, const char *default_charset)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   delete the compiler driver 
+ *   delete the compiler driver
  */
 CTcMain::~CTcMain()
 {
@@ -371,7 +371,7 @@ CTcMain::~CTcMain()
  *   Log an error, part 1: show the message prefix.  This should be called
  *   before formatting the text of the message, and part 2 should be called
  *   after formatting the message text.  Returns a pointer to the message
- *   template text.  
+ *   template text.
  */
 static const char *log_msg_internal_1(
     CTcTokFileDesc *linedesc, long linenum,
@@ -384,7 +384,7 @@ static const char *log_msg_internal_1(
 
     /*
      *   If this is a warning or a pedantic warning, and it's in the list of
-     *   suppressed messages, ignore it entirely.  
+     *   suppressed messages, ignore it entirely.
      */
     if (severity == TC_SEV_PEDANTIC || severity == TC_SEV_WARNING)
     {
@@ -407,17 +407,17 @@ static const char *log_msg_internal_1(
     switch(severity)
     {
     case TC_SEV_INFO:
-        /* 
+        /*
          *   we don't need to count informational messages, and no prefix is
-         *   required 
+         *   required
          */
         prefix = "";
         break;
 
     case TC_SEV_PEDANTIC:
-        /* 
+        /*
          *   if we're not in "pedantic" mode, or we're not even showing
-         *   regular errors, ignore it 
+         *   regular errors, ignore it
          */
         if (!(options & TCMAIN_ERR_PEDANTIC)
             || !(options & TCMAIN_ERR_WARNINGS))
@@ -496,9 +496,9 @@ static const char *log_msg_internal_1(
         /* get the filename from the source descriptor */
         fname = linedesc->get_fname();
 
-        /* 
+        /*
          *   if we're in test reporting mode, show only the root part of the
-         *   filename 
+         *   filename
          */
         if ((options & TCMAIN_ERR_TESTMODE) != 0)
             fname = os_get_root_name((char *)fname);
@@ -561,14 +561,14 @@ static const char *log_msg_internal_1(
  */
 static void log_msg_internal_2(unsigned long options, tc_severity_t severity)
 {
-    /* 
+    /*
      *   if we're in verbose mode, and this is an internal error, add the
-     *   internal error explanation text 
+     *   internal error explanation text
      */
     if (severity == TC_SEV_INTERNAL && (options & TCMAIN_ERR_VERBOSE) != 0)
     {
         const char *msg;
-        
+
         /* get the internal error explanation text and display it */
         msg = tcerr_get_msg(TCERR_INTERNAL_EXPLAN, TRUE);
         if (msg != 0)
@@ -587,7 +587,7 @@ static void format_message(const char *msg, unsigned long options)
 {
     /*
      *   if we're in verbose mode, word-wrap to 80 columns; otherwise just
-     *   print it as-is 
+     *   print it as-is
      */
     if ((options & TCMAIN_ERR_VERBOSE) != 0)
     {
@@ -610,9 +610,9 @@ static void format_message(const char *msg, unsigned long options)
                 if (*p == ' ')
                     sp = p;
 
-                /* 
+                /*
                  *   if we're at the end of the line, or we're over the line
-                 *   width and we found a space, break here 
+                 *   width and we found a space, break here
                  */
                 if (*p == '\0' || (p - start >= line_wid && sp != 0))
                 {
@@ -653,7 +653,7 @@ static void format_message(const char *msg, unsigned long options)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   log an error from an exception object 
+ *   log an error from an exception object
  */
 void CTcMain::S_log_error(CTcTokFileDesc *linedesc, long linenum,
                           int *err_counter, int *warn_counter,
@@ -663,7 +663,7 @@ void CTcMain::S_log_error(CTcTokFileDesc *linedesc, long linenum,
 {
     const char *msg;
     char msgbuf[1024];
-    
+
     /* show the prefix */
     msg = log_msg_internal_1(linedesc, linenum, err_counter, warn_counter,
                              0, 0, options, suppress_list, suppress_cnt,
@@ -719,18 +719,18 @@ void CTcMain::S_v_log_error(CTcTokFileDesc *linedesc, long linenum,
 /* ------------------------------------------------------------------------ */
 /*
  *   Check the current error count against the maximum error limit, and throw
- *   a fatal error if we've reached the limit.  
+ *   a fatal error if we've reached the limit.
  */
 void CTcMain::check_error_limit()
 {
     /* check the error count against the limit */
     if (error_count_ > max_error_count_)
     {
-        /* 
+        /*
          *   raise the maximum error count a bit so that we don't encounter
          *   another maximum error situation and loop on flagging the
          *   too-many-errors error while trying to display a too-many-errors
-         *   error 
+         *   error
          */
         max_error_count_ = error_count_ + 100;
 

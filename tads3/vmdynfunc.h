@@ -1,10 +1,10 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 2010 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -18,7 +18,7 @@ Function
   original source code text, as a UTF-8 string, and the corresponding
   compiled byte code.
 Notes
-  
+
 Modified
   12/13/09 MJRoberts  - Creation
 */
@@ -37,15 +37,15 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   The image file data block is arranged as follows:
- *   
+ *
  *.  UINT2 code_length
  *.  UINT2 obj_ref_cnt
  *.  DATAHOLDER src_string
  *.  BYTE[code_length] bytecode
  *.  UINT2[ref_cnt] obj_refs
- *   
+ *
  *   code_length is the size of the bytecode stream, in bytes.
- *   
+ *
  *   obj_ref_cnt is the number of object references.  These are stored
  *   immediately after the bytecode stream.  Each reference array entry is a
  *   UINT2 giving the byte offset in the bytecode array of the reference,
@@ -56,7 +56,7 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   Our in-memory extension data structure, which mimics the image file
- *   structure but uses native types.  
+ *   structure but uses native types.
  */
 
 /* prefix header size */
@@ -72,12 +72,12 @@ struct vm_dynfunc_ext
     /* the source string object */
     vm_val_t src;
 
-    /* 
+    /*
      *   Method context object.  For a function that's compiled with a local
      *   stack frame context, this is the 'self' object or the complete
      *   method context object (suitable for the LOADCTX opcode), as
      *   applicable, for the enclosing method.  This allows the function to
-     *   establish the dynamic enclosing method context at entry.  
+     *   establish the dynamic enclosing method context at entry.
      */
     vm_val_t method_ctx;
 
@@ -87,27 +87,27 @@ struct vm_dynfunc_ext
     /* number of object references in the fixup list */
     int obj_ref_cnt;
 
-    /* 
+    /*
      *   Object references.  The structure is allocated with enough memory
-     *   for 'obj_ref_cnt' entries in this array. 
+     *   for 'obj_ref_cnt' entries in this array.
      */
     uint obj_refs[1];
 
     /*
      *   The structure is allocated with memory following the 'obj_refs'
      *   array for the following dynamic elements:
-     *   
+     *
      *.   char dynamic_code_header[VMB_OBJECT_ID]
      *.   char bytecode[bytecode_len]
-     *   
+     *
      *   Explanation of the dynamic object header:
-     *   
+     *
      *   The VM internally refers to executing code by a pointer directly
      *   into the code's physical memory.  It always keeps an Entry Pointer
      *   value giving a pointer to the first byte of the method; this makes
      *   it easy to get metadata about any active code block by serving as an
      *   identifier for the code.
-     *   
+     *
      *   Regular code is stored at compile-time in the Code Pool, which is a
      *   special block of read-only memory especially for code.  The FUNCPTR
      *   and CODEPTR primitive datatypes contain offsets into the Code Pool.
@@ -115,7 +115,7 @@ struct vm_dynfunc_ext
      *   value.  To get a FUNCPTR value given an Entry Pointer, we simply
      *   translate the physical memory pointer back into a Code Pool offset,
      *   and wrap the result in a FUNCPTR value.
-     *   
+     *
      *   Dynamic code objects are not in the Code Pool, however, since that's
      *   read-only memory that we can't add to at run-time.  Dynamic code
      *   objects are instead allocated in the garbage-collected heap like
@@ -135,7 +135,7 @@ struct vm_dynfunc_ext
      *   so, we use a FUNCPTR value; if not, it must be a dynamic code
      *   object, so we retrieve the OBJECT_ID value at (Entry Pointer -
      *   VMB_OBJECT_ID) as an object ID, and create an OBJ value with that
-     *   ID.  
+     *   ID.
      */
 
     /* get a pointer to the dynamic code object method header prefix */
@@ -156,14 +156,14 @@ struct vm_dynfunc_ext
 
 /* ------------------------------------------------------------------------ */
 /*
- *   DynamicFunc metaclass 
+ *   DynamicFunc metaclass
  */
 
 class CVmDynamicFunc: public CVmObject
 {
     friend class CVmMetaclassDynamicFunc;
     friend class CVmDynamicCompiler;
-    
+
 public:
     /* metaclass registration object */
     static class CVmMetaclass *metaclass_reg_;
@@ -181,10 +181,10 @@ public:
     static int is_dynfunc_obj(VMG_ vm_obj_id_t obj)
         { return vm_objp(vmg_ obj)->is_of_metaclass(metaclass_reg_); }
 
-    /* 
+    /*
      *   Given a pointer to a method header, retrieve the object ID of the
      *   DynamicFunc that owns the bytecode.  Returns VM_INVALID_OBJ if we
-     *   can't find a valid owner.  
+     *   can't find a valid owner.
      */
     static vm_obj_id_t get_obj_from_prefix(VMG_ const uchar *p);
 
@@ -220,9 +220,9 @@ public:
     /* notify of deletion */
     void notify_delete(VMG_ int in_root_set);
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -238,7 +238,7 @@ public:
     {
         /* we cannot be converted to constant data */
     }
-    
+
     /* convert to constant data */
     virtual void convert_to_const_data(VMG_ class CVmConstMapper *,
                                        vm_obj_id_t)
@@ -330,7 +330,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   DynamicFunc registration table object 
+ *   DynamicFunc registration table object
  */
 class CVmMetaclassDynamicFunc: public CVmMetaclass
 {
@@ -355,7 +355,7 @@ public:
     /* create dynamically using stack arguments */
     vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr, uint argc)
         { return CVmDynamicFunc::create_from_stack(vmg_ pc_ptr, argc); }
-    
+
     /* call a static property */
     int call_stat_prop(VMG_ vm_val_t *result,
                        const uchar **pc_ptr, uint *argc,
@@ -438,27 +438,27 @@ struct CVmDynCompResults
     /* throw a dynamic compilation error based on the results */
     void throw_error(VMG0_);
 
-    /* 
+    /*
      *   In grammar mode (DCModeGramAlt), the compiler passes back the parsed
      *   alt list to the caller by calling this method.  Callers that don't
      *   parse grammar rules can leave this as a no-op.  'alts' is the head
-     *   of the alternative list for the parsed grammar rule.  
+     *   of the alternative list for the parsed grammar rule.
      */
     virtual void save_grammar(VMG_ class CTcGramProdAlt * /*alts*/,
                               struct CTcGramPropArrows * /*arrows*/) { }
-    
+
     /* compiler error code */
     int err;
 
-    /* 
+    /*
      *   Message buffer.  The compiler allocates this via t3malloc() if an
-     *   error occurs. 
+     *   error occurs.
      */
     char *msgbuf;
 };
 
 /*
- *   dynamic compiler 
+ *   dynamic compiler
  */
 class CVmDynamicCompiler
 {
@@ -469,42 +469,42 @@ public:
     /* destroy */
     ~CVmDynamicCompiler();
 
-    /* 
+    /*
      *   Get or create the global singleton instance.  This creates an
      *   instance if it doesn't already exist, so that we don't instantiate
      *   the compiler structures until they're actually needed.  Once we
-     *   create the object, we keep it around in a global.  
+     *   create the object, we keep it around in a global.
      */
     static CVmDynamicCompiler *get(VMG0_);
 
-    /* 
+    /*
      *   Compile source code into byte code, returning a new DynamicFunc
      *   instance containing the compiled function.  The return value is the
      *   ID of the new object if the compilation was successful, or
      *   VM_INVALID_OBJ if the compilation failed.
-     *   
+     *
      *   The source code is the string given by 'src' and 'srclen'.  If
      *   'srcval' is non-null, it should be a VM_SSTR or VM_OBJ value with
      *   the VM representation of the source code string; we'll store this
      *   with the DynamicFunc for retrieval with getSource().  If 'srcval' is
      *   null, the DynamicFunc won't store the source, so getSource() will
      *   return nil.
-     *   
+     *
      *   'mode' gives the compilation mode, which controls how the source
      *   string is parsed.
-     *   
+     *
      *   If 'dbg' is non-null, we compile for the debugger, with the options
      *   in 'dbg'.  Debugger evaluation is slightly different from regular
      *   evaluation because it can access local variables from an enclosing
      *   scope.
-     *   
+     *
      *   If 'errp' is non-null, we'll fill it in with the TCERR_xxx number
      *   for the first compiler error, if any.
-     *   
+     *
      *   If 'msgbuf' is non-null, we'll fill it in with an allocated string
      *   buffer containing the compiler error message(s).  Multiple messages
      *   are separated by newline '\n' characters.  The caller must free this
-     *   buffer with t3free() when done with it.  
+     *   buffer with t3free() when done with it.
      */
     vm_obj_id_t compile(VMG_ int in_root_set,
                         vm_obj_id_t globals, vm_obj_id_t locals,
@@ -532,6 +532,6 @@ protected:
 #endif /* VMDYNFUNC_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmDynamicFunc)

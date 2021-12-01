@@ -1,16 +1,16 @@
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmpool.cpp - constant pool implementation
 Function
-  
+
 Notes
-  
+
 Modified
   10/20/98 MJRoberts  - Creation
 */
@@ -24,11 +24,11 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Basic pool implementation 
+ *   Basic pool implementation
  */
 
 /*
- *   Get the number of pages in the pool 
+ *   Get the number of pages in the pool
  */
 size_t CVmPool::get_page_count() const
 {
@@ -37,7 +37,7 @@ size_t CVmPool::get_page_count() const
 }
 
 /*
- *   Attach to a backing store 
+ *   Attach to a backing store
  */
 void CVmPool::attach_backing_store(CVmPoolBackingStore *backing_store)
 {
@@ -54,7 +54,7 @@ void CVmPool::attach_backing_store(CVmPoolBackingStore *backing_store)
  */
 
 /*
- *   delete our page list 
+ *   delete our page list
  */
 void CVmPoolPaged::delete_page_list()
 {
@@ -88,7 +88,7 @@ void CVmPoolPaged::attach_backing_store(CVmPoolBackingStore *backing_store)
     /* inherit default handling */
     CVmPool::attach_backing_store(backing_store);
 
-    /* 
+    /*
      *   if the page size is zero, there must not be any pages at all -
      *   use a dummy default page size
      */
@@ -97,7 +97,7 @@ void CVmPoolPaged::attach_backing_store(CVmPoolBackingStore *backing_store)
 
     /*
      *   Compute log2 of the page size.  If the page size isn't a power of
-     *   two, throw an error. 
+     *   two, throw an error.
      */
     for (cur = page_size_, log2 = 0 ; (cur & 1) == 0 ; cur >>= 1, ++log2) ;
     if (cur != 1)
@@ -111,7 +111,7 @@ void CVmPoolPaged::attach_backing_store(CVmPoolBackingStore *backing_store)
 }
 
 /*
- *   Allocate a page slot 
+ *   Allocate a page slot
  */
 void CVmPoolPaged::alloc_page_slots(size_t nslots)
 {
@@ -130,9 +130,9 @@ void CVmPoolPaged::alloc_page_slots(size_t nslots)
     {
         size_t siz;
 
-        /* 
+        /*
          *   Increase the maximum, leaving some room for dynamically added
-         *   pages. 
+         *   pages.
          */
         page_slots_max_ = nslots + 10;
 
@@ -163,12 +163,12 @@ void CVmPoolPaged::alloc_page_slots(size_t nslots)
  *   spaces; however, we retain it in the event it's needed for 16-bit
  *   segmented architectures, where it might not be possible or convenient to
  *   allocate a sufficiently large master page table and thus a two-level
- *   table is needed.  
+ *   table is needed.
  */
 #if 0
 
 /*
- *   delete the pool - deletes all allocated pages 
+ *   delete the pool - deletes all allocated pages
  */
 CVmPoolPaged2::~CVmPoolPaged2()
 {
@@ -177,7 +177,7 @@ CVmPoolPaged2::~CVmPoolPaged2()
 }
 
 /*
- *   delete our page list 
+ *   delete our page list
  */
 void CVmPoolPaged2::delete_page_list()
 {
@@ -201,7 +201,7 @@ void CVmPoolPaged2::delete_page_list()
 }
 
 /*
- *   Attach to a backing store 
+ *   Attach to a backing store
  */
 void CVmPoolPaged2::attach_backing_store(CVmPoolBackingStore *backing_store)
 {
@@ -217,16 +217,16 @@ void CVmPoolPaged2::attach_backing_store(CVmPoolBackingStore *backing_store)
     /* get the page size from the backing store */
     page_size_ = backing_store_->vmpbs_get_common_page_size();
 
-    /* 
+    /*
      *   if the page size is zero, there must not be any pages at all - use a
-     *   dummy default page size 
+     *   dummy default page size
      */
     if (page_size_ == 0)
         page_size_ = 1024;
 
     /*
      *   Compute log2 of the page size.  If the page size isn't a power of
-     *   two, throw an error.  
+     *   two, throw an error.
      */
     for (cur = page_size_, log2 = 0 ; (cur & 1) == 0 ; cur >>= 1, ++log2) ;
     if (cur != 1)
@@ -240,7 +240,7 @@ void CVmPoolPaged2::attach_backing_store(CVmPoolBackingStore *backing_store)
 }
 
 /*
- *   Allocate a page slot 
+ *   Allocate a page slot
  */
 void CVmPoolPaged2::alloc_page_slots(size_t nslots)
 {

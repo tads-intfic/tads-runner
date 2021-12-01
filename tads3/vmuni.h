@@ -1,18 +1,18 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmuni.h - T3 VM Unicode-specific functions
 Function
-  
+
 Notes
-  
+
 Modified
   08/27/99 MJRoberts  - Creation
 */
@@ -43,7 +43,7 @@ wchar_t t3_simple_case_fold(wchar_t ch);
 
 /*
  *   Character types.  Types are mutually exclusive, so a character has
- *   exactly one type.  
+ *   exactly one type.
  */
 #define T3_CTYPE_UNDEF  0                        /* character isn't defined */
 #define T3_CTYPE_ALPHA  1           /* alphabetic, with no case information */
@@ -65,8 +65,8 @@ wchar_t t3_simple_case_fold(wchar_t ch);
 /* get the character type */
 int t3_get_chartype(wchar_t ch);
 
-/* 
- *   character classification functions 
+/*
+ *   character classification functions
  */
 
 /* alphabetic? */
@@ -183,11 +183,11 @@ public:
             /* get the next character of each folded string */
             wchar_t ca = fa.getch();
             wchar_t cb = fb.getch();
-            
+
             /* if they differ, return not equal */
             if (ca != cb)
                 return FALSE;
-            
+
             /* if they both ended here, we have a match */
             if (ca == 0)
                 return TRUE;

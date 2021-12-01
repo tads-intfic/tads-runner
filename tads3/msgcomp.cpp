@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   msgcomp.cpp - T3 Message Compiler
 Function
-  
+
 Notes
-  
+
 Modified
   05/14/00 MJRoberts  - Creation
 */
@@ -35,7 +35,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   hash entry for a #define symbol 
+ *   hash entry for a #define symbol
  */
 class CVmHashEntryDef: public CVmHashEntryCS
 {
@@ -52,7 +52,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   read a header file 
+ *   read a header file
  */
 static int read_header_file(int line_num, const char *fname,
                             CRegexSearcherSimple *searcher,
@@ -83,9 +83,9 @@ static int read_header_file(int line_num, const char *fname,
         if (osfgets(buf, sizeof(buf), fphdr) == 0)
             break;
 
-        /* 
+        /*
          *   if the line is of the form "#define SYMBOL number", not it;
-         *   otherwise, ignore it 
+         *   otherwise, ignore it
          */
         if (searcher->compile_and_match(def_pat, def_pat_len,
                                         buf, buf, strlen(buf)) > 0)
@@ -121,7 +121,7 @@ static int read_header_file(int line_num, const char *fname,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Message structure 
+ *   Message structure
  */
 struct msg_t
 {
@@ -145,9 +145,9 @@ struct msg_t
         lib_free_str(long_msg_);
     }
 
-    /* 
+    /*
      *   compare two messages to determine which comes first in message
-     *   number order 
+     *   number order
      */
     static int compare(const void *a0, const void *b0)
     {
@@ -179,7 +179,7 @@ struct msg_t
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Context structure for strict_check enumeration callback 
+ *   Context structure for strict_check enumeration callback
  */
 struct strict_check_ctx
 {
@@ -196,7 +196,7 @@ struct strict_check_ctx
 /*
  *   Hash table symbol enumeration callback for strict checking.  For each
  *   symbol, we verify that the symbol's message ID has a message defined
- *   in the message array. 
+ *   in the message array.
  */
 static void strict_check(void *ctx0, CVmHashEntry *entry0)
 {
@@ -204,7 +204,7 @@ static void strict_check(void *ctx0, CVmHashEntry *entry0)
     CVmHashEntryDef *entry = (CVmHashEntryDef *)entry0;
     int hi, lo, cur;
 
-    /* 
+    /*
      *   search for this message ID - the array is in sorted order, so we
      *   can perform a binary search to make the search reasonably quick
      */
@@ -218,10 +218,10 @@ static void strict_check(void *ctx0, CVmHashEntry *entry0)
         /* is it a match? */
         if (entry->val_ == ctx->msg_array[cur]->id_)
         {
-            /* 
+            /*
              *   found it - we don't need to warn about this symbol, so we
              *   can just return and get on with the rest of the
-             *   enumeration 
+             *   enumeration
              */
             return;
         }
@@ -237,10 +237,10 @@ static void strict_check(void *ctx0, CVmHashEntry *entry0)
         }
     }
 
-    /* 
+    /*
      *   We didn't find it - show this symbol.  If this is the first one,
      *   also show the initial warning message, which prefixes the
-     *   not-found symbol list. 
+     *   not-found symbol list.
      */
     if (ctx->not_found_count == 0)
         printf("warning: the following #define symbols have no "
@@ -257,7 +257,7 @@ static void strict_check(void *ctx0, CVmHashEntry *entry0)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   message compiler main entrypoint 
+ *   message compiler main entrypoint
  */
 int main(int argc, char **argv)
 {
@@ -344,8 +344,8 @@ int main(int argc, char **argv)
         goto done;
     }
 
-    /* 
-     *   read the source file 
+    /*
+     *   read the source file
      */
     for (line_num = 0, error_count = 0, msg_count = 0 ;; )
     {
@@ -387,9 +387,9 @@ int main(int argc, char **argv)
         if (searcher->compile_and_match(comment_pat, comment_pat_len,
                                         buf, buf, len) >= 0)
         {
-            /* 
+            /*
              *   it's a comment, so no further processing is required -
-             *   move on to the next line 
+             *   move on to the next line
              */
             continue;
         }
@@ -401,7 +401,7 @@ int main(int argc, char **argv)
             char charset[128];
             const re_group_register *cs_reg;
             size_t cs_len;
-            
+
             /* if we already have a character mapping, it's an error */
             if (mapper != 0)
             {
@@ -424,19 +424,19 @@ int main(int argc, char **argv)
             cs_len = cs_reg->end_ofs - cs_reg->start_ofs;
             if (cs_len > sizeof(charset) - 1)
             {
-                /* 
+                /*
                  *   show an error and give up - failure to load a
                  *   character mapping is fatal, since we can't interpret
-                 *   the remainder of the file without it 
+                 *   the remainder of the file without it
                  */
                 printf("line %d: character set name \"%.*s\" is too long\n",
                        line_num, (int)cs_len, buf + cs_reg->start_ofs);
                 goto done;
             }
 
-            /* 
+            /*
              *   copy the character set name into our buffer and
-             *   null-terminate it 
+             *   null-terminate it
              */
             memcpy(charset, buf + cs_reg->start_ofs, cs_len);
             charset[cs_len] = '\0';
@@ -487,19 +487,19 @@ int main(int argc, char **argv)
             /* copy the name into our buffer and null-terminate it */
             memcpy(fname, buf + fname_reg->start_ofs, fname_len);
             fname[fname_len] = '\0';
-            
+
             /* read the header file */
             if (read_header_file(line_num, fname, searcher, hashtab))
             {
                 /* an error occurred reading the file - abort */
                 goto done;
             }
-            
+
             /* we're done with this line - proceed to the next one */
             continue;
         }
 
-        /* 
+        /*
          *   We seem to have a message definition.  We must have a
          *   character set defined at this point; if we don't, it's an
          *   error.
@@ -521,7 +521,7 @@ int main(int argc, char **argv)
         if (is_alpha(*idp) || *idp == '_')
         {
             CVmHashEntryDef *entry;
-            
+
             /* look up the message ID in the hash table */
             entry = (CVmHashEntryDef *)hashtab->find(idp, p - idp);
 
@@ -593,29 +593,29 @@ int main(int argc, char **argv)
             p = buf;
         }
 
-        /* 
+        /*
          *   the remainder of the line is the short message - copy it into
-         *   the short-message buffer, mapping it to utf-8 
+         *   the short-message buffer, mapping it to utf-8
          */
         mapper->map_str(shortbuf, sizeof(shortbuf), p);
 
-        /* 
+        /*
          *   subsequent lines up to the next blank line are the long
          *   message - read them and collect the entire message (with the
-         *   newlines removed) into longbuf 
+         *   newlines removed) into longbuf
          */
         longbuf_len = 0;
         for (;;)
         {
             size_t utf8_len;
             size_t rem_len;
-            
+
             /* count the next line */
             ++line_num;
-            
-            /* 
+
+            /*
              *   read the next line - if we reach the end of the file,
-             *   that's fine, as long as the message isn't empty 
+             *   that's fine, as long as the message isn't empty
              */
             if (osfgets(buf, sizeof(buf), fpin) == 0)
             {
@@ -637,7 +637,7 @@ int main(int argc, char **argv)
             /* remove trailing newline characters */
             while (len != 0 && (buf[len-1] == '\r' || buf[len-1] == '\n'))
                 --len;
-            
+
             /* add a null terminator replacing the last newline we found */
             buf[len] = '\0';
 
@@ -649,17 +649,17 @@ int main(int argc, char **argv)
             /* calculate how much space we have left in our buffer */
             rem_len = sizeof(longbuf) - longbuf_len;
 
-            /* 
+            /*
              *   append the line to the long message buffer, mapping it to
-             *   utf-8 
+             *   utf-8
              */
             utf8_len = mapper->map_str(longbuf + longbuf_len, rem_len, buf);
 
-            /* 
+            /*
              *   if that required more space than we had, it's an error
              *   (note that it's too much if we consumed exactly the
              *   amount we had left, because that means we didn't have
-             *   room for the null terminator byte) 
+             *   room for the null terminator byte)
              */
             if (utf8_len >= rem_len)
             {
@@ -699,10 +699,10 @@ int main(int argc, char **argv)
      */
     msg_array = (msg_t **)t3malloc(msg_count * sizeof(msg_array[0]));
 
-    /* 
+    /*
      *   set up the array with pointers to the messages in source file
      *   order (i.e., in the order in which they appear in our linked list
-     *   of messages) 
+     *   of messages)
      */
     for (cur_msg = first_msg, arrp = msg_array ; cur_msg != 0 ;
          cur_msg = cur_msg->nxt_, ++arrp)
@@ -736,22 +736,22 @@ int main(int argc, char **argv)
     {
         size_t short_len;
         size_t long_len;
-        
+
         /* get the lengths of the two messages */
         short_len = strlen((*arrp)->short_msg_);
         long_len = strlen((*arrp)->long_msg_);
 
-        /* 
+        /*
          *   prepare the message header: message ID, short message length,
-         *   long message length 
+         *   long message length
          */
         oswp4(writebuf, (*arrp)->id_);
         oswp2(writebuf + 4, short_len);
         oswp2(writebuf + 6, long_len);
 
-        /* 
+        /*
          *   write the message header, followed by the short message's
-         *   text, followed by the long message's text 
+         *   text, followed by the long message's text
          */
         if (osfwb(fpout, writebuf, 8)
             || osfwb(fpout, (*arrp)->short_msg_, short_len)
@@ -766,12 +766,12 @@ int main(int argc, char **argv)
     if (strict)
     {
         strict_check_ctx ctx;
-        
+
         /* build our strict-check-callback context */
         ctx.msg_array = msg_array;
         ctx.msg_count = msg_count;
         ctx.not_found_count = 0;
-        
+
         /* enumerate all entries through our check callback */
         hashtab->enum_entries(strict_check, &ctx);
     }
@@ -787,7 +787,7 @@ done:
     while (first_msg != 0)
     {
         msg_t *nxt;
-        
+
         /* remember the next one */
         nxt = first_msg->nxt_;
 
@@ -797,13 +797,13 @@ done:
         /* move on to the next one */
         first_msg = nxt;
     }
-    
+
     /* close any files we opened */
     if (fpin != 0)
         osfcls(fpin);
     if (fpout != 0)
         osfcls(fpout);
-    
+
     /* delete any objects we created */
     if (mapper != 0)
         mapper->release_ref();

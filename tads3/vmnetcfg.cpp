@@ -38,7 +38,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Configuration file reader 
+ *   Configuration file reader
  */
 
 TadsNetConfig::~TadsNetConfig()
@@ -53,7 +53,7 @@ TadsNetConfig::~TadsNetConfig()
 }
 
 /*
- *   load a configuration file 
+ *   load a configuration file
  */
 void TadsNetConfig::read(osfildef *fp, CVmMainClientIfc *clientifc)
 {
@@ -102,9 +102,9 @@ void TadsNetConfig::read(osfildef *fp, CVmMainClientIfc *clientifc)
         /* the value starts here */
         char *val = p;
 
-        /* 
+        /*
          *   the value is the rest of the line, minus trailing spaces and
-         *   newlines 
+         *   newlines
          */
         for (p += strlen(p) ;
              p > val && (isspace(*(p-1))
@@ -150,7 +150,7 @@ void TadsNetConfig::read(osfildef *fp, CVmMainClientIfc *clientifc)
 }
 
 /*
- *   set a variable 
+ *   set a variable
  */
 TadsNetConfigVar *TadsNetConfig::set(const char *name, const char *val)
 {
@@ -176,8 +176,8 @@ TadsNetConfigVar *TadsNetConfig::set(const char *name, const char *val)
     return var;
 }
 
-/* 
- *   retrieve a variable's value 
+/*
+ *   retrieve a variable's value
  */
 const char *TadsNetConfig::get(const char *name) const
 {
@@ -186,7 +186,7 @@ const char *TadsNetConfig::get(const char *name) const
 }
 
 /*
- *   look up a variable 
+ *   look up a variable
  */
 TadsNetConfigVar *TadsNetConfig::getvar(const char *name) const
 {
@@ -204,7 +204,7 @@ TadsNetConfigVar *TadsNetConfig::getvar(const char *name) const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Check a storage server API reply 
+ *   Check a storage server API reply
  */
 void vmnet_check_storagesrv_reply(VMG_ int htmlstat, CVmDataSource *reply,
                                   const char *headers)
@@ -217,17 +217,17 @@ void vmnet_check_storagesrv_reply(VMG_ int htmlstat, CVmDataSource *reply,
 /*
  *   Check a storage server status code returned by
  *   vmnet_get_storagesrv_reply().  On failure, throw an error; on success,
- *   simply return.  In either case, we'll free the status code buffer. 
+ *   simply return.  In either case, we'll free the status code buffer.
  */
 void vmnet_check_storagesrv_stat(VMG_ char *stat)
 {
     /* if it's not "OK", throw an error */
     if (memcmp(stat, "OK ", 3) != 0)
     {
-        /* 
+        /*
          *   Error.  Push the error code/message text string as the argument
          *   to the runtime error constructor, then discard our copy of the
-         *   buffer.  
+         *   buffer.
          */
         G_interpreter->push_string(vmg_ stat);
         t3free(stat);
@@ -250,7 +250,7 @@ void vmnet_check_storagesrv_stat(VMG_ char *stat)
  *   space-delimited token in the return buffer is the code, and the rest is
  *   the human-readable error message.  For HTTP or network errors, the code
  *   is simply the numeric error code (positive for HTTP status codes,
- *   negative for internal network errors), with no message text.  
+ *   negative for internal network errors), with no message text.
  */
 char *vmnet_get_storagesrv_stat(VMG_ int htmlstat, CVmDataSource *reply,
                                 const char *headers)
@@ -258,7 +258,7 @@ char *vmnet_get_storagesrv_stat(VMG_ int htmlstat, CVmDataSource *reply,
     /* check the HTML status */
     if (htmlstat == 200)
     {
-        /* 
+        /*
          *   The HTML transaction succeeded - check the reply.  Start with
          *   the headers, if provided.
          */
@@ -289,9 +289,9 @@ char *vmnet_get_storagesrv_stat(VMG_ int htmlstat, CVmDataSource *reply,
             }
         }
 
-        /* 
+        /*
          *   We didn't find the header, so check the reply body.  Read the
-         *   first line of the reply, since this contains the result code.  
+         *   first line of the reply, since this contains the result code.
          */
         reply->seek(0, OSFSK_SET);
         char *txt = reply->read_line_alo();
@@ -306,9 +306,9 @@ char *vmnet_get_storagesrv_stat(VMG_ int htmlstat, CVmDataSource *reply,
     }
     else
     {
-        /* 
+        /*
          *   HTML or network error.  Return a message containing the numeric
-         *   status as the error code, with no text message. 
+         *   status as the error code, with no text message.
          */
         return t3sprintf_alloc("%d ", htmlstat);
     }

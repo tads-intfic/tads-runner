@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 2002 by Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -32,18 +32,18 @@ Modified
  *   must be mindful of the fact that translating one memory address can
  *   render previously-translated addresses invalid.  Such code is
  *   unnecessary with non-swapping pool managers.
- *   
+ *
  *   To include the swapping pool manager in the build, you must #define
  *   VM_SWAPPING_POOL globally for all modules - normally, this should be
  *   done in the CFLAGS in the makefile, or with the equivalent local
- *   convention, so that every module has the symbol defined.  
+ *   convention, so that every module has the symbol defined.
  */
 
 /* ------------------------------------------------------------------------ */
 #ifdef VM_SWAPPING_POOL
 
-/* 
- *   swapping mode - include swapping-specific code 
+/*
+ *   swapping mode - include swapping-specific code
  */
 #define VM_IF_SWAPPING_POOL(x)  x
 
@@ -53,15 +53,15 @@ Modified
 /* ------------------------------------------------------------------------ */
 #else /* VM_SWAPPING_POOL */
 
-/* 
- *   non-swapping mode - omit swapping-specific code 
+/*
+ *   non-swapping mode - omit swapping-specific code
  */
 #define VM_IF_SWAPPING_POOL(x)
 
-/* 
+/*
  *   The non-swapping pool comes in two varieties.  Select the FLAT or PAGED
  *   pool, as desired.  The FLAT pool is slightly faster, but it doesn't have
- *   any dynamic memory capabilities, which are required for the debugger.  
+ *   any dynamic memory capabilities, which are required for the debugger.
  */
 #ifdef VM_FLAT_POOL
 

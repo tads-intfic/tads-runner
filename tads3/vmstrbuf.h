@@ -1,18 +1,18 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 2010 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmstrbuf.h - StringBuffer object
 Function
-  
+
 Notes
-  
+
 Modified
   12/13/09 MJRoberts  - Creation
 */
@@ -30,30 +30,30 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   The image file data block is arranged as follows:
- *   
+ *
  *.  UINT4 buffer_length
  *.  UINT4 buffer_increment
  *.  UINT4 string_length
  *.  UINT2 string[string_length]
- *   
+ *
  *   buffer_length is the allocated size of the buffer.
- *   
+ *
  *   buffer_increment is the incremental allocation size; when we need to
  *   expand the buffer, we'll allocate in multiples of this size.
- *   
+ *
  *   string_length is the length of the string data; this is the amount of
  *   buffer space actually used.
- *   
+ *
  *   string is the string data, as 16-bit Unicode character values.  (Note
  *   that this is not stored in UTF-8 encoding as most other VM strings are.
- *   This is instead an array of 16-bit character values.) 
+ *   This is instead an array of 16-bit character values.)
  */
 
 
 /* ------------------------------------------------------------------------ */
 /*
  *   Our in-memory extension data structure, which mimics the image file
- *   structure but uses native types.  
+ *   structure but uses native types.
  */
 struct vm_strbuf_ext
 {
@@ -75,18 +75,18 @@ struct vm_strbuf_ext
     /* the incremental allocation size */
     int32_t inc;
 
-    /* 
+    /*
      *   The string data, as 16-bit unicode character values.  We
      *   overallocate the structure to make room for an actual array length
-     *   of [alo] elements here.  
+     *   of [alo] elements here.
      */
     wchar_t buf[1];
 };
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   undo action codes 
+/*
+ *   undo action codes
  */
 enum strbuf_undo_action
 {
@@ -103,13 +103,13 @@ enum strbuf_undo_action
 
 /* ------------------------------------------------------------------------ */
 /*
- *   StringBuffer metaclass 
+ *   StringBuffer metaclass
  */
 
 class CVmObjStringBuffer: public CVmObject
 {
     friend class CVmMetaclassStringBuffer;
-    
+
 public:
     /* metaclass registration object */
     static class CVmMetaclass *metaclass_reg_;
@@ -134,9 +134,9 @@ public:
     static vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr,
                                          uint argc);
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -152,7 +152,7 @@ public:
     {
         /* we cannot be converted to constant data */
     }
-    
+
     /* convert to constant data */
     virtual void convert_to_const_data(VMG_ class CVmConstMapper *,
                                        vm_obj_id_t)
@@ -171,18 +171,18 @@ public:
     int get_prop(VMG_ vm_prop_id_t prop, vm_val_t *val,
                  vm_obj_id_t self, vm_obj_id_t *source_obj, uint *argc);
 
-    /* 
+    /*
      *   receive savepoint notification - we don't keep any
-     *   savepoint-relative records, so we don't need to do anything here 
+     *   savepoint-relative records, so we don't need to do anything here
      */
     void notify_new_savept() { }
-    
+
     /* apply an undo record */
     void apply_undo(VMG_ struct CVmUndoRecord *rec);
-    
+
     /* discard an undo record */
     void discard_undo(VMG_ struct CVmUndoRecord *);
-    
+
     /* we don't reference anything */
     void mark_undo_ref(VMG_ struct CVmUndoRecord *) { }
 
@@ -210,10 +210,10 @@ public:
     void restore_from_file(VMG_ vm_obj_id_t self,
                            class CVmFile *fp, class CVmObjFixup *fixups);
 
-    /* 
+    /*
      *   determine if we've been changed since loading - assume we have (if
      *   we haven't, the only harm is the cost of unnecessarily reloading or
-     *   saving) 
+     *   saving)
      */
     int is_changed_since_load() const { return TRUE; }
 
@@ -221,13 +221,13 @@ public:
     int index_val_q(VMG_ vm_val_t *result,
                     vm_obj_id_t self,
                     const vm_val_t *index_val);
-    
+
     /* set a value by index */
     int set_index_val_q(VMG_ vm_val_t *new_container,
                         vm_obj_id_t self,
                         const vm_val_t *index_val,
                         const vm_val_t *new_val);
-    
+
     /* add an entry - does not generate undo */
     void add_entry(VMG_ const vm_val_t *key, const vm_val_t *val);
 
@@ -258,13 +258,13 @@ public:
 
     /*
      *   Copy a portion of the string to a buffer as UTF-8 bytes.
-     *   
+     *
      *   'idx' is an in-out variable.  On input, it's the starting character
      *   index requested for the copy.  On output, it's updated to the index
      *   of the next character after the last character copied.  This can be
      *   used for piecewise copies, since it's updated to point to the start
      *   of the next piece after copying each piece.
-     *   
+     *
      *   'bytelen' is an in-out variable.  On input, this is the number of
      *   bytes requested to copy to the buffer.  On output, it's the actual
      *   number of bytes copied.  This might be smaller than the request
@@ -272,7 +272,7 @@ public:
      *   we'll only copy whole, well-formed character sequences, so if the
      *   requested number of bytes would copy a fractional character, we'll
      *   omit that fractional character and stop at the previous whole
-     *   character.  
+     *   character.
      */
     void to_utf8(char *buf, int32_t &idx, int32_t &bytelen);
 
@@ -283,9 +283,9 @@ public:
     void ensure_added_space(VMG_ int32_t len)
         { ensure_space(vmg_ get_ext()->len + len); }
 
-    /* 
+    /*
      *   Get my string buffer.  Use with caution; the underlying buffer
-     *   pointer can change if we modify the contents. 
+     *   pointer can change if we modify the contents.
      */
     const wchar_t *get_buf() const { return get_ext()->buf; }
 
@@ -383,7 +383,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   StringBuffer registration table object 
+ *   StringBuffer registration table object
  */
 class CVmMetaclassStringBuffer: public CVmMetaclass
 {
@@ -408,7 +408,7 @@ public:
     /* create dynamically using stack arguments */
     vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr, uint argc)
         { return CVmObjStringBuffer::create_from_stack(vmg_ pc_ptr, argc); }
-    
+
     /* call a static property */
     int call_stat_prop(VMG_ vm_val_t *result,
                        const uchar **pc_ptr, uint *argc,
@@ -422,6 +422,6 @@ public:
 #endif /* VMSTRBUF_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjStringBuffer)

@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 2002 by Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -20,7 +20,7 @@ Function
   run-time overhead.  Normally, the profiler should be included only in
   builds that include the interactive debugger.
 Notes
-  
+
 Modified
   08/03/02 MJRoberts  - Creation
 */
@@ -38,7 +38,7 @@ Modified
  *   the compiler command line (usually done through the makefile's CFLAGS
  *   compiler options variable or equivalent).  When VM_PROFILE is not
  *   defined at compile-time, the profiling code will be omitted, making for
- *   a smaller executable and less run-time overhead.  
+ *   a smaller executable and less run-time overhead.
  */
 #ifdef VM_PROFILER
 
@@ -57,13 +57,13 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   Profiler function call record.
- *   
+ *
  *   We keep a stack of these records alongside the regular VM stack, to
  *   track the amount of time spent in a function.  A record in this stack
  *   corresponds to an activation frame in the regular VM stack.
- *   
+ *
  *   We also keep a master table of these entries indexed by obj.prop/func
- *   identifier.  These records keep the running totals for each function.  
+ *   identifier.  These records keep the running totals for each function.
  */
 struct vm_profiler_rec
 {
@@ -77,15 +77,15 @@ struct vm_profiler_rec
     /* the cumulative time DIRECTLY in this function (not in children) */
     vm_prof_time sum_direct;
 
-    /* 
+    /*
      *   the cumulative time in this function's children (but not directly in
-     *   the function itself) 
+     *   the function itself)
      */
     vm_prof_time sum_chi;
 
-    /* 
+    /*
      *   invocation count (this is used in the running total records only,
-     *   not in the stack) 
+     *   not in the stack)
      */
     unsigned long call_cnt;
 };
@@ -93,7 +93,7 @@ struct vm_profiler_rec
 /* ------------------------------------------------------------------------ */
 /*
  *   OS-specific profiler functions.  These must be provided by the OS
- *   implementation.  
+ *   implementation.
  */
 
 /*
@@ -104,7 +104,7 @@ struct vm_profiler_rec
  *   have a consistent zero time and can thus be subtracted to find elapsed
  *   time values.  The units are arbitrary; because this routine will be
  *   called very frequently, it should be as fast as possible, and thus
- *   should return the time in the native units the OS uses.  
+ *   should return the time in the native units the OS uses.
  */
 void os_prof_curtime(vm_prof_time *t);
 
@@ -113,14 +113,14 @@ void os_prof_curtime(vm_prof_time *t);
  *   unsigned long.  This should simply multiply the time value by the number
  *   of microseconds per OS-dependent unit that os_prof_curtime() returns,
  *   and return the value as a 32-bit unsigned long.
- *   
+ *
  *   We use a separate routine to convert the OS time units to microseconds
  *   so that we don't have to perform the conversion every time we note the
  *   current time, which we must do very frequently; instead, we defer the
  *   conversions until we're finished with a profiler run, at which point we
  *   have a set of summary data that is typically much smaller than the raw
  *   set we collect throughout execution.
- *   
+ *
  *   Note that our return precision of 32 bits can only represent time values
  *   up to about 4000 seconds, or about 70 minutes.  This is obviously not
  *   enough for complete generality, but it's a fairly long time by profiler
@@ -128,7 +128,7 @@ void os_prof_curtime(vm_prof_time *t);
  *   time spent in particular functions.  Given how much easier it is to work
  *   with 32-bit values than anything longer, and given that 70 minutes is a
  *   fairly generous ceiling for this particular application, we accept the
- *   loss of generality in exchange for the simplifaction.  
+ *   loss of generality in exchange for the simplifaction.
  */
 unsigned long os_prof_time_to_ms(const vm_prof_time *t);
 

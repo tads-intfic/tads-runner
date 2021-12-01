@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/DAT.C,v 1.2 1999/05/17 02:52:11 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -54,7 +54,7 @@ uint datsiz(dattyp typ, void *val)
     case DAT_FNADDR:
     case DAT_REDIR:
         return(2);
-        
+
     case DAT_TPL:
         /* template is counted array of 10-byte entries, plus length byte */
         return(1 + ((*(uchar *)val) * VOCTPLSIZ));

@@ -6,7 +6,7 @@ Function
   The networking function set provides access to the HTTP server feature,
   which allows running the UI in a web browser.
 Notes
-  
+
 Modified
   03/02/05 MJRoberts  - Creation
 */
@@ -58,9 +58,9 @@ public:
  *   Function set vector.  Define this only if VMBIF_DEFINE_VECTOR has been
  *   defined, so that this file can be included for the prototypes alone
  *   without defining the function vector.
- *   
+ *
  *   Note that this vector is specifically defined outside of the section of
- *   the file protected against multiple inclusion.  
+ *   the file protected against multiple inclusion.
  */
 #ifdef VMBIF_DEFINE_VECTOR
 

@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -21,7 +21,7 @@ Function
   version of the interpreter that's used to complete compilation by
   running 'preinit' should use the call-time resolution version instead.
 Notes
-  
+
 Modified
   07/21/99 MJRoberts  - Creation
 */
@@ -43,33 +43,33 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Call the given function from the given function set.  
+ *   Call the given function from the given function set.
  */
 void CVmBifTable::call_func(VMG_ uint set_index, uint func_index, uint argc)
 {
-    /* 
+    /*
      *   find the function set in the registration table, get the function
      *   descriptor from the set's function table, and invoke the function
-     *   pointer from the function descriptor 
+     *   pointer from the function descriptor
      */
     (*table_[set_index]->func[func_index].func)(vmg_ argc);
 }
 
 /*
- *   Get a function's descriptor 
+ *   Get a function's descriptor
  */
 const vm_bif_desc *CVmBifTable::get_desc(uint set_index, uint func_index)
 {
-    /* 
+    /*
      *   find the function in the registration table, and return the function
-     *   descriptor from the set's function table 
+     *   descriptor from the set's function table
      */
     return &table_[set_index]->func[func_index];
 }
 
 
 /*
- *   Handle adding a function set entry that's unresolvable at load-time 
+ *   Handle adding a function set entry that's unresolvable at load-time
  */
 void CVmBifTable::add_entry_unresolved(VMG_ const char *func_set_id)
 {

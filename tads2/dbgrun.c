@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/DBGRUN.C,v 1.3 1999/07/11 00:46:29 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1992, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -83,7 +83,7 @@ void dbgwhere(dbgcxdef *ctx, char *p)
 
 /*
  *   Evaluate breakpoint condition; returns TRUE if breakpoint condition
- *   was non-nil, FALSE if it was nil or had no value. 
+ *   was non-nil, FALSE if it was nil or had no value.
  */
 static int dbgbpeval(dbgcxdef *ctx, dbgbpdef *bp, dbgfdef *fr)
 {
@@ -91,15 +91,15 @@ static int dbgbpeval(dbgcxdef *ctx, dbgbpdef *bp, dbgfdef *fr)
     runsdef *oldsp;
     runsdef  val;
     int      err;
-                
+
     objptr = mcmlck(ctx->dbgcxmem, bp->dbgbpcond);
-            
+
     ERRBEGIN(ctx->dbgcxerr)
-            
+
     oldsp = ctx->dbgcxrun->runcxsp;
     runexe(ctx->dbgcxrun, objptr, fr->dbgfself, bp->dbgbpcond,
            (prpnum)0, 0);
-            
+
     ERRCATCH(ctx->dbgcxerr, err)
         /* no error recover - just proceed as normal */
         ;
@@ -107,7 +107,7 @@ static int dbgbpeval(dbgcxdef *ctx, dbgbpdef *bp, dbgfdef *fr)
 
     /* done with condition code; unlock it */
     mcmunlck(ctx->dbgcxmem, bp->dbgbpcond);
-            
+
     /* if condition evaluated to non-nil, break now */
     if (ctx->dbgcxrun->runcxsp != oldsp)
     {
@@ -145,7 +145,7 @@ void dbgss(dbgcxdef *ctx, uint ofs, int instr, int err,
      *   be able to move the execution point before resuming execution.
      *   If we can't resume from an error, leave the stack as it is so
      *   that the user can see exactly which built-in function was called
-     *   to cause the error.  
+     *   to cause the error.
      */
     if (dbgu_err_resume(ctx))
     {
@@ -161,7 +161,7 @@ void dbgss(dbgcxdef *ctx, uint ofs, int instr, int err,
     /* presume we're not single-stepping */
     stepping = FALSE;
 
-    /* 
+    /*
      *   Check to see if we should stop due to single-stepping; if so,
      *   there's no need to consider breakpoints at all.
      */
@@ -170,10 +170,10 @@ void dbgss(dbgcxdef *ctx, uint ofs, int instr, int err,
         /* single-step mode - check for step-over mode */
         if ((ctx->dbgcxflg & DBGCXFSO) != 0)
         {
-            /* 
+            /*
              *   step-over mode - stop only if we're in the stack level
              *   where we started step-over mode (not in a routine called
-             *   from that stack level, which is what we're stepping over) 
+             *   from that stack level, which is what we're stepping over)
              */
             stepping = (ctx->dbgcxdep <= ctx->dbgcxsof);
         }
@@ -184,9 +184,9 @@ void dbgss(dbgcxdef *ctx, uint ofs, int instr, int err,
         }
     }
 
-    /* 
+    /*
      *   if we're not going to stop for single-stepping or because of a
-     *   run-time error, look for breakpoints 
+     *   run-time error, look for breakpoints
      */
     if (!stepping && err == 0)
     {
@@ -207,11 +207,11 @@ void dbgss(dbgcxdef *ctx, uint ofs, int instr, int err,
                     && bp->dbgbpofs + 3 == ofs)
                     break;
             }
-            
+
             /* if we didn't find the breakpoint, ignore the stop */
             if (i == DBGBPMAX)
                 return;
-        
+
             /* if this is a conditional bp, make sure condition is true */
             if (!(ctx->dbgcxflg & DBGCXFSS) && (bp->dbgbpflg & DBGBPFCOND)
                 && !dbgbpeval(ctx, bp, fr))
@@ -231,7 +231,7 @@ void dbgss(dbgcxdef *ctx, uint ofs, int instr, int err,
                  *   Not single-stepping, but one or more global
                  *   breakpoints are in effect.  for each global
                  *   breakpoint, eval condition; if any are true, stop
-                 *   execution, otherwise resume execution.  
+                 *   execution, otherwise resume execution.
                  */
                 for (brk = FALSE, i = 0, bp = ctx->dbgcxbp ;
                      i < DBGBPMAX ; ++bp, ++i)
@@ -263,11 +263,11 @@ void dbgss(dbgcxdef *ctx, uint ofs, int instr, int err,
     /* note that we're in the debugger, to avoid re-entry */
     ctx->dbgcxflg |= DBGCXFIND;
 
-    /* 
+    /*
      *   unlock the object, in case we mess with it in the debugger;
      *   before we do, though, remember the current execution offset
      *   within the object, so that we can restore the pointer before we
-     *   return 
+     *   return
      */
     if (instrp != 0 && fr != 0 && fr->dbgftarg != MCMONINV)
     {
@@ -281,14 +281,14 @@ void dbgss(dbgcxdef *ctx, uint ofs, int instr, int err,
     inner_frame = ctx->dbgcxerr->errcxptr;
 
     ERRBEGIN(ctx->dbgcxerr)
-        /* 
+        /*
          *   if we're stopping on an error, copy the error parameters from
          *   the inner frame so they'll be available for messages within
-         *   this new enclosing frame 
+         *   this new enclosing frame
          */
         if (err != 0)
             errcopyargs(ctx->dbgcxerr, inner_frame);
-        
+
         /* call user-interface main command processor routine */
         dbgucmd(ctx, bphit, err, &exec_ofs);
     ERRCLEAN(ctx->dbgcxerr)
@@ -300,7 +300,7 @@ void dbgss(dbgcxdef *ctx, uint ofs, int instr, int err,
     if (instrp != 0 && fr != 0 && fr->dbgftarg != MCMONINV)
         *instrp = mcmlck(ctx->dbgcxmem, (mcmon)fr->dbgftarg) + exec_ofs;
 
-    /* we're no longer in the debugger */        
+    /* we're no longer in the debugger */
     ctx->dbgcxflg &= ~DBGCXFIND;
 }
 
@@ -316,7 +316,7 @@ int dbgstart(dbgcxdef *ctx)
 static int dbgnamsav(dbgcxdef *ctx, char *nam, uint *ofsp)
 {
     size_t len = strlen(nam) + 1;
-    
+
     if (ctx->dbgcxnam
         && ctx->dbgcxnamf + len < ctx->dbgcxnams)
     {
@@ -336,13 +336,13 @@ static void dbgnamdel(dbgcxdef *ctx, uint ofs)
     dbgbpdef *bp;
     dbgwxdef *wx;
     uint      delsiz;
-    
+
     /* if no name text is being stored, we need do nothing */
     if (!ctx->dbgcxnam) return;
-    
+
     /* compute size of area to be deleted */
     delsiz = strlen(ctx->dbgcxnam + ofs) + 1;
-    
+
     /* go through breakpoints, moving text if necessary */
     for (i = DBGBPMAX, bp = ctx->dbgcxbp ; i ; ++bp, --i)
     {
@@ -353,7 +353,7 @@ static void dbgnamdel(dbgcxdef *ctx, uint ofs)
             && bp->dbgbpcondnam > ofs)
             bp->dbgbpcondnam -= delsiz;
     }
-    
+
     /* do the same for the watch expressions */
     for (i = DBGWXMAX, wx = ctx->dbgcxwx ; i ; ++wx, --i)
     {
@@ -361,7 +361,7 @@ static void dbgnamdel(dbgcxdef *ctx, uint ofs)
             && wx->dbgwxnam > ofs)
             wx->dbgwxnam -= delsiz;
     }
-    
+
     /* now actually remove the string from the dbgcxname area */
     if (ctx->dbgcxnamf - ofs - delsiz)
         memmove(ctx->dbgcxnam + ofs, ctx->dbgcxnam + ofs + delsiz,
@@ -371,7 +371,7 @@ static void dbgnamdel(dbgcxdef *ctx, uint ofs)
 
 /*
  *   Set a breakpoint at an object + offset location, optionally with a
- *   condition.  We'll find a new slot for the breakpoint.  
+ *   condition.  We'll find a new slot for the breakpoint.
  */
 int dbgbpat(dbgcxdef *ctx, objnum target, objnum self,
             uint ofs, int *bpnum, char *bpname, int toggle, char *cond,
@@ -390,7 +390,7 @@ int dbgbpat(dbgcxdef *ctx, objnum target, objnum self,
 
     /*
      *   Note that we don't check for a valid slot yet, because we may not
-     *   end up setting a new breakpoint. 
+     *   end up setting a new breakpoint.
      */
 
     /* tell the caller which breakpoint we set */
@@ -401,10 +401,10 @@ int dbgbpat(dbgcxdef *ctx, objnum target, objnum self,
                      bpname, toggle, cond, did_set);
 }
 
-/* 
+/*
  *   Set a breakpoint at an object + offset location, optionally with a
  *   condition, using an existing breakpoint slot.  If the slot is already
- *   in use, we'll return an error.  
+ *   in use, we'll return an error.
  */
 int dbgbpatid(dbgcxdef *ctx, int bpnum, objnum target, objnum self,
               uint ofs, char *bpname, int toggle, char *cond,
@@ -431,7 +431,7 @@ int dbgbpatid(dbgcxdef *ctx, int bpnum, objnum target, objnum self,
             return ERR_MANYBP;
         else if ((bp->dbgbpflg & DBGBPFUSED) != 0)
             return ERR_BPINUSE;
-        
+
         fr.dbgffr = 0;
         fr.dbgftarg = MCMONINV;
         if ((err = dbgcompile(ctx, cond, &fr, &condobj, FALSE)) != 0)
@@ -461,7 +461,7 @@ int dbgbpatid(dbgcxdef *ctx, int bpnum, objnum target, objnum self,
 
     /* lock the object */
     objp = mcmlck(ctx->dbgcxmem, (mcmon)target);
-    
+
     /* skip any ENTER, CHKARGC, or FRAME instructions */
     for (done = FALSE ; !done ; )
     {
@@ -481,7 +481,7 @@ int dbgbpatid(dbgcxdef *ctx, int bpnum, objnum target, objnum self,
             break;
         }
     }
-    
+
     /* presume we're going to set a new breakpoint */
     if (did_set != 0)
         *did_set = TRUE;
@@ -493,11 +493,11 @@ int dbgbpatid(dbgcxdef *ctx, int bpnum, objnum target, objnum self,
         if (toggle && (cond == 0 || *cond == '\0'))
         {
             int i;
-            
+
             /* tell the caller we're removing a breakpoint */
             if (did_set != 0)
                 *did_set = FALSE;
-            
+
             /* remove all breakpoints matching this description */
             for (i = 0, bp = ctx->dbgcxbp ; i < DBGBPMAX ; ++bp, ++i)
             {
@@ -553,7 +553,7 @@ int dbgbpatid(dbgcxdef *ctx, int bpnum, objnum target, objnum self,
         bp->dbgbpself = self;
         bp->dbgbptarg = target;
         bp->dbgbpofs = ofs;
-        
+
         if (cond && *cond)
         {
             /* remember the condition */
@@ -563,10 +563,10 @@ int dbgbpatid(dbgcxdef *ctx, int bpnum, objnum target, objnum self,
                 bp->dbgbpflg |= DBGBPFCONDNAME;
         }
 
-        /* 
+        /*
          *   replace the OPCLINE in the p-code with a breakpoint
          *   instruction, so that the interpreter actually stops when it
-         *   reaches this point 
+         *   reaches this point
          */
         *(objp + ofs) = OPCBP;
         mcmtch(ctx->dbgcxmem, (mcmon)target);
@@ -574,11 +574,11 @@ int dbgbpatid(dbgcxdef *ctx, int bpnum, objnum target, objnum self,
 
 return_error:
     mcmunlck(ctx->dbgcxmem, (mcmon)target);
-    
+
     /* free condition object if we have one */
     if (err && condobj != MCMONINV)
         mcmfre(ctx->dbgcxmem, condobj);
-    
+
     /* store breakpoint name for displaying to user */
     if (!err && !dbgnamsav(ctx, bpname, &bp->dbgbpnam))
         bp->dbgbpflg |= DBGBPFNAME;
@@ -595,7 +595,7 @@ int dbgbpsetcond(dbgcxdef *ctx, int bpnum, char *cond)
     int       err;
     objnum    condobj;
     dbgfdef   fr;
-    
+
     /* make sure we have a valid breakpoint */
     --bpnum;
     bp = &ctx->dbgcxbp[bpnum];
@@ -633,7 +633,7 @@ int dbgbpsetcond(dbgcxdef *ctx, int bpnum, char *cond)
     /* delete the old condition object */
     if (bp->dbgbpflg & DBGBPFCOND)
         mcmfre(ctx->dbgcxmem, bp->dbgbpcond);
-    
+
     /* delete the old condition name */
     if (bp->dbgbpflg & DBGBPFCONDNAME)
     {
@@ -643,11 +643,11 @@ int dbgbpsetcond(dbgcxdef *ctx, int bpnum, char *cond)
 
     /* remember the new condition object */
     bp->dbgbpcond = condobj;
-    
+
     /* remember the new condition name */
     if (!dbgnamsav(ctx, cond, &bp->dbgbpcondnam))
         bp->dbgbpflg |= DBGBPFCONDNAME;
-    
+
     /* success */
     return 0;
 }
@@ -655,7 +655,7 @@ int dbgbpsetcond(dbgcxdef *ctx, int bpnum, char *cond)
 /*
  *   Determine if there's a breakpoint at a given code location.  If there
  *   is, we fill in *bpnum with the identifier for the breakpoint and
- *   return true, otherwise we return false.  
+ *   return true, otherwise we return false.
  */
 int dbgisbp(dbgcxdef *ctx, objnum target, objnum self, uint ofs, int *bpnum)
 {
@@ -671,9 +671,9 @@ int dbgisbp(dbgcxdef *ctx, objnum target, objnum self, uint ofs, int *bpnum)
             && bp->dbgbpself == self
             && bp->dbgbpofs == ofs)
         {
-            /* 
+            /*
              *   this is the one - set its ID (which is 1-based) and
-             *   return success 
+             *   return success
              */
             if (bpnum != 0)
                 *bpnum = i+1;
@@ -686,7 +686,7 @@ int dbgisbp(dbgcxdef *ctx, objnum target, objnum self, uint ofs, int *bpnum)
 }
 
 /*
- *   Determine if the given breakpoint is enabled 
+ *   Determine if the given breakpoint is enabled
  */
 int dbgisbpena(dbgcxdef *ctx, int bpnum)
 {
@@ -728,11 +728,11 @@ int dbgbpset(dbgcxdef *ctx, char *addr, int *bpnum)
     char     *end;
     char      buf1[40];
     char      buf2[40];
-    
+
     /* determine what kind of address we have */
     for (p = addr ; *p && t_isspace(*p) ; ++p) ;
     for (tok1 = addr = p ; *p && TOKISSYM(*p) ; ++p) ;
-    
+
     /* see if the very first thing is "when" */
     if (!strnicmp(tok1, "when ", (size_t)5))
     {
@@ -740,7 +740,7 @@ int dbgbpset(dbgcxdef *ctx, char *addr, int *bpnum)
         return(dbgbpat(ctx, MCMONINV, MCMONINV, 0, bpnum,
                        addr, FALSE, end, 0));
     }
-    
+
     /* see if we have a second token */
     for (tok1end = p ; t_isspace(*p) ; ++p) ;
     if (*p == '.')
@@ -758,10 +758,10 @@ int dbgbpset(dbgcxdef *ctx, char *addr, int *bpnum)
         if (*end) ++end;
         p = (char *)0;
     }
-    
+
     tok1sav = *tok1end;
     *tok1end = '\0';
-    
+
     /* look up the symbols */
     tab = (toktdef *)ctx->dbgcxtab;
     if (ctx->dbgcxprs->prscxtok->tokcxflg & TOKCXCASEFOLD)
@@ -774,7 +774,7 @@ int dbgbpset(dbgcxdef *ctx, char *addr, int *bpnum)
     if (!(*tab->toktfsea)(tab, tok1, (int)strlen(tok1), hsh1, &sym1))
         return ERR_BPSYM;
     objn = sym1.toksval;
-    
+
     if (tok2)
     {
         /* we have "object.property" */
@@ -788,19 +788,19 @@ int dbgbpset(dbgcxdef *ctx, char *addr, int *bpnum)
         if (!(*tab->toktfsea)(tab, tok2, (int)strlen(tok2), hsh2, &sym2))
             return ERR_BPSYM;
         if (sym1.tokstyp != TOKSTOBJ) return ERR_BPOBJ;
-        
+
         /* we need to look up the property */
         ofs = objgetap(ctx->dbgcxmem, objn, (prpnum)sym2.toksval,
                        &target, FALSE);
         if (!ofs) return ERR_BPNOPRP;
-        
+
         /* make sure the property is code */
         objp = mcmlck(ctx->dbgcxmem, (mcmon)target);
         prp = objofsp((objdef *)objp, ofs);
         typ = prptype(prp);
         ofs = ((uchar *)prpvalp(prp)) - objp;
         mcmunlck(ctx->dbgcxmem, (mcmon)target);
-        
+
         if (typ != DAT_CODE) return ERR_BPPRPNC;
     }
     else
@@ -811,11 +811,11 @@ int dbgbpset(dbgcxdef *ctx, char *addr, int *bpnum)
         target = objn;     /* for function, target is always same as object */
         objn = MCMONINV;               /* there is no "self" for a function */
     }
-    
+
     /* undo our changes to the string text */
     if (p) *p = psav;
     *tok1end = tok1sav;
-    
+
     /* check for a "when" expression */
     if (*end)
     {
@@ -840,11 +840,11 @@ int dbgbpdel(dbgcxdef *ctx, int bpnum)
     uchar    *objp;
     int       i;
     int       bpset;
-    
+
     /* make sure it's a valid breakpoint */
     if (bpnum < 0 || bpnum >= DBGBPMAX || !(bp->dbgbpflg & DBGBPFUSED))
         return ERR_BPNSET;
-    
+
     /* see if we now have NO breakpoints set on this location */
     for (bpset = FALSE, i = DBGBPMAX, bp2 = ctx->dbgcxbp ; i ; ++bp2, --i)
     {
@@ -856,7 +856,7 @@ int dbgbpdel(dbgcxdef *ctx, int bpnum)
             break;
         }
     }
-    
+
     /* if no other bp's here, convert the OPCBP back into an OPCLINE */
     if (!bpset)
     {
@@ -890,7 +890,7 @@ int dbgbpdel(dbgcxdef *ctx, int bpnum)
         mcmfre(ctx->dbgcxmem, bp->dbgbpcond);
         bp->dbgbpflg &= ~DBGBPFCOND;
     }
-    
+
     return 0;
 }
 
@@ -906,7 +906,7 @@ void dbgbplist(dbgcxdef *ctx,
 
     /* if we're not recording names, there's nothing we can do */
     if (!ctx->dbgcxnam) return;
-    
+
     for (i = 0 ; i < DBGBPMAX ; ++bp, ++i)
     {
         if ((bp->dbgbpflg & DBGBPFUSED) && (bp->dbgbpflg & DBGBPFNAME))
@@ -915,10 +915,10 @@ void dbgbplist(dbgcxdef *ctx,
             sprintf(buf, "%d: ", i + 1);
             (*dispfn)(dispctx, buf, (int)strlen(buf));
             (*dispfn)(dispctx, p, (int)strlen(p));
-            
+
             if (bp->dbgbpflg & DBGBPFDISA)
                 (*dispfn)(dispctx, " [disabled]", 11);
-            
+
             (*dispfn)(dispctx, "\n", 1);
         }
     }
@@ -941,9 +941,9 @@ void dbgbpenum(dbgcxdef *ctx,
     /* run through our list of breakpoints */
     for (i = 0 ; i < DBGBPMAX ; ++bp, ++i)
     {
-        /* 
+        /*
          *   if this slot is in use, and has a name, include it in the
-         *   enumeration 
+         *   enumeration
          */
         if ((bp->dbgbpflg & DBGBPFUSED) && (bp->dbgbpflg & DBGBPFNAME))
         {
@@ -965,11 +965,11 @@ void dbgbpenum(dbgcxdef *ctx,
 int dbgbpdis(dbgcxdef *ctx, int bpnum, int disable)
 {
     dbgbpdef *bp = &ctx->dbgcxbp[--bpnum];
-    
+
     /* make sure it's a valid breakpoint */
     if (bpnum < 0 || bpnum >= DBGBPMAX || !(bp->dbgbpflg & DBGBPFUSED))
         return ERR_BPNSET;
-    
+
     if (disable) bp->dbgbpflg |= DBGBPFDISA;
     else bp->dbgbpflg &= ~DBGBPFDISA;
     return 0;
@@ -1003,9 +1003,9 @@ void dbgbpeach(dbgcxdef *ctx, void (*fn)(void *, int, uchar *, uint),
     }
 }
 
-/* 
+/*
  *   Get information on a specific breakpoint.  Returns zero on success,
- *   non-zero on failure.  
+ *   non-zero on failure.
  */
 int dbgbpgetinfo(dbgcxdef *ctx, int bpnum, char *descbuf, size_t descbuflen,
                  char *condbuf, size_t condbuflen)
@@ -1151,11 +1151,11 @@ int dbgtabsea(toktdef *tab, char *name, int namel, int hash, toksdef *ret)
     uchar    *framep;
 
     fr = ftab->toktffr;
-    
+
     /* if there is no local context, we obviously can't find a symbol */
     if (fr->dbgftarg == MCMONINV)
         return FALSE;
-    
+
     /* lock object and get its frame pointer */
     objp = mcmlck(mctx, fr->dbgftarg);
 
@@ -1166,14 +1166,14 @@ int dbgtabsea(toktdef *tab, char *name, int namel, int hash, toksdef *ret)
         len = osrp2(framep) - 4;                 /* get length out of table */
         encofs = osrp2(framep + 2);         /* get enclosing frame's offset */
         framep += 4;                                     /* skip the header */
-            
+
         while (len)
         {
             symval = osrp2(framep);
             framep += 2;
             symlen = *framep++;
             len -= 3 + symlen;
-                
+
             if (symlen == (uint)namel && !memcmp(name, framep, (size_t)namel))
             {
                 /* unlock the object and set up the toksdef for return */
@@ -1184,7 +1184,7 @@ int dbgtabsea(toktdef *tab, char *name, int namel, int hash, toksdef *ret)
                 ret->toksfr  = ofs;
                 return TRUE;
             }
-            
+
             /* advance past this symbol */
             framep += symlen;
         }
@@ -1205,7 +1205,7 @@ int dbgcompile(dbgcxdef *ctx, char *expr, dbgfdef *fr, objnum *objnp,
     prscxdef *prs = ctx->dbgcxprs;
     toktfdef  tab;
     mcmon     objn;
-    
+
     /* set up a lindef to provide the source line to the compiler */
     prs->prscxtok->tokcxlin = &lin;
     lin.lingetp = dbglinget;
@@ -1221,10 +1221,10 @@ int dbgcompile(dbgcxdef *ctx, char *expr, dbgfdef *fr, objnum *objnp,
     lin.linflg = LINFNOINC;
     lin.linlen = strlen(expr);
     lin.linlln = 0;
-    
+
     /* set emit frame object */
     prs->prscxemt->emtcxfrob = fr->dbgftarg;
-    
+
     /* set up special frame-searching symbol table */
     tab.toktfsc.toktfadd = 0;      /* we'll never add symbols to this table */
     tab.toktfsc.toktfsea = dbgtabsea;        /* we will, however, search it */
@@ -1233,7 +1233,7 @@ int dbgcompile(dbgcxdef *ctx, char *expr, dbgfdef *fr, objnum *objnp,
     tab.toktfmem = ctx->dbgcxrun->runcxmem;
     tab.toktfdbg = ctx;
     tab.toktffr  = fr;
-    
+
     /* presume no error and no object allocated */
     err = 0;
 
@@ -1247,7 +1247,7 @@ int dbgcompile(dbgcxdef *ctx, char *expr, dbgfdef *fr, objnum *objnp,
     /* set the parsing context to generate no debug records */
     oldflg = prs->prscxflg;
     prs->prscxflg &= ~(PRSCXFLIN + PRSCXFLCL);
-    
+
     /* set topmost symbol table to the debug frame table */
     prs->prscxtok->tokcxstab = &tab.toktfsc;
 
@@ -1264,7 +1264,7 @@ int dbgcompile(dbgcxdef *ctx, char *expr, dbgfdef *fr, objnum *objnp,
 
     /* make certain it returns */
     emtop(prs->prscxemt, OPCDBGRET);
-    
+
     ERRCATCH(ctx->dbgcxerr, err)
         /* unlock and free the object used for holding the pcode */
         mcmunlck(prs->prscxmem, objn);
@@ -1273,14 +1273,14 @@ int dbgcompile(dbgcxdef *ctx, char *expr, dbgfdef *fr, objnum *objnp,
         /* restore original parsing flags and symbol table */
         prs->prscxflg = oldflg;
         prs->prscxtok->tokcxstab = tab.toktfsc.toktnxt;
-    
+
         return err;
     ERREND(ctx->dbgcxerr)
-        
+
     /* restore original parsing flags and symbol table */
     prs->prscxflg = oldflg;
     prs->prscxtok->tokcxstab = tab.toktfsc.toktnxt;
-    
+
     mcmunlck(prs->prscxmem, objn);
     *objnp = objn;
     return 0;
@@ -1298,7 +1298,7 @@ int dbgeval(dbgcxdef *ctx, char *expr,
 }
 
 /*
- *   Enumerate the properties of an object 
+ *   Enumerate the properties of an object
  */
 static void dbgenumprop(dbgcxdef *ctx, objnum objn, objnum self,
                         void (*func)(void *ctx, const char *propname,
@@ -1316,9 +1316,9 @@ static void dbgenumprop(dbgcxdef *ctx, objnum objn, objnum self,
     if (objn == MCMONINV)
         return;
 
-    /* 
+    /*
      *   make sure the object hasn't been deleted - check the vocab
-     *   inheritance records for confirmation 
+     *   inheritance records for confirmation
      */
     if (vocinh(ctx->dbgcxrun->runcxvoc, objn) == 0)
         return;
@@ -1336,13 +1336,13 @@ static void dbgenumprop(dbgcxdef *ctx, objnum objn, objnum self,
         char   prpname[TOKNAMMAX + 1];
         int    len;
         objnum srcobj;
-        
+
         /* get this property's ID */
         prpn = prpprop(p);
 
-        /* 
+        /*
          *   check the type; if it's code or another non-evaluable type,
-         *   skip it 
+         *   skip it
          */
         switch(prptype(p))
         {
@@ -1354,9 +1354,9 @@ static void dbgenumprop(dbgcxdef *ctx, objnum objn, objnum self,
         case DAT_SYN:
         case DAT_REDIR:
         case DAT_TPL2:
-            /* 
+            /*
              *   these types do not represent values that can be evaluated
-             *   in the debugger, so skip properties of these types 
+             *   in the debugger, so skip properties of these types
              */
             continue;
         }
@@ -1365,7 +1365,7 @@ static void dbgenumprop(dbgcxdef *ctx, objnum objn, objnum self,
          *   If we've recursed into a superclass, make sure that this
          *   property actually comes from this superclass in the object.
          *   If it doesn't, skip it, because we'll pick it up on the
-         *   overriding object. 
+         *   overriding object.
          */
         if (objn != self
             && (objgetap(ctx->dbgcxmem, self, prpn, &srcobj, FALSE) == 0
@@ -1381,7 +1381,7 @@ static void dbgenumprop(dbgcxdef *ctx, objnum objn, objnum self,
 
     /*
      *   Go through the object's superclasses, and enumerate the
-     *   properties for each of them. 
+     *   properties for each of them.
      */
     sccnt = objnsc(objptr);
     for (sc = objsc(objptr) ; sccnt != 0 ; sc += 2, --sccnt)
@@ -1389,15 +1389,15 @@ static void dbgenumprop(dbgcxdef *ctx, objnum objn, objnum self,
         /* recurse into this superclass object */
         dbgenumprop(ctx, (objnum)osrp2(sc), self, func, cbctx);
     }
-    
+
     /* done with the object - unlock it */
     mcmunlck(ctx->dbgcxmem, objn);
 }
 
-/* 
+/*
  *   Evaluate an expression, extended version.  For aggregate values
  *   (objects, lists), we'll invoke a callback function for each value
- *   contained by the aggregate value. 
+ *   contained by the aggregate value.
  */
 int dbgevalext(dbgcxdef *ctx, char *expr,
                void (*dispfn)(void *, const char *, int), void *dispctx,
@@ -1418,10 +1418,10 @@ int dbgevalext(dbgcxdef *ctx, char *expr,
                           speculative)) != 0)
         return err;
 
-    /* 
+    /*
      *   remember the current stack frame position -- running code will
      *   mess with it, and if we get an error it won't be set back
-     *   properly without us doing so explicitly 
+     *   properly without us doing so explicitly
      */
     oldfcn = ctx->dbgcxfcn;
     olddep = ctx->dbgcxdep;
@@ -1453,16 +1453,16 @@ int dbgevalext(dbgcxdef *ctx, char *expr,
     /*
      *   If the value is an aggregate, and an aggregate callback was
      *   provided, invoke the aggregate callback for each item contained
-     *   by the value. 
+     *   by the value.
      */
     if (aggcb != 0)
     {
         switch(val.runstyp)
         {
         case DAT_OBJECT:
-            /* 
+            /*
              *   go through the object's properties, and those of its
-             *   superclasses 
+             *   superclasses
              */
             dbgenumprop(ctx, val.runsv.runsvobj, val.runsv.runsvobj,
                         aggcb, aggctx);
@@ -1485,7 +1485,7 @@ int dbgevalext(dbgcxdef *ctx, char *expr,
                 for (idx = 1 ; idx <= idxcnt ; ++idx)
                 {
                     char idxbuf[30];
-                    
+
                     /* build the name of this subitem */
                     sprintf(idxbuf, "[%u]", idx);
 
@@ -1499,10 +1499,10 @@ int dbgevalext(dbgcxdef *ctx, char *expr,
 
     ERRCATCH(ctx->dbgcxerr, err)
 
-        /* 
+        /*
          *   an error occurred evaluating the expression - in case we
          *   entered a stack frame and threw an error without resetting
-         *   it, go back to the original frame position now 
+         *   it, go back to the original frame position now
          */
         ctx->dbgcxfcn = oldfcn;
         ctx->dbgcxdep = olddep;
@@ -1517,9 +1517,9 @@ int dbgevalext(dbgcxdef *ctx, char *expr,
     return err;
 }
 
-/* 
+/*
  *   enumerate local variables at a given stack context level by calling
- *   the given function once for each local variable 
+ *   the given function once for each local variable
  */
 void dbgenumlcl(dbgcxdef *ctx, int level,
                 void (*func)(void *ctx, const char *lclnam, size_t lclnamlen),
@@ -1594,17 +1594,17 @@ int dbgwxset(dbgcxdef *ctx, char *expr, int *wxnum, int level)
     objnum    objn;
     int       err;
     uint      oldflg;
-    
+
     /* scan off leading spaces in expression text */
     while (t_isspace(*expr)) ++expr;
-    
+
     /* get a free watch slot */
     for (i = 0, wx = ctx->dbgcxwx ; i < DBGWXMAX ; ++wx, ++i)
         if (!(wx->dbgwxflg & DBGWXFUSED)) break;
 
     if (i == DBGWXMAX) return ERR_MANYWX;
     *wxnum = i + 1;
-    
+
     /* compile the expression */
     oldflg = ctx->dbgcxprs->prscxflg;                   /* save parse flags */
     ctx->dbgcxprs->prscxflg |= PRSCXFWTCH;     /* note this is a watchpoint */
@@ -1612,13 +1612,13 @@ int dbgwxset(dbgcxdef *ctx, char *expr, int *wxnum, int level)
     ctx->dbgcxprs->prscxflg = oldflg;                  /* restore old flags */
     if (err)
         return err;
-    
+
     /* record the watch data */
     wx->dbgwxobj = objn;
     wx->dbgwxflg = DBGWXFUSED;
     wx->dbgwxself = ctx->dbgcxfrm[level].dbgfself;
     if (!dbgnamsav(ctx, expr, &wx->dbgwxnam)) wx->dbgwxflg |= DBGWXFNAME;
-    
+
     return 0;
 }
 
@@ -1626,11 +1626,11 @@ int dbgwxset(dbgcxdef *ctx, char *expr, int *wxnum, int level)
 int dbgwxdel(dbgcxdef *ctx, int wxnum)
 {
     dbgwxdef *wx = &ctx->dbgcxwx[--wxnum];
-    
+
     /* make sure it's valid */
     if (wxnum < 0 || wxnum > DBGWXMAX || !(wx->dbgwxflg & DBGWXFUSED))
         return ERR_WXNSET;
-    
+
     mcmfre(ctx->dbgcxmem, wx->dbgwxobj);         /* delete pcode for object */
     wx->dbgwxflg &= ~DBGWXFUSED;    /* watch expression is no longer in use */
     if (wx->dbgwxflg & DBGWXFNAME)
@@ -1651,18 +1651,18 @@ void dbgwxupd(dbgcxdef *ctx, void (*dispfn)(void *, const char *, int),
     runsdef   val;
     char      buf[50];
     int       first = TRUE;
-    
+
     /* suppress all output while processing watchpoints */
     outwx(1);
-    
+
     for (i = 0, wx = ctx->dbgcxwx ; i < DBGWXMAX ; ++wx, ++i)
     {
         if (!(wx->dbgwxflg & DBGWXFUSED)) continue;
-        
+
         /* display watch number and expression text */
         if (!first) (*dispfn)(dispctx, "\n", 1);
         else first = FALSE;
-        
+
         sprintf(buf, "[%d] %s = ", i + 1, ctx->dbgcxnam + wx->dbgwxnam);
         (*dispfn)(dispctx, buf, (int)strlen(buf));
 
@@ -1670,9 +1670,9 @@ void dbgwxupd(dbgcxdef *ctx, void (*dispfn)(void *, const char *, int),
         objptr = mcmlck(ctx->dbgcxmem, wx->dbgwxobj);
 
         ERRBEGIN(ctx->dbgcxerr)
-            
+
         oldsp = ctx->dbgcxrun->runcxsp;
-        runexe(ctx->dbgcxrun, objptr, wx->dbgwxself, wx->dbgwxobj, 
+        runexe(ctx->dbgcxrun, objptr, wx->dbgwxself, wx->dbgwxobj,
                (prpnum)0, 0);
 
         if (ctx->dbgcxrun->runcxsp != oldsp)
@@ -1682,7 +1682,7 @@ void dbgwxupd(dbgcxdef *ctx, void (*dispfn)(void *, const char *, int),
         }
         else
             (*dispfn)(dispctx, "<no value>", 10);
-        
+
         ERRCATCH(ctx->dbgcxerr, err)
             if (err == ERR_INACTFR)
                 (*dispfn)(dispctx, "<not available>", 15);
@@ -1692,10 +1692,10 @@ void dbgwxupd(dbgcxdef *ctx, void (*dispfn)(void *, const char *, int),
                 (*dispfn)(dispctx, buf, (int)strlen(buf));
             }
         ERREND(ctx->dbgcxerr)
-                
+
         mcmunlck(ctx->dbgcxmem, wx->dbgwxobj);
     }
-    
+
     /* stop suppressing output */
     outwx(0);
 }
@@ -1704,7 +1704,7 @@ void dbgwxupd(dbgcxdef *ctx, void (*dispfn)(void *, const char *, int),
 /*
  *   Find a base pointer, given the object+offset of the frame.  If the
  *   frame is not active, this routine signals ERR_INACTFR; otherwise, the
- *   bp value for the frame is returned. 
+ *   bp value for the frame is returned.
  */
 runsdef *dbgfrfind(dbgcxdef *ctx, objnum frobj, uint frofs)
 {
@@ -1713,17 +1713,17 @@ runsdef *dbgfrfind(dbgcxdef *ctx, objnum frobj, uint frofs)
     mcmon    objn;
     uchar   *objptr;
     uint     ofs;
-    
+
     /* search stack */
     for (i = ctx->dbgcxfcn, f = &ctx->dbgcxfrm[i-1] ; i ; --f, --i)
     {
         /* ignore this stack level if we have the wrong object */
         objn = f->dbgftarg;
         if (frobj != objn) continue;
-        
+
         /* search nested frames within this stack level */
         objptr = mcmlck(ctx->dbgcxmem, objn);
-        
+
         for (ofs = f->dbgffr ; ofs ; )
         {
             if (ofs == frofs)
@@ -1732,15 +1732,15 @@ runsdef *dbgfrfind(dbgcxdef *ctx, objnum frobj, uint frofs)
                 mcmunlck(ctx->dbgcxmem, objn);
                 return f->dbgfbp;
             }
-            
+
             /* this isn't it; move on to the enclosing frame */
             ofs = osrp2(objptr + ofs + 2);
         }
-        
+
         /* done with this object - unlock it */
         mcmunlck(ctx->dbgcxmem, objn);
     }
-    
+
     /* couldn't find the frame at all - signal INACTIVE error */
     errsig(ctx->dbgcxerr, ERR_INACTFR);
     NOTREACHEDV(runsdef *);
@@ -1751,7 +1751,7 @@ runsdef *dbgfrfind(dbgcxdef *ctx, objnum frobj, uint frofs)
  *   Switch to a new current lindef, closing the file referenced by the
  *   current lindef.  This lets us keep only one file open at a time when
  *   running under the stand-alone source debugger, which reads the source
- *   from disk files.  
+ *   from disk files.
  */
 void dbgswitch(lindef **linp, lindef *newlin)
 {

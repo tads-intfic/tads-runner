@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/TRD.C,v 1.3 1999/05/29 15:51:02 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1992, 2000 by Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -98,7 +98,7 @@ static void trdptf(const char *fmt, ...)
 
 
 /*
- *   display a range of usage messages 
+ *   display a range of usage messages
  */
 static void trdusage_show_range(errcxdef *ec, int msg_first, int msg_last)
 {
@@ -126,15 +126,15 @@ static void trdusage_range(errcxdef *ec, int msg_first, int msg_last)
 }
 
 /*
- *   display general run-time usage information 
+ *   display general run-time usage information
  */
 static void trdusage(errcxdef *ec)
 {
     int first;
 
-    /* 
+    /*
      *   if we have an app display name, display it instead of the
-     *   hard-coded text in the message identifying the app 
+     *   hard-coded text in the message identifying the app
      */
     first = ERR_TRUS1;
     if (ec->errcxappctx != 0 && ec->errcxappctx->usage_app_name != 0)
@@ -142,14 +142,14 @@ static void trdusage(errcxdef *ec)
         char buf[128];
         char buf2[128];
         erradef argv[1];
-        
+
         /* get the parameterized usage message */
         errmsg(ec, buf, (uint)sizeof(buf), ERR_TRUSPARM);
 
         /* format in the application name */
         argv[0].errastr = (char *)ec->errcxappctx->usage_app_name;
         errfmt(buf2, (int)sizeof(buf2), buf, 1, argv);
-        
+
         /* display it */
         trdptf("%s\n", buf2);
 
@@ -168,7 +168,7 @@ static void trdusage(errcxdef *ec)
 }
 
 /*
- *   display -s suboptions 
+ *   display -s suboptions
  */
 static void trdusage_s(errcxdef *ec)
 {
@@ -222,7 +222,7 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
     char      *charmap = 0;                           /* character map file */
     int        charmap_none;       /* explicitly do not use a character set */
     int        doublespace = TRUE;        /* formatter double-space setting */
-    
+
     NOREG((&loadopen))
 
     /* initialize the output formatter */
@@ -256,21 +256,21 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
                 else
                     trdusage(ec);
                 break;
-                     
+
             case 'r':
                 /* restore a game */
                 restore_file = cmdarg(ec, &argp, &i, argc, 1, trdusage);
                 break;
-                
+
             case 'i':
                 qasopn(cmdarg(ec, &argp, &i, argc, 1, trdusage), TRUE);
                 break;
-                
+
             case 'o':
                 cmdfile = osfopwt(cmdarg(ec, &argp, &i, argc, 1, trdusage),
                                   OSFTCMD);
                 break;
-                
+
             case 'l':
                 logfp = osfopwt(cmdarg(ec, &argp, &i, argc, 1, trdusage),
                                 OSFTCMD);
@@ -325,25 +325,25 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
                              safety_read, safety_write);
                 }
                 break;
-                
+
             case 'm':
                 switch(*(arg + 2))
                 {
                 case 's':
                     stksiz = atoi(cmdarg(ec, &argp, &i, argc, 2, trdusage));
                     break;
-                    
+
                 case 'h':
                     heapsiz = atoi(cmdarg(ec, &argp, &i, argc, 2, trdusage));
                     break;
-                    
+
                 default:
                     cachelimit = atol(cmdarg(ec, &argp, &i, argc, 1,
                                              trdusage));
                     break;
                 }
                 break;
-                
+
             case 't':
                 /* swap file options:  -tf file, -ts size, -t- (no swap) */
                 switch(*(arg+2))
@@ -351,25 +351,25 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
                 case 'f':
                     swapname = cmdarg(ec, &argp, &i, argc, 2, trdusage);
                     break;
-                    
+
                 case 's':
                     swapsize = atol(cmdarg(ec, &argp, &i, argc, 2, trdusage));
                     break;
-                    
+
                 case 'p':
                     preload = cmdtog(ec, preload, arg, 2, trdusage);
                     break;
-                    
+
                 default:
                     swapena = cmdtog(ec, swapena, arg, 1, trdusage);
                     break;
                 }
                 break;
-                
+
             case 'u':
                 undosiz = atoi(cmdarg(ec, &argp, &i, argc, 1, trdusage));
                 break;
-                
+
             default:
                 trdusage(ec);
             }
@@ -395,16 +395,16 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
          *   encoded into it.  Next, look to see if there's a game
          *   attached to the executable file; if so, use it.  If not, see
          *   if the host system wants to provide a name through its
-         *   callback.  
+         *   callback.
          */
-        
+
         /* presume we won't find a game attached to the executable file */
         infile = 0;
         use_exe = FALSE;
 
-        /* 
+        /*
          *   see if we have a saved game to restore, and it specifies the
-         *   GAM file that saved it 
+         *   GAM file that saved it
          */
         if (restore_file != 0)
         {
@@ -415,10 +415,10 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
                 infile = inbuf;
             }
         }
-        
-        /* 
+
+        /*
          *   it that didn't work, try to read from os-dependent part of
-         *   program being executed 
+         *   program being executed
          */
         if (infile == 0)
         {
@@ -432,22 +432,22 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
                 osfseek(fp, 0L, OSFSK_END);
                 endpos = osfpos(fp);
                 osfcls(fp);
-                
+
                 /* if we found it, use it */
                 if (endpos != curpos)
                     use_exe = TRUE;
             }
         }
-            
-        /* 
+
+        /*
          *   if we didn't find a game in the executable, try the host
-         *   system callback 
+         *   system callback
          */
         if (infile == 0 && !use_exe)
         {
-            /* 
+            /*
              *   ask the host system callback what to do - if we don't
-             *   have a host system callback, or the callback 
+             *   have a host system callback, or the callback
              */
             if (appctx != 0 && appctx->get_game_name != 0)
             {
@@ -460,10 +460,10 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
                 }
                 else
                 {
-                    /* 
+                    /*
                      *   the host didn't provide a name - simply display a
                      *   message indicating that no game file has been
-                     *   chosen, and return 
+                     *   chosen, and return
                      */
                     trdptf("\n");
                     trdptf("(No game has been selected.)\n");
@@ -472,9 +472,9 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
             }
             else
             {
-                /* 
+                /*
                  *   we've run out of ways to get a filename - give the
-                 *   user the usage message and quit 
+                 *   user the usage message and quit
                  */
                 trdusage(ec);
             }
@@ -491,7 +491,7 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
          *   If original name exists, use it; otherwise, try adding .GAM.
          *   Note that this code is ifdef'd so that platforms that don't
          *   use filename extensions in the manner conventional for DOS
-         *   and Unix won't use this code. 
+         *   and Unix won't use this code.
          */
         if (osfacc(infile))
         {
@@ -501,7 +501,7 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
         }
 #endif /* !defined(OS_HATES_EXTENSIONS) */
     }
-    
+
     /* open up the swap file */
     if (swapena && swapsize)
     {
@@ -509,7 +509,7 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
         if (swapname == 0) swapname = swapbuf;
         if (swapfp == 0) errsig(ec, ERR_OPSWAP);
     }
-    
+
     /* load the character map */
     if (charmap_none)
         cmap_override();
@@ -536,10 +536,10 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
     /*
      *   save a pointer to the voc context globally, so that certain
      *   external routines (such as Unix-style signal handlers) can reach
-     *   it 
+     *   it
      */
     main_voc_ctx = &vocctx;
-    
+
     /* allocate stack and heap */
     totsize = (ulong)stksiz * (ulong)sizeof(runsdef);
     if (totsize != (size_t)totsize)
@@ -586,7 +586,7 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
     supctx.supcxlen = 0;
     supctx.supcxvoc = &vocctx;
     supctx.supcxrun = &runctx;
-    
+
     /* set up debug context */
     dbg.dbgcxtio = (tiocxdef *)0;
     dbg.dbgcxmem = mctx;
@@ -596,7 +596,7 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
     dbg.dbgcxdep = 0;
     dbg.dbgcxflg = 0;
     dbg.dbgcxlin = (lindef *)0;                      /* no line sources yet */
-    
+
     /* set up built-in function context */
     CLRSTRUCT(bifctx);
     bifctx.bifcxerr = ec;
@@ -611,16 +611,16 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
 
     /* initialize the regular expression parser context */
     re_init(&bifctx.bifcxregex, ec);
-    
+
     /* add the built-in functions, keywords, etc */
     supbif(&supctx, bif, (int)(sizeof(bif)/sizeof(bif[0])));
-    
+
     /* set up status line hack */
     runistat(&vocctx, &runctx, (tiocxdef *)0);
 
     /* turn on the "busy" cursor before loading */
     os_csr_busy(TRUE);
-    
+
     /* read the game from the binary file */
     fiord(mctx, &vocctx, (struct tokcxdef *)0,
           infile, exefile, &fiolctx, &preinit, &flags,
@@ -630,20 +630,20 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
 
     /* turn off the "busy" cursor */
     os_csr_busy(FALSE);
-    
+
     /* play the game */
     plygo(&runctx, &vocctx, (tiocxdef *)0, preinit, restore_file);
-    
+
     /* close load file */
     fiorcls(&fiolctx);
-    
+
     if (pause)
     {
         trdptf("[press a key to exit]");
         os_waitc();
         trdptf("\n");
     }
-    
+
     /* close and delete swapfile, if one was opened */
     trd_close_swapfile(&runctx);
 
@@ -653,7 +653,7 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
     ERRCLEAN(ec)
         /* close and delete swapfile, if one was opened */
         trd_close_swapfile(&runctx);
-        
+
         /* close the load file if one was opened */
         if (loadopen)
             fiorcls(&fiolctx);
@@ -695,7 +695,7 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
  *   run-time error messages by leaving out the numeric error code.  Note
  *   that we'll only do this if the error messages are linked directly
  *   into the run-time, since we need the numeric code as a last resort
- *   when the error message may not be present.  
+ *   when the error message may not be present.
  */
 #ifdef OS_SKIP_ERROR_CODES
 # ifdef ERR_LINK_MESSAGES
@@ -705,7 +705,7 @@ static void trdmain1(errcxdef *ec, int argc, char *argv[],
 
 /*
  *   If we didn't define a different error prefix format, use the default
- *   format with the numeric error code. 
+ *   format with the numeric error code.
  */
 #ifndef TRDLOGERR_PREFIX
 # define TRDLOGERR_PREFIX "\n[%s-%d: "
@@ -734,7 +734,7 @@ static void trdlogerr(void *ctx0, char *fac, int err,
 
 
 /*
- *   close and delete the swap file 
+ *   close and delete the swap file
  */
 void trd_close_swapfile(runcxdef *runctx)
 {
@@ -787,7 +787,7 @@ int trdmain(int argc, char *argv[], appctxdef *appctx, char *save_ext)
     errcxdef  errctx;
     int       err;
     osfildef *fp;
-    
+
     errctx.errcxlog = trdlogerr;
     errctx.errcxlgc = &errctx;
     errctx.errcxfp  = (osfildef *)0;
@@ -795,7 +795,7 @@ int trdmain(int argc, char *argv[], appctxdef *appctx, char *save_ext)
     errctx.errcxappctx = appctx;
     fp = oserrop(argv[0]);
     errini(&errctx, fp);
-    
+
     /* copyright-date-string */
 #ifndef NO_T2_COPYRIGHT_NOTICE
     trdptf("%s - A %s TADS %s Interpreter.\n",
@@ -805,17 +805,17 @@ int trdmain(int argc, char *argv[], appctxdef *appctx, char *save_ext)
            G_tads_oem_copyright_prefix ? "TADS c" : "C");
     trdptf("%s\n", G_tads_oem_author);
 #endif
-    
+
     ERRBEGIN(&errctx)
         trdmain1(&errctx, argc, argv, appctx, save_ext);
     ERRCATCH(&errctx, err)
-        /* 
+        /*
          *   log the error, unless it's usage (in which case we logged it
-         *   already) or we're simply quitting the game 
+         *   already) or we're simply quitting the game
          */
         if (err != ERR_USAGE && err != ERR_RUNQUIT)
             errclog(&errctx);
-    
+
         /* close the error file */
         if (errctx.errcxfp != 0)
             osfcls(errctx.errcxfp);
@@ -826,7 +826,7 @@ int trdmain(int argc, char *argv[], appctxdef *appctx, char *save_ext)
         /* return failure unless we're simply quitting the game */
         return (err == ERR_RUNQUIT ? OSEXSUCC : OSEXFAIL);
     ERREND(&errctx)
-        
+
     /* close the error file if we opened it */
     if (errctx.errcxfp != 0)
         osfcls(errctx.errcxfp);

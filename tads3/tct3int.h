@@ -1,18 +1,18 @@
 /* $Header: d:/cvsroot/tads/tads3/TCT3INT.H,v 1.3 1999/07/11 00:46:57 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   tct3int.h - T3-specific intermediate parse node classes
 Function
-  
+
 Notes
-  
+
 Modified
   05/12/99 MJRoberts  - Creation
 */
@@ -28,7 +28,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Unary Operator Expression node 
+ *   Unary Operator Expression node
  */
 class CTPNUnary: public CTPNUnaryBase
 {
@@ -40,11 +40,11 @@ public:
      *   Generate code for a unary operator with no side effects.  We'll
      *   generate code for the subexpression, then generate the given
      *   opcode.
-     *   
+     *
      *   If 'discard' is true, we won't generate the opcode.  We know the
      *   opcode has no side effects, so if the result of the calculation
      *   isn't going to be used, there's no point in calculating it in the
-     *   first place.  
+     *   first place.
      */
     void gen_unary(uchar opc, int discard, int for_condition);
 };
@@ -52,7 +52,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Binary Operator Expression node 
+ *   Binary Operator Expression node
  */
 class CTPNBin: public CTPNBinBase
 {
@@ -64,28 +64,28 @@ public:
      *   Generate code for a binary operator with no side effects.  We'll
      *   generate code for the left operand, then for the right operand,
      *   then generate the opcode.
-     *   
+     *
      *   If 'discard' is true, we won't generate the opcode.  We know that
      *   the opcode has no side effects, so if the result of the
      *   calculation isn't needed, we need not apply the opcode; we simply
      *   want to evaluate the subexpressions for any side effects they
-     *   might have.  
+     *   might have.
      */
     void gen_binary(uchar opc, int discard, int for_condition);
 
-    /* 
+    /*
      *   Generate code for a binary operator as part of a compound
      *   assignment.  For example, this is used to generate the '+' portion
      *   of '+='.  The caller must already have generated code to push the
      *   left operand; we generate the right operand plus the opcode to apply
-     *   the operator.  
+     *   the operator.
      */
     void gen_binary_ca(uchar opc);
 };
 
 /* ------------------------------------------------------------------------ */
 /*
- *   generic statement 
+ *   generic statement
  */
 class CTPNStm: public CTPNStmBase
 {
@@ -101,11 +101,11 @@ public:
      *   Generate code for a labeled 'continue'.  These are called when
      *   this statement is labeled, and the same label is used in a
      *   'continue' statement.
-     *   
+     *
      *   Returns true if successful, false if not.  This should return
      *   false if the statement is not suitable for a 'continue'.  By
      *   default, we simply return false, since most statements cannot be
-     *   used as the target of a 'continue'.  
+     *   used as the target of a 'continue'.
      */
     virtual int gen_code_labeled_continue() { return FALSE; }
 };
@@ -114,7 +114,7 @@ public:
 /*
  *   Enclosing Statement class: this is the base class for statements that
  *   have special needs for exiting due to break, continue, goto, and
- *   return.  Refer to tcpnint.h for details.  
+ *   return.  Refer to tcpnint.h for details.
  */
 class CTPNStmEnclosing: public CTPNStm
 {
@@ -128,7 +128,7 @@ public:
     /* get the enclosing statement */
     CTPNStmEnclosing *get_enclosing() const { return enclosing_; }
 
-    /* 
+    /*
      *   Generate code for a 'break' to a given label, or an unlabeled
      *   'break' if lbl is null.  Returns true if the break was fully
      *   processed, false if not.  If any work is necessary to unwind the
@@ -136,9 +136,9 @@ public:
      *   here.  If this node doesn't actually accomplish the break, it
      *   should recursively invoke the next enclosing statement's routine
      *   to do the work.
-     *   
+     *
      *   By default, we'll simply invoke the enclosing handler, if there
-     *   is one, or return failure (i.e., false) if not.  
+     *   is one, or return failure (i.e., false) if not.
      */
     virtual int gen_code_break(const textchar_t *lbl, size_t lbl_len)
     {
@@ -150,10 +150,10 @@ public:
 
     /*
      *   Generate code for a 'continue' to a given label, or an unlabeled
-     *   'continue' if lbl is null.  Same rules as gen_code_break().  
-     *   
+     *   'continue' if lbl is null.  Same rules as gen_code_break().
+     *
      *   By default, we'll simply invoke the enclosing handler, if there
-     *   is one, or return failure (i.e., false) if not.  
+     *   is one, or return failure (i.e., false) if not.
      */
     virtual int gen_code_continue(const textchar_t *lbl, size_t lbl_len)
     {
@@ -170,7 +170,7 @@ public:
      *   statement), then call the next enclosing statement to do the same
      *   thing.  By default, this does nothing except invoke the enclosing
      *   statement, since most enclosing statements don't need to generate
-     *   any code to handle a 'return' through them.  
+     *   any code to handle a 'return' through them.
      */
     virtual void gen_code_unwind_for_return()
     {
@@ -184,13 +184,13 @@ public:
      *   returning through this enclosing statement.  This should return
      *   true if any code will be generated by a call to
      *   gen_code_unwind_for_return().  By default, we'll return whatever
-     *   our enclosing statement does.  
+     *   our enclosing statement does.
      */
     virtual int will_gen_code_unwind_for_return() const
     {
-        /* 
+        /*
          *   return what the enclosing statement does, or false if we're
-         *   the outermost statement 
+         *   the outermost statement
          */
         return (enclosing_ != 0
                 ? enclosing_->will_gen_code_unwind_for_return()
@@ -203,7 +203,7 @@ public:
      *   target label is contained within this statement; if it is,
      *   there's nothing we need to do, because we're transferring control
      *   within the same enclosing statement.
-     *   
+     *
      *   If control is being transferred outside of this statement (i.e.,
      *   the label is not contained within this statement), we must
      *   generate the necessary code to leave the block; for example, a
@@ -214,13 +214,13 @@ public:
     void gen_code_unwind_for_goto(class CTPNStmGoto *goto_stm,
                                   class CTPNStmLabel *target);
 
-    /* 
+    /*
      *   Generate code for transferring control out of this statement.  We
      *   invoke this from gen_code_unwind_for_goto() when we determine
      *   that the 'goto' target is not enclosed within this statement.  By
      *   default we do nothing; statements such as 'try' that must do work
      *   on transferring control must override this to generate the
-     *   appropriate code. 
+     *   appropriate code.
      */
     virtual void gen_code_for_transfer_out() { }
 
@@ -233,30 +233,30 @@ public:
      *   allows the caller to ensure that only one error is displayed for
      *   this type of problem even if the target label is nested within
      *   several levels of blocks that don't allow transfers in.
-     *   
+     *
      *   By default, we'll simply return TRUE, since most block types
-     *   allow this type of transfer.  
+     *   allow this type of transfer.
      */
     virtual int check_enter_by_goto(class CTPNStmGoto * /*goto_stm*/,
                                     class CTPNStmLabel * /*target*/)
         { return TRUE; }
 
 protected:
-    /* 
+    /*
      *   generate code for a break - this can be used as a service routine
-     *   by loop/switch statements 
+     *   by loop/switch statements
      */
     int gen_code_break_loop(CTcCodeLabel *code_label,
                             const textchar_t *lbl, size_t lbl_len);
-    
-    /* 
+
+    /*
      *   generate code for a continue - this can be used as a service
-     *   routine by loop/switch statements 
+     *   routine by loop/switch statements
      */
     int gen_code_continue_loop(CTcCodeLabel *code_label,
                                const textchar_t *lbl, size_t lbl_len);
-    
-  
+
+
     /* the block enclosing this block */
     CTPNStmEnclosing *enclosing_;
 };
@@ -267,7 +267,7 @@ protected:
  *   expressions.  We keep a separate list of these nodes for a 'for'
  *   statement, for code generation purposes.  These expression nodes reside
  *   in the initializer clause of the 'for', but they implicitly generate
- *   code in the condition and reinit phases as well.  
+ *   code in the condition and reinit phases as well.
  */
 class CTPNForIn: public CTPNForInBase
 {

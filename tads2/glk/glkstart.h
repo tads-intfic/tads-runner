@@ -45,7 +45,7 @@ extern glkunix_argumentlist_t glkunix_arguments[];
 
 extern int glkunix_startup_code(glkunix_startup_t *data);
 
-extern strid_t glkunix_stream_open_pathname(char *pathname, glui32 textmode, 
+extern strid_t glkunix_stream_open_pathname(char *pathname, glui32 textmode,
     glui32 rock);
 
 # endif /* GLKUNIX */

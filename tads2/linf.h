@@ -2,11 +2,11 @@
 $Header: d:/cvsroot/tads/TADS2/LINF.H,v 1.3 1999/07/11 00:46:30 MJRoberts Exp $
 */
 
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -50,20 +50,20 @@ extern "C" {
 /* maximum number of pages of debugging records we can keep */
 #define LINFPGMAX 128
 
-/* 
+/*
  *   executable line information structure: this record relates one
  *   executable line to the object containing the p-code, and the offset
- *   in the object of the p-code for the start of the line 
+ *   in the object of the p-code for the start of the line
  */
 struct linfinfo
 {
-    /* 
+    /*
      *   OPCLINE data (file seek position or line number, depending on how
      *   the game was compiled: -ds -> file seek offset, -ds2 -> line
-     *   number) 
+     *   number)
      */
     ulong fpos;
-    
+
     /* object number */
     objnum objn;
 
@@ -71,8 +71,8 @@ struct linfinfo
     uint ofs;
 };
 
-/* 
- *   file line source 
+/*
+ *   file line source
  */
 struct linfdef
 {

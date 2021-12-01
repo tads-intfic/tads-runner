@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -45,10 +45,10 @@ int tio_askfile(const char *prompt, char *reply, int replen,
     /* ask for the filename */
     if (getstring(" >", reply, replen))
         return OS_AFE_FAILURE;
-    
-    /* 
+
+    /*
      *   if they entered an empty line, return "cancel"; otherwise, return
-     *   success 
+     *   success
      */
     return (reply[0] == '\0' ? OS_AFE_CANCEL : OS_AFE_SUCCESS);
 }

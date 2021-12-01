@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 2002 by Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -15,9 +15,9 @@ Function
   - provides a CVmMainClientIfc implementation that writes errors to
   G_console (or os_printz, if no G_console is available), and ignores other
   notifications
-  
+
 Notes
-  
+
 Modified
   04/05/02 MJRoberts  - Creation
 */
@@ -60,7 +60,7 @@ public:
 
         /* flush any pending buffered output */
         con->flush(vmg_ VM_NL_NONE);
-        
+
         /* delete the output formatter */
         con->delete_obj(vmg0_);
     }
@@ -124,18 +124,18 @@ public:
 
         /* check for a newline at the end of the message */
         int has_nl = ((len = strlen(msg)) != 0 && msg[len-1] == '\n');
-        
+
         /* set up for global access */
         VMGLOB_PTR(vmg);
 
         /* if we have globals, get the console */
         con = VMGLOB_IF_AVAIL(G_console);
-            
+
         /* if we have a console, write to it */
         if (con != 0)
         {
             int old_obey;
-            
+
             /* flush any pending buffered output */
             con->flush(vmg_ VM_NL_NONE);
 
@@ -163,9 +163,9 @@ public:
                 /* add one newline */
                 os_printz("\n");
 
-                /* 
+                /*
                  *   if the message itself didn't end with a newline, add
-                 *   another newline 
+                 *   another newline
                  */
                 if (!has_nl)
                     os_printz("\n");

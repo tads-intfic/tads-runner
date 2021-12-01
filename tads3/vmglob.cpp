@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/vmglob.cpp,v 1.2 1999/05/17 02:52:29 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -15,7 +15,7 @@ Name
 Function
   Defines the global variables.
 Notes
-  
+
 Modified
   11/28/98 MJRoberts  - Creation
 */
@@ -36,7 +36,7 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   In the VARS configuration, we need to provide storage for all of the
- *   variables.  
+ *   variables.
  */
 #ifdef VMGLOB_VARS
 

@@ -3,17 +3,17 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/VMTYPEDH.CPP,v 1.2 1999/05/17 02:52:29 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmtypedh.cpp - type manipulations for data holders
 Function
-  
+
 Notes
   This is separated from vmtype.cpp so that these functions can be linked
   into an application without dragging in a bunch of things that other
@@ -30,11 +30,11 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Portable data holder manipulation 
+ *   Portable data holder manipulation
  */
 
-/* 
- *   store a vm_val_t value in a portable data holder 
+/*
+ *   store a vm_val_t value in a portable data holder
  */
 void vmb_put_dh(char *buf, const vm_val_t *val)
 {
@@ -87,7 +87,7 @@ void vmb_put_dh(char *buf, const vm_val_t *val)
 }
 
 /*
- *   Get only the value portion of a vm_val_t from a portable data holder 
+ *   Get only the value portion of a vm_val_t from a portable data holder
  */
 void vmb_get_dh_val(const char *buf, vm_val_t *val)
 {

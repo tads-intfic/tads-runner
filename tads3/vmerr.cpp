@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/vmerr.cpp,v 1.4 1999/07/11 00:46:59 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -15,7 +15,7 @@ Name
 Function
   This module contains global variables required for the error handler.
 Notes
-  
+
 Modified
   10/20/98 MJRoberts  - Creation
 */
@@ -40,16 +40,16 @@ static int G_err_refs = 0;
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Initialize the global error context 
+ *   Initialize the global error context
  */
 void err_init(size_t /*param_stack_size*/)
 {
     /* increase the error system reference counter */
     if (++G_err_refs == 1)
     {
-        /* 
+        /*
          *   first initialization - allocate the thread-local variable slot
-         *   for the error frame pointer 
+         *   for the error frame pointer
          */
         os_tls_create(G_err_frame);
     }
@@ -57,7 +57,7 @@ void err_init(size_t /*param_stack_size*/)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Delete the global error context 
+ *   Delete the global error context
  */
 void err_terminate()
 {
@@ -79,7 +79,7 @@ void err_terminate()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Throw the error currently on the stack 
+ *   Throw the error currently on the stack
  */
 static void err_throw_current()
 {
@@ -90,7 +90,7 @@ static void err_throw_current()
      *   jump.  If we're currently in a 'trying' block, we'll now be in an
      *   'exception' state.  Otherwise, we must have been in a 'catch' or
      *   'finally' already - in these cases, the new state is 'rethrown',
-     *   because we have an exception within an exception handler.  
+     *   because we have an exception within an exception handler.
      */
     err_state_t old_state = os_tls_get(err_frame_t *, G_err_frame)->state_;
     err_state_t f = (old_state & ERR_STATE_FINALLY);
@@ -106,7 +106,7 @@ static void err_throw_current()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Throw an exception 
+ *   Throw an exception
  */
 void err_throw(err_id_t error_code)
 {
@@ -115,8 +115,8 @@ void err_throw(err_id_t error_code)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   store a string parameter 
+/*
+ *   store a string parameter
  */
 static char *err_store_str(char* &strspace, const char *str, size_t len)
 {
@@ -151,7 +151,7 @@ static size_t err_throw_v(err_id_t error_code, int param_count, va_list va,
      *   function, we must retrieve our err_param_type arguments (via the
      *   va_arg() macro) with type 'int' rather than type 'enum
      *   err_param_type'.
-     *   
+     *
      *   The promotion to int is mandatory, so retrieving our values as
      *   'int' values is the correct, portable thing to do; the only
      *   potential problem is that our enum type could be defined to be
@@ -162,22 +162,22 @@ static size_t err_throw_v(err_id_t error_code, int param_count, va_list va,
      *   words, we had enum values higher than the largest unsigned int
      *   value for the local platform).  This is extremely unlikely, but
      *   we'll assert our assumption here to ensure that the problem is
-     *   readily apparent should it ever occur.  
+     *   readily apparent should it ever occur.
      */
     assert(sizeof(err_param_type) <= sizeof(int));
 
-    /* 
+    /*
      *   Figure out how much space we need.  Start with the size of the base
      *   CVmException class, since we always need a CVmException structure.
      *   This structure has space for one argument descriptor built in, so
      *   subtract that off from our base size, since we'll add in space for
-     *   the argument descriptors separately.  
+     *   the argument descriptors separately.
      */
     size_t siz = sizeof(CVmException) - sizeof(CVmExcParam);
 
-    /* 
+    /*
      *   Add in space the parameter descriptors.  We need one CVmExcParam
-     *   structure to describe each parameter.  
+     *   structure to describe each parameter.
      */
     siz += param_count * sizeof(CVmExcParam);
 
@@ -198,26 +198,26 @@ static size_t err_throw_v(err_id_t error_code, int param_count, va_list va,
         /*
          *   If the current stack frame is already handling an error, delete
          *   the current frame's exception object, since the current frame
-         *   will no longer be accessible after this throw.  
+         *   will no longer be accessible after this throw.
          */
         if (os_tls_get(err_frame_t *, G_err_frame)->state_
             & (ERR_STATE_EXCEPTION | ERR_STATE_CAUGHT | ERR_STATE_RETHROWN))
             t3free(os_tls_get(err_frame_t *, G_err_frame)->exc_);
-        
+
         /* this is now the current exception */
         os_tls_get(err_frame_t *, G_err_frame)->exc_ = exc;
 
         /* start at the first parameter slot */
         param = exc->params_;
 
-        /* 
+        /*
          *   store strings in the allocated space after the base struct and
-         *   (varying-size) parameter array 
+         *   (varying-size) parameter array
          */
         strspace = (char *)&exc->params_[param_count];
     }
 
-    /* 
+    /*
      *   We now have our base exception structure, with enough space for the
      *   parameter descriptors, but we still need to store the parameter
      *   values themselves.
@@ -226,7 +226,7 @@ static size_t err_throw_v(err_id_t error_code, int param_count, va_list va,
     {
         /* get the type indicator, and store it in the descriptor */
         err_param_type typ = (err_param_type)va_arg(va, int);
-        
+
         /* store the type */
         if (exc != 0)
             param->type_ = typ;
@@ -253,9 +253,9 @@ static size_t err_throw_v(err_id_t error_code, int param_count, va_list va,
             break;
 
         case ERR_TYPE_TEXTCHAR:
-            /* 
+            /*
              *   It's a (textchar_t *) string, null-terminated.  Get the
-             *   string pointer and calculate its length. 
+             *   string pointer and calculate its length.
              */
             sptr = va_arg(va, textchar_t *);
             slen = get_strlen(sptr);
@@ -269,9 +269,9 @@ static size_t err_throw_v(err_id_t error_code, int param_count, va_list va,
             break;
 
         case ERR_TYPE_TEXTCHAR_LEN:
-            /* 
+            /*
              *   It's a (textchar_t *) string with an explicit length given
-             *   as a separate size_t parameter. 
+             *   as a separate size_t parameter.
              */
             sptr = va_arg(va, textchar_t *);
             slen = va_arg(va, size_t);
@@ -318,10 +318,10 @@ static size_t err_throw_v(err_id_t error_code, int param_count, va_list va,
             break;
 
         case ERR_TYPE_FUNCSET:
-            /* 
+            /*
              *   It's a char* string with a function set ID.  These are not
              *   stored in the parameters, but go in the funcset_ slot in the
-             *   exception object. 
+             *   exception object.
              */
             sptr = va_arg(va, char *);
             siz += strlen(sptr) + 1;
@@ -330,10 +330,10 @@ static size_t err_throw_v(err_id_t error_code, int param_count, va_list va,
             break;
 
         case ERR_TYPE_METACLASS:
-            /* 
+            /*
              *   It's a char* string with a metaclass ID.  These are not
              *   stored in the parameters, but go in the metaclass_ slot in
-             *   the exception object.  
+             *   the exception object.
              */
             sptr = va_arg(va, char *);
             siz += strlen(sptr) + 1;
@@ -342,11 +342,11 @@ static size_t err_throw_v(err_id_t error_code, int param_count, va_list va,
             break;
 
         case ERR_TYPE_VERSION_FLAG:
-            /* 
+            /*
              *   This parameter is a flag indicating that the error is due to
              *   an out-of-date interpreter build.  This has no parameter
              *   data; we simply set the flag in the exception to indicate
-             *   the version error type.  
+             *   the version error type.
              */
             if (exc != 0)
                 exc->version_flag_ = TRUE;
@@ -354,10 +354,10 @@ static size_t err_throw_v(err_id_t error_code, int param_count, va_list va,
         }
     }
 
-    /* 
+    /*
      *   if we have an exception, throw it; if not, we're doing a dry run to
      *   compute the exception object size, so simply return the computed
-     *   size 
+     *   size
      */
     if (exc != 0)
     {
@@ -377,12 +377,12 @@ static size_t err_throw_v(err_id_t error_code, int param_count, va_list va,
 /*
  *   Microsoft Visual C++ optimizer workaround - not applicable to other
  *   systems.
- *   
+ *
  *   For MSVC, we need to turn off warning 4702 ("unreachable code").  MSVC
  *   is too clever by half for our implementation here of err_throw_a(), and
  *   the only recourse (empirically) seems to be to turn off this warning for
  *   the duration of this function.
- *   
+ *
  *   The issue is that err_throw_a() makes a call to err_throw_v() within a
  *   va_start()...va_end() pair.  The MSVC optimizer recognizes that
  *   err_throw_v() never returns, so it marks any code following a call to
@@ -392,24 +392,24 @@ static size_t err_throw_v(err_id_t error_code, int param_count, va_list va,
  *   insert a close brace to balance an open brace inserted by va_start()).
  *   So we can't omit the va_end() call regardless of its run-time
  *   reachability.
- *   
+ *
  *   So, we have code that's both unreachable and required.  The only
  *   apparent solution is to disable the unreachable-code warning for the
  *   duration of this function.
- *   
+ *
  *   (Conceivably, we could trick the optimizer by moving the err_throw_a()
  *   implementation to a separate module; the optimizer probably couldn't
  *   track the does-not-return status of err_throw_v() across modules.  But
  *   that wouldn't be any cleaner in any sense - it would just trick the
  *   compiler in a different way.  Better to explicitly turn off the warning;
- *   at least that way the workaround is plain and explicit.)  
+ *   at least that way the workaround is plain and explicit.)
  */
 #pragma warning(push)
 #pragma warning(disable: 4702)
 #endif
 
 /*
- *   Throw an exception with parameters 
+ *   Throw an exception with parameters
  */
 void err_throw_a(err_id_t error_code, int param_count, ...)
 {
@@ -438,7 +438,7 @@ void err_throw_a(err_id_t error_code, int param_count, ...)
 /* ------------------------------------------------------------------------ */
 /*
  *   Re-throw the current exception.  This is valid only from 'catch'
- *   blocks.  
+ *   blocks.
  */
 void err_rethrow()
 {
@@ -459,13 +459,13 @@ void err_abort(const char *message)
 /* ------------------------------------------------------------------------ */
 /*
  *   Retrieve the current exception being handled in the nearest enclosing
- *   err_catch frame. 
+ *   err_catch frame.
  */
 CVmException *err_get_cur_exc()
 {
-    /* 
+    /*
      *   search the error frame stack for a frame in the 'caught exception'
-     *   state, starting at the current (innermost) frame 
+     *   state, starting at the current (innermost) frame
      */
     for (err_frame_t *fr = os_tls_get(err_frame_t *, G_err_frame) ;
          fr != 0 ; fr = fr->prv_)
@@ -483,7 +483,7 @@ CVmException *err_get_cur_exc()
 /* ------------------------------------------------------------------------ */
 /*
  *   Try loading a message file.  Returns zero on success, non-zero if an
- *   error occurred.  
+ *   error occurred.
  */
 int err_load_message_file(osfildef *fp,
                           const err_msg_t **arr, size_t *arr_size,
@@ -493,7 +493,7 @@ int err_load_message_file(osfildef *fp,
     char buf[128];
     size_t i;
     err_msg_t *msg;
-    
+
     /* read the file signature */
     if (osfrb(fp, buf, sizeof(VM_MESSAGE_FILE_SIGNATURE))
         || memcmp(buf, VM_MESSAGE_FILE_SIGNATURE,
@@ -522,7 +522,7 @@ int err_load_message_file(osfildef *fp,
     for (i = 0, msg = (err_msg_t *)*arr ; i < *arr_size ; ++i, ++msg)
     {
         size_t len1, len2;
-        
+
         /* read the current message ID and the length of the two messages */
         if (osfrb(fp, buf, 8))
             goto fail;
@@ -566,36 +566,36 @@ fail:
 
 /*
  *   Determine if an external message file has been loaded for the default
- *   VM message set 
+ *   VM message set
  */
 int err_is_message_file_loaded()
 {
-    /* 
+    /*
      *   if we're not using the compiled-in message array, we must have
-     *   loaded an external message set 
+     *   loaded an external message set
      */
     return vm_messages != &vm_messages_english[0];
 }
 
 /*
- *   Delete the message array, if one is loaded 
+ *   Delete the message array, if one is loaded
  */
 void err_delete_message_array(const err_msg_t **arr, size_t *arr_size,
                               const err_msg_t *default_arr,
                               size_t default_arr_size)
 {
-    /* 
+    /*
      *   If the message array is valid, and it's not set to point to the
      *   built-in array of English messages, we must have allocated it, so
      *   we must now free it.  We don't need to free it if it points to
      *   the English array, because that's static data linked into the VM
-     *   executable.  
+     *   executable.
      */
     if (*arr != 0 && *arr != default_arr)
     {
         size_t i;
         err_msg_t *msg;
-        
+
         /* delete each message in the array */
         for (i = 0, msg = (err_msg_t *)*arr ; i < *arr_size ; ++i, ++msg)
         {
@@ -617,7 +617,7 @@ void err_delete_message_array(const err_msg_t **arr, size_t *arr_size,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Find an error message 
+ *   Find an error message
  */
 const char *err_get_msg(const err_msg_t *msg_array, size_t msg_count,
                         int msgnum, int verbose)
@@ -658,13 +658,13 @@ const char *err_get_msg(const err_msg_t *msg_array, size_t msg_count,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Format a message, allocating a buffer 
+ *   Format a message, allocating a buffer
  */
 char *err_format_msg(const char *msg, const CVmException *exc)
 {
-    /* 
+    /*
      *   format the message into a null buffer to calculate the length; add a
-     *   byte for null termination 
+     *   byte for null termination
      */
     size_t len = err_format_msg(0, 0, msg, exc) + 1;
 
@@ -681,15 +681,15 @@ char *err_format_msg(const char *msg, const CVmException *exc)
 /*
  *   Format a message with the parameters contained in an exception object.
  *   Suports the following format codes:
- *   
+ *
  *   %s - String.  Formats an ERR_TYPE_CHAR or ERR_TYPE_TEXTCHAR value,
  *   including the counted-length versions.
- *   
+ *
  *   %d, %u, %x - signed/unsigned decimal integer, hexadecimal integer.
  *   Formats an ERR_TYPE_INT value or an ERR_TYPE_ULONG value.
  *   Automatically uses the correct size for the argument.
- *   
- *   %% - Formats as a single percent sign.  
+ *
+ *   %% - Formats as a single percent sign.
  */
 size_t err_format_msg(char *outbuf, size_t outbuflen,
                       const char *msg, const CVmException *exc)
@@ -730,11 +730,11 @@ size_t err_format_msg(char *outbuf, size_t outbuflen,
             err_param_type typ;
             size_t len;
             int use_strlen;
-            
-            /* 
+
+            /*
              *   if no more parameters are available, ignore the
              *   formatting code entirely, and leave it in the string as
-             *   it is 
+             *   it is
              */
             if (curarg >= exc_argc)
             {
@@ -746,13 +746,13 @@ size_t err_format_msg(char *outbuf, size_t outbuflen,
 
             /* get the type of the current parameter */
             typ = exc->get_param_type(curarg);
-            
-            /* 
+
+            /*
              *   presume we'll want to use strlen to get the length of the
-             *   source value 
+             *   source value
              */
             use_strlen = TRUE;
-            
+
             /* skip the '%' and determine what follows */
             ++p;
             switch (*p)
@@ -768,10 +768,10 @@ size_t err_format_msg(char *outbuf, size_t outbuflen,
                     /* get the string value and its length */
                     src = exc->get_param_char_len(curarg, &len);
 
-                    /* 
+                    /*
                      *   src isn't null terminated, so don't use strlen to
                      *   get its length - we already have it from the
-                     *   parameter data 
+                     *   parameter data
                      */
                     use_strlen = FALSE;
                 }

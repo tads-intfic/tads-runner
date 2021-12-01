@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/resload.cpp,v 1.2 1999/05/17 02:52:29 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   resload.cpp - resource loader
 Function
-  
+
 Notes
-  
+
 Modified
   10/17/98 MJRoberts  - Creation
 */
@@ -28,7 +28,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   create resource loader 
+ *   create resource loader
  */
 CResLoader::CResLoader()
 {
@@ -40,7 +40,7 @@ CResLoader::CResLoader()
 }
 
 /*
- *   create a resource loader given a root directory 
+ *   create a resource loader given a root directory
  */
 CResLoader::CResLoader(const char *root_dir)
 {
@@ -52,7 +52,7 @@ CResLoader::CResLoader(const char *root_dir)
 }
 
 /*
- *   delete resource loader 
+ *   delete resource loader
  */
 CResLoader::~CResLoader()
 {
@@ -70,11 +70,11 @@ osfildef *CResLoader::open_res_file(const char *respath,
 {
     char filepath[OSFNMAX];
     osfildef *fp;
-    
-    /* 
+
+    /*
      *   Look for the resource as an external file.  If we have a root
      *   directory, look for the file under that directory; otherwise,
-     *   look for it in the current directory.  
+     *   look for it in the current directory.
      */
     if (root_dir_ != 0)
     {

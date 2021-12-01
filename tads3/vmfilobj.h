@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 2001, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -10,7 +10,7 @@ Name
 Function
   Implements an intrinsic class interface to operating system file I/O.
 Notes
-  
+
 Modified
   06/28/01 MJRoberts  - Creation
 */
@@ -30,23 +30,23 @@ Modified
 /*
  *   File intrinsic class.  Our extension keeps track of our data source (our
  *   abstract file handle), our character set object, and our flags.
- *   
+ *
  *   CVmDataSource *fp
  *.  objid charset
  *.  byte mode (text/data/raw)
  *.  byte access (read/write/both)
  *.  uint32 flags
- *   
+ *
  *   Our image file data leaves out the file handle, since it can't be
  *   loaded:
- *   
+ *
  *   objid charset
  *.  byte mode
  *.  byte access
  *.  uint32 flags
- *   
+ *
  *   An open file is inherently transient, so its state cannot be loaded,
- *   restored, or undone.  
+ *   restored, or undone.
  */
 
 class CVmObjFile: public CVmObject
@@ -59,7 +59,7 @@ public:
      *   the Open methods (from bytecode) in place of the filename string.
      *   These designate system files whose actual location is determined by
      *   the interpreter.
-     *   
+     *
      *   The special file mechanism is designed to give games a well-defined
      *   portable way to access global, cross-game files outside of the game
      *   sandbox, while still protecting the local file system against
@@ -67,22 +67,22 @@ public:
      *   filename of a given special file is determined by the interpreter,
      *   so games can't use this to access arbitrary files - only the
      *   designated special files are accessible.
-     *   
+     *
      *   Note that the integer values defined here must not be changed in
      *   future releases, since they're a published part of the API - i.e.,
-     *   bytecode programs hard-code the integer values.  
+     *   bytecode programs hard-code the integer values.
      */
 
-    /* 
+    /*
      *   Library defaults file.  This is defined as a system file, common to
      *   all games, where we can store global cross-game preference settings.
-     *   This is generally stored in the interpreter install directory.  
+     *   This is generally stored in the interpreter install directory.
      */
     static const int32_t SFID_LIB_DEFAULTS = 1;
 
     /*
      *   Web UI preferences file.  This is a system file common to all games
-     *   that stores the UI settings for the Web UI client.  
+     *   that stores the UI settings for the Web UI client.
      */
     static const int32_t SFID_WEBUI_PREFS = 2;
 
@@ -118,9 +118,9 @@ public:
     virtual void convert_to_const_data(VMG_ class CVmConstMapper *,
                                        vm_obj_id_t /*self*/)
     {
-        /* 
+        /*
          *   we can't be converted to constant data and reference nothing
-         *   that can be converted to constant data 
+         *   that can be converted to constant data
          */
     }
 
@@ -193,9 +193,9 @@ public:
         int access, int is_resource_file,
         os_filetype_t file_type, const char *mime_type);
 
-    /* 
+    /*
      *   get the filename from an object argument; this can only be used for
-     *   regular files (not resources) 
+     *   regular files (not resources)
      */
     static CVmNetFile *get_filename_from_obj(
         VMG_ vm_obj_id_t obj, const vm_rcdesc *rc, int access,
@@ -204,10 +204,10 @@ public:
     /* resolve a special file ID to a local path */
     static int sfid_to_path(VMG_ char *buf, size_t buflen, int32_t sfid);
 
-    /* 
+    /*
      *   Check the safety settings to determine if an open is allowed on the
      *   given file with the given access mode.  If the access is not
-     *   allowed, we'll throw an error.  
+     *   allowed, we'll throw an error.
      */
     static void check_safety_for_open(VMG_ class CVmNetFile *f, int access);
 
@@ -224,7 +224,7 @@ public:
     /* seek; returns true on success, false on failure */
     int set_pos(VMG_ long pos);
 
-    /* 
+    /*
      *   Read the file, storing the result in the caller's buffer.  The
      *   request is a suggested read size; we'll attempt to fill this as
      *   closely as possible, but we might return less than requested (never
@@ -366,15 +366,15 @@ protected:
     void write_text_mode(VMG_ const vm_val_t *val);
     void write_data_mode(VMG_ const vm_val_t *val);
 
-    /* 
+    /*
      *   check to make sure we can perform operations on the file - if we're
      *   in the 'out of sync' state, we'll throw an exception
      */
     void check_valid_file(VMG0_);
 
-    /* 
+    /*
      *   check that we have read or write access to the file - throws a mode
-     *   exception if we don't have the requested access mode 
+     *   exception if we don't have the requested access mode
      */
     void check_read_access(VMG0_);
     void check_write_access(VMG0_);
@@ -388,18 +388,18 @@ protected:
 
     /*
      *   Note a file seek position change.
-     *   
+     *
      *   'is_explicit' indicates whether the seek is an explicit osfseek()
      *   operation or simply a change in position due to a read or write.  If
      *   we're explicitly seeking to a new location with osfseek(),
      *   'is_explicit' is true; if we're simply reading or writing, which
-     *   affects the file position implicitly, 'is_explicit' is false.  
+     *   affects the file position implicitly, 'is_explicit' is false.
      */
     void note_file_seek(VMG_ int is_explicit);
 
-    /* 
+    /*
      *   check for a switch between reading and writing, flushing our
-     *   underlying stdio buffers if necessary 
+     *   underlying stdio buffers if necessary
      */
     void switch_read_write_mode(VMG_ int writing);
 
@@ -413,16 +413,16 @@ protected:
 };
 
 /*
- *   File object extension 
+ *   File object extension
  */
 struct vmobjfile_ext_t
 {
-    /* 
+    /*
      *   Our network/local file descriptor.  This handles network storage
-     *   server operations when we're running in web server mode. 
+     *   server operations when we're running in web server mode.
      */
     class CVmNetFile *netfile;
-    
+
     /* our abstract data source (usually an OS file) */
     CVmDataSource *fp;
 
@@ -444,7 +444,7 @@ struct vmobjfile_ext_t
 
 /*
  *   File object text read buffer.  This is attached to the file extension
- *   if the file is opened in text mode with read access.  
+ *   if the file is opened in text mode with read access.
  */
 struct vmobjfile_readbuf_t
 {
@@ -475,35 +475,35 @@ struct vmobjfile_readbuf_t
     int refill(CVmDataSource *fp);
 };
 
-/* 
- *   file extension flags 
+/*
+ *   file extension flags
  */
 
-/* 
+/*
  *   File out of sync.  This is set when we load a File object from an image
  *   file; since the file cannot remain open across a preinit-save-load
  *   cycle, no operations can be performed on the File object after it's
- *   loaded from an image file.  
+ *   loaded from an image file.
  */
 #define VMOBJFILE_OUT_OF_SYNC       0x0001
 
-/* 
+/*
  *   last operation left the underlying stdio buffers dirty, so we must take
  *   care to seek explicitly in the file if changing read/write mode on the
- *   next operation 
+ *   next operation
  */
 #define VMOBJFILE_STDIO_BUF_DIRTY   0x0002
 
-/* 
+/*
  *   last operation was 'write' - we must keep track of the last operation
  *   so that we will know to explicitly seek when switching between read and
- *   write operations 
+ *   write operations
  */
 #define VMOBJFILE_LAST_OP_WRITE     0x0004
 
 
 /*
- *   modes 
+ *   modes
  */
 #define VMOBJFILE_MODE_TEXT   0x01
 #define VMOBJFILE_MODE_DATA   0x02
@@ -533,32 +533,32 @@ struct vmobjfile_readbuf_t
 /*
  *   'Data' mode type tags.  Each item in a data-mode file is written with
  *   a byte giving the type tag, followed immediately by the data value.
- *   
+ *
  *   For compatibility with TADS 2 'binary' mode files, we use the same
  *   type tags that TADS 2 used for types in common.  We are upwardly
  *   compatible with the TADS 2 format: we recognize all TADS 2 type tags,
  *   but we provide support for additional types that TADS 2 does not use.
  *   All of the tag values below 0x20 are compatible with TADS 2; those
  *   tag values 0x20 and above are not backwards compatible, so files that
- *   include these values will not be readable by TADS 2 programs.  
+ *   include these values will not be readable by TADS 2 programs.
  */
 
-/* 
+/*
  *   integer - 32-bit int in little-endian format (4 bytes) - TADS 2
- *   compatible 
+ *   compatible
  */
 #define VMOBJFILE_TAG_INT       0x01
 
-/* 
+/*
  *   string - 16-bit byte-length prefix in little-endian format followed
  *   by the bytes of the string, in UTF-8 format - TADS 2 compatible,
  *   although any string which includes characters outside of the ASCII
  *   set (Unicode code points 0 to 127 inclusive) will not be properly
  *   interpreted by TADS 2 programs.
- *   
+ *
  *   For compatibility with TADS 2, the length prefix includes in its byte
  *   count the two bytes of the length prefix itself, so this value is
- *   actually two higher than the number of bytes in the string proper.  
+ *   actually two higher than the number of bytes in the string proper.
  */
 #define VMOBJFILE_TAG_STRING    0x03
 
@@ -568,22 +568,22 @@ struct vmobjfile_readbuf_t
 /* enum - 32-bit enum value in little-endian format */
 #define VMOBJFILE_TAG_ENUM      0x20
 
-/* 
+/*
  *   BigNumber - 16-bit length prefix in little-endian format followed by
- *   the bytes of the BigNumber 
+ *   the bytes of the BigNumber
  */
 #define VMOBJFILE_TAG_BIGNUM    0x21
 
-/* 
+/*
  *   ByteArray - 32-bit length prefix in little-endian format followed by
- *   the bytes of the byte array 
+ *   the bytes of the byte array
  */
 #define VMOBJFILE_TAG_BYTEARRAY 0x22
 
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Registration table object 
+ *   Registration table object
  */
 class CVmMetaclassFile: public CVmMetaclass
 {
@@ -622,6 +622,6 @@ public:
 #endif /* VMFILOBJ_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjFile)

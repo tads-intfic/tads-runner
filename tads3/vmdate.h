@@ -1,10 +1,10 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 2012 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -12,7 +12,7 @@ Name
 Function
   Defines the Date intrinsic class
 Notes
-  
+
 Modified
   01/23/12 MJRoberts  - Creation
 */
@@ -82,9 +82,9 @@ struct caldate_t
             mq.rem += 12, mq.quot -= 1;
         jm = mq.rem + 1;
         jy += mq.quot;
-        
 
-        /* 
+
+        /*
          *   Calculate the Julian day number for the julian date, then
          *   subtract our Epoch's Julian day number to get our day number.
          */
@@ -121,14 +121,14 @@ struct caldate_t
      *   calculates the day number it represents, and then figure the m/d/y
      *   for that day number.  This ensures that a date entered with an
      *   overflow in one of the fields (e.g., "February 30") is translated
-     *   into a proper calendar date. 
+     *   into a proper calendar date.
      */
     void normalize_date()
     {
         set_dayno(dayno());
     }
 
-    /* 
+    /*
      *   Integer divide-and-get-floor calculation - i.e., round towards
      *   negative infinity.  This is the same as ordinary C integer division
      *   for positive numbers, but for negative numbers most C
@@ -143,7 +143,7 @@ struct caldate_t
     /* get the day number of this calendar date */
     int32_t dayno() const
     {
-        /* 
+        /*
          *   Adjust the month to our odd range where the year starts in
          *   March: 0 = March, 1 = April, ... 11 = Feb.  (If this yields a
          *   negative remainder, adjust to a positive index by going back a
@@ -176,11 +176,11 @@ struct caldate_t
 
     /*
      *   Figure the week number, where week 1 starts on the first <weekday>
-     *   of the year (0=Sunday). 
+     *   of the year (0=Sunday).
      */
     int weekno(int weekday) const
     {
-        /* 
+        /*
          *   Figure days until the first <weekday> of the year: that's the
          *   start of week 1, so the day number of the start of week 1 is the
          *   jan1 day number plus this delta.  The start of week 0 is 7 days
@@ -202,7 +202,7 @@ struct caldate_t
      */
     int iso_weekno(int *year) const
     {
-        /* 
+        /*
          *   Find the Thursday of the current ISO week.  To do this, figure
          *   our weekday, subtract the ISO weekday number minus 1 to get the
          *   nearest preceding Monday (the start of the ISO week), then add 3
@@ -254,7 +254,7 @@ struct caldate_t
 /* ------------------------------------------------------------------------ */
 /*
  *   Multi-calendar interface.  This virtualizes the calculations in
- *   caldate_t for different calendars. 
+ *   caldate_t for different calendars.
  */
 struct multicaldate_t
 {
@@ -268,13 +268,13 @@ struct multicaldate_t
     /* get the day number of January 1 of year 'y' */
     virtual int32_t jan1_dayno() const = 0;
 
-    /* 
+    /*
      *   get the week number for this date, for the week starting on the
      *   given weekday
      */
     int weekno(int weekday) const
     {
-        /* 
+        /*
          *   Figure days until the first <weekday> of the year: that's the
          *   start of week 1, so the day number of the start of week 1 is the
          *   jan1 day number plus this delta.  The start of week 0 is 7 days
@@ -302,7 +302,7 @@ struct gregcaldate_t: multicaldate_t
 {
     gregcaldate_t() { }
     gregcaldate_t(int32_t d) { gregcaldate_t::set_dayno(d); }
-    
+
     virtual int32_t dayno() const
     {
         return cd.dayno();
@@ -379,16 +379,16 @@ struct julcaldate_t: multicaldate_t
  *   of the date, which is the number of days since March 1, year 0, midnight
  *   UTC; and the time of day as the number of milliseconds past midnight
  *   (UTC) on that day.
- *   
+ *
  *   The image file data block is arranged as follows:
- *   
+ *
  *.   UINT4 day_number
  *.   UINT2 time_of_day_ms
  */
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Forward declarations 
+ *   Forward declarations
  */
 typedef struct date_parse_result date_parse_result;
 
@@ -422,7 +422,7 @@ struct vm_date_ext
 class CVmObjDate: public CVmObject
 {
     friend class CVmMetaclassDate;
-    
+
 public:
     /* metaclass registration object */
     static class CVmMetaclass *metaclass_reg_;
@@ -455,9 +455,9 @@ public:
     /* create from an os_time_t value */
     static vm_obj_id_t create_from_time_t(VMG_ int in_root_set, os_time_t t);
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -492,10 +492,10 @@ public:
     /* date arithmetic - add an integer or BigNumber to add days */
     int add_val(VMG_ vm_val_t *result, vm_obj_id_t self, const vm_val_t *val);
 
-    /* 
+    /*
      *   date arithmetic - subtract an integer or BigNumber to subtract days
      *   from the date, or subtract another Date to calculate the number of
-     *   days between the dates 
+     *   days between the dates
      */
     int sub_val(VMG_ vm_val_t *result, vm_obj_id_t self, const vm_val_t *val);
 
@@ -503,18 +503,18 @@ public:
     int equals(VMG_ vm_obj_id_t self, const vm_val_t *val, int depth) const;
     int compare_to(VMG_ vm_obj_id_t self, const vm_val_t *val) const;
 
-    /* 
+    /*
      *   receive savepoint notification - we don't keep any
-     *   savepoint-relative records, so we don't need to do anything here 
+     *   savepoint-relative records, so we don't need to do anything here
      */
     void notify_new_savept() { }
-    
+
     /* apply an undo record - we're immutable, so there's no undo */
     void apply_undo(VMG_ struct CVmUndoRecord *) { }
-    
+
     /* discard an undo record */
     void discard_undo(VMG_ struct CVmUndoRecord *) { }
-    
+
     /* mark our undo record references */
     void mark_undo_ref(VMG_ struct CVmUndoRecord *) { }
 
@@ -560,9 +560,9 @@ protected:
         int32_t &dayno, int32_t &daytime, class CVmTimeZone *tz) const
         { int32_t ofs; return get_local_time(dayno, daytime, ofs, tz); }
 
-    /* 
+    /*
      *   get my date/time in the given time zone, filling in the time zone's
-     *   offset from UTC in milliseconds 
+     *   offset from UTC in milliseconds
      */
     const char *get_local_time(
         int32_t &dayno, int32_t &daytime, int32_t &tzofs,
@@ -669,7 +669,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjDate metaclass registration table object 
+ *   CVmObjDate metaclass registration table object
  */
 class CVmMetaclassDate: public CVmMetaclass
 {
@@ -694,7 +694,7 @@ public:
     /* create dynamically using stack arguments */
     vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr, uint argc)
         { return CVmObjDate::create_from_stack(vmg_ pc_ptr, argc); }
-    
+
     /* call a static property */
     int call_stat_prop(VMG_ vm_val_t *result,
                        const uchar **pc_ptr, uint *argc,
@@ -715,6 +715,6 @@ public:
 #endif /* VMDATE_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjDate)

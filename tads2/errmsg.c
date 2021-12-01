@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/ERRMSG.C,v 1.3 1999/07/11 00:46:29 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1992, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -34,7 +34,7 @@ Modified
  *   for some of the memory settings.  Whenever an OS header does this, it
  *   should define the corresponding usage message string.  We'll define
  *   any that aren't already defined in the OS headers to provide default
- *   values here.  
+ *   values here.
  */
 #ifndef TCD_HEAPSIZ_MSG
 #define TCD_HEAPSIZ_MSG "  -mh size      heap size (default 1024 bytes)"
@@ -81,7 +81,7 @@ Modified
 #endif
 
 /*
- *   The error list 
+ *   The error list
  */
 
 static errmdef errlist[] =
@@ -307,7 +307,7 @@ use with your version of the debugger)" },
     { ERR_STKSIZE, "stack size too large - cannot exceed %u" },
     { ERR_OPNSTRFIL, "error creating string capture file" },
     { ERR_INVCMAP, "character map file not found or invalid" },
-        
+
     { ERR_BPSYM, "error setting breakpoint:  unknown symbol" },
     { ERR_BPPROP, "error setting breakpoint:  symbol is not a property" },
     { ERR_BPFUNC, "error setting breakpoint:  symbol is not a function" },
@@ -339,7 +339,7 @@ use with your version of the debugger)" },
        "  -case         (+)[toggle] turn case sensitivity on(+) or off(-)" },
     { ERR_TCUS1 + 4, "  -ctab file    use character mapping table file" },
     { ERR_TCUS1 + 5, "  -D sym=val    define preprocessor symbol" },
-    { ERR_TCUS1 + 6, 
+    { ERR_TCUS1 + 6,
        "  -ds           (-)[toggle] generate source debugging information" },
     { ERR_TCUS1 + 7,
        "  -ds2          (-)[toggle] generate new-style debug information" },
@@ -377,7 +377,7 @@ use with your version of the debugger)" },
     { ERR_TCTGUS1 + 1,
        "toggle options: add + to enable, - to disable, nothing to toggle" },
     { ERR_TCTGUSL, "(default is shown in parentheses before [toggle] above)"},
-   
+
     { ERR_TCZUS1, "-Z (code generation) suboptions:" },
     { ERR_TCZUSL,
     "  -Za           (+)[toggle] run-time user function argument checking" },
@@ -493,7 +493,7 @@ use with your version of the debugger)" },
     "  -kbfix95      use special Windows 95 keyboard handling (use only if" },
     { ERR_TRUS_DOS32_1 + 2,
     "                you have problems with keyboard layout switching)" },
-    
+
 
     { ERR_GNOFIL, "warning: graphics resource file \"%s\" not found" },
     { ERR_GNORM, "can't find room \"%s\" (it's used in the resource file)" },
@@ -509,7 +509,7 @@ void errmsg(errcxdef *ctx, char *outbuf, uint outbufl, uint err)
     uint cur;
 
     VARUSED(outbufl);
-    
+
     /* run a binary search for the indicated error */
     first = 0;
     last = (sizeof(errlist) / sizeof(errlist[0])) - 1;
@@ -549,7 +549,7 @@ void errmsg(errcxdef *ctx, char *outbuf, uint outbufl, uint err)
     uint      cur;
     errmfdef *errlist = ctx->errcxseek;
     int       l;
-    
+
     if (!errlist)
     {
         strcpy(outbuf, "unknown: no error message file");
@@ -590,12 +590,12 @@ void errini(errcxdef *ctx, osfildef *fp)
     uint  siz;
     uint  i;
     uchar buf[6];
-    
+
     ctx->errcxseek = (errmfdef *)0;
     ctx->errcxsksz = 0;
     ctx->errcxbase = 0;
     if (!fp || ctx->errcxfp) return;
-    
+
     /* read number of messages, and allocate space for descriptors */
     (void)osfrb(fp, buf, 2);
     ctx->errcxsksz = osrp2(buf);
@@ -625,7 +625,7 @@ int main(int argc, char *argv[])
     ulong     pos;
     char     *nameout;
     uchar     buf[6];
-    
+
     if (argc > 2)
     {
         printf("usage: tadserr [msg-file]\n");
@@ -639,7 +639,7 @@ int main(int argc, char *argv[])
         printf("error: can't open %s\n", nameout);
         os_term(OSEXFAIL);
     }
-    
+
     /* write number of messages */
     siz = sizeof(errlist) / sizeof(errlist[0]);
     oswp2(buf, siz);
@@ -654,7 +654,7 @@ int main(int argc, char *argv[])
 
         pos += strlen(errlist[i].errmtxt) + 1;
     }
-    
+
     /* write messages */
     for (i = 0 ; i < siz ; ++i)
     {
@@ -665,7 +665,7 @@ int main(int argc, char *argv[])
         if (msglen) (void)osfwb(fp, errlist[i].errmtxt, msglen);
         (void)osfwb(fp, "\n", 1);
     }
-    
+
     osfcls(fp);
     return 0;
 }
@@ -693,18 +693,18 @@ int main(int argc, char *argv[])
     int       found_end = 0;
     long      prvpos;
     int       inquote;
-    
+
     if (argc != 2)
     {
         printf("usage: tadsmdoc tex-file\n");
         os_term(OSEXFAIL);
     }
-    
+
     namein = argv[1];
     rename(namein, "$DOC$.TMP");
     if (!(fpin = osfoprt("$DOC$.TMP", OSFTTEXT)))
         printf("warning: old doc file not found - creating %s\n", namein);
-    
+
     fp = osfopwt(namein, OSFTTEXT);
     if (!fp)
     {
@@ -712,7 +712,7 @@ int main(int argc, char *argv[])
         rename("$DOC$.TMP", namein);
         os_term(OSEXFAIL);
     }
-    
+
     /* seek first message, copying original input file up to that point */
     if (fpin != 0)
     {
@@ -723,7 +723,7 @@ int main(int argc, char *argv[])
                 fpin = 0;
                 break;
             }
-            
+
             if (!memcmp(buf, "% message #", 11))
             {
                 inmsg = atoi(buf + 11);
@@ -738,13 +738,13 @@ int main(int argc, char *argv[])
                 fputs(buf, fp);
         }
     }
-    
+
     /* write messages */
     siz = sizeof(errlist) / sizeof(errlist[0]);
     for (i = 0 ; i < siz ; ++i)
     {
         if (errlist[i].errmerr == ERR_TCUS1) break;
-        
+
         /* wait until we're at least at current message in input */
         while (fpin != 0 && !found_end && inmsg < errlist[i].errmerr)
         {
@@ -762,15 +762,15 @@ int main(int argc, char *argv[])
             else
                 fputs(buf, fp);
         }
-        
+
         /* discard next line of input if it's the current message */
         if (fpin != 0 && inmsg == errlist[i].errmerr)
             fgets(buf, sizeof(buf), fpin);
-        
+
         /* add the current message to output file */
         sprintf(buf2, "%% message #%d\n", errlist[i].errmerr);
         fputs(buf2, fp);
-        
+
         sprintf(buf2, "\\tadsmessage{%d}{", errlist[i].errmerr);
         dst = buf2 + strlen(buf2);
         inquote = 0;
@@ -835,12 +835,12 @@ int main(int argc, char *argv[])
         *dst++ = '\n';
         *dst++ = '\0';
         fputs(buf2, fp);
-        
+
         /* go back to previous position if appropriate */
         if (fpin != 0 && errlist[i].errmerr != inmsg)
             fseek(fpin, prvpos, 0);
     }
-    
+
     /* copy the remainder up to the end of file marker */
     while (fpin != 0 && !found_end)
     {
@@ -851,7 +851,7 @@ int main(int argc, char *argv[])
         else
             fputs(buf, fp);
     }
-    
+
     /* write out end of file marker, and copy remainder of input file */
     fputs("% end messages\n", fp);
     while (fpin != 0)
@@ -861,7 +861,7 @@ int main(int argc, char *argv[])
         else
             fputs(buf, fp);
     }
-    
+
     osfcls(fp);
     if (fpin != 0)
         fclose(fpin);

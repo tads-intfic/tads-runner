@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 1998 by Christopher Nebel.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name:
@@ -15,7 +15,7 @@ Notes:
   none
 
 Modified:
-  <2>07/04/98  CNebel   - Fixed so that args wouldn't pick up trailing 
+  <2>07/04/98  CNebel   - Fixed so that args wouldn't pick up trailing
                           whitespace.
   <1>07/04/98  CNebel   - Created based on older Mac-specific argize source
 */
@@ -27,7 +27,7 @@ Modified:
 
 
 /*
- *   Return what argc would be if this string were fed to argize.  
+ *   Return what argc would be if this string were fed to argize.
  */
 int countargs(const char *cmdline)
 {
@@ -85,7 +85,7 @@ int countargs(const char *cmdline)
 /*
  *   Break a string <cmdline> into argc/argv arguments, removing quotes in
  *   the process.  Returns 0 on success, 1 if there were too many
- *   arguments.  
+ *   arguments.
  */
 int argize(char *cmdline, int *const argc, char *argv[], const size_t argvlen)
 {

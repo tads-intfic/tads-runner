@@ -89,9 +89,9 @@ safe_strcpy(char *dst, size_t dstlen, const char *src)
     if (src == 0)
         src = "";
 
-    /* 
+    /*
      *   figure the copy length - use the smaller of the actual string size
-     *   or the available buffer size, minus one for the null terminator 
+     *   or the available buffer size, minus one for the null terminator
      */
     copylen = strlen(src);
     if (copylen > dstlen - 1)
@@ -986,15 +986,15 @@ canonicalize_path(char *path)
         /* if it's a separator, note it and process the path element */
         if (*p == '\\' || *p == '/' || *p == '\0')
         {
-            /* 
+            /*
              *   check the path element that's ending here to see if it's a
-             *   relative item - either "." or ".." 
+             *   relative item - either "." or ".."
              */
             if (p - start == 1 && *start == '.')
             {
-                /* 
+                /*
                  *   we have a '.' element - simply remove it along with the
-                 *   path separator that follows 
+                 *   path separator that follows
                  */
                 if (*p == '\\' || *p == '/')
                     memmove(start, p + 1, strlen(p+1) + 1);
@@ -1007,10 +1007,10 @@ canonicalize_path(char *path)
             {
                 char *prv;
 
-                /* 
+                /*
                  *   we have a '..' element - find the previous path element,
                  *   if any, and remove it, along with the '..' and the
-                 *   subsequent separator 
+                 *   subsequent separator
                  */
                 for (prv = start ;
                      prv > path && (*(prv-1) != '\\' || *(prv-1) == '/') ;
@@ -1119,7 +1119,7 @@ resolve_path( char *buf, size_t buflen, const char *path )
         }
 
         // no luck with realpath(); search for the '/' at the end of the
-        // previous component in the path 
+        // previous component in the path
         for ( ; suffix > mypath && *(suffix-1) != '/' ; --suffix) ;
 
         // skip any redundant slashes
@@ -1291,7 +1291,7 @@ os_get_abs_filename( char* buf, size_t buflen, const char* filename )
 size_t os_get_root_dirs(char *buf, size_t buflen)
 {
     static const char ret[] = { '/', 0, 0 };
-    
+
     // if there's room, copy the root string "/" and an extra null
     // terminator for the overall list
     if (buflen >= sizeof(ret))

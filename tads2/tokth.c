@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/TOKTH.C,v 1.2 1999/05/17 02:52:13 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1992, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -39,7 +39,7 @@ Modified
 uint tokhsh(char *nam)
 {
     uint hash = 0;
-    
+
     while (*nam) hash = ((hash + *nam++) & (TOKHASHSIZE - 1));
     return(hash);
 }
@@ -83,11 +83,11 @@ void tokthadd(toktdef *toktab1, char *name, int namel,
     toksdef  *sym;
     tokshdef *symh;
     tokthdef *toktab = (tokthdef *)toktab1;
-    
+
     if (toktab->tokthsize < siz)
     {
         mcmcxdef *mctx = toktab->tokthmem;
-        
+
         /* insufficient space in current pool; add a new pool */
         if (toktab->tokthpcnt >= TOKPOOLMAX)
             errsig(toktab->tokthsc.tokterr, ERR_MANYSYM);
@@ -104,12 +104,12 @@ void tokthadd(toktdef *toktab1, char *name, int namel,
     }
     symh = (tokshdef *)(toktab->tokthcpool + toktab->tokthofs);
     sym = &symh->tokshsc;
-    
+
     /* link into list for this hash value */
     OSCPYSTRUCT(symh->tokshnxt, toktab->tokthhsh[hash]);
     toktab->tokthhsh[hash].tokthpobj = toktab->tokthpool[toktab->tokthpcnt];
     toktab->tokthhsh[hash].tokthpofs = toktab->tokthofs;
-    
+
     /* fill in rest of toksdef */
     sym->toksval = val;
     sym->tokslen = namel;
@@ -117,7 +117,7 @@ void tokthadd(toktdef *toktab1, char *name, int namel,
     sym->tokshsh = hash;
     sym->toksfr  = 0;
     memcpy(sym->toksnam, name, (size_t)namel);
-    
+
     /* update free pool pointer */
     siz = osrndsz(siz);
     toktab->tokthofs += siz;
@@ -129,10 +129,10 @@ void tokthadd(toktdef *toktab1, char *name, int namel,
  *   Scan a hash chain, calling a callback for each entry.  If the
  *   callback returns TRUE for any symbol, we stop there, and return TRUE.
  *   If the callback returns FALSE for a symbol, we keep going.  If the
- *   callback returns FALSE for all symbols, we return FALSE.  
+ *   callback returns FALSE for all symbols, we return FALSE.
  */
 static int tokthscan(tokthdef *tab, uint hash,
-                     int (*cb)(void *, toksdef *, mcmon), 
+                     int (*cb)(void *, toksdef *, mcmon),
                      void *cbctx)
 {
     tokshdef  *symh;
@@ -161,7 +161,7 @@ static int tokthscan(tokthdef *tab, uint hash,
             mcmunlck(mctx, p.tokthpobj);
             return(TRUE);
         }
-        
+
         /* if the next page is different from this one, get new lock */
         if (nxt.tokthpobj != curobj && nxt.tokthpobj != MCMONINV)
         {
@@ -189,9 +189,9 @@ typedef struct tokseadef tokseadef;
 static int tokthsea1(void *ctx0, toksdef *sym, mcmon objn)
 {
     tokseadef *ctx = (tokseadef *)ctx0;
-    
+
     VARUSED(objn);
-    
+
     if (sym->tokslen == ctx->tokseasym.tokslen &&
         !memcmp(sym->toksnam, ctx->tokseanam, ctx->tokseasym.tokslen))
     {
@@ -218,14 +218,14 @@ int tokthsea(toktdef *tab1, char *name, int namel, int hash, toksdef *ret)
 static int tokthset1(void *ctx0, toksdef *sym, mcmon objn)
 {
     tokseadef *ctx = (tokseadef *)ctx0;
-    
+
     if (sym->tokslen == ctx->tokseasym.tokslen
         && !memcmp(sym->toksnam, ctx->tokseasym.toksnam,
                    ctx->tokseasym.tokslen))
     {
         sym->toksval = ctx->tokseasym.toksval;
         sym->tokstyp = ctx->tokseasym.tokstyp;
-            
+
         /* touch object, since it's been changed */
         mcmtch(ctx->tokseamctx, objn);
         return(TRUE);
@@ -239,7 +239,7 @@ void tokthset(toktdef *tab1, toksdef *newsym)
 {
     tokseadef  ctx;
     tokthdef  *tab = (tokthdef *)tab1;
-    
+
     OSCPYSTRUCT(ctx.tokseasym, *newsym);
     ctx.tokseamctx = tab->tokthmem;
     tokthscan((tokthdef *)tab1, newsym->tokshsh, tokthset1, &ctx);
@@ -249,9 +249,9 @@ void tokthset(toktdef *tab1, toksdef *newsym)
 static int tokthfind1(void *ctx0, toksdef *sym, mcmon objn)
 {
     tokseadef *ctx = (tokseadef *)ctx0;
-    
+
     VARUSED(objn);
-    
+
     if (sym->toksval == ctx->tokseasym.toksval
         && sym->tokstyp == ctx->tokseasym.tokstyp)
     {
@@ -268,11 +268,11 @@ int tokthfind(toktdef *tab1, int typ, uint val, toksdef *ret)
 {
     tokseadef ctx;
     int       i;
-    
+
     ctx.tokseasym.tokstyp = typ;
     ctx.tokseasym.toksval = val;
     ctx.toksearet = ret;
-    
+
     for (i = 0 ; i < TOKHASHSIZE ; ++i)
     {
         if (tokthscan((tokthdef *)tab1, i, tokthfind1, &ctx))
@@ -293,12 +293,12 @@ void toktheach(toktdef *tab1,
     toksdef  *sym;
     uint      siz;
     uint      i;
-    
+
     for (i = 0 ; i <= tab->tokthpcnt ; ++i)
     {
         /* lock the current page */
         p = mcmlck(tab->tokthmem, tab->tokthpool[i]);
-        
+
         ERRBEGIN(tab1->tokterr)
 
         max = (i == tab->tokthpcnt ? tab->tokthofs : tab->tokthfinal[i]);
@@ -307,19 +307,19 @@ void toktheach(toktdef *tab1,
             /* get this symbol */
             symh = (tokshdef *)(p + ofs);
             sym = &symh->tokshsc;
-            
+
             /* call the user callback */
             (*cb)(ctx, sym);
-            
+
             /* advance to the next symbol on this page */
             siz = sizeof(toksh1def) + sym->tokslen;
             ofs += osrndsz(siz);
         }
-            
+
         ERRCLEAN(tab1->tokterr)
             mcmunlck(tab->tokthmem, tab->tokthpool[i]);
         ERRENDCLN(tab1->tokterr)
-            
+
         /* done with current page; unlock it */
         mcmunlck(tab->tokthmem, tab->tokthpool[i]);
     }

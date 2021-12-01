@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/TCSRC.CPP,v 1.3 1999/07/11 00:46:55 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   tcsrc.cpp - source file reader
 Function
-  
+
 Notes
-  
+
 Modified
   04/13/99 MJRoberts  - Creation
 */
@@ -33,7 +33,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Source files 
+ *   Source files
  */
 
 /*
@@ -46,16 +46,16 @@ CTcSrcFile::CTcSrcFile(osfildef *fp, class CCharmapToUni *mapper)
 
     /* net yet at end of file */
     at_eof_ = FALSE;
-    
+
     /* there's no data in the buffer yet */
     rem_ = 0;
-    
+
     /* remember my character mapper */
     mapper_ = mapper;
 }
 
 /*
- *   Deletion 
+ *   Deletion
  */
 CTcSrcFile::~CTcSrcFile()
 {
@@ -75,7 +75,7 @@ CTcSrcFile::~CTcSrcFile()
 //
 /* ------------------------------------------------------------------------ */
 /*
- *   Open a plain ASCII file, with no #charset marker. 
+ *   Open a plain ASCII file, with no #charset marker.
  */
 CTcSrcFile *CTcSrcFile::open_plain(const char *filename)
 {
@@ -83,9 +83,9 @@ CTcSrcFile *CTcSrcFile::open_plain(const char *filename)
     char buf[5];
     size_t siz;
 
-    /* 
+    /*
      *   open the file in binary mode, since we do all of the newline
-     *   interpretation explicitly 
+     *   interpretation explicitly
      */
     if ((fp = osfoprb(filename, OSFTTEXT)) == 0)
         return 0;
@@ -99,9 +99,9 @@ CTcSrcFile *CTcSrcFile::open_plain(const char *filename)
         && (uchar)buf[1] == 0xBB
         && (uchar)buf[2] == 0xBF)
     {
-        /* 
+        /*
          *   seek to the byte after the marker, so that our caller won't see
-         *   the marker 
+         *   the marker
          */
         osfseek(fp, 3, OSFSK_SET);
 
@@ -133,9 +133,9 @@ CTcSrcFile *CTcSrcFile::open_plain(const char *filename)
         }
     }
 
-    /* 
+    /*
      *   there are no Unicode markers, so our only remaining option is plain
-     *   ASCII - return a source file object with a plain ASCII mapper 
+     *   ASCII - return a source file object with a plain ASCII mapper
      */
     return new CTcSrcFile(fp, new CCharmapToUniASCII());
 }
@@ -143,15 +143,15 @@ CTcSrcFile *CTcSrcFile::open_plain(const char *filename)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Open a plain ASCII source file.  
+ *   Open a plain ASCII source file.
  */
 CTcSrcFile *CTcSrcFile::open_ascii(const char *filename)
 {
     osfildef *fp;
 
-    /* 
+    /*
      *   open the file in binary mode, since we do all of the newline
-     *   interpretation explicitly 
+     *   interpretation explicitly
      */
     if ((fp = osfoprb(filename, OSFTTEXT)) == 0)
         return 0;
@@ -163,7 +163,7 @@ CTcSrcFile *CTcSrcFile::open_ascii(const char *filename)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Open a source file 
+ *   Open a source file
  */
 CTcSrcFile *CTcSrcFile::open_source(const char *filename,
                                     class CResLoader *res_loader,
@@ -183,10 +183,10 @@ CTcSrcFile *CTcSrcFile::open_source(const char *filename,
     /* presume we'll have no problem with the default character set */
     *default_charset_error = FALSE;
 
-    /* 
+    /*
      *   open the file in binary mode, so that we can scan the first few
      *   bytes to see if we can detect the character set from information
-     *   at the beginning of the file 
+     *   at the beginning of the file
      */
     fp = osfoprb(filename, OSFTTEXT);
 
@@ -210,10 +210,10 @@ CTcSrcFile *CTcSrcFile::open_source(const char *filename,
 
         /* skip at least the three-byte marker sequence */
         skip = 3;
-        
-        /* 
+
+        /*
          *   check for a #charset marker for utf-8 - this would be redundant,
-         *   but we'll allow it 
+         *   but we'll allow it
          */
         p = buf + 3;
         rem = siz - 3;
@@ -252,7 +252,7 @@ CTcSrcFile *CTcSrcFile::open_source(const char *filename,
 
         /* presume we won't find a byte-order marker */
         srcf = 0;
-        
+
         /* if the first bytes are 0xFF 0xFE, it's UCS-2 low-byte first */
         if ((unsigned char)buf[0] == 0xFF && (unsigned char)buf[1] == 0xFE)
         {
@@ -282,14 +282,14 @@ CTcSrcFile *CTcSrcFile::open_source(const char *filename,
 
             /* we at least want to skip the byte-order marker */
             skip = 2;
-            
+
             /* check to see if we have a '#charset' directive */
             if (ucs_str_starts_with(buf + 2, siz - 2, "#charset ",
                                     bige, FALSE))
             {
                 char *p;
                 size_t rem;
-                
+
                 /* scan past following spaces */
                 for (p = buf + 2 + 18, rem = siz - 2 - 18 ;
                      rem >= 2 && (ucs_char_eq(p, ' ', bige, FALSE)
@@ -304,10 +304,10 @@ CTcSrcFile *CTcSrcFile::open_source(const char *filename,
                     /* skip the '"' */
                     p += 2;
                     rem -= 2;
-                    
-                    /* 
+
+                    /*
                      *   check for a match to any of the valid names for this
-                     *   character set 
+                     *   character set
                      */
                     for (n = cs_names ; *n != 0 ; ++n)
                     {
@@ -350,13 +350,13 @@ CTcSrcFile *CTcSrcFile::open_source(const char *filename,
      *   It doesn't appear to use UCS-2 encoding (at least, the file
      *   doesn't start with a byte-order sensing sequence).  Check to see
      *   if the file starts with "#charset " in ASCII single-byte
-     *   characters.  
+     *   characters.
      */
     if (siz >= 9 && memcmp(buf, "#charset ", 9) == 0)
     {
         char *p;
         size_t rem;
-        
+
         /* skip the #charset string and any following spaces */
         for (p = buf + 9, rem = siz - 9 ;
              rem > 0 && (*p == ' ' || *p == '\t') ; ++p, --rem) ;
@@ -369,13 +369,13 @@ CTcSrcFile *CTcSrcFile::open_source(const char *filename,
             /* skip the open quote */
             ++p;
             --rem;
-            
+
             /* remember where the character set name starts */
             charset_name = p;
 
-            /* 
+            /*
              *   find the closing quote, which must occur before a CR or
-             *   LF character 
+             *   LF character
              */
             for ( ; rem > 0 && *p != '"' && *p != 10 && *p != 13 ;
                  ++p, --rem) ;
@@ -386,19 +386,19 @@ CTcSrcFile *CTcSrcFile::open_source(const char *filename,
                 /* seek just past the #charset string */
                 osfseek(fp, startofs + (p - buf) + 1, OSFSK_SET);
 
-                /* 
+                /*
                  *   put a null terminator at the end of the character set
-                 *   name 
+                 *   name
                  */
                 *p = '\0';
 
                 /* create a mapper */
                 mapper = CCharmapToUni::load(res_loader, charset_name);
 
-                /* 
+                /*
                  *   if that succeeded, return a reader for the mapper;
                  *   otherwise, simply proceed as though no #charset had
-                 *   been present, so that we create a default mapper 
+                 *   been present, so that we create a default mapper
                  */
                 if (mapper != 0)
                 {
@@ -414,9 +414,9 @@ CTcSrcFile *CTcSrcFile::open_source(const char *filename,
         }
     }
 
-    /* 
+    /*
      *   we didn't find any sensing codes, so seek back to the start of
-     *   the file 
+     *   the file
      */
     osfseek(fp, startofs, OSFSK_SET);
 
@@ -424,7 +424,7 @@ CTcSrcFile *CTcSrcFile::open_source(const char *filename,
      *   We couldn't identify the file's character set based on anything
      *   in the file, so create a mapper for the given default character
      *   set.  If there's not even a default character set defined, create
-     *   a plain ASCII mapper.  
+     *   a plain ASCII mapper.
      */
     if (default_charset != 0)
         mapper = CCharmapToUni::load(res_loader, default_charset);
@@ -439,9 +439,9 @@ CTcSrcFile *CTcSrcFile::open_source(const char *filename,
     }
     else
     {
-        /* 
+        /*
          *   we failed to create a mapper for the default character set -
-         *   flag the problem 
+         *   flag the problem
          */
         *default_charset_error = TRUE;
 
@@ -455,7 +455,7 @@ CTcSrcFile *CTcSrcFile::open_source(const char *filename,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Read a line of text from the file.  
+ *   Read a line of text from the file.
  */
 size_t CTcSrcFile::read_line(char *buf, size_t bufl)
 {
@@ -466,36 +466,36 @@ size_t CTcSrcFile::read_line(char *buf, size_t bufl)
 
     /*
      *   Keep going until we run out of input file, fill up the buffer, or
-     *   reach the end of a line 
+     *   reach the end of a line
      */
     for (;;)
     {
         char *src;
-        
+
         /* read some more data if our buffer is empty */
         if (rem_ == 0)
         {
             /* load another buffer-full */
             rem_ = mapper_->read_file(fp_, buf_, sizeof(buf_));
 
-            /* 
+            /*
              *   If we didn't read anything, we've reached the end of the
              *   file.  If we've already copied anything into the caller's
              *   buffer, null-terminate their buffer and return success;
              *   otherwise, return failure, since the caller has already
-             *   read everything available from the file.  
+             *   read everything available from the file.
              */
             if (rem_ == 0)
             {
-                /* 
+                /*
                  *   Remember that we've reached the end of the file.
                  *   We're about to return the last of the data, so the
                  *   caller will not need to call us again (although it's
                  *   legal if they do - we'll just return a zero length on
-                 *   the next call).  
+                 *   the next call).
                  */
                 at_eof_ = TRUE;
-                
+
                 /* check if we've copied anything to the caller's buffer */
                 if (buf == dst)
                 {
@@ -507,9 +507,9 @@ size_t CTcSrcFile::read_line(char *buf, size_t bufl)
                     /* null-terminate the caller's buffer */
                     *dst++ = '\0';
 
-                    /* 
+                    /*
                      *   return the number of bytes copied, including the null
-                     *   terminator 
+                     *   terminator
                      */
                     return (dst - buf);
                 }
@@ -524,25 +524,25 @@ size_t CTcSrcFile::read_line(char *buf, size_t bufl)
          *   Keep track of how much many bytes we've skipped.  Stop when
          *   we reach a CR or LF character, or when skipping another
          *   character would exceed the remaining capacity of the caller's
-         *   buffer, or when we run out of data in our input buffer.  
+         *   buffer, or when we run out of data in our input buffer.
          */
         for (src = p_ ; rem_ > 0 ; )
         {
             size_t csiz;
-            
+
             /* get the length of the current character */
             csiz = utf8_ptr::s_charsize(*src);
 
-            /* 
+            /*
              *   if this character plus a null terminator wouldn't fit in
-             *   the output buffer, stop scanning 
+             *   the output buffer, stop scanning
              */
             if (csiz >= bufl)
             {
-                /* 
+                /*
                  *   There's no more room in the caller's buffer.  Copy
                  *   what we've scanned so far to the output buffer and
-                 *   null-terminate the buffer.  
+                 *   null-terminate the buffer.
                  */
                 memcpy(dst, p_, src - p_);
 
@@ -557,33 +557,33 @@ size_t CTcSrcFile::read_line(char *buf, size_t bufl)
                 return (dst - buf);
             }
 
-            /* 
+            /*
              *   If it's a newline character of some kind, we're done with
              *   this line.  Note that we can just check the byte directly,
              *   since if it's a multi-byte character, we'll never mistake
              *   the first byte for a single-byte newline or carriage return
              *   character, since a UTF-8 lead byte always has the high bit
              *   set.
-             *   
+             *
              *   Also treat the Unicode character 0x2028 (line separator) as
-             *   a newline.  
+             *   a newline.
              */
             if (*src == '\n' || *src == '\r'
                 || utf8_ptr::s_getch(src) == 0x2028)
             {
                 char nl;
-                
+
                 /* copy what we've scanned so far to the caller's buffer */
                 memcpy(dst, p_, src - p_);
 
                 /* advance past the copied bytes */
                 dst += src - p_;
 
-                /* 
+                /*
                  *   add a newline to the caller's buffer -- always add a
                  *   '\n' newline, regardless of what kind of newline
                  *   sequence we found in the input; also add a null
-                 *   terminator 
+                 *   terminator
                  */
                 *dst++ = '\n';
                 *dst++ = '\0';
@@ -595,10 +595,10 @@ size_t CTcSrcFile::read_line(char *buf, size_t bufl)
                 p_ = src + csiz;
                 rem_ -= csiz;
 
-                /* 
+                /*
                  *   If the input buffer is empty, read more, so that we
                  *   can check the next character after the newline
-                 *   character. 
+                 *   character.
                  */
                 if (rem_ == 0)
                 {
@@ -609,13 +609,13 @@ size_t CTcSrcFile::read_line(char *buf, size_t bufl)
                     p_ = buf_;
                 }
 
-                /* 
+                /*
                  *   Check for a paired newline character.  If we found a
                  *   CR, check for an LF; if we found an LF, check for a
                  *   CR.  This will ensure that we will recognize
                  *   essentially any newline character sequence for any
                  *   platform - this will accept CR, LF, CR-LF, or LF-CR
-                 *   sequences. 
+                 *   sequences.
                  */
                 if (rem_ != 0
                     && ((nl == '\n' && *p_ == '\r')
@@ -629,7 +629,7 @@ size_t CTcSrcFile::read_line(char *buf, size_t bufl)
                 /* we've finished this line - return success */
                 return dst - buf;
             }
-            
+
             /* skip this character in the input and proceed */
             src += csiz;
             rem_ -= csiz;
@@ -641,13 +641,13 @@ size_t CTcSrcFile::read_line(char *buf, size_t bufl)
         /*
          *   We've exhausted the current input buffer, without filling the
          *   caller's buffer.  Copy what we've skipped so far into the
-         *   caller's buffer.  
+         *   caller's buffer.
          */
         memcpy(dst, p_, src - p_);
 
-        /* 
+        /*
          *   Advance the output pointer past the data we just copied, then
-         *   continue looping to read more data from the input file. 
+         *   continue looping to read more data from the input file.
          */
         dst += src - p_;
     }
@@ -655,19 +655,19 @@ size_t CTcSrcFile::read_line(char *buf, size_t bufl)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Buffer reader source object 
+ *   Buffer reader source object
  */
 
 /*
- *   allocate 
+ *   allocate
  */
 CTcSrcMemory::CTcSrcMemory(const char *buf, size_t len, CCharmapToUni *mapper)
 {
-    /* 
+    /*
      *   Allocate a buffer for a UTF8-encoded copy of the buffer -
      *   allocate three bytes per byte of the original, since this is the
      *   worst case for expansion of the encoding.  Allocate one extra
-     *   byte to ensure we have space for a null terminator.  
+     *   byte to ensure we have space for a null terminator.
      */
     size_t alo_len = len*3;
     buf_alo_ = (char *)t3malloc(alo_len + 1);
@@ -683,8 +683,8 @@ CTcSrcMemory::CTcSrcMemory(const char *buf, size_t len, CCharmapToUni *mapper)
     buf_ = buf_alo_;
 }
 
-/* 
- *   delete 
+/*
+ *   delete
  */
 CTcSrcMemory::~CTcSrcMemory()
 {
@@ -693,7 +693,7 @@ CTcSrcMemory::~CTcSrcMemory()
 }
 
 /*
- *   read next line 
+ *   read next line
  */
 size_t CTcSrcMemory::read_line(char *buf, size_t bufl)
 {
@@ -712,7 +712,7 @@ size_t CTcSrcMemory::read_line(char *buf, size_t bufl)
      *   track of how much many bytes we've skipped.  Stop when we reach a
      *   CR or LF character, or when skipping another character would
      *   exceed the remaining capacity of the caller's buffer, or when we
-     *   run out of data in our input buffer.  
+     *   run out of data in our input buffer.
      */
     for (src = buf_ ; *src != '\0' ; )
     {
@@ -721,52 +721,52 @@ size_t CTcSrcMemory::read_line(char *buf, size_t bufl)
         /* get the length of the current character */
         csiz = utf8_ptr::s_charsize(*src);
 
-        /* 
+        /*
          *   if this character plus a null terminator wouldn't fit in the
-         *   output buffer, stop scanning 
+         *   output buffer, stop scanning
          */
         if (csiz >= bufl)
         {
-            /* 
+            /*
              *   There's no more room in the caller's buffer.  Copy what
              *   we've scanned so far to the output buffer and
-             *   null-terminate the buffer.  
+             *   null-terminate the buffer.
              */
             memcpy(dst, buf_, src - buf_);
-            
+
             /* advance past the copied bytes and write the null byte */
             dst += (src - buf_);
             *dst++ = '\0';
-            
+
             /* advance the buffer read pointer over the copied bytes */
             buf_ = src;
-            
+
             /* return success - indicate the number of bytes copied */
             return (dst - buf);
         }
 
-        /* 
+        /*
          *   If it's a newline character of some kind, we're done with this
          *   line.  Note that we can just check the byte directly, since if
          *   it's a multi-byte character, we'll never mistake the first byte
          *   for a single-byte newline or carriage return character, since a
          *   UTF-8 lead byte always has the high bit set.  Allow Unicode
-         *   character 0x2028 (line separator) as a newline as well.  
+         *   character 0x2028 (line separator) as a newline as well.
          */
         if (*src == '\n' || *src == '\r' || utf8_ptr::s_getch(src) == 0x2028)
         {
             char nl;
-            
+
             /* copy what we've scanned so far to the caller's buffer */
             memcpy(dst, buf_, src - buf_);
-            
+
             /* advance past the copied bytes */
             dst += src - buf_;
-            
-            /* 
+
+            /*
              *   add a newline to the caller's buffer -- always add a '\n'
              *   newline, regardless of what kind of newline sequence we
-             *   found in the input; also add a null terminator 
+             *   found in the input; also add a null terminator
              */
             *dst++ = '\n';
             *dst++ = '\0';
@@ -777,12 +777,12 @@ size_t CTcSrcMemory::read_line(char *buf, size_t bufl)
             /* advance past the newline */
             buf_ = src + csiz;
 
-            /* 
+            /*
              *   Check for a paired newline character.  If we found a CR,
              *   check for an LF; if we found an LF, check for a CR.  This
              *   will ensure that we will recognize essentially any
              *   newline character sequence for any platform - this will
-             *   accept CR, LF, CR-LF, or LF-CR sequences.  
+             *   accept CR, LF, CR-LF, or LF-CR sequences.
              */
             if ((nl == '\n' && *buf_ == '\r')
                 || (nl == '\r' && *buf_ == '\n'))
@@ -790,11 +790,11 @@ size_t CTcSrcMemory::read_line(char *buf, size_t bufl)
                 /* it's a paired newline - skip the second character */
                 ++buf_;
             }
-            
+
             /* we've finished this line - return its length */
             return dst - buf;
         }
-        
+
         /* skip this character in the input and proceed */
         src += csiz;
 

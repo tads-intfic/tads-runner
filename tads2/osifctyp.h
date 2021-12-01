@@ -1,10 +1,10 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 1997, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -23,13 +23,13 @@ Notes
 
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   File types.  These type codes are used when opening or creating a
  *   file, so that the OS routine can set appropriate file system metadata
  *   to describe or find the file type.
- *   
+ *
  *   The type os_filetype_t is defined for documentary purposes; it's
- *   always just an int.  
+ *   always just an int.
  */
 typedef int os_filetype_t;
 #define OSFTGAME 0                               /* a game data file (.gam) */

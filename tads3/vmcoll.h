@@ -1,10 +1,10 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -17,7 +17,7 @@ Function
   Collection is an abstract base class: it cannot be instantiated, and
   thus has no image-file or state-file representation.
 Notes
-  
+
 Modified
   04/22/00 MJRoberts  - Creation
 */
@@ -36,7 +36,7 @@ Modified
 class CVmObjCollection: public CVmObject
 {
     friend class CVmMetaclassCollection;
-    
+
 public:
     /* metaclass registration object */
     static class CVmMetaclass *metaclass_reg_;
@@ -50,9 +50,9 @@ public:
                 || CVmObject::is_of_metaclass(meta));
     }
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -63,28 +63,28 @@ public:
     int get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                  vm_obj_id_t self, vm_obj_id_t *source_obj, uint *argc);
 
-    /* 
+    /*
      *   constant value property evaluator - this allows us to evaluate a
      *   property for an object value or for a constant value using the
-     *   same code 
+     *   same code
      */
     int const_get_coll_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                             const vm_val_t *self_val, vm_obj_id_t *src_obj,
                             uint *argc);
 
 protected:
-    /* 
+    /*
      *   Create an iterator for this collection.  Fills in *retval with a
      *   reference to the new iterator object.  This iterator must refer
-     *   to an immutable snapshot of the collection.  
+     *   to an immutable snapshot of the collection.
      */
     virtual void new_iterator(VMG_ vm_val_t *retval,
                               const vm_val_t *self_val) = 0;
 
-    /* 
+    /*
      *   Create a "live" iterator for this collection.  Fills in *retval
      *   with a reference to the new iterator object.  This iterator must
-     *   refer to the original "live" collection.  
+     *   refer to the original "live" collection.
      */
     virtual void new_live_iterator(VMG_ vm_val_t *retval,
                                    const vm_val_t *self_val) = 0;
@@ -92,7 +92,7 @@ protected:
     /* property evaluator - undefined property */
     int getp_undef(VMG_ vm_val_t *, const vm_val_t *, uint *)
         { return FALSE; }
-    
+
     /* property evaluator - create iterator */
     int getp_create_iter(VMG_ vm_val_t *retval, const vm_val_t *self_val,
                          uint *argc);
@@ -109,7 +109,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Registration table object 
+ *   Registration table object
  */
 class CVmMetaclassCollection: public CVmMetaclass
 {
@@ -145,7 +145,7 @@ public:
 #endif /* VMCOLL_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjCollection)
 

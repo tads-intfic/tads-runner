@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/TCT3UNAS.CPP,v 1.3 1999/07/11 00:46:57 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   tct3unas.cpp - TADS 3 Compiler - T3 Unassembler
 Function
-  
+
 Notes
-  
+
 Modified
   05/10/99 MJRoberts  - Creation
 */
@@ -29,7 +29,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   disassemble a code stream 
+ *   disassemble a code stream
  */
 void CTcT3Unasm::disasm(CTcUnasSrc *src, CTcUnasOut *out)
 {
@@ -37,7 +37,7 @@ void CTcT3Unasm::disasm(CTcUnasSrc *src, CTcUnasOut *out)
     for (;;)
     {
         char ch;
-        
+
         /* get the next byte; stop if we've reached the end of the source */
         if (src->next_byte(&ch))
             break;
@@ -49,7 +49,7 @@ void CTcT3Unasm::disasm(CTcUnasSrc *src, CTcUnasOut *out)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   T3 Instruction Information Array 
+ *   T3 Instruction Information Array
  */
 t3_instr_info_t CTcT3Unasm::instr_info[] =
 {
@@ -325,7 +325,7 @@ void CTcT3Unasm::disasm_instr(CTcUnasSrc *src, CTcUnasOut *out, char ch_op)
     ulong acc;
     char ch[10];
     ulong prv_ofs = src->get_ofs();
-    
+
     /* get the information on this instruction */
     info = &instr_info[(int)(uchar)ch_op];
     out->print("%8lx  %-14.14s ", src->get_ofs() - 1, info->nm);
@@ -334,11 +334,11 @@ void CTcT3Unasm::disasm_instr(CTcUnasSrc *src, CTcUnasOut *out, char ch_op)
     switch((uchar)ch_op)
     {
     case OPC_SWITCH:
-        /* 
+        /*
          *   It's a switch instruction - special handling is required,
          *   since this instruction doesn't fit any of the normal
          *   patterns.  First, get the number of elements in the case
-         *   table - this is a UINT2 value at the start of the table.  
+         *   table - this is a UINT2 value at the start of the table.
          */
         src->next_byte(ch);
         src->next_byte(ch+1);
@@ -356,7 +356,7 @@ void CTcT3Unasm::disasm_instr(CTcUnasSrc *src, CTcUnasOut *out, char ch_op)
 
             /* note the current offset */
             prv_ofs = src->get_ofs();
-            
+
             /* read the DATAHOLDER value */
             src->next_byte(ch);
             src->next_byte(ch+1);
@@ -368,12 +368,12 @@ void CTcT3Unasm::disasm_instr(CTcUnasSrc *src, CTcUnasOut *out, char ch_op)
             src->next_byte(ch+5);
             src->next_byte(ch+6);
 
-            /* 
+            /*
              *   stop looping if the offset hasn't changed - this probably
              *   means we're stuck trying to interpret as a "switch" some
              *   data at the end of the stream that happens to look like a
              *   switch but really isn't (such as an exception table, or
-             *   debug records) 
+             *   debug records)
              */
             if (src->get_ofs() == prv_ofs)
                 break;
@@ -385,22 +385,22 @@ void CTcT3Unasm::disasm_instr(CTcUnasSrc *src, CTcUnasOut *out, char ch_op)
                 dt = "nil";
                 val = "";
                 break;
-                
+
             case VM_TRUE:
                 dt = "true";
                 val = "";
                 break;
-                
+
             case VM_OBJ:
                 dt = "object";
                 sprintf(valbuf, "0x%08lx", t3rp4u(ch+1));
                 break;
-                
+
             case VM_PROP:
                 dt = "prop";
                 sprintf(valbuf, "0x%04x", osrp2(ch+1));
                 break;
-                
+
             case VM_INT:
                 dt = "int";
                 sprintf(valbuf, "0x%08lx", t3rp4u(ch+1));
@@ -410,17 +410,17 @@ void CTcT3Unasm::disasm_instr(CTcUnasSrc *src, CTcUnasOut *out, char ch_op)
                 dt = "enum";
                 sprintf(valbuf, "0x%08lx", t3rp4u(ch+1));
                 break;
-                
+
             case VM_SSTRING:
                 dt = "sstring";
                 sprintf(valbuf, "0x%08lx", t3rp4u(ch+1));
                 break;
-                
+
             case VM_LIST:
                 dt = "list";
                 sprintf(valbuf, "0x%08lx", t3rp4u(ch+1));
                 break;
-                
+
             case VM_FUNCPTR:
                 dt = "funcptr";
                 sprintf(valbuf, "0x%08lx", t3rp4u(ch+1));
@@ -492,7 +492,7 @@ void CTcT3Unasm::disasm_instr(CTcUnasSrc *src, CTcUnasOut *out, char ch_op)
             /* add a separator if this isn't the first one */
             if (i != 0)
                 out->print(", ");
-            
+
             /* display the operand */
             switch(info->op_type[i])
             {
@@ -666,14 +666,14 @@ void CTcT3Unasm::disasm_instr(CTcUnasSrc *src, CTcUnasOut *out, char ch_op)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Show an exception table 
+ *   Show an exception table
  */
 void CTcT3Unasm::show_exc_table(class CTcUnasSrc *src, class CTcUnasOut *out,
                                 unsigned long base_ofs)
 {
     unsigned entries;
     char ch[10];
-    
+
     /* read the number of entries */
     src->next_byte(ch);
     src->next_byte(ch+1);
@@ -685,7 +685,7 @@ void CTcT3Unasm::show_exc_table(class CTcUnasSrc *src, class CTcUnasOut *out,
         unsigned long end_ofs;
         unsigned exc_obj_id;
         unsigned long catch_ofs;
-        
+
         /* read the code start offset */
         src->next_byte(ch);
         src->next_byte(ch+1);

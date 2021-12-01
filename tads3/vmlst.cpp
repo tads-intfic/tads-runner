@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/VMLST.CPP,v 1.3 1999/05/17 02:52:28 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmlst.cpp - list metaclass
 Function
-  
+
 Notes
-  
+
 Modified
   10/29/98 MJRoberts  - Creation
 */
@@ -46,7 +46,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   statics 
+ *   statics
  */
 
 /* metaclass registration object */
@@ -100,7 +100,7 @@ const int PROPIDX_generate = 26;
 /* ------------------------------------------------------------------------ */
 /*
  *   Static creation methods.  These routines allocate an object ID and
- *   create a new list object. 
+ *   create a new list object.
  */
 
 /* create dynamically using stack arguments */
@@ -110,8 +110,8 @@ vm_obj_id_t CVmObjList::create_from_stack(VMG_ const uchar **pc_ptr,
     vm_obj_id_t id;
     CVmObjList *lst;
     size_t idx;
-    
-    /* 
+
+    /*
      *   create the list - this type of construction is never used for
      *   root set objects
      */
@@ -134,8 +134,8 @@ vm_obj_id_t CVmObjList::create_from_stack(VMG_ const uchar **pc_ptr,
     return id;
 }
 
-/* 
- *   create dynamically from the current method's parameters 
+/*
+ *   create dynamically from the current method's parameters
  */
 vm_obj_id_t CVmObjList::create_from_params(VMG_ uint param_idx, uint cnt)
 {
@@ -187,11 +187,11 @@ vm_obj_id_t CVmObjList::create(VMG_ int in_root_set, const char *lst)
 /* ------------------------------------------------------------------------ */
 /*
  *   Constructors.  These are called indirectly through our static
- *   creation methods.  
+ *   creation methods.
  */
 
 /*
- *   create a list object from a constant list 
+ *   create a list object from a constant list
  */
 CVmObjList::CVmObjList(VMG_ const char *lst)
 {
@@ -207,14 +207,14 @@ CVmObjList::CVmObjList(VMG_ const char *lst)
 
 /*
  *   Create a list with a given number of elements.  This can be used to
- *   construct a list element-by-element. 
+ *   construct a list element-by-element.
  */
 CVmObjList::CVmObjList(VMG_ size_t cnt)
 {
     /* allocate space */
     alloc_list(vmg_ cnt);
 
-    /* 
+    /*
      *   Clear the list.  Since the caller is responsible for populating the
      *   list in this version of the constructor, it's possible that GC will
      *   run between now and the time the list is fully populated.  We must
@@ -222,24 +222,24 @@ CVmObjList::CVmObjList(VMG_ size_t cnt)
      *   contents as valid should we run GC between now and the time the
      *   caller has finished populating the list.  It's adequate to set the
      *   list to all zeros, since we won't try to interpret the contents as
-     *   valid if the type markers are all invalid.  
+     *   valid if the type markers are all invalid.
      */
     memset(ext_ + VMB_LEN, 0, calc_alloc(cnt) - VMB_LEN);
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   allocate space for a list with a given number of elements 
+ *   allocate space for a list with a given number of elements
  */
 void CVmObjList::alloc_list(VMG_ size_t cnt)
 {
     /* calculate the allocation size */
     size_t alo = calc_alloc(cnt);
 
-    /* 
+    /*
      *   ensure we're within the limit (NB: this really is 65535 on ALL
      *   PLATFORMS - this is a portable limit imposed by the storage format,
-     *   not a platform-specific size limit 
+     *   not a platform-specific size limit
      */
     if (alo > 65535)
     {
@@ -256,7 +256,7 @@ void CVmObjList::alloc_list(VMG_ size_t cnt)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   construction: set an element 
+ *   construction: set an element
  */
 void CVmObjList::cons_set_element(size_t idx, const vm_val_t *val)
 {
@@ -265,7 +265,7 @@ void CVmObjList::cons_set_element(size_t idx, const vm_val_t *val)
 }
 
 /*
- *   construction: copy a list into our list 
+ *   construction: copy a list into our list
  */
 void CVmObjList::cons_copy_elements(size_t idx, const char *orig_list)
 {
@@ -275,7 +275,7 @@ void CVmObjList::cons_copy_elements(size_t idx, const char *orig_list)
 }
 
 /*
- *   construction: copy element data into our list 
+ *   construction: copy element data into our list
  */
 void CVmObjList::cons_copy_data(size_t idx, const char *ele_array,
                                 size_t ele_count)
@@ -286,7 +286,7 @@ void CVmObjList::cons_copy_data(size_t idx, const char *ele_array,
 
 /*
  *   construction: ensure there's enough space for the given number of
- *   elements, expanding the list if necessary 
+ *   elements, expanding the list if necessary
  */
 void CVmObjList::cons_ensure_space(VMG_ size_t idx, size_t margin)
 {
@@ -301,7 +301,7 @@ void CVmObjList::cons_ensure_space(VMG_ size_t idx, size_t margin)
         /* make sure it's in range */
         if (new_siz > 65535)
             err_throw(VMERR_LIST_TOO_LONG);
-        
+
         /* reallocate the list at the new size */
         ext_ = (char *)G_mem->get_var_heap()->realloc_mem(new_siz, ext_, this);
 
@@ -313,7 +313,7 @@ void CVmObjList::cons_ensure_space(VMG_ size_t idx, size_t margin)
          *   assume that garbage collection might be triggered during the
          *   process.  Make sure that if the gc visits our elements during
          *   construction, it finds only valid data (not, for example, stray
-         *   pointers to invalid objects). 
+         *   pointers to invalid objects).
          */
         cons_clear(old_cnt, new_cnt - 1);
     }
@@ -321,7 +321,7 @@ void CVmObjList::cons_ensure_space(VMG_ size_t idx, size_t margin)
 
 /*
  *   construction: clear a portion of the list, setting each element in the
- *   range (inclusive of the endpoints) to nil 
+ *   range (inclusive of the endpoints) to nil
  */
 void CVmObjList::cons_clear(size_t start_idx, size_t end_idx)
 {
@@ -345,7 +345,7 @@ void CVmObjList::cons_clear(size_t start_idx, size_t end_idx)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   receive notification of deletion 
+ *   receive notification of deletion
  */
 void CVmObjList::notify_delete(VMG_ int in_root_set)
 {
@@ -355,8 +355,8 @@ void CVmObjList::notify_delete(VMG_ int in_root_set)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   call a static property 
+/*
+ *   call a static property
  */
 int CVmObjList::call_stat_prop(VMG_ vm_val_t *result,
                                const uchar **pc_ptr, uint *argc,
@@ -383,7 +383,7 @@ int CVmObjList::call_stat_prop(VMG_ vm_val_t *result,
 /* ------------------------------------------------------------------------ */
 /*
  *   Set a property.  Lists have no settable properties, so simply signal
- *   an error indicating that the set-prop call is invalid.  
+ *   an error indicating that the set-prop call is invalid.
  */
 void CVmObjList::set_prop(VMG_ CVmUndo *, vm_obj_id_t,
                           vm_prop_id_t, const vm_val_t *)
@@ -393,7 +393,7 @@ void CVmObjList::set_prop(VMG_ CVmUndo *, vm_obj_id_t,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Save the object to a file 
+ *   Save the object to a file
  */
 void CVmObjList::save_to_file(VMG_ CVmFile *fp)
 {
@@ -407,7 +407,7 @@ void CVmObjList::save_to_file(VMG_ CVmFile *fp)
 }
 
 /*
- *   Restore the object from a file 
+ *   Restore the object from a file
  */
 void CVmObjList::restore_from_file(VMG_ vm_obj_id_t,
                                    CVmFile *fp, CVmObjFixup *fixups)
@@ -439,7 +439,7 @@ void CVmObjList::restore_from_file(VMG_ vm_obj_id_t,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Mark references 
+ *   Mark references
  */
 void CVmObjList::mark_refs(VMG_ uint state)
 {
@@ -452,9 +452,9 @@ void CVmObjList::mark_refs(VMG_ uint state)
     /* mark as referenced each object in our list */
     for (p = get_element_ptr(0) ; cnt != 0 ; --cnt, inc_element_ptr(&p))
     {
-        /* 
+        /*
          *   if this is an object, mark it as referenced, and mark its
-         *   references as referenced 
+         *   references as referenced
          */
         if (vmb_get_dh_type(p) == VM_OBJ)
             G_obj_table->mark_all_refs(vmb_get_dh_obj(p), state);
@@ -468,15 +468,15 @@ void CVmObjList::mark_refs(VMG_ uint state)
  *   appended to the existing list.  If the value to be appended is itself
  *   a list (constant or object), we'll append each element of that list
  *   to our list (rather than appending a single element containing a
- *   sublist).  
+ *   sublist).
  */
 int CVmObjList::add_val(VMG_ vm_val_t *result,
                         vm_obj_id_t self, const vm_val_t *val)
 {
-    /* 
+    /*
      *   Use the generic list adder, using my extension as the constant
      *   list.  We store our extension in the general list format required
-     *   by the static adder. 
+     *   by the static adder.
      */
     add_to_list(vmg_ result, self, ext_, val);
 
@@ -489,15 +489,15 @@ int CVmObjList::add_val(VMG_ vm_val_t *result,
  *   appending the given value to the given list constant.  This is
  *   defined statically so that this code can be shared for adding to
  *   constant pool lists and adding to CVmObjList objects.
- *   
+ *
  *   'lstval' must point to a constant list.  The first two bytes of the
  *   list are stored in portable UINT2 format and give the number of
  *   elements in the list; this is immediately followed by a packed array
- *   of data holders in portable format. 
- *   
+ *   of data holders in portable format.
+ *
  *   Note that we *always* create a new object to hold the result, even if
  *   the new string is identical to the first, so that we consistently
- *   return a distinct reference from the original.  
+ *   return a distinct reference from the original.
  */
 void CVmObjList::add_to_list(VMG_ vm_val_t *result,
                              vm_obj_id_t self, const char *lstval,
@@ -535,9 +535,9 @@ void CVmObjList::add_to_list(VMG_ vm_val_t *result,
     }
     else
     {
-        /* 
+        /*
          *   clear the rest of the list, in case gc runs while retrieving
-         *   elements from the rhs 
+         *   elements from the rhs
          */
         objptr->cons_clear(lhs_cnt, lhs_cnt + alo_cnt - 1);
 
@@ -547,7 +547,7 @@ void CVmObjList::add_to_list(VMG_ vm_val_t *result,
             /* retrieve this element of the rhs */
             vm_val_t val;
             rhs->ll_index(vmg_ &val, i);
-                
+
             /* store the element in the new list */
             objptr->cons_set_element(lhs_cnt + i - 1, &val);
         }
@@ -568,24 +568,24 @@ int CVmObjList::sub_val(VMG_ vm_val_t *result,
                         vm_obj_id_t self, const vm_val_t *val)
 {
     vm_val_t self_val;
-    
-    /* 
+
+    /*
      *   Invoke our static list subtraction routine, using our extension
      *   as the constant list.  Our extension is stored in the same format
      *   as a constant list, so we can use the same code to handle
      *   subtraction from a list object as we would for subtraction from a
-     *   constant list. 
+     *   constant list.
      */
     self_val.set_obj(self);
     sub_from_list(vmg_ result, &self_val, ext_, val);
 
     /* handled */
     return TRUE;
-    
+
 }
 
 /*
- *   Subtract a value from a constant list. 
+ *   Subtract a value from a constant list.
  */
 void CVmObjList::sub_from_list(VMG_ vm_val_t *result,
                                const vm_val_t *lstval, const char *lstmem,
@@ -605,10 +605,10 @@ void CVmObjList::sub_from_list(VMG_ vm_val_t *result,
     /* get the number of elements in the right-hand side */
     lhs_cnt = vmb_get_len(lstmem);
 
-    /* 
+    /*
      *   allocate a new object to hold the new list, which will be no
      *   bigger than the original left-hand side, since we're doing
-     *   nothing but (possibly) taking elements out 
+     *   nothing but (possibly) taking elements out
      */
     obj = create(vmg_ FALSE, lhs_cnt);
     objptr = (CVmObjList *)vm_objp(vmg_ obj);
@@ -626,10 +626,10 @@ void CVmObjList::sub_from_list(VMG_ vm_val_t *result,
         vm_val_t src_val;
         int keep;
 
-        /* 
+        /*
          *   if our list is from constant memory, get its address again --
          *   the address could have changed due to swapping if we
-         *   traversed into another list 
+         *   traversed into another list
          */
         VM_IF_SWAPPING_POOL(if (lstval != 0 && lstval->typ == VM_LIST)
             lstmem = G_const_pool->get_ptr(lstval->val.ofs));
@@ -640,10 +640,10 @@ void CVmObjList::sub_from_list(VMG_ vm_val_t *result,
         /* presume we'll keep it */
         keep = TRUE;
 
-        /* 
+        /*
          *   scan the right side to see if we can find this value - if we
          *   can, it's to be removed, so we don't want to copy it to the
-         *   result list 
+         *   result list
          */
         if (rhs_cnt < 0)
         {
@@ -662,7 +662,7 @@ void CVmObjList::sub_from_list(VMG_ vm_val_t *result,
                 /* retrieve this rhs value */
                 vm_val_t rem_val;
                 rhs->ll_index(vmg_ &rem_val, j);
-                
+
                 /* if this value matches, we're removing it */
                 if (rem_val.equals(vmg_ &src_val))
                 {
@@ -701,14 +701,14 @@ void CVmObjList::sub_from_list(VMG_ vm_val_t *result,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Index the list 
+ *   Index the list
  */
 int CVmObjList::index_val_q(VMG_ vm_val_t *result, vm_obj_id_t /*self*/,
                             const vm_val_t *index_val)
 {
-    /* 
+    /*
      *   use the constant list indexing routine, using our extension data
-     *   as the list data 
+     *   as the list data
      */
     index_list(vmg_ result, ext_, index_val);
 
@@ -718,7 +718,7 @@ int CVmObjList::index_val_q(VMG_ vm_val_t *result, vm_obj_id_t /*self*/,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Index a constant list 
+ *   Index a constant list
  */
 void CVmObjList::index_list(VMG_ vm_val_t *result, const char *lst,
                             const vm_val_t *index_val)
@@ -739,9 +739,9 @@ void CVmObjList::index_list(VMG_ vm_val_t *result, const char *lst, uint idx)
     if (idx < 1 || idx > vmb_get_len(lst))
         err_throw(VMERR_INDEX_OUT_OF_RANGE);
 
-    /* 
+    /*
      *   get the indexed element and store it in the result, adjusting the
-     *   index to the C-style 0-based range 
+     *   index to the C-style 0-based range
      */
     get_element_const(lst, idx - 1, result);
 }
@@ -756,10 +756,10 @@ int CVmObjList::set_index_val_q(VMG_ vm_val_t *result, vm_obj_id_t self,
 {
     /* put the list on the stack to avoid garbage collection */
     G_stk->push()->set_obj(self);
-    
-    /* 
+
+    /*
      *   use the constant list set-index routine, using our extension data
-     *   as the list data 
+     *   as the list data
      */
     set_index_list(vmg_ result, ext_, index_val, new_val);
 
@@ -772,7 +772,7 @@ int CVmObjList::set_index_val_q(VMG_ vm_val_t *result, vm_obj_id_t self,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Set an element in a constant list 
+ *   Set an element in a constant list
  */
 void CVmObjList::set_index_list(VMG_ vm_val_t *result, const char *lst,
                                 const vm_val_t *index_val,
@@ -803,7 +803,7 @@ void CVmObjList::set_index_list(VMG_ vm_val_t *result, const char *lst,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Check a value for equality 
+ *   Check a value for equality
  */
 int CVmObjList::equals(VMG_ vm_obj_id_t self, const vm_val_t *val,
                        int depth) const
@@ -812,23 +812,23 @@ int CVmObjList::equals(VMG_ vm_obj_id_t self, const vm_val_t *val,
     if (val->typ == VM_OBJ && val->val.obj == self)
         return TRUE;
 
-    /* 
+    /*
      *   compare via the constant list comparison routine, using our
-     *   extension data as the list data 
+     *   extension data as the list data
      */
     return const_equals(vmg_ 0, ext_, val, depth);
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Constant list comparison routine 
+ *   Constant list comparison routine
  */
 int CVmObjList::const_equals(VMG_ const vm_val_t *lstval, const char *lstmem,
                              const vm_val_t *val, int depth)
 {
     size_t cnt;
     size_t idx;
-    
+
     /* if the other value isn't a list, it's no match */
     if (!val->is_listlike(vmg0_))
         return FALSE;
@@ -844,22 +844,22 @@ int CVmObjList::const_equals(VMG_ const vm_val_t *lstval, const char *lstmem,
         vm_val_t val1;
         vm_val_t val2;
 
-        /* 
+        /*
          *   if either list comes from constant memory, re-translate its
          *   pointer, in case we did any swapping while traversing the
-         *   previous element 
+         *   previous element
          */
         VM_IF_SWAPPING_POOL(if (lstval != 0 && lstval->typ == VM_LIST)
             lstmem = G_const_pool->get_ptr(lstval->val.ofs));
-        
+
         /* get the two elements */
         vmb_get_dh(get_element_ptr_const(lstmem, idx), &val1);
         val->ll_index(vmg_ &val2, idx + 1);
 
-        /* 
+        /*
          *   If these elements don't match, the lists don't match.  Note that
          *   lists can't contain circular references (by their very nature as
-         *   immutable objects), so we don't need to increase the depth. 
+         *   immutable objects), so we don't need to increase the depth.
          */
         if (!val1.equals(vmg_ &val2, depth))
             return FALSE;
@@ -871,7 +871,7 @@ int CVmObjList::const_equals(VMG_ const vm_val_t *lstval, const char *lstmem,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Hash value calculation 
+ *   Hash value calculation
  */
 uint CVmObjList::calc_hash(VMG_ vm_obj_id_t self, int depth) const
 {
@@ -885,7 +885,7 @@ uint CVmObjList::calc_hash(VMG_ vm_obj_id_t self, int depth) const
 }
 
 /*
- *   Hash value calculation 
+ *   Hash value calculation
  */
 uint CVmObjList::const_calc_hash(VMG_ const vm_val_t *self_val,
                                  const char *lst, int depth)
@@ -896,12 +896,12 @@ uint CVmObjList::const_calc_hash(VMG_ const vm_val_t *self_val,
 
     /* get and skip the length prefix */
     len = vmb_get_len(lst);
-    
+
     /* calculate a hash combining the hash of each element in the list */
     for (hash = 0, i = 0 ; i < len ; ++i)
     {
         vm_val_t ele;
-        
+
         /* re-translate in case of swapping */
         VM_IF_SWAPPING_POOL(if (self_val->typ == VM_LIST)
             lst = G_const_pool->get_ptr(self_val->val.ofs));
@@ -909,12 +909,12 @@ uint CVmObjList::const_calc_hash(VMG_ const vm_val_t *self_val,
         /* get this element */
         get_element_const(lst, i, &ele);
 
-        /* 
+        /*
          *   Compute its hash value and add it into the total.  Note that
          *   even though we're recursively calculating the hash of an
          *   element, we don't need to increase the recursion depth, because
          *   it's impossible for a list to have cycles.
-         *   
+         *
          *   (It's not possible for a list to have cycles because a list is
          *   always constructed with its contents, and can never be changed.
          *   This means that there's no possibility of storing a reference to
@@ -923,7 +923,7 @@ uint CVmObjList::const_calc_hash(VMG_ const vm_val_t *self_val,
          *   the new list in a mutable object to which the list refers, but
          *   in such cases, that mutable object will be capable of having
          *   cycles in its references, so it will be responsible for
-         *   increasing the depth counter when it recurses.)  
+         *   increasing the depth counter when it recurses.)
          */
         hash += ele.calc_hash(vmg_ depth);
     }
@@ -935,14 +935,14 @@ uint CVmObjList::const_calc_hash(VMG_ const vm_val_t *self_val,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Find a value in a list 
+ *   Find a value in a list
  */
 int CVmObjList::find_in_list(VMG_ const vm_val_t *lst,
                              const vm_val_t *val, size_t *idxp)
 {
     int cnt;
     int idx;
-    
+
     /* get the length of the list */
     cnt = lst->ll_length(vmg0_);
 
@@ -950,7 +950,7 @@ int CVmObjList::find_in_list(VMG_ const vm_val_t *lst,
     for (idx = 1 ; idx <= cnt ; ++idx)
     {
         vm_val_t curval;
-        
+
         /* get this list element */
         lst->ll_index(vmg_ &curval, idx);
 
@@ -971,7 +971,7 @@ int CVmObjList::find_in_list(VMG_ const vm_val_t *lst,
 }
 
 /*
- *   Find the last match for a value in a list 
+ *   Find the last match for a value in a list
  */
 int CVmObjList::find_last_in_list(VMG_ const vm_val_t *lst,
                                   const vm_val_t *val, size_t *idxp)
@@ -1009,7 +1009,7 @@ int CVmObjList::find_last_in_list(VMG_ const vm_val_t *lst,
 /* ------------------------------------------------------------------------ */
 /*
  *   Compute the intersection of two lists.  Returns a new list with the
- *   elements that occur in both lists.  
+ *   elements that occur in both lists.
  */
 vm_obj_id_t CVmObjList::intersect(VMG_ const vm_val_t *l1,
                                   const vm_val_t *l2)
@@ -1037,10 +1037,10 @@ vm_obj_id_t CVmObjList::intersect(VMG_ const vm_val_t *l1,
         cnt1 = cnt2;
     }
 
-    /* 
+    /*
      *   Allocate our result list.  The result list can't have any more
      *   elements in it than the shorter of the two lists, whose length is
-     *   now in cnt1. 
+     *   now in cnt1.
      */
     resobj = create(vmg_ FALSE, cnt1);
     reslst = (CVmObjList *)vm_objp(vmg_ resobj);
@@ -1049,17 +1049,17 @@ vm_obj_id_t CVmObjList::intersect(VMG_ const vm_val_t *l1,
     /* we haven't put any elements in the result list yet */
     residx = 0;
 
-    /* 
+    /*
      *   for each element in the first list, find the element in the
-     *   second list 
+     *   second list
      */
     for (idx = 1 ; idx <= cnt1 ; ++idx)
     {
         vm_val_t curval;
-        
+
         /* get this element from the first list */
         l1->ll_index(vmg_ &curval, idx);
-        
+
         /* find the element in the second list */
         if (find_in_list(vmg_ l2, &curval, 0))
         {
@@ -1071,9 +1071,9 @@ vm_obj_id_t CVmObjList::intersect(VMG_ const vm_val_t *l1,
         }
     }
 
-    /* 
+    /*
      *   set the actual result length, which might be shorter than the
-     *   amount we allocated 
+     *   amount we allocated
      */
     reslst->cons_set_len(residx);
 
@@ -1084,7 +1084,7 @@ vm_obj_id_t CVmObjList::intersect(VMG_ const vm_val_t *l1,
 /* ------------------------------------------------------------------------ */
 /*
  *   Uniquify the list; modifies the list in place, so this can only be
- *   used during construction of a new list 
+ *   used during construction of a new list
  */
 void CVmObjList::cons_uniquify(VMG0_)
 {
@@ -1101,9 +1101,9 @@ void CVmObjList::cons_uniquify(VMG0_)
         vm_val_t src_val;
         int found;
 
-        /* 
+        /*
          *   look for a copy of this source value already in the output
-         *   list 
+         *   list
          */
         index_list(vmg_ &src_val, ext_, src + 1);
         for (idx = 0, found = FALSE ; idx < dst ; ++idx)
@@ -1141,34 +1141,34 @@ void CVmObjList::cons_uniquify(VMG0_)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Create an iterator 
+ *   Create an iterator
  */
 void CVmObjList::new_iterator(VMG_ vm_val_t *retval,
                               const vm_val_t *self_val)
 {
     size_t len;
-    
+
     /* get the number of elements in the list */
     len = vmb_get_len(self_val->get_as_list(vmg0_));
 
-    /* 
+    /*
      *   Set up a new indexed iterator object.  The first valid index for
      *   a list is always 1, and the last valid index is the same as the
-     *   number of elements in the list. 
+     *   number of elements in the list.
      */
     retval->set_obj(CVmObjIterIdx::create_for_coll(vmg_ self_val, 1, len));
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Evaluate a property 
+ *   Evaluate a property
  */
 int CVmObjList::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                          vm_obj_id_t self, vm_obj_id_t *source_obj,
                          uint *argc)
 {
     vm_val_t self_val;
-    
+
     /* use the constant evaluator */
     self_val.set_obj(self);
     if (const_get_prop(vmg_ retval, &self_val, ext_, prop, source_obj, argc))
@@ -1184,7 +1184,7 @@ int CVmObjList::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Evaluate a property of a constant list value 
+ *   Evaluate a property of a constant list value
  */
 int CVmObjList::const_get_prop(VMG_ vm_val_t *retval,
                                const vm_val_t *self_val, const char *lst,
@@ -1199,15 +1199,15 @@ int CVmObjList::const_get_prop(VMG_ vm_val_t *retval,
     /* translate the property index to an index into our function table */
     func_idx = G_meta_table
                ->prop_to_vector_idx(metaclass_reg_->get_reg_idx(), prop);
-    
+
     /* call the appropriate function */
     if ((*func_table_[func_idx])(vmg_ retval, self_val, lst, argc))
         return TRUE;
 
-    /* 
+    /*
      *   If this is a constant list (which is indicated by a non-object type
      *   'self'), try inheriting the default object interpretation, passing
-     *   the constant list placeholder object for its type information.  
+     *   the constant list placeholder object for its type information.
      */
     if (self_val->typ != VM_OBJ)
     {
@@ -1242,7 +1242,7 @@ int CVmObjList::getp_subset(VMG_ vm_val_t *retval, const vm_val_t *self_val,
     char *new_lst;
     CVmObjList *new_lst_obj;
     static CVmNativeCodeDesc desc(1);
-    
+
     /* check arguments */
     if (get_prop_check_argc(retval, argc, &desc))
         return TRUE;
@@ -1256,7 +1256,7 @@ int CVmObjList::getp_subset(VMG_ vm_val_t *retval, const vm_val_t *self_val,
     /* push a self-reference while allocating to protect from gc */
     G_stk->push(self_val);
 
-    /* 
+    /*
      *   Make a copy of our list for the return value.  The result value
      *   will be at most the same size as our current list; since we have
      *   no way of knowing exactly how large it will be, and since we
@@ -1265,7 +1265,7 @@ int CVmObjList::getp_subset(VMG_ vm_val_t *retval, const vm_val_t *self_val,
      *   if we don't need all of the space.  By making a copy of the input
      *   list, we also can avoid worrying about whether the input list was
      *   a constant, and hence we don't have to worry about the
-     *   possibility of constant page swapping.  
+     *   possibility of constant page swapping.
      */
     retval->set_obj(create(vmg_ FALSE, lst));
 
@@ -1276,10 +1276,10 @@ int CVmObjList::getp_subset(VMG_ vm_val_t *retval, const vm_val_t *self_val,
     /* get the length of the list */
     cnt = vmb_get_len(new_lst);
 
-    /* 
+    /*
      *   push a reference to the new list to protect it from the garbage
      *   collector, which could be invoked in the course of executing the
-     *   user callback 
+     *   user callback
      */
     G_stk->push(retval);
 
@@ -1287,19 +1287,19 @@ int CVmObjList::getp_subset(VMG_ vm_val_t *retval, const vm_val_t *self_val,
      *   Go through each element of our list, and invoke the callback on
      *   each element.  If the element passes, write it to the current
      *   output location in the list; otherwise, just skip it.
-     *   
+     *
      *   Note that we're using the same list as source and destination,
      *   which is easy because the list will either shrink or stay the
-     *   same - we'll never need to insert new elements.  
+     *   same - we'll never need to insert new elements.
      */
     for (src = dst = 0 ; src < cnt ; ++src)
     {
         vm_val_t ele;
         const vm_val_t *val;
-        
-        /* 
+
+        /*
          *   get this element (using a 1-based index), and push it as the
-         *   callback's argument 
+         *   callback's argument
          */
         index_list(vmg_ &ele, new_lst, src + 1);
         G_stk->push(&ele);
@@ -1310,9 +1310,9 @@ int CVmObjList::getp_subset(VMG_ vm_val_t *retval, const vm_val_t *self_val,
         /* get the result from R0 */
         val = G_interpreter->get_r0();
 
-        /* 
+        /*
          *   if the callback returned non-nil and non-zero, include this
-         *   element in the result 
+         *   element in the result
          */
         if (val->typ == VM_NIL
             || (val->typ == VM_INT && val->val.intval == 0))
@@ -1329,9 +1329,9 @@ int CVmObjList::getp_subset(VMG_ vm_val_t *retval, const vm_val_t *self_val,
         }
     }
 
-    /* 
+    /*
      *   set the result list length to the number of elements we actually
-     *   copied 
+     *   copied
      */
     new_lst_obj->cons_set_len(dst);
 
@@ -1371,13 +1371,13 @@ int CVmObjList::getp_map(VMG_ vm_val_t *retval, const vm_val_t *self_val,
     /* push a self-reference while allocating to protect from gc */
     G_stk->push(self_val);
 
-    /* 
+    /*
      *   Make a copy of our list for the return value, since the result
      *   value is always the same size as our current list.  By making a
      *   copy of the input list, we also can avoid worrying about whether
      *   the input list was a constant, and hence we don't have to worry
      *   about the possibility of constant page swapping - we'll just
-     *   update elements of the copy in-place.  
+     *   update elements of the copy in-place.
      */
     retval->set_obj(create(vmg_ FALSE, lst));
 
@@ -1388,26 +1388,26 @@ int CVmObjList::getp_map(VMG_ vm_val_t *retval, const vm_val_t *self_val,
     /* get the length of the list */
     cnt = vmb_get_len(new_lst);
 
-    /* 
+    /*
      *   push a reference to the new list to protect it from the garbage
      *   collector, which could be invoked in the course of executing the
-     *   user callback 
+     *   user callback
      */
     G_stk->push(retval);
 
     /*
      *   Go through each element of our list, and invoke the callback on
      *   each element.  Replace each element with the result of the
-     *   callback.  
+     *   callback.
      */
     for (idx = 0 ; idx < cnt ; ++idx)
     {
-        /* 
+        /*
          *   get this element (using a 1-based index), and push it as the
-         *   callback's argument 
+         *   callback's argument
          */
         index_and_push(vmg_ new_lst, idx + 1);
-        
+
         /* invoke the callback */
         G_interpreter->call_func_ptr(vmg_ func_val, 1, &rc, 0);
 
@@ -1462,11 +1462,11 @@ int CVmObjList::getp_sublist(VMG_ vm_val_t *retval, const vm_val_t *self_val,
     int32_t start = CVmBif::pop_long_val(vmg0_);
     if (start < 0)
         start += old_cnt + 1;
-    
-    /* 
+
+    /*
      *   pop the length, if present; if not, use the current element
      *   count, which will ensure that we use all available elements of
-     *   the sublist 
+     *   the sublist
      */
     int32_t len = (argc >= 2 ? CVmBif::pop_long_val(vmg0_) : old_cnt);
 
@@ -1490,10 +1490,10 @@ int CVmObjList::getp_sublist(VMG_ vm_val_t *retval, const vm_val_t *self_val,
         new_cnt = 0;
     }
 
-    /* 
+    /*
      *   limit the result to the desired new count, if it's shorter than
      *   what we have left (we obviously can't give them more elements
-     *   than we have remaining) 
+     *   than we have remaining)
      */
     if (len < 0)
         new_cnt += len;
@@ -1602,9 +1602,9 @@ int CVmObjList::getp_car(VMG_ vm_val_t *retval, const vm_val_t *self_val,
     if (get_prop_check_argc(retval, argc, &desc))
         return TRUE;
 
-    /* 
+    /*
      *   if the list has at least one element, return it; otherwise return
-     *   nil 
+     *   nil
      */
     if (vmb_get_len(lst) == 0)
     {
@@ -1637,10 +1637,10 @@ int CVmObjList::getp_cdr(VMG_ vm_val_t *retval, const vm_val_t *self_val,
     /* push a self-reference for GC protection */
     G_stk->push(self_val);
 
-    /* 
+    /*
      *   if the list has no elements, return nil; otherwise, return the
      *   sublist starting with the second element (thus return an empty
-     *   list if the original list has only one element) 
+     *   list if the original list has only one element)
      */
     if (vmb_get_len(lst) == 0)
     {
@@ -1690,7 +1690,7 @@ int CVmObjList::getp_index_which(VMG_ vm_val_t *retval,
 
 /*
  *   general index finder for indexWhich and lastIndexWhich - steps either
- *   forward or backward through the list 
+ *   forward or backward through the list
  */
 int CVmObjList::gen_index_which(VMG_ vm_val_t *retval,
                                 const vm_val_t *self_val,
@@ -1714,7 +1714,7 @@ int CVmObjList::gen_index_which(VMG_ vm_val_t *retval,
     /* presume that we won't find any element that satisfies the condition */
     retval->set_nil();
 
-    /* 
+    /*
      *   start at either the first or last index, depending on which way
      *   we're stepping
      */
@@ -1723,7 +1723,7 @@ int CVmObjList::gen_index_which(VMG_ vm_val_t *retval,
     /*
      *   Go through each element of our list, and invoke the callback on
      *   the element.  Stop when we reach the first element that returns
-     *   true, or when we run out of elements.  
+     *   true, or when we run out of elements.
      */
     for (;;)
     {
@@ -1741,9 +1741,9 @@ int CVmObjList::gen_index_which(VMG_ vm_val_t *retval,
         /* invoke the callback */
         G_interpreter->call_func_ptr(vmg_ func_val, 1, rc, 0);
 
-        /* 
+        /*
          *   if the callback returned true, we've found the element we're
-         *   looking for 
+         *   looking for
          */
         if (G_interpreter->get_r0()->typ == VM_NIL
             || (G_interpreter->get_r0()->typ == VM_INT
@@ -1788,7 +1788,7 @@ int CVmObjList::getp_for_each(VMG_ vm_val_t *retval,
 }
 
 /*
- *   property evaluator - forEachAssoc 
+ *   property evaluator - forEachAssoc
  */
 int CVmObjList::getp_for_each_assoc(VMG_ vm_val_t *retval,
                                     const vm_val_t *self_val,
@@ -1802,7 +1802,7 @@ int CVmObjList::getp_for_each_assoc(VMG_ vm_val_t *retval,
 /*
  *   General forEach processor - combines the functionality of forEach and
  *   forEachAssoc, using a flag to specify whether or not to pass the index
- *   of each element to the callback. 
+ *   of each element to the callback.
  */
 int CVmObjList::for_each_gen(VMG_ vm_val_t *retval,
                              const vm_val_t *self_val,
@@ -1833,9 +1833,9 @@ int CVmObjList::for_each_gen(VMG_ vm_val_t *retval,
         VM_IF_SWAPPING_POOL(if (self_val->typ == VM_LIST)
             lst = self_val->get_as_list(vmg0_);)
 
-        /* 
+        /*
          *   get this element (using a 1-based index) and push it as the
-         *   callback's argument 
+         *   callback's argument
          */
         index_and_push(vmg_ lst, idx);
 
@@ -1870,7 +1870,7 @@ int CVmObjList::getp_val_which(VMG_ vm_val_t *retval,
     if (retval->typ == VM_INT)
     {
         int idx;
-        
+
         /* re-translate the list address in case of swapping */
         VM_IF_SWAPPING_POOL(if (self_val->typ == VM_LIST)
             lst = self_val->get_as_list(vmg0_);)
@@ -1879,7 +1879,7 @@ int CVmObjList::getp_val_which(VMG_ vm_val_t *retval,
         idx = (int)retval->val.intval;
         index_list(vmg_ retval, lst, idx);
     }
-    
+
     /* handled */
     return TRUE;
 }
@@ -1948,7 +1948,7 @@ int CVmObjList::getp_last_val_which(VMG_ vm_val_t *retval,
     if (retval->typ == VM_INT)
     {
         int idx;
-        
+
         /* re-translate the list address in case of swapping */
         VM_IF_SWAPPING_POOL(if (self_val->typ == VM_LIST)
             lst = self_val->get_as_list(vmg0_);)
@@ -1993,7 +1993,7 @@ int CVmObjList::getp_count_of(VMG_ vm_val_t *retval,
     for (idx = 0, val_cnt = 0 ; idx < cnt ; ++idx)
     {
         vm_val_t ele;
-        
+
         /* re-translate the list address in case of swapping */
         VM_IF_SWAPPING_POOL(if (self_val->typ == VM_LIST)
             lst = self_val->get_as_list(vmg0_);)
@@ -2055,9 +2055,9 @@ int CVmObjList::getp_count_which(VMG_ vm_val_t *retval,
         VM_IF_SWAPPING_POOL(if (self_val->typ == VM_LIST)
             lst = self_val->get_as_list(vmg0_);)
 
-        /* 
+        /*
          *   get this element (using a 1-based index), and push it as the
-         *   callback's argument 
+         *   callback's argument
          */
         index_and_push(vmg_ lst, idx);
 
@@ -2108,13 +2108,13 @@ int CVmObjList::getp_get_unique(VMG_ vm_val_t *retval,
     /* put myself on the stack for GC protection */
     G_stk->push(self_val);
 
-    /* 
+    /*
      *   Make a copy of our list for the return value, since the result
      *   value will never be larger than the original list.  By making a
      *   copy of the input list, we also can avoid worrying about whether
      *   the input list was a constant, and hence we don't have to worry
      *   about the possibility of constant page swapping - we'll just
-     *   update elements of the copy in-place.  
+     *   update elements of the copy in-place.
      */
     retval->set_obj(create(vmg_ FALSE, lst));
 
@@ -2136,7 +2136,7 @@ int CVmObjList::getp_get_unique(VMG_ vm_val_t *retval,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   property evaluator - appendUnique 
+ *   property evaluator - appendUnique
  */
 int CVmObjList::getp_append_unique(VMG_ vm_val_t *retval,
                                    const vm_val_t *self_val,
@@ -2166,7 +2166,7 @@ int CVmObjList::getp_append_unique(VMG_ vm_val_t *retval,
 }
 
 /*
- *   Append unique (internal interface) 
+ *   Append unique (internal interface)
  */
 void CVmObjList::append_unique(VMG_ vm_val_t *retval,
                                const vm_val_t *self, const vm_val_t *val2)
@@ -2190,7 +2190,7 @@ void CVmObjList::append_unique(VMG_ vm_val_t *retval,
     /*
      *   Create a new list for the return value.  Allocate space for the
      *   current list plus the list to be added - this is an upper bound,
-     *   since the actual result list can be shorter 
+     *   since the actual result list can be shorter
      */
     retval->set_obj(create(vmg_ FALSE, lst_len + lst2_len));
 
@@ -2200,9 +2200,9 @@ void CVmObjList::append_unique(VMG_ vm_val_t *retval,
     /* get the return value list data */
     new_lst = (CVmObjList *)vm_objp(vmg_ retval->val.obj);
 
-    /* 
+    /*
      *   copy the first list into the result list (including only the data
-     *   elements, not the length prefix) 
+     *   elements, not the length prefix)
      */
     new_lst->cons_copy_elements(0, lst);
 
@@ -2230,7 +2230,7 @@ void CVmObjList::append_unique(VMG_ vm_val_t *retval,
  *   General insertion routine - this is used to handle append, prepend, and
  *   insertAt property evaluators.  Inserts elements from the argument list
  *   at the given index, with zero indicating insertion before the first
- *   existing element.  
+ *   existing element.
  */
 void CVmObjList::insert_elements(VMG_ vm_val_t *retval,
                                  const vm_val_t *self_val,
@@ -2251,7 +2251,7 @@ void CVmObjList::insert_elements(VMG_ vm_val_t *retval,
 
     /*
      *   Create a new list for the return value.  Allocate space for the
-     *   current list plus one new element for each argument.  
+     *   current list plus one new element for each argument.
      */
     retval->set_obj(create(vmg_ FALSE, lst_len + argc));
 
@@ -2264,10 +2264,10 @@ void CVmObjList::insert_elements(VMG_ vm_val_t *retval,
     /* get the original list data */
     lst = self_val->get_as_list(vmg0_);
 
-    /* 
+    /*
      *   Copy the first list into the result list (including only the data
      *   elements, not the length prefix).  Copy it in two pieces: first,
-     *   copy the elements before the insertion point.  
+     *   copy the elements before the insertion point.
      */
     if (idx != 0)
         new_lst->cons_copy_data(0, get_element_ptr_const(lst, 0), idx);
@@ -2280,12 +2280,12 @@ void CVmObjList::insert_elements(VMG_ vm_val_t *retval,
     /* copy each argument into the proper position in the new list */
     for (uint i = 0 ; i < argc ; ++i)
     {
-        /* 
+        /*
          *   get a pointer to this argument value - the arguments are just
-         *   after the temporary items we've pushed onto the stack 
+         *   after the temporary items we've pushed onto the stack
          */
         const vm_val_t *argp = G_stk->get(stack_temp_cnt + i);
-        
+
         /* copy the argument into the list */
         new_lst->cons_set_element((uint)idx + i, argp);
     }
@@ -2297,7 +2297,7 @@ void CVmObjList::insert_elements(VMG_ vm_val_t *retval,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   property evaluator - append 
+ *   property evaluator - append
  */
 int CVmObjList::getp_append(VMG_ vm_val_t *retval,
                             const vm_val_t *self_val,
@@ -2317,7 +2317,7 @@ int CVmObjList::getp_append(VMG_ vm_val_t *retval,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   property evaluator - prepend 
+ *   property evaluator - prepend
  */
 int CVmObjList::getp_prepend(VMG_ vm_val_t *retval,
                              const vm_val_t *self_val,
@@ -2357,10 +2357,10 @@ int CVmObjList::getp_insert_at(VMG_ vm_val_t *retval,
     /* adjust to zero-based indexing */
     idx -= 1;
 
-    /* 
+    /*
      *   Insert the element (there's just one) at the start of the list.
      *   Note that we must decrement the argument count we got, since we
-     *   already took off the first argument (the index value). 
+     *   already took off the first argument (the index value).
      */
     insert_elements(vmg_ retval, self_val, lst, argc - 1, idx);
 
@@ -2371,7 +2371,7 @@ int CVmObjList::getp_insert_at(VMG_ vm_val_t *retval,
 /* ------------------------------------------------------------------------ */
 /*
  *   General property evaluator for removing a range of elements - this
- *   handles removeElementAt and removeRange. 
+ *   handles removeElementAt and removeRange.
  */
 void CVmObjList::remove_range(VMG_ vm_val_t *retval,
                               const vm_val_t *self_val,
@@ -2385,10 +2385,10 @@ void CVmObjList::remove_range(VMG_ vm_val_t *retval,
 
     /* get the original list length */
     lst_len = vmb_get_len(lst);
-    
-    /* 
+
+    /*
      *   allocate a new list with space for the original list minus the
-     *   elements to be deleted 
+     *   elements to be deleted
      */
     retval->set_obj(create(vmg_ FALSE, lst_len - del_cnt));
 
@@ -2401,16 +2401,16 @@ void CVmObjList::remove_range(VMG_ vm_val_t *retval,
     /* get the original list data as well */
     lst = self_val->get_as_list(vmg0_);
 
-    /* 
+    /*
      *   copy elements from the original list up to the first item to be
-     *   removed 
+     *   removed
      */
     if (start_idx != 0)
         new_lst->cons_copy_data(0, get_element_ptr_const(lst, 0), start_idx);
 
-    /* 
+    /*
      *   copy elements of the original list following the last item to be
-     *   removed 
+     *   removed
      */
     if ((size_t)(start_idx + del_cnt) < lst_len)
         new_lst->
@@ -2456,7 +2456,7 @@ int CVmObjList::getp_remove_element_at(VMG_ vm_val_t *retval,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   property evaluator - remove the element at the given index 
+ *   property evaluator - remove the element at the given index
  */
 int CVmObjList::getp_remove_range(VMG_ vm_val_t *retval,
                                   const vm_val_t *self_val,
@@ -2481,10 +2481,10 @@ int CVmObjList::getp_remove_range(VMG_ vm_val_t *retval,
     --start_idx;
     --end_idx;
 
-    /* 
+    /*
      *   make sure the index values are in range - both must refer to valid
      *   elements, and the ending index must be at least as high as the
-     *   starting index 
+     *   starting index
      */
     if (start_idx < 0 || (size_t)start_idx >= vmb_get_len(lst)
           || end_idx < 0 || (size_t)end_idx >= vmb_get_len(lst)
@@ -2501,7 +2501,7 @@ int CVmObjList::getp_remove_range(VMG_ vm_val_t *retval,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   sorter for list data 
+ *   sorter for list data
  */
 class CVmQSortList: public CVmQSortVal
 {
@@ -2510,7 +2510,7 @@ public:
     {
         lst_ = 0;
     }
-    
+
     /* get an element */
     void get_ele(VMG_ size_t idx, vm_val_t *val)
     {
@@ -2555,9 +2555,9 @@ int CVmObjList::getp_sort(VMG_ vm_val_t *retval,
     if (argc >= 1)
         sorter.descending_ = (G_stk->get(0)->typ != VM_NIL);
 
-    /* 
+    /*
      *   if we have a comparison function, note it, but leave it on the
-     *   stack for gc protection 
+     *   stack for gc protection
      */
     if (argc >= 2)
     {
@@ -2645,7 +2645,7 @@ int CVmObjList::getp_splice(VMG_ vm_val_t *retval,
 
         /* push a reference to the new list for gc protection */
         G_stk->push(retval);
-        
+
         /* copy elements from the original up to the starting index */
         int dst = 0;
         if (start_idx > 0)
@@ -2653,37 +2653,37 @@ int CVmObjList::getp_splice(VMG_ vm_val_t *retval,
             new_lst->cons_copy_data(0, lst + VMB_LEN, start_idx);
             dst = start_idx;
         }
-        
-        /* 
+
+        /*
          *   Add the inserted items from the arguments.  We popped our first
          *   two arguments, but then we pushed two items for gc protection,
-         *   so conveniently the inserted items are just args 2..argc-1 
+         *   so conveniently the inserted items are just args 2..argc-1
          */
         for (uint i = 2 ; i < argc ; ++i)
             new_lst->cons_set_element(dst++, G_stk->get(i));
-        
+
         /* copy the remaining elements after the deleted segment, if any */
         if (lst_cnt > start_idx + del_cnt)
         {
             new_lst->cons_copy_data(
                 dst, get_element_ptr_const(lst, start_idx + del_cnt),
                 lst_cnt - (start_idx + del_cnt));
-        }   
-        
-        /* 
+        }
+
+        /*
          *   Discard the gc protection and insertion arguments.  We added two
          *   elements for gc protection, and popped two arguments, so the net
-         *   is the original argument count.  
+         *   is the original argument count.
          */
         G_stk->discard(argc);
     }
     else
     {
-        /* 
+        /*
          *   There's nothing to do - just return the original list.  (There's
          *   nothing to discard from the stack: we have no more arguments,
          *   since ins_cnt is zero, and we haven't pushed any gc protection
-         *   elements.) 
+         *   elements.)
          */
         *retval = *self_val;
     }
@@ -2695,7 +2695,7 @@ int CVmObjList::getp_splice(VMG_ vm_val_t *retval,
 /* ------------------------------------------------------------------------ */
 /*
  *   property evaluator - join.  This is a generic routine that can be called
- *   with any list-like object.  
+ *   with any list-like object.
  */
 int CVmObjList::getp_join(VMG_ vm_val_t *retval,
                           const vm_val_t *self_val,
@@ -2732,7 +2732,7 @@ int CVmObjList::getp_join(VMG_ vm_val_t *retval,
 }
 
 /*
- *   Join list elements into a string 
+ *   Join list elements into a string
  */
 void CVmObjList::join(VMG_ vm_val_t *retval,
                       const vm_val_t *self_val,
@@ -2741,11 +2741,11 @@ void CVmObjList::join(VMG_ vm_val_t *retval,
     /* push 'self' for gc protection */
     G_stk->push(self_val);
 
-    /* 
+    /*
      *   Do a first pass through the list to measure the size we'll need.
      *   For string elements we'll know exactly what we need; for
      *   non-strings, make a guess, and we'll expand the buffer later if
-     *   needed.  
+     *   needed.
      */
     vm_val_t ele;
     size_t alo_len = 0;
@@ -2773,9 +2773,9 @@ void CVmObjList::join(VMG_ vm_val_t *retval,
                 break;
 
             case VM_OBJ:
-                /* 
+                /*
                  *   object conversion could take almost any amount of space;
-                 *   make a wild guess for now 
+                 *   make a wild guess for now
                  */
                 alo_len += 128;
                 break;
@@ -2880,7 +2880,7 @@ void CVmObjList::join(VMG_ vm_val_t *retval,
 }
 
 /*
- *   explicit string conversion, using toString() semantics 
+ *   explicit string conversion, using toString() semantics
  */
 const char *CVmObjList::list_to_string(
     VMG_ vm_val_t *retval, const vm_val_t *self, int radix, int flags)
@@ -2998,7 +2998,7 @@ int CVmObjList::static_getp_generate(VMG_ vm_val_t *retval, uint *in_argc)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Property evaluator: get the index of the element with the minimum value 
+ *   Property evaluator: get the index of the element with the minimum value
  */
 int CVmObjList::getp_indexOfMin(VMG_ vm_val_t *retval,
                                 const vm_val_t *self_val,
@@ -3011,7 +3011,7 @@ int CVmObjList::getp_indexOfMin(VMG_ vm_val_t *retval,
 }
 
 /*
- *   Property evaluator: get the value of the element with the minimum value 
+ *   Property evaluator: get the value of the element with the minimum value
  */
 int CVmObjList::getp_minVal(VMG_ vm_val_t *retval,
                             const vm_val_t *self_val,
@@ -3024,7 +3024,7 @@ int CVmObjList::getp_minVal(VMG_ vm_val_t *retval,
 }
 
 /*
- *   Property evaluator: get the index of the element with the maximum value 
+ *   Property evaluator: get the index of the element with the maximum value
  */
 int CVmObjList::getp_indexOfMax(VMG_ vm_val_t *retval,
                                 const vm_val_t *self_val,
@@ -3037,7 +3037,7 @@ int CVmObjList::getp_indexOfMax(VMG_ vm_val_t *retval,
 }
 
 /*
- *   Property evaluator: get the value of the element with the maximum value 
+ *   Property evaluator: get the value of the element with the maximum value
  */
 int CVmObjList::getp_maxVal(VMG_ vm_val_t *retval,
                             const vm_val_t *self_val,
@@ -3053,11 +3053,11 @@ int CVmObjList::getp_maxVal(VMG_ vm_val_t *retval,
  *   General handling for minIndex, minVal, maxIndex, and maxVal.  This finds
  *   the highest/lowest value in the list, optionally mapped through a
  *   callback function.  Returns the winning element's index and value.
- *   
+ *
  *   'sense' is the sense of the search: -1 for minimum, 1 for maximum.
  *   'want_index' is true if 'retval' should be set to the index of the
  *   winning element, false if 'retval' should be set to the winning
- *   element's value.  
+ *   element's value.
  */
 int CVmObjList::get_minmax(VMG_ vm_val_t *retval,
                            const vm_val_t *self_val,
@@ -3132,13 +3132,13 @@ int CVmObjList::get_minmax(VMG_ vm_val_t *retval,
 
     /* remove gc protection and arguments */
     G_stk->discard(argc + 1);
-    
+
     /* return the winning index (note: 1-based) or value, as desired */
     if (want_index)
         retval->set_int(winner_idx + 1);
     else
         *retval = winner;
-        
+
     /* handled */
     return TRUE;
 }
@@ -3147,11 +3147,11 @@ int CVmObjList::get_minmax(VMG_ vm_val_t *retval,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Constant-pool list object 
+ *   Constant-pool list object
  */
 
 /*
- *   create 
+ *   create
  */
 vm_obj_id_t CVmObjListConst::create(VMG_ const char *const_ptr)
 {

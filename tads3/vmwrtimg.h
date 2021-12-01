@@ -1,18 +1,18 @@
 /* $Header: d:/cvsroot/tads/tads3/vmwrtimg.h,v 1.4 1999/07/11 00:46:59 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmwrtimg.h - T3 Image File Writer utility functions
 Function
-  
+
 Notes
-  
+
 Modified
   04/04/99 MJRoberts  - Creation
 */
@@ -36,7 +36,7 @@ public:
     /* get the current seek location in the underlying file */
     long get_pos() const;
 
-    /* 
+    /*
      *   Prepare the file: write out the fixed header information.  This
      *   should be called once, before doing any other writing.  'vsn' is
      *   the image file version number to store in the file.
@@ -48,22 +48,22 @@ public:
      *   the block header, and remembers where the block starts so that
      *   the size prefix can be stored when the block is finished.  Blocks
      *   cannot be nested; starting a new block automatically ends the
-     *   previous block.  
+     *   previous block.
      */
     void begin_block(const char *block_id, int mandatory);
 
     /*
-     *   End the current block. 
+     *   End the current block.
      */
     void end_block();
 
     /* write raw bytes to the image file */
     void write_bytes(const char *ptr, uint32_t siz);
 
-    /* 
+    /*
      *   Write a complete entrypoint block, given the code offset of the
      *   entrypoint and the various table entry sizes.  If a block is in
-     *   progress, this will terminate it.  
+     *   progress, this will terminate it.
      */
     void write_entrypt(uint32_t entry_ofs, size_t method_header_size,
                        size_t exc_entry_size, size_t line_entry_size,
@@ -81,7 +81,7 @@ public:
     /*
      *   Write a complete metaclass dependency block, given an array of
      *   metaclass names.  If a block is in progress, this will terminate
-     *   it. 
+     *   it.
      */
     void write_meta_dep(const char **metaclass_names, int count);
 
@@ -98,7 +98,7 @@ public:
     void end_meta_dep();
 
     /*
-     *   Write a function set dependency block in pieces 
+     *   Write a function set dependency block in pieces
      */
     void begin_func_dep(int count)
         { begin_dep_block("FNSD", count); }
@@ -127,10 +127,10 @@ public:
      *   caller must note the seek position prior to writing the pool
      *   definition block, so that we can seek back to that position to
      *   fix up the definition block.
-     *   
+     *
      *   Callers need not use this function if they know the actual number
      *   of pages in the pool when writing the original pool definition
-     *   block.  
+     *   block.
      */
     void fix_pool_def(long def_seek_ofs, uint32_t page_count);
 
@@ -138,7 +138,7 @@ public:
      *   Write a constant/code pool page.  This writes the entire page
      *   with its header and data in a single operation; this is the
      *   easiest way to write a page when the page has been fully
-     *   constructed in a single memory block in advance.  
+     *   constructed in a single memory block in advance.
      */
     void write_pool_page(uint pool_id, uint32_t page_index,
                          const char *page_data, uint32_t page_data_size,
@@ -150,7 +150,7 @@ public:
      *   must be written in pieces.  Start by calling begin_pool_page(),
      *   then call write_pool_page_bytes() for each item; the items are
      *   written contiguously to the page.  Finish by calling
-     *   end_pool_page().  
+     *   end_pool_page().
      */
     void begin_pool_page(uint pool_id, uint32_t page_index, int mandatory,
                          uchar xor_mask);
@@ -184,12 +184,12 @@ public:
      *   Write items in an OBJS (static object data) block.  Start with
      *   begin_objs_block(), then call write_objs_bytes() repeatedly to
      *   write the bytes.  Finally, call end_objs_block() when done.
-     *   
+     *
      *   If the 'large_objects' field is set, the objects in the block use
      *   32-bit size fields; otherwise the objects use 16-bit size fields.
-     *   
+     *
      *   If 'trans' is true, the objects in this block are transient;
-     *   otherwise, the objects are non-transient (i.e., persistent).  
+     *   otherwise, the objects are non-transient (i.e., persistent).
      */
     void begin_objs_block(uint metaclass_idx, int large_objects, int trans);
     void write_objs_bytes(const char *buf, uint32_t siz);
@@ -200,7 +200,7 @@ public:
      *   with begin_srcf_block(), then write the file entries.  For each
      *   entry, call begin_src_entry(), then call write_src_line_entry()
      *   for each source line debug record, then call end_srcf_entry().
-     *   Call end_srcf_block() when done with all file entries.  
+     *   Call end_srcf_block() when done with all file entries.
      */
     void begin_srcf_block(int count);
     void begin_srcf_entry(int orig_index, const char *fname);
@@ -208,10 +208,10 @@ public:
     void end_srcf_entry();
     void end_srcf_block();
 
-    /* 
+    /*
      *   Write the items in a GSYM (global symbol table) block.  Start
      *   with begin_gsym_block(), then call write_gsym_entry() repeatedly
-     *   to write the entries.  Call end_gsym_block() when done. 
+     *   to write the entries.  Call end_gsym_block() when done.
      */
     void begin_gsym_block();
     void write_gsym_entry(const char *sym, size_t sym_len,
@@ -219,7 +219,7 @@ public:
     void end_gsym_block(ulong count);
 
     /*
-     *   Begin MHLS block, write an item, and end the block 
+     *   Begin MHLS block, write an item, and end the block
      */
     void begin_mhls_block();
     void write_mhls_entry(ulong code_addr);
@@ -229,7 +229,7 @@ public:
      *   Begin/end SINI block.  static_cs_ofs is the offset in the code
      *   segment of the first static initializer; this is useful in the
      *   image file because we can delete all of the code pages starting
-     *   at this point after pre-initialization is complete.  
+     *   at this point after pre-initialization is complete.
      */
     void begin_sini_block(ulong static_cs_ofs, ulong init_cnt);
     void end_sini_block();
@@ -240,14 +240,14 @@ public:
 
     /*
      *   Finish the file.  Automatically ends the current block if a block
-     *   is open, and writes the end-of-file marker. 
+     *   is open, and writes the end-of-file marker.
      */
     void finish();
 
-    /* 
+    /*
      *   get the underlying file object; for some types of blocks, it's
      *   simplest for the caller to write the data directly to the underlying
-     *   file stream without any help from us 
+     *   file stream without any help from us
      */
     class CVmFile *get_fp() const { return fp_; }
 
@@ -262,13 +262,13 @@ private:
 
     /* XOR a block of bytes with a mask and write the results to the file */
     void xor_and_write_bytes(const char *p, uint32_t len, uchar xor_mask);
-  
+
     /* underlying file */
     class CVmFile *fp_;
 
-    /* 
+    /*
      *   Seek position of start of current block.  If this is zero, no
-     *   block is currently open. 
+     *   block is currently open.
      */
     long block_start_;
 

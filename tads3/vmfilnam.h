@@ -1,10 +1,10 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 2012 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -14,7 +14,7 @@ Function
   a string containing the filename, but provides methods to manipulate the
   name portably, using the various osifc path manipulation routines.
 Notes
-  
+
 Modified
   03/03/12 MJRoberts  - Creation
 */
@@ -32,11 +32,11 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   The image file data block is arranged as follows:
- *   
+ *
  *.  UINT2 special_id  = special file ID (0 for regular named files)
  *.  UINT2 str_len     = length of the string in byts
  *.  UTF8 str          = the filename string in universal notation
- *   
+ *
  *   If the special file ID is non-zero, the str_len and str fields aren't
  *   stored.
  */
@@ -52,7 +52,7 @@ struct vm_filnam_ext
     /* allocate the structure */
     static vm_filnam_ext *alloc_ext(VMG_ class CVmObjFileName *self,
                                     int32_t sfid, const char *str, size_t len);
-    
+
     /* get the length of the string, and a pointer to the string buffer */
     size_t get_len() { return vmb_get_len(str); }
     const char *get_str() { return str + VMB_LEN; }
@@ -63,7 +63,7 @@ struct vm_filnam_ext
     /* flag: is the sfid valid? */
     char sfid_valid;
 
-    /* 
+    /*
      *   Flag: the filename was manually selected by the user through a file
      *   dialog.  If this is non-zero, it's an OS_AFP_xxx value giving the
      *   type of dialog that was presented to the user to obtain this
@@ -73,10 +73,10 @@ struct vm_filnam_ext
      */
     char from_ui;
 
-    /* 
+    /*
      *   the actual data is in the same format as an ordinary internal string
      *   - a two-byte length prefix in little-endian order, followed by the
-     *   UTF8 bytes of the string 
+     *   UTF8 bytes of the string
      */
     char str[1];
 };
@@ -90,7 +90,7 @@ struct vm_filnam_ext
 class CVmObjFileName: public CVmObject
 {
     friend class CVmMetaclassFileName;
-    
+
 public:
     /* metaclass registration object */
     static class CVmMetaclass *metaclass_reg_;
@@ -122,19 +122,19 @@ public:
     static vm_obj_id_t create_from_sfid(
         VMG_ int32_t sfid, const char *path, size_t len);
 
-    /* 
+    /*
      *   Combine two path local paths into a new FileName object.  If
      *   'literal' is true, it means that we build the literal combined path,
      *   otherwise we build the canonical path (e.g., resolving '.' and '..'
-     *   relative links). 
+     *   relative links).
      */
     static vm_obj_id_t combine_path(
         VMG_ const char *path, size_t pathl, const char *file, size_t filel,
         int literal);
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -163,7 +163,7 @@ public:
     int is_special_file() const { return get_ext()->sfid != 0; }
     int32_t get_sfid() const { return get_ext()->sfid; }
 
-    /* 
+    /*
      *   Get/set the "from UI" flag.  If the user manually selected the file
      *   through a file dialog, this is an OS_AFP_xxx value specifying the
      *   type of dialog that was presented.
@@ -179,18 +179,18 @@ public:
     int get_prop(VMG_ vm_prop_id_t prop, vm_val_t *val,
                  vm_obj_id_t self, vm_obj_id_t *source_obj, uint *argc);
 
-    /* 
+    /*
      *   receive savepoint notification - we don't keep any
-     *   savepoint-relative records, so we don't need to do anything here 
+     *   savepoint-relative records, so we don't need to do anything here
      */
     void notify_new_savept() { }
-    
+
     /* apply an undo record (we're immutable -> no undo) */
     void apply_undo(VMG_ struct CVmUndoRecord *) { }
-    
+
     /* discard an undo record */
     void discard_undo(VMG_ struct CVmUndoRecord *) { }
-    
+
     /* mark our undo record references */
     void mark_undo_ref(VMG_ struct CVmUndoRecord *) { }
 
@@ -240,15 +240,15 @@ protected:
     /* convert a URL string to a local path string */
     static char *url_to_local(VMG_ const char *str, size_t len, int nullterm);
 
-    /* 
+    /*
      *   convert my filename to universal format, returning an allocated
-     *   buffer (which the caller must free with lib_free_str() when done) 
+     *   buffer (which the caller must free with lib_free_str() when done)
      */
     char *to_universal(VMG0_) const;
 
-    /* 
+    /*
      *   get the special file type flags - this returns FileTypeSelfLink or
-     *   FileTypeParentLink, if applicable, based on the root name 
+     *   FileTypeParentLink, if applicable, based on the root name
      */
     int32_t special_filetype_flags(VMG0_);
 
@@ -326,7 +326,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjFileName metaclass registration table object 
+ *   CVmObjFileName metaclass registration table object
  */
 class CVmMetaclassFileName: public CVmMetaclass
 {
@@ -351,7 +351,7 @@ public:
     /* create dynamically using stack arguments */
     vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr, uint argc)
         { return CVmObjFileName::create_from_stack(vmg_ pc_ptr, argc); }
-    
+
     /* call a static property */
     int call_stat_prop(VMG_ vm_val_t *result,
                        const uchar **pc_ptr, uint *argc,
@@ -365,6 +365,6 @@ public:
 #endif /* VMFILNAM_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjFileName)

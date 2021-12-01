@@ -3,9 +3,9 @@
 Name
   tcjs.h - tads 3 compiler - javascript code generator
 Function
-  
+
 Notes
-  
+
 Modified
   02/17/09 MJRoberts  - Creation
 */
@@ -24,7 +24,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   JS expression stack element 
+ *   JS expression stack element
  */
 class js_expr_ele
 {
@@ -79,7 +79,7 @@ protected:
 
 
 /*
- *   Javascript expression generation buffer 
+ *   Javascript expression generation buffer
  */
 class js_expr_buf
 {
@@ -183,7 +183,7 @@ public:
     char *yield_buffer()
     {
         char *ret;
-        
+
         /* if the buffer was not allocated, make an allocated copy */
         if (buf == init_buf)
         {
@@ -215,9 +215,9 @@ public:
 
 protected:
 
-    /* 
+    /*
      *   initial buffer - this is allocated as part of the initial structure
-     *   to save malloc overhead 
+     *   to save malloc overhead
      */
     static const size_t init_buf_size = 512;
     char init_buf[init_buf_size];
@@ -234,7 +234,7 @@ protected:
 /* ------------------------------------------------------------------------ */
 /*
  *   T3-specific code generator helper class.  This class provides a set
- *   of static functions that are useful for T3 code generation.  
+ *   of static functions that are useful for T3 code generation.
  */
 class CTcGenTarg
 {
@@ -245,40 +245,40 @@ public:
     /* destroy the code generator object */
     ~CTcGenTarg();
 
-    /* 
+    /*
      *   Push a javascript expression.  The string can be a printf-style
      *   format string, with varargs following.  First, the printf formatting
      *   is applied to generate the control string.  Then, we expand '$'
      *   expressions:
-     *   
+     *
      *   $1 = the top-of-stack code expression
      *.  $2 = the 2nd item on the stack
      *.  $n = the nth item on the stack
-     *   
+     *
      *   ${disc n} = substitute an empty string, but mark the nth stack item
      *   for discarding at the end of the process (see below) as though it
      *   had been mentioned in a regular $n expression
-     *   
+     *
      *   ${args n m} = the 'm' stack elements starting at $n, concatenated
      *   together into an argument list (with commas as separators)
-     *   
+     *
      *   ${,args n m} = same as ${args}, but start the list with a comma if
      *   it's non empty, otherwise generate nothing
-     *   
+     *
      *   ${args[] n m varargs} = same as ${args}, but enclose the list in
      *   square brackets to make it an array at run-time.  If varargs is
      *   true, we already have a varargs list on the stack.
-     *   
+     *
      *   $$ = a single literal '$'
-     *   
+     *
      *   After expanding the '$' expressions, we pop the stack expressions
      *   used.  We pop every stack item up to and including the highest
      *   numbered item used in a '$' expression - even if an item is never
      *   used, it will be discarded if it's on the stack after an item that
      *   was mentioned.
-     *   
+     *
      *   Finally, the expanded expression string that results from the above
-     *   substitutions is pushed onto the expression stack.  
+     *   substitutions is pushed onto the expression stack.
      */
     void js_expr(const char *str, ...);
 
@@ -288,10 +288,10 @@ public:
     /* allocate a new global object ID */
     tctarg_obj_id_t new_obj_id() { return next_obj_++; }
 
-    /* 
+    /*
      *   Note constant data sizes.  This doesn't affect us, since we don't
      *   have to worry about dividing anything up into pages the way the T3
-     *   code generator does.  
+     *   code generator does.
      */
     void note_str(size_t) { }
     void note_list(size_t) { }
@@ -301,15 +301,15 @@ public:
     size_t get_max_list_cnt() const { return 0; }
     size_t get_max_bytecode_len() const { return 0; }
 
-    /* 
+    /*
      *   Add a debug line record.  We don't keep debugging information, so we
-     *   can just ignore this. 
+     *   can just ignore this.
      */
     void add_line_rec(class CTcTokFileDesc *, long) { }
 
     /*
      *   Add a function set to the dependency table - returns the index of
-     *   the function set in the table 
+     *   the function set in the table
      */
     int add_fnset(const char *fnset_extern_name, size_t len);
     int add_fnset(const char *fnset_extern_name)
@@ -321,12 +321,12 @@ public:
     /* get the number of defined function sets */
     int get_fnset_cnt() const { return fnset_cnt_; }
 
-    /* 
+    /*
      *   Find a metaclass entry, adding it if it's not already there.  If the
      *   metaclass is already defined, and it has an associated symbol, we
      *   will not change the associated symbol - this will let the caller
      *   detect that the metaclass has been previously defined for a
-     *   different symbol, which is usually an error.  
+     *   different symbol, which is usually an error.
      */
     int find_or_add_meta(const char *nm, size_t len,
                          class CTcSymMetaclass *sym);
@@ -345,13 +345,13 @@ public:
      *   Notify the code generator that we're replacing an object (via the
      *   "replace" statement) at the given stream offset.  We'll mark the
      *   data in the stream as deleted so that we don't write it to the image
-     *   file.  
+     *   file.
      */
     void notify_replace_object(ulong stream_ofs);
 
     /*
      *   Notify the code generator that parsing is finished.  This should be
-     *   called after parsing and before code generation begins.  
+     *   called after parsing and before code generation begins.
      */
     void parsing_done();
 
@@ -367,13 +367,13 @@ public:
     /*
      *   Write to an object file.  The compiler calls this after all parsing
      *   and code generation are completed to write an object file, which can
-     *   then be linked with other object files to create an image file.  
+     *   then be linked with other object files to create an image file.
      */
     void write_to_object_file(class CVmFile *object_fp,
                               class CTcMake *make_obj);
 
     /*
-     *   Load an object file.  Returns zero on success, non-zero on error.  
+     *   Load an object file.  Returns zero on success, non-zero on error.
      */
     int load_object_file(CVmFile *fp, const textchar_t *fname);
 
@@ -381,23 +381,23 @@ public:
      *   Write the image file.  The compiler calls this after all parsing and
      *   code generation are completed to write an image file.  We must apply
      *   all fixups, assign the code and constant pool layouts, and write the
-     *   data to the image file.  
+     *   data to the image file.
      */
     void write_to_image(class CVmFile *image_fp, uchar data_xor_mask,
                         const char tool_data[4]);
 
     /*
-     *   $$$ deprecated - temporary build scaffolding only 
+     *   $$$ deprecated - temporary build scaffolding only
      */
     void write_op(int op) { assert(FALSE); }
     void write_callprop(int argc, int varargs, int propno) { assert(FALSE); }
     void note_push(int n = 1) { assert(FALSE); }
     void note_pop(int n = 1) { assert(FALSE); }
 
-    /* 
+    /*
      *   Debugger mode/Speculative debugger evaluation?  We don't (currently)
      *   have any debugger integration possible in the js version, so this
-     *   isn't relevant.  
+     *   isn't relevant.
      */
     int is_eval_for_debug() const { return FALSE; }
     int is_speculative() const { return FALSE; }

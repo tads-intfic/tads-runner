@@ -1,10 +1,10 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 2001, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -44,7 +44,7 @@ Function
   allows the program to control the presence of this extra information in a
   very natural way.
 Notes
-  
+
 Modified
   02/17/01 MJRoberts  - Creation
 */
@@ -106,10 +106,10 @@ public:
         return find_val_name(vmg_ &val, name_len);
     }
 
-    /* 
+    /*
      *   Find the name for a value.  Fills in the length pointer with the
      *   length of the return string, which is not null-terminated.
-     *   Returns null if no such value is present in the table.  
+     *   Returns null if no such value is present in the table.
      */
     const char *find_val_name(VMG_ const vm_val_t *val,
                               size_t *name_len) const;
@@ -153,11 +153,11 @@ struct vm_runtime_sym
     /* for a macro, the argument list */
     char **macro_args;
 
-    /* 
+    /*
      *   Commit storage for a macro argument.  Arguments MUST be stored
      *   sequentially, starting from number 0.  The caller must
      *   null-terminate each name, AND must include the null byte in the
-     *   'len' value.  
+     *   'len' value.
      */
     void commit_macro_arg(int i, size_t len)
     {

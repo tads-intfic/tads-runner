@@ -2,11 +2,11 @@
 $Header: d:/cvsroot/tads/TADS2/BIF.H,v 1.3 1999/07/11 00:46:29 MJRoberts Exp $
 */
 
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -82,7 +82,7 @@ typedef struct bifcxdef bifcxdef;
 
 /*
  *   argument list checking routines - can be disabled for faster
- *   run-time 
+ *   run-time
  */
 
 /* check for proper number of arguments */

@@ -49,7 +49,7 @@
 unsigned long oss_get_file_attrs(const char *fname)
 {
     unsigned long attrs = 0;
-    
+
     /* get the DOS attribute flags */
     DWORD dos_attrib = GetFileAttributes(fname);
 
@@ -74,9 +74,9 @@ unsigned long oss_get_file_attrs(const char *fname)
      *   from the RDONLY attribute is correct after all.
      */
     {
-        /* 
+        /*
          *   get the file's DACL and owner/group security info; first, ask
-         *   how much space we need to allocate for the returned information 
+         *   how much space we need to allocate for the returned information
          */
         DWORD len = 0;
         SECURITY_INFORMATION info = (SECURITY_INFORMATION)(
@@ -98,10 +98,10 @@ unsigned long oss_get_file_attrs(const char *fname)
                     /* impersonate myself for security purposes */
                     ImpersonateSelf(SecurityImpersonation);
 
-                    /* 
+                    /*
                      *   get the security token for the current thread, which
                      *   is the context in which the caller will presumably
-                     *   eventually attempt to access the file 
+                     *   eventually attempt to access the file
                      */
                     if (OpenThreadToken(
                         GetCurrentThread(), TOKEN_ALL_ACCESS, TRUE, &ttok))

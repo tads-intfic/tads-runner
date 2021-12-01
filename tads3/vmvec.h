@@ -1,10 +1,10 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -13,7 +13,7 @@ Function
   A Vector is a subclass of Collection.  A Vector is a List whose
   elements can be changed in-place, and whose size can change.
 Notes
-  
+
 Modified
   05/14/00 MJRoberts  - Creation
 */
@@ -35,46 +35,46 @@ Modified
  *   Vectors are very similar to lists, but a vector's contents can be
  *   modified during execution.  Because vectors are dynamic, a vector's
  *   image file data are copied into the heap.
- *   
+ *
  *   A vector's image file data structure looks like this:
- *   
- *   UINT2 elements_allocated 
+ *
+ *   UINT2 elements_allocated
  *.  UINT2 number_of_elements_used
  *.  DATAHOLDER element[1]
  *.  DATAHOLDER element[2]
  *.  etc, up to number_of_elements_used (NOT the number allocated)
- *   
+ *
  *   The object extension for a vector is almost identical, but adds a prefix
  *   giving the "allocated" size of the vector, and a suffix with a pointer
  *   to our original image data (if applicable) plus one bit per element
  *   after the end of the element[] list for undo bits:
- *   
+ *
  *   UINT2 allocated_elements
  *.  UINT2 number_of_elements
  *.  DATAHOLDER element[1]
  *.  DATAHOLDER element[2]
  *.  etc
  *.  undo_bits
- *   
+ *
  *   The allocated_elements counter gives the total number of elements
  *   allocated in the vector; this can be greater than the number of elements
  *   actually in use, in which case we have free space that we can use to add
  *   elements without reallocating the vector's memory.
- *   
+ *
  *   The undo_bits are packed 8 bits per byte.  Note that the undo_bits
  *   follow all allocated slots, so these do not change location when we
- *   change the number of elements actually in use.  
+ *   change the number of elements actually in use.
  */
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Vector metaclass 
+ *   Vector metaclass
  */
 class CVmObjVector: public CVmObjCollection
 {
     friend class CVmMetaclassVector;
     friend class CVmQSortVector;
-    
+
 public:
     /* metaclass registration object */
     static class CVmMetaclass *metaclass_reg_;
@@ -102,10 +102,10 @@ public:
     static vm_obj_id_t create_fill(VMG_ int in_root_set, size_t element_count,
                                    ...);
 
-    /* 
+    /*
      *   determine if an object is a vector - it is if the object's
      *   virtual metaclass registration index matches the class's static
-     *   index 
+     *   index
      */
     static int is_vector_obj(VMG_ vm_obj_id_t obj)
         { return vm_objp(vmg_ obj)->is_of_metaclass(metaclass_reg_); }
@@ -139,7 +139,7 @@ public:
 
     virtual const char *explicit_to_string(
         VMG_ vm_obj_id_t self, vm_val_t *new_str, int radix, int flags) const;
-    
+
     /* add a value to the vector, yielding a new vector */
     int add_val(VMG_ vm_val_t *result,
                 vm_obj_id_t self, const vm_val_t *val);
@@ -159,9 +159,9 @@ public:
     /* mark references */
     void mark_refs(VMG_ uint state);
 
-    /* 
+    /*
      *   remove weak references - we keep only normal (strong) references,
-     *   so this routine doesn't need to do anything 
+     *   so this routine doesn't need to do anything
      */
     void remove_stale_weak_refs(VMG0_) { }
 
@@ -198,25 +198,25 @@ public:
     int set_index_val_q(VMG_ vm_val_t *new_container, vm_obj_id_t self,
                         const vm_val_t *index_val, const vm_val_t *new_val);
 
-    /* 
+    /*
      *   Check a value for equality.  We will match any list or vector with
-     *   the same number of elements and the same value for each element.  
+     *   the same number of elements and the same value for each element.
      */
     int equals(VMG_ vm_obj_id_t self, const vm_val_t *val, int depth) const;
 
     /* calculate a hash value for the vector */
     uint calc_hash(VMG_ vm_obj_id_t self, int depth) const;
 
-    /* 
+    /*
      *   assume that we've been changed since loading, if we came from the
-     *   image file 
+     *   image file
      */
     int is_changed_since_load() const { return TRUE; }
 
-    /* 
+    /*
      *   get the allocated number of elements of the vector - this will be
      *   greater than or equal to get_element_count(), and reflects the
-     *   actual allocated size 
+     *   actual allocated size
      */
     size_t get_allocated_count() const
         { return vmb_get_len(get_vector_ext_ptr()); }
@@ -246,9 +246,9 @@ public:
     void set_element_undo(VMG_ vm_obj_id_t self,
                           size_t idx, const vm_val_t *val);
 
-    /* 
+    /*
      *   join the list into a string - this is the C++ interface to the
-     *   self.join() method 
+     *   self.join() method
      */
     void join(VMG_ vm_val_t *retval, vm_obj_id_t self,
               const char *sep, size_t sep_len) const;
@@ -283,10 +283,10 @@ protected:
     /* get a pointer to my vector data */
     const char *get_vector_ext_ptr() const { return ext_; }
 
-    /* 
+    /*
      *   get my extension data pointer for construction purposes - this is a
      *   writable pointer, so that a caller can fill our data buffer during
-     *   construction 
+     *   construction
      */
     char *cons_get_vector_ext_ptr() const { return ext_; }
 
@@ -294,7 +294,7 @@ protected:
      *   Calculate the amount of space we need to store a list of a given
      *   length.  We require two bytes for the length prefix, plus the space
      *   for each element, plus the space for the undo bits (one bit per
-     *   element, but we pack eight bits per byte).  
+     *   element, but we pack eight bits per byte).
      */
     static size_t calc_alloc(size_t elecnt)
     {
@@ -302,9 +302,9 @@ protected:
                 + ((elecnt + 7) & ~7));
     }
 
-    /* 
+    /*
      *   calculate the allocation amount, including only the count prefix
-     *   and element data 
+     *   and element data
      */
     static size_t calc_alloc_prefix_and_ele(size_t elecnt)
     {
@@ -329,9 +329,9 @@ protected:
     /* get the allocation count increment */
     size_t get_alloc_count_increment() const
     {
-        /* 
+        /*
          *   we might want to make this parameterizable; for now use a
-         *   fixed increment size 
+         *   fixed increment size
          */
         return 16;
     }
@@ -342,9 +342,9 @@ protected:
         /* push a stack element */
         vm_val_t *p = G_stk->push();
 
-        /* 
+        /*
          *   get the data from the data holder in our extension directly into
-         *   our new stack element 
+         *   our new stack element
          */
         vmb_get_dh(get_element_ptr(idx), p);
     }
@@ -355,9 +355,9 @@ protected:
     /* given an index, get a pointer to the element's data in the list */
     char *get_element_ptr(size_t idx) const
     {
-        /* 
+        /*
          *   figure out where this element's data holder is by skipping the
-         *   count prefix, then skipping past preceding data holders 
+         *   count prefix, then skipping past preceding data holders
          */
         return cons_get_vector_ext_ptr() + 2*VMB_LEN + (idx * VMB_DATAHOLDER);
     }
@@ -580,7 +580,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Registration table object 
+ *   Registration table object
  */
 class CVmMetaclassVector: public CVmMetaclass
 {
@@ -622,6 +622,6 @@ public:
 #endif /* VMVEC_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjVector)

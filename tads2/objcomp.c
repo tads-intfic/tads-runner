@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/OBJCOMP.C,v 1.3 1999/07/11 00:46:30 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1992, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -37,14 +37,14 @@ uint objemt(mcmcxdef *ctx, objnum objn, prpnum prop, dattyp typ)
 {
     objdef *objptr;
     prpdef *p;
-    
+
     objptr = (objdef *)mcmlck(ctx, (mcmon)objn);
-    
+
     ERRBEGIN(ctx->mcmcxgl->mcmcxerr)
 
     objdelp(ctx, objn, prop, FALSE);   /* delete old property value, if any */
     p = objpfre(objptr);                        /* get top of property area */
-    
+
     if ((char *)p - (char *)objptr + PRPHDRSIZ >=
         mcmobjsiz(ctx, (mcmon)objn))
     {
@@ -53,7 +53,7 @@ uint objemt(mcmcxdef *ctx, objnum objn, prpnum prop, dattyp typ)
         objptr = objexp(ctx, objn, &newsiz);
         p = objpfre(objptr);                       /* object may have moved */
     }
-    
+
     /* set up property header as much as we can (don't know size yet) */
     prpsetprop(p, prop);
     prptype(p) = typ;
@@ -76,15 +76,15 @@ void objendemt(mcmcxdef *ctx, objnum objn, prpnum prop, uint endofs)
     objdef *objptr;
     prpdef *p;
     uint    siz;
-    
+
     objptr = (objdef *)mcmlck(ctx, (mcmon)objn);
     p = objofsp(objptr, objgetp(ctx, objn, prop, (dattyp *)0));
-    
+
     siz = endofs - (((uchar *)prpvalp(p)) - ((uchar *)objptr));
-    
+
     prpsetsize(p, siz);
     objsfree(objptr, objfree(objptr) + siz + PRPHDRSIZ);
-    
+
     /* mark the object as changed, and unlock it */
     mcmtch(ctx, (mcmon)objn);
     mcmunlck(ctx, (mcmon)objn);
@@ -95,10 +95,10 @@ void objaddsc(mcmcxdef *mctx, int sccnt, objnum objn)
 {
     objdef *o;
     ushort  siz;
-    
+
     /* get lock on object */
     o = (objdef *)mcmlck(mctx, objn);
-    
+
     /* make sure there's enough space, adding space if needed */
     if (mcmobjsiz(mctx, (mcmon)objn) - objfree(o) < 2 * sccnt)
     {
@@ -111,10 +111,10 @@ void objaddsc(mcmcxdef *mctx, int sccnt, objnum objn)
     if (objnprop(o))
         memmove(objprp(o), ((uchar *)objprp(o)) + 2 * sccnt,
                 (size_t)(((uchar *)o) + objfree(o) - (uchar *)objprp(o)));
-    
+
     /* set new free pointer */
     objsfree(o, objfree(o) + 2 * sccnt);
-    
+
     /* mark cache object modified and unlock it */
     mcmtch(mctx, objn);
     mcmunlck(mctx, objn);
@@ -128,17 +128,17 @@ void objclr(mcmcxdef *mctx, objnum objn, prpnum mindel)
     int     cnt;
     prpnum  prop;
     int     indexed;
-    
+
     /* get a lock on the object */
     o = (objdef *)mcmlck(mctx, objn);
     indexed = objflg(o) & OBJFINDEX;
-    
+
     /* delete superclasses - move properties down over former sc array */
     if (objnprop(o))
         memmove(objsc(o), objprp(o),
                 (size_t)(((uchar *)o) + objfree(o) - (uchar *)objprp(o)));
     objsnsc(o, 0);                                 /* zero superclasses now */
-    
+
     /* delete non-"system" properties (propnum < mindel) */
     for (p = objprp(o), cnt = objnprop(o) ; cnt ; --cnt)
     {
@@ -151,7 +151,7 @@ void objclr(mcmcxdef *mctx, objnum objn, prpnum mindel)
         else
             p = objpnxt(p);                   /* advance over this property */
     }
-    
+
     /* mark cache object modified and unlock it */
     mcmtch(mctx, objn);
     mcmunlck(mctx, objn);
@@ -165,13 +165,13 @@ void objcomp(mcmcxdef *mctx, objnum objn, int for_debug)
     prpdef *p;
     prpdef *nxt;
     int     cnt;
-    
+
     /* lock object */
     objptr = (objdef *)mcmlck(mctx, (mcmon)objn);
 
-    /* 
+    /*
      *   first, go through the properties, and delete each one that's
-     *   marked as ignored 
+     *   marked as ignored
      */
     for (cnt = objnprop(objptr), p = objprp(objptr) ; cnt != 0 ;
          p = nxt, --cnt)
@@ -182,7 +182,7 @@ void objcomp(mcmcxdef *mctx, objnum objn, int for_debug)
         /* if this is marked as being ignored, delete it */
         if ((prpflg(p) & PRPFIGN) != 0)
         {
-            /* 
+            /*
              *   Delete the property.  If we're compiling in debug mode,
              *   don't really delete anything, but simply mark the
              *   property as deleted; this is necessary because certain
@@ -191,16 +191,16 @@ void objcomp(mcmcxdef *mctx, objnum objn, int for_debug)
              *   object.  If we're not compiling for debugging, we can
              *   actually delete properties, because all non-debug code is
              *   completely self-relative and thus can be moved around
-             *   inside the object without any problems.  
+             *   inside the object without any problems.
              */
             if (for_debug)
             {
                 /* simply mark the property as deleted */
                 prpflg(p) |= PRPFDEL;
 
-                /* 
+                /*
                  *   clear the IGNORE flag, since we IGNORE and DELETED
-                 *   are mutually exclusive 
+                 *   are mutually exclusive
                  */
                 prpflg(p) &= ~PRPFIGN;
             }
@@ -212,15 +212,15 @@ void objcomp(mcmcxdef *mctx, objnum objn, int for_debug)
                 /* delete it */
                 objdelp(mctx, objn, (prpnum)prpprop(p), FALSE);
 
-                /* 
+                /*
                  *   continue from the present location, since we moved
-                 *   the next property to the current location 
+                 *   the next property to the current location
                  */
                 nxt = p;
             }
         }
     }
-    
+
     /* set static entries:  free space pointer, and number of properties */
     objsetst(objptr, objnprop(objptr));
     objsetrst(objptr, objfree(objptr));
@@ -232,7 +232,7 @@ void objcomp(mcmcxdef *mctx, objnum objn, int for_debug)
         assert(p < objptr + mcmobjsiz(mctx, (mcmon)objn));
         prpflg(p) |= PRPFORG;             /* set ORIGINAL flag for property */
     }
-    
+
     /* mark object changed, and unlock it */
     mcmtch(mctx, objn);
     mcmunlck(mctx, objn);

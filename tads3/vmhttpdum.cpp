@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) <year> Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -19,7 +19,7 @@ Function
   throws an error if the byte-code program attempts to create one of these
   classes.
 Notes
-  
+
 Modified
   08/07/10 MJRoberts  - creation
 */
@@ -158,7 +158,7 @@ void CVmObjHTTPRequest::restore_from_file(VMG_ vm_obj_id_t self,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   HTTP client request object 
+ *   HTTP client request object
  */
 int OS_HttpClient::request(int, const char *, unsigned short,
                            const char *, const char *,
@@ -172,7 +172,7 @@ int OS_HttpClient::request(int, const char *, unsigned short,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   HTTP request payload 
+ *   HTTP request payload
  */
 OS_HttpPayload::OS_HttpPayload() { }
 OS_HttpPayload::~OS_HttpPayload() { }
@@ -186,7 +186,7 @@ void OS_HttpPayload::add(const char *, const char *,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Network configuration object 
+ *   Network configuration object
  */
 const char *TadsNetConfig::get(const char *) const
 {
@@ -203,7 +203,7 @@ void vmnet_check_storagesrv_reply(VMG_ int, class CVmStream *)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   local Web UI askfile 
+ *   local Web UI askfile
  */
 int osnet_askfile(const char *prompt, char *fname_buf, int fname_buf_len,
                   int prompt_type, int file_type)

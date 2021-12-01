@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/VMRUN.CPP,v 1.4 1999/07/11 00:46:58 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmrun.cpp - VM Execution
 Function
-  
+
 Notes
-  
+
 Modified
   11/12/98 MJRoberts  - Creation
 */
@@ -52,7 +52,7 @@ Modified
 /*
  *   Define static global variables for certain VM registers, if we're
  *   compiling the system in a static global configuration.
- *   
+ *
  *   Empirically, it makes a measurable difference (on the order of 2%
  *   compared to the struct configuration) to keep these in globals and to
  *   keep them together.  These are the VM's equivalent of CPU registers, and
@@ -69,7 +69,7 @@ VM_IF_REGS_IN_GLOBALS(const uchar **pc_ptr_;)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Initialize 
+ *   Initialize
  */
 CVmRun::CVmRun(size_t max_depth, size_t reserve_depth)
     : CVmStack(max_depth, reserve_depth)
@@ -108,13 +108,13 @@ void CVmRun::init()
 
     /*
      *   If we're including the profiler in the build, allocate and
-     *   initialize its memory structures. 
+     *   initialize its memory structures.
      */
 #ifdef VM_PROFILER
 
-    /* 
+    /*
      *   Allocate the profiler stack.  This stack will contain one record per
-     *   activation frame in the regular VM stack.  
+     *   activation frame in the regular VM stack.
      */
     prof_stack_max_ = 250;
     (prof_stack_ = (vm_profiler_rec *)
@@ -134,7 +134,7 @@ void CVmRun::init()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Terminate 
+ *   Terminate
  */
 CVmRun::~CVmRun()
 {
@@ -145,7 +145,7 @@ void CVmRun::terminate()
 {
     /*
      *   If we're including the profiler in the build, delete its memory
-     *   structures.  
+     *   structures.
      */
 #ifdef VM_PROFILER
 
@@ -168,18 +168,18 @@ void CVmRun::terminate()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Set the function header size 
+ *   Set the function header size
  */
 void CVmRun::set_funchdr_size(size_t siz)
 {
     /* remember the new size */
     funchdr_size_ = siz;
 
-    /* 
+    /*
      *   Ensure that the size is at least as large as our required function
      *   header block - if it's not, this version of the VM can't run this
      *   image file.  If we throw an error, flag it as a version mismatch
-     *   error.  
+     *   error.
      */
     if (siz < VMFUNC_HDR_MIN_SIZE)
         err_throw_a(VMERR_IMAGE_INCOMPAT_HDR_FMT, 1, ERR_TYPE_VERSION_FLAG);
@@ -187,7 +187,7 @@ void CVmRun::set_funchdr_size(size_t siz)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Add two values, leaving the result in *val1 
+ *   Add two values, leaving the result in *val1
  */
 int CVmRun::compute_sum(VMG_ vm_val_t *val1, const vm_val_t *val2)
 {
@@ -196,17 +196,17 @@ check_type:
     switch(val1->typ)
     {
     case VM_SSTRING:
-        /* 
+        /*
          *   string constant - add the second value to the string, using
-         *   the static string add method 
+         *   the static string add method
          */
         CVmObjString::add_to_str(vmg_ val1, val1, val2);
         return TRUE;
 
     case VM_LIST:
-        /* 
+        /*
          *   list constant - add the second value to the list, using the
-         *   static list add method 
+         *   static list add method
          */
         CVmObjList::add_to_list(vmg_ val1, VM_INVALID_OBJ,
                                 get_const_ptr(vmg_ val1->val.ofs), val2);
@@ -215,19 +215,19 @@ check_type:
     case VM_OBJ:
         /*
          *   object - add the second value to the object, using the
-         *   object's virtual metaclass add method 
+         *   object's virtual metaclass add method
          */
         return vm_objp(vmg_ val1->val.obj)->add_val(
             vmg_ val1, val1->val.obj, val2);
 
     case VM_INT:
-        /* 
+        /*
          *   callers handle the int+int case inline, so we can skip that; we
          *   just need to check for other numeric types
          */
         if (val2->is_numeric(vmg0_))
         {
-            /* 
+            /*
              *   the other value is numeric but not an integer; promote the
              *   integer to the other type, then re-do the type check
              */
@@ -248,7 +248,7 @@ check_type:
 }
 
 /*
- *   Compute the sum for an INC instruction 
+ *   Compute the sum for an INC instruction
  */
 const uchar *CVmRun::compute_sum_inc(VMG_ const uchar *p)
 {
@@ -272,7 +272,7 @@ const uchar *CVmRun::compute_sum_inc(VMG_ const uchar *p)
 }
 
 /*
- *   Compute the sum for an ADD instruction 
+ *   Compute the sum for an ADD instruction
  */
 const uchar *CVmRun::compute_sum_add(VMG_ const uchar *p)
 {
@@ -295,7 +295,7 @@ const uchar *CVmRun::compute_sum_add(VMG_ const uchar *p)
 
 /*
  *   Compute the sum of a local and an immediate value, assigning the result
- *   to the local 
+ *   to the local
  */
 const uchar *CVmRun::compute_sum_lcl_imm(VMG_ vm_val_t *lclp,
                                          const vm_val_t *ival,
@@ -320,7 +320,7 @@ const uchar *CVmRun::compute_sum_lcl_imm(VMG_ vm_val_t *lclp,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Compute the difference of two values, leaving the result in *val1 
+ *   Compute the difference of two values, leaving the result in *val1
  */
 int CVmRun::compute_diff(VMG_ vm_val_t *val1, vm_val_t *val2)
 {
@@ -329,9 +329,9 @@ check_type:
     switch(val1->typ)
     {
     case VM_LIST:
-        /* 
+        /*
          *   list constant - remove the second value from the list, using
-         *   the static list subtraction method 
+         *   the static list subtraction method
          */
         CVmObjList::sub_from_list(vmg_ val1, val1,
                                   get_const_ptr(vmg_ val1->val.ofs), val2);
@@ -343,15 +343,15 @@ check_type:
             vmg_ val1, val1->val.obj, val2);
 
     case VM_INT:
-        /* 
+        /*
          *   callers handle the int-int case inline, so we can skip that;
-         *   check for other numeric types 
+         *   check for other numeric types
          */
         if (val2->is_numeric(vmg0_))
         {
-            /* 
+            /*
              *   the other value is numeric but not an integer; promote the
-             *   integer to the other type, then re-do the type check 
+             *   integer to the other type, then re-do the type check
              */
             val2->promote_int(vmg_ val1);
             goto check_type;
@@ -370,7 +370,7 @@ check_type:
 }
 
 /*
- *   Compute the difference for a DEC instruction 
+ *   Compute the difference for a DEC instruction
  */
 const uchar *CVmRun::compute_diff_dec(VMG_ const uchar *p)
 {
@@ -394,7 +394,7 @@ const uchar *CVmRun::compute_diff_dec(VMG_ const uchar *p)
 }
 
 /*
- *   Compute the difference for a SUB instruction 
+ *   Compute the difference for a SUB instruction
  */
 const uchar *CVmRun::compute_diff_sub(VMG_ const uchar *p)
 {
@@ -417,7 +417,7 @@ const uchar *CVmRun::compute_diff_sub(VMG_ const uchar *p)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Compute the product val1 * val2, leaving the result in val1 
+ *   Compute the product val1 * val2, leaving the result in val1
  */
 int CVmRun::compute_product(VMG_ vm_val_t *val1, vm_val_t *val2)
 {
@@ -433,9 +433,9 @@ check_type:
         /* callers handle int*int inline; check for other numeric types */
         if (val2->is_numeric(vmg0_))
         {
-            /* 
+            /*
              *   int+other numeric - promote the integer to the other type,
-             *   then restart the calculation with the promoted value 
+             *   then restart the calculation with the promoted value
              */
             val2->promote_int(vmg_ val1);
             goto check_type;
@@ -455,7 +455,7 @@ check_type:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Compute the quotient val1/val2, leaving the result in val1.  
+ *   Compute the quotient val1/val2, leaving the result in val1.
  */
 int CVmRun::compute_quotient(VMG_ vm_val_t *val1, vm_val_t *val2)
 {
@@ -492,7 +492,7 @@ check_type:
 /*
  *   XOR two values and push the result.  The values can be numeric or
  *   logical.  If either value is logical, the result will be logical;
- *   otherwise, the result will be a bitwise XOR of the integers.  
+ *   otherwise, the result will be a bitwise XOR of the integers.
  */
 int CVmRun::xor_and_push(VMG_ vm_val_t *val1, vm_val_t *val2)
 {
@@ -504,10 +504,10 @@ int CVmRun::xor_and_push(VMG_ vm_val_t *val1, vm_val_t *val2)
     }
     else if (val1->is_logical() || val2->is_logical())
     {
-        /* 
+        /*
          *   one value is logical, but not both - convert the other value
          *   from a number to a logical and compute the result as a
-         *   logical value 
+         *   logical value
          */
         if (!val1->is_logical())
             val1->num_to_logical();
@@ -542,7 +542,7 @@ int CVmRun::xor_and_push(VMG_ vm_val_t *val1, vm_val_t *val2)
  *   container, if the operation requires this.  (For example, setting an
  *   indexed element of a list will create a new list, and return the new
  *   list in *container_val.  Setting an element of a vector simply modifies
- *   the vector in place, hence the container reference is unchanged.)  
+ *   the vector in place, hence the container reference is unchanged.)
  */
 int CVmRun::set_index(VMG_ vm_val_t *container_val,
                       const vm_val_t *index_val,
@@ -562,7 +562,7 @@ int CVmRun::set_index(VMG_ vm_val_t *container_val,
         return vm_objp(vmg_ container_val->val.obj)
             ->set_index_val_q(vmg_ container_val,
                               container_val->val.obj, index_val, new_val);
-        
+
     default:
         /* other values cannot be indexed */
         return FALSE;
@@ -578,7 +578,7 @@ const uchar *CVmRun::new_and_store_r0(VMG_ const uchar *pc,
                                       int is_transient)
 {
     vm_obj_id_t obj;
-    
+
     /* create the object */
     obj = G_meta_table->create_from_stack(vmg_ &pc, metaclass_idx, argc);
 
@@ -604,7 +604,7 @@ const uchar *CVmRun::new_and_store_r0(VMG_ const uchar *pc,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Process a MAKELSTPAR instruction 
+ *   Process a MAKELSTPAR instruction
  */
 void CVmRun::makelstpar(VMG0_)
 {
@@ -612,7 +612,7 @@ void CVmRun::makelstpar(VMG0_)
     vm_val_t val, val2;
     popval(vmg_ &val);
     pop_int(vmg_ &val2);
-    
+
     /* if it's not a list, just push it again unchanged */
     int lstcnt;
     if (!val.is_listlike(vmg0_)
@@ -620,11 +620,11 @@ void CVmRun::makelstpar(VMG0_)
     {
         /* put it back on the stack */
         pushval(vmg_ &val);
-        
+
         /* increment the argument count and push it */
         ++val2.val.intval;
         pushval(vmg_ &val2);
-        
+
         /* our work here is done */
         return;
     }
@@ -635,18 +635,18 @@ void CVmRun::makelstpar(VMG0_)
 
     /* get the depth required for the header */
     uint hdr_depth = hdr_ptr.get_stack_depth();
-    
-    /* 
+
+    /*
      *   deduct the amount stack space we've already used from the amount
      *   noted in the header, because that's the amount more that we could
      *   need for the fixed stuff
      */
     hdr_depth -= (get_depth_rel(frame_ptr_) - 1);
-    
+
     /* make sure we have enough stack space available */
     if (!check_space(lstcnt + hdr_depth))
         err_throw(VMERR_STACK_OVERFLOW);
-    
+
     /* push the elements of the list from last to first */
     for (uint i = lstcnt ; i != 0 ; --i)
     {
@@ -694,7 +694,7 @@ int CVmRun::apply_index(VMG_ vm_val_t *result,
 /* ------------------------------------------------------------------------ */
 /*
  *   Property evaluation invoker.  This is a streamlined invoker for simple
- *   evaluations where targetobj == self.  
+ *   evaluations where targetobj == self.
  */
 class vmrun_prop_eval
 {
@@ -747,7 +747,7 @@ public:
 
     /*
      *   Evaluate a property of an object.  The caller must fill in
-     *   caller_ofs, target_obj, target_prop, self, and argc.  
+     *   caller_ofs, target_obj, target_prop, self, and argc.
      */
     const uchar *get_prop(VMG0_)
     {
@@ -760,7 +760,7 @@ public:
         {
             /* save the original target property */
             vm_prop_id_t real_target_prop = target_prop;
-            
+
             /* look up propNotDefined */
             target_prop = G_predef->prop_not_defined_prop;
             if (get_prop_no_eval(vmg0_))
@@ -770,25 +770,25 @@ public:
                     || val.typ == VM_OBJX
                     || val.typ == VM_BIFPTRX)
                 {
-                    /* 
+                    /*
                      *   add the target property as the additional first
                      *   argument to propNotDefined (we push backwards, so
                      *   this will conveniently become the new first
-                     *   argument) 
+                     *   argument)
                      */
                     G_stk->push()->set_propid(real_target_prop);
-                    
+
                     /* count the additional argument */
                     ++argc;
                 }
-                
+
                 return eval_prop_val(vmg0_);
             }
         }
-            
-        /* 
+
+        /*
          *   the property or method is not defined - discard arguments and
-         *   set R0 to nil 
+         *   set R0 to nil
          */
         G_stk->discard(argc);
         G_interpreter->get_r0()->set_nil();
@@ -798,7 +798,7 @@ public:
     }
 
     /*
-     *   Look up a property without evaluating it.  
+     *   Look up a property without evaluating it.
      */
     int get_prop_no_eval(VMG0_)
     {
@@ -808,10 +808,10 @@ public:
                                 const char *, vm_prop_id_t, vm_obj_id_t *,
                                 uint *);
         vm_obj_id_t (*f_const_create)(VMG_ const char *);
-        
-        /* 
+
+        /*
          *   we can evaluate properties of regular objects, as well as string
-         *   and list constants - see what we have 
+         *   and list constants - see what we have
          */
         switch(self.typ)
         {
@@ -839,10 +839,10 @@ public:
                 vmg_ &val, &self, target_ptr, target_prop,
                 &defining_obj, &argc);
 
-            /* 
+            /*
              *   If the result is a method to run, we need an actual object
              *   for 'self'.  In this case, create a dynamic list object with
-             *   the same contents as the constant list value.  
+             *   the same contents as the constant list value.
              */
             if (found
                 && (val.typ == VM_CODEOFS
@@ -855,7 +855,7 @@ public:
 
             /* go evaluate the result as normal */
             return found;
-            
+
         case VM_NIL:
             /* nil pointer dereferenced */
             err_throw(VMERR_NIL_DEREF);
@@ -873,9 +873,9 @@ public:
      *   evaluate the value.  If the value contains code, we'll execute the
      *   code; if it contains a self-printing string, we'll display the
      *   string; otherwise, we'll just store the value in R0.
-     *   
+     *
      *   If the value wasn't found, the caller sets the value type to 'empty'
-     *   to indicate that there's no value.  
+     *   to indicate that there's no value.
      */
     const uchar *eval_prop_val(VMG0_)
     {
@@ -883,12 +883,12 @@ public:
         switch(val.typ)
         {
         case VM_CODEOFS:
-            /* 
+            /*
              *   It's a method - invoke the method.  This will set us up to
              *   start executing this new code, so there's nothing more we
-             *   need to do here.  
+             *   need to do here.
              */
-            
+
             /* push targetprop, targetobj, definingobj, self, and invokee */
             {
                 vm_val_t *fp = G_stk->push(5);
@@ -898,7 +898,7 @@ public:
                 (fp++)->set_obj(self.val.obj);
                 (fp++)->set_fnptr(val.val.ofs);
             }
-            
+
             /* call the function */
             return G_interpreter->do_call(
                 vmg_ caller_ofs,
@@ -920,26 +920,26 @@ public:
             /* no arguments are allowed */
             if (argc != 0)
                 err_throw(VMERR_WRONG_NUM_OF_ARGS);
-            
-            /* 
+
+            /*
              *   it's a self-printing string - invoke the default string
-             *   output function (this is effectively a do_call()) 
+             *   output function (this is effectively a do_call())
              */
             return G_interpreter->disp_dstring(
                 vmg_ val.val.ofs, caller_ofs, self.val.obj);
-            
+
         case VM_OBJX:
-            /* 
+            /*
              *   Execute-on-eval object.  If the value is an anonymous
              *   function or other invokable object, call it.  If it's a
-             *   string, print it.  
+             *   string, print it.
              */
             if (vm_objp(vmg_ val.val.obj)->get_invoker(vmg_ 0))
             {
                 /* convert to an ordinary anonymous function object */
                 vm_val_t funcptr;
                 funcptr.set_obj(val.val.obj);
-                
+
                 /* prepare the invocation frame */
                 vm_val_t *fp = G_stk->push(5);
                 (fp++)->set_propid(target_prop);
@@ -960,12 +960,12 @@ public:
                     vmg_ caller_ofs, self.val.obj);
             }
             err_throw(VMERR_BAD_TYPE_CALL);
-            
+
         case VM_BIFPTRX:
             /* Execute-on-eval built-in function.  Call the function. */
             G_interpreter->call_bif(
                 vmg_ val.val.bifptr.set_idx, val.val.bifptr.func_idx, argc);
-            
+
             /* resume execution where we left off */
             return G_interpreter->get_entry_ptr() + caller_ofs;
         }
@@ -1041,9 +1041,9 @@ static inline void int_div(VMG_ vm_val_t *aval, int32_t b)
     if (b == 0)
         err_throw(VMERR_DIVIDE_BY_ZERO);
 
-    /* 
+    /*
      *   NB - assuming 2's complement notation; the only integer division
-     *   that can result in overflow is INT32MINVAL/-1 
+     *   that can result in overflow is INT32MINVAL/-1
      */
     int32_t a = aval->val.intval;
     if (a != INT32MINVAL || b != -1)
@@ -1061,9 +1061,9 @@ static void promote_int_neg(VMG_ vm_val_t *aval)
 
 static inline void int_neg(VMG_ vm_val_t *aval)
 {
-    /* 
+    /*
      *   NB - assuming 2's complement representation; the only integer
-     *   negation that can result in overflow is -INT32MINVAL 
+     *   negation that can result in overflow is -INT32MINVAL
      */
     if (aval->val.intval != INT32MINVAL)
         aval->val.intval = -aval->val.intval;
@@ -1092,7 +1092,7 @@ static inline void int_neg(VMG_ vm_val_t *aval)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Calculations for conditionals 
+ *   Calculations for conditionals
  */
 #if 1
 # define false_for_cond(v) \
@@ -1118,17 +1118,17 @@ static inline void int_neg(VMG_ vm_val_t *aval)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Execute byte code 
+ *   Execute byte code
  */
 void CVmRun::run(VMG_ const uchar *start_pc)
 {
-    /* 
+    /*
      *   If you're concerned about a compiler warning on the following
      *   'register' declaration, refer to the footnote at the bottom of this
      *   file (search for [REGISTER_P_FOOTNOTE]).  Executive summary: you can
      *   safely ignore the warning, and I'm keeping the code as it is because
      *   it causes better optimization on some platforms, and is harmless
-     *   when it doesn't help with optimization.  
+     *   when it doesn't help with optimization.
      */
     register const uchar *p = start_pc;
     vmrun_prop_eval propev;
@@ -1159,14 +1159,14 @@ void CVmRun::run(VMG_ const uchar *start_pc)
      *   Come back here whenever we catch a run-time exception and find a
      *   byte-code error handler to process it in the stack.  We'll
      *   re-enter our exception handler and resume byte-code execution at
-     *   the handler.  
+     *   the handler.
      */
 resume_execution:
 
     /*
      *   Execute all code within an exception frame.  If any routine we
      *   call throws an exception, we'll catch the exception and process
-     *   it as a run-time error.  
+     *   it as a run-time error.
      */
     err_try
     {
@@ -1174,16 +1174,16 @@ resume_execution:
         for (;;)
         {
 #ifdef VM_DEBUGGER
-            /* 
+            /*
              *   check for user-requested break, and step into the debugger
-             *   if we find it 
+             *   if we find it
              */
             static int brkchk = 0;
             if (++brkchk > 10000)
             {
                 /* reset the break counter */
                 brkchk = 0;
-                
+
                 /* check for break, and step into debugger if found */
                 if (os_break())
                 {
@@ -1191,13 +1191,13 @@ resume_execution:
                         err_throw(VMERR_DBG_INTERRUPT);
                     else
                         G_debugger->set_break_stop();
-                }                            
+                }
             }
 
             /* if we're single-stepping, break into the debugger */
             if (G_debugger->is_single_step())
                 G_debugger->step(vmg_ &p, entry_ptr_native_, FALSE, 0);
-            
+
             /* check for a halt request from the debugger */
             if (halt_vm_)
                 err_throw(VMERR_DBG_HALT);
@@ -1206,12 +1206,12 @@ resume_execution:
 
 #endif /* VM_DEBUGGER */
 
-            /* 
+            /*
              *   Remember the location of this instruction in a non-register
              *   variable, in case there's an exception.  (We know that
              *   last_pc is guaranteed to be a non-register variable because
              *   we take its address and store it in our pc_ptr_ member.)
-             *   
+             *
              *   We need to know the location of the last instruction when
              *   an exception occurs so that we can find the exception
              *   handler.  We want to encourage the compiler to enregister
@@ -1222,13 +1222,13 @@ resume_execution:
              *   last_pc; this will still let the vast majority of our
              *   access to 'p' use fast register operations if the compiler
              *   allows this, while ensuring we have a safe copy around in
-             *   case of exceptions.  
+             *   case of exceptions.
              */
             last_pc = p;
 
-            /* 
+            /*
              *   Execute the current instruction.
-             *   
+             *
              *   The order of the case table is in descending order of
              *   frequency of instruction usage for the first 30 or so
              *   instructions, according to empirical testing.  This is
@@ -1238,7 +1238,7 @@ resume_execution:
              *   This seems to yield a slight speed improvement on Intel
              *   machines, and even if it doesn't help on a given machine, it
              *   shouldn't do any harm relative to a randomly ordered case
-             *   table.  
+             *   table.
              */
             switch(*p++)
             {
@@ -1367,10 +1367,10 @@ resume_execution:
                 continue;
 
             case OPC_JR0F:
-                /* 
+                /*
                  *   if R0 is true, or it's a non-zero numeric value, or any
                  *   non-numeric and non-boolean value, stay put; otherwise,
-                 *   jump 
+                 *   jump
                  */
                 if (false_for_cond(&r0_))
                 {
@@ -1434,15 +1434,15 @@ resume_execution:
                 /* get the index value */
                 val2.set_int(get_op_uint8(&p));
 
-                /* 
+                /*
                  *   look up the indexed value of the local, storing the
-                 *   result in a newly-pushed stack element 
+                 *   result in a newly-pushed stack element
                  */
                 if (!apply_index(vmg_ push(), valp, &val2))
                 {
-                    /* 
+                    /*
                      *   try an operator overload - push the index value as
-                     *   the argument 
+                     *   the argument
                      */
                     push(&val2);
                     p = op_overload(vmg_ p - entry_ptr_native_, -1,
@@ -1532,12 +1532,12 @@ resume_execution:
                 p += (pop2_equal(vmg0_) ? osrp2s(p) : 2);
                 continue;
 
-                /* 
+                /*
                  *   End of case table sorting by instruction execution
                  *   frequency.  The order of the remainder is more or less
                  *   arbitrary; we get diminishing returns from the frequency
                  *   ordering past a certain point, because CPU caches are
-                 *   only so large.  
+                 *   only so large.
                  */
 
             case OPC_PUSHNIL:
@@ -1566,12 +1566,12 @@ resume_execution:
                 continue;
 
             case OPC_INC:
-                /* 
+                /*
                  *   Increment the value at top of stack.  We must perform
                  *   the same type conversions as the ADD instruction does.
                  *   As an optimization, check to see if we have an integer
                  *   on top of the stack, and if so simply increment its
-                 *   value without popping and repushing.  
+                 *   value without popping and repushing.
                  */
                 if ((valp = get(0))->typ == VM_INT)
                 {
@@ -1605,12 +1605,12 @@ resume_execution:
                 continue;
 
             case OPC_DEC:
-                /* 
+                /*
                  *   Decrement the value at top of stack.  We must perform
                  *   the same type conversions as the SUB instruction does.
                  *   As an optimization, check to see if we have an integer
                  *   on top of the stack, and if so simply decrement its
-                 *   value without popping and repushing.  
+                 *   value without popping and repushing.
                  */
                 if ((valp = get(0))->typ == VM_INT)
                 {
@@ -1667,7 +1667,7 @@ resume_execution:
                 /* push UINT4 object ID operand */
                 push()->set_obj(get_op_uint32(&p));
                 continue;
-                
+
             case OPC_PUSHPROPID:
                 /* push UINT2 property ID operand */
                 push()->set_propid(get_op_uint16(&p));
@@ -1686,7 +1686,7 @@ resume_execution:
                     /* allocate the list from the parameters */
                     obj = CVmObjList::create_from_params(
                         vmg_ cnt, get_cur_argc(vmg0_) - cnt);
-                    
+
                     /* push the new list */
                     push()->set_obj(obj);
                 }
@@ -1803,9 +1803,9 @@ resume_execution:
                     if (valp->val.intval == 0)
                         err_throw(VMERR_DIVIDE_BY_ZERO);
 
-                    /* 
+                    /*
                      *   compute the remainder (TOS-1) % (TOS), leaving the
-                     *   result at (TOS-1), and discard the second operand 
+                     *   result at (TOS-1), and discard the second operand
                      */
                     valp2->val.intval = os_remainder_long(
                         valp2->val.intval, valp->val.intval);
@@ -1872,9 +1872,9 @@ resume_execution:
                 continue;
 
             case OPC_SHL:
-                /* 
+                /*
                  *   bit-shift left integer at (TOS-1) by integer at top
-                 *   of stack 
+                 *   of stack
                  */
                 valp = get(0);
                 valp2 = get(1);
@@ -1899,9 +1899,9 @@ resume_execution:
                 continue;
 
             case OPC_ASHR:
-                /* 
+                /*
                  *   arithmetic shift right integer at (TOS-1) by integer at
-                 *   top of stack 
+                 *   top of stack
                  */
                 valp = get(0);
                 valp2 = get(1);
@@ -1927,9 +1927,9 @@ resume_execution:
                 continue;
 
             case OPC_LSHR:
-                /* 
+                /*
                  *   logical shift right integer at (TOS-1) by integer at
-                 *   top of stack 
+                 *   top of stack
                  */
                 valp = get(0);
                 valp2 = get(1);
@@ -1968,9 +1968,9 @@ resume_execution:
                 continue;
 
             case OPC_NOT:
-                /* 
+                /*
                  *   invert the logic value; if the value is a number,
-                 *   treat 0 as nil and non-zero as true 
+                 *   treat 0 as nil and non-zero as true
                  */
                 valp = get(0);
                 switch(valp->typ)
@@ -2066,9 +2066,9 @@ resume_execution:
                     /* get the modified opcode */
                     uchar opc = *p++;
 
-                    /* 
+                    /*
                      *   skip the immediate data argument count - this is
-                     *   superseded by our dynamic argument counter 
+                     *   superseded by our dynamic argument counter
                      */
                     ++p;
 
@@ -2162,20 +2162,20 @@ resume_execution:
                 continue;
 
             case OPC_NAMEDARGPTR:
-                /* 
+                /*
                  *   Pointer to named argument table.  Discard the named
                  *   arguments (the count is given by a one-byte operand),
-                 *   then skip the table pointer (a two-byte operand).  
+                 *   then skip the table pointer (a two-byte operand).
                  */
                 discard(get_op_uint8(&p));
                 p += 2;
                 continue;
 
             case OPC_NAMEDARGTAB:
-                /* 
+                /*
                  *   Named argument table.  As with NAMEDARGPTR, we must
                  *   discard the named arguments.  Then we simply skip the
-                 *   table - the table is for the benefit of callees. 
+                 *   table - the table is for the benefit of callees.
                  */
                 {
                     pool_ofs_t ofs = get_op_uint16(&p);
@@ -2206,14 +2206,14 @@ resume_execution:
                 /* retrieve the target of the call */
                 popval(vmg_ &val);
 
-                /* 
+                /*
                  *   if it's a prop ID, and there's a valid "self" object,
-                 *   treat it as a PTRCALLPROPSELF 
+                 *   treat it as a PTRCALLPROPSELF
                  */
                 if (val.typ == VM_PROP
                     && get_self_check(vmg0_) != VM_INVALID_OBJ)
                     goto do_opc_ptrcallpropself_val;
-                
+
                 /* call the function */
                 p = call_func_ptr(vmg_ &val, argc, 0, p - entry_ptr_native_);
                 continue;
@@ -2263,9 +2263,9 @@ resume_execution:
                 argc = get_op_uint8(&p);
 
             do_opc_ptrcallprop:
-                /* 
+                /*
                  *   pop the property to be evaluated, and the object whose
-                 *   property we're evaluating 
+                 *   property we're evaluating
                  */
                 pop_prop(vmg_ &val);
                 pop(&propev.self);
@@ -2339,7 +2339,7 @@ resume_execution:
             case OPC_SETSELF:
                 /* retrieve the 'self' object */
                 pop(&val);
-                
+
                 /* if it's nil, set the 'obj' field to null */
                 if (val.typ == VM_NIL)
                     val.val.obj = VM_INVALID_OBJ;
@@ -2359,9 +2359,9 @@ resume_execution:
 
             case OPC_LOADCTX:
                 {
-                    /* 
+                    /*
                      *   convert the context object (at top of stack) to a
-                     *   list pointer 
+                     *   list pointer
                      */
                     const char *lstp = get(0)->get_as_list(vmg0_);
 
@@ -2420,10 +2420,10 @@ resume_execution:
                 continue;
 
             case OPC_DUP2:
-                /* 
+                /*
                  *   duplicate the top two elements: first push the
                  *   second-from-top, then push the old top (which will now
-                 *   be the second-from-top, thanks to our first push) 
+                 *   be the second-from-top, thanks to our first push)
                  */
                 pushval(vmg_ get(1));
                 pushval(vmg_ get(1));
@@ -2442,14 +2442,14 @@ resume_execution:
                     {
                         /* get this value */
                         vmb_get_dh((const char *)p, &val2);
-                        
+
                         /* check if the values match */
                         if (valp->equals(vmg_ &val2))
                         {
                             /* it matches - jump to this offset */
                             p += VMB_DATAHOLDER;
                             p += osrp2s(p);
-                            
+
                             /* no need to look any further */
                             break;
                         }
@@ -2468,9 +2468,9 @@ resume_execution:
                 /* get the value */
                 valp = get(0);
 
-                /* 
+                /*
                  *   if it's true, or a non-zero numeric value, or any
-                 *   non-numeric and non-boolean value, jump 
+                 *   non-numeric and non-boolean value, jump
                  */
                 if (false_for_cond(valp))
                 {
@@ -2488,9 +2488,9 @@ resume_execution:
                 continue;
 
             case OPC_JR0T:
-                /* 
+                /*
                  *   if R0 is true, or it's a non-zero numeric value, or any
-                 *   non-numeric and non-boolean value, jump 
+                 *   non-numeric and non-boolean value, jump
                  */
                 if (false_for_cond(&r0_))
                 {
@@ -2508,10 +2508,10 @@ resume_execution:
                 /* get the value */
                 valp = get(0);
 
-                /* 
+                /*
                  *   if it's true, or a non-zero numeric value, or any
                  *   non-numeric and non-boolean value, do not jump;
-                 *   otherwise, jump 
+                 *   otherwise, jump
                  */
                 if (false_for_cond(valp))
                 {
@@ -2547,10 +2547,10 @@ resume_execution:
                 /* get (do not remove) the element at top of stack */
                 valp = get(0);
 
-                /* 
+                /*
                  *   if it's true, an enum value, or a non-zero number, jump,
                  *   saving the value; otherwise, require that it be a
-                 *   logical value, pop it, and proceed 
+                 *   logical value, pop it, and proceed
                  */
                 if (true_for_cond(valp))
                 {
@@ -2559,9 +2559,9 @@ resume_execution:
                 }
                 else
                 {
-                    /* 
+                    /*
                      *   it's not true - discard the value, but require
-                     *   that it be a valid logical value 
+                     *   that it be a valid logical value
                      */
                     if (!is_valid_for_jst(valp))
                         err_throw(VMERR_LOG_VAL_REQD);
@@ -2576,9 +2576,9 @@ resume_execution:
                 /* get (do not remove) the element at top of stack */
                 valp = get(0);
 
-                /* 
+                /*
                  *   if it's nil or zero, jump, saving the value;
-                 *   otherwise, discard the value and proceed 
+                 *   otherwise, discard the value and proceed
                  */
                 if (false_for_cond(valp))
                 {
@@ -2596,12 +2596,12 @@ resume_execution:
                 continue;
 
             case OPC_LJSR:
-                /* 
+                /*
                  *   compute and push the offset of the next instruction
                  *   (at +2 because of the branch offset operand) from our
                  *   method header - this will be the return address,
                  *   which in this offset format will survive any code
-                 *   swapping that might occur in subsequent execution 
+                 *   swapping that might occur in subsequent execution
                  */
                 push_int(vmg_ pc_to_method_ofs(p + 2));
 
@@ -2612,15 +2612,15 @@ resume_execution:
             case OPC_LRET:
                 /* get the indicated local variable */
                 valp = get_local(vmg_ get_op_uint16(&p));
-                
+
                 /* the value must be an integer */
                 if (valp->typ != VM_INT)
                     err_throw(VMERR_INT_VAL_REQD);
-                
-                /* 
+
+                /*
                  *   jump to the code address obtained from adding the
                  *   integer value in the given local variable to the
-                 *   current method header pointer 
+                 *   current method header pointer
                  */
                 p = entry_ptr_native_ + valp->val.intval;
                 continue;
@@ -2728,11 +2728,11 @@ resume_execution:
                 /* get the superclass to inherit it from */
                 val.set_obj((vm_obj_id_t)get_op_uint32(&p));
 
-                /* 
+                /*
                  *   inherit it -- process this essentially the same way
                  *   as a normal CALLPROP, since we're going to evaluate
                  *   the given property of the given object, but retain
-                 *   the current 'self' object 
+                 *   the current 'self' object
                  */
                 val2.set_obj(get_self(vmg0_));
                 p = get_prop(vmg_ p - entry_ptr_native_,
@@ -2799,7 +2799,7 @@ resume_execution:
                 {
                     /* get the function index */
                     uint idx = get_op_uint8(&p);
-                    
+
                     /* call the function in set #0 */
                     call_bif(vmg_ 0, idx, argc);
                 }
@@ -2841,7 +2841,7 @@ resume_execution:
                 {
                     /* get the function index */
                     uint idx = get_op_uint8(&p);
-                    
+
                     /* call the function in set #3 */
                     call_bif(vmg_ 3, idx, argc);
                 }
@@ -2856,7 +2856,7 @@ resume_execution:
                     /* get the function index and function set ID */
                     uint idx = get_op_uint8(&p);
                     uint set_idx = get_op_uint8(&p);
-                    
+
                     /* call the function */
                     call_bif(vmg_ set_idx, idx, argc);
                 }
@@ -2878,9 +2878,9 @@ resume_execution:
                 continue;
 
             case OPC_IDXINT8:
-                /* 
+                /*
                  *   make a copy of the value to index, so we can overwrite
-                 *   the stack slot with the result 
+                 *   the stack slot with the result
                  */
                 val = *(valp = get(0));
 
@@ -2890,9 +2890,9 @@ resume_execution:
                 /* apply the index, storing the result at TOS */
                 if (!apply_index(vmg_ valp, &val, &val2))
                 {
-                    /* 
+                    /*
                      *   try an operator overload - push the index value as
-                     *   the argument 
+                     *   the argument
                      */
                     pop(&val);
                     push(&val2);
@@ -2968,7 +2968,7 @@ resume_execution:
                 {
                     int itmp = get_op_uint16(&p);
                     valp = get_local(vmg_ itmp);
-                
+
                     /* do the increment inline if it's an integer */
                     if (valp->typ == VM_INT)
                     {
@@ -2981,10 +2981,10 @@ resume_execution:
                         val2.set_int(1);
                         if (!compute_sum(vmg_ valp, &val2))
                         {
-                            /* 
+                            /*
                              *   Check for an operator overload.  We need to
                              *   do this with a recursive call to update the
-                             *   local on return. 
+                             *   local on return.
                              */
                             push(&val2);
                             p = op_overload(vmg_ p - entry_ptr_native_, itmp,
@@ -3000,7 +3000,7 @@ resume_execution:
                     /* get the local */
                     int itmp = get_op_uint16(&p);
                     valp = get_local(vmg_ itmp);
-                    
+
                     /* handle integers inline */
                     if (valp->typ == VM_INT)
                     {
@@ -3013,10 +3013,10 @@ resume_execution:
                         val2.set_int(1);
                         if (!compute_diff(vmg_ valp, &val2))
                         {
-                            /* 
+                            /*
                              *   Check for an operator overload.  We need to
                              *   do this with a recursive call to update the
-                             *   local on return.  
+                             *   local on return.
                              */
                             push(&val2);
                             p = op_overload(vmg_ p - entry_ptr_native_, itmp,
@@ -3032,7 +3032,7 @@ resume_execution:
                     /* get the local */
                     int itmp = get_op_uint8(&p);
                     valp = get_local(vmg_ itmp);
-                    
+
                     /* handle it inline if it's an integer */
                     if (valp->typ == VM_INT)
                     {
@@ -3055,7 +3055,7 @@ resume_execution:
                     /* get the local */
                     int itmp = get_op_uint16(&p);
                     valp = get_local(vmg_ itmp);
-                    
+
                     /* if it's an integer, handle it in-line */
                     if (valp->typ == VM_INT)
                     {
@@ -3078,16 +3078,16 @@ resume_execution:
                     /* get the local */
                     int itmp = get_op_uint16(&p);
                     valp = get_local(vmg_ itmp);
-                    
+
                     /* get the value to add */
                     valp2 = get(0);
-                    
+
                     /* if they're both integers, handle in-line */
                     if (valp->typ == VM_INT && valp2->typ == VM_INT)
                     {
                         /* add the value to the local */
                         INT_ADD(valp, valp2->val.intval);
-                        
+
                         /* done with the addend */
                         discard();
                     }
@@ -3101,9 +3101,9 @@ resume_execution:
                         }
                         else
                         {
-                            /* 
+                            /*
                              *   check for an overload - do it recursively,
-                             *   since we need to update the local on return 
+                             *   since we need to update the local on return
                              */
                             push(valp2);
                             p = op_overload(vmg_ p - entry_ptr_native_, itmp,
@@ -3119,16 +3119,16 @@ resume_execution:
                     /* get the local */
                     int itmp = get_op_uint16(&p);
                     valp = get_local(vmg_ itmp);
-                    
+
                     /* get the value to add */
                     valp2 = get(0);
-                    
+
                     /* if they're both integers, handle in-line */
                     if (valp->typ == VM_INT && valp2->typ == VM_INT)
                     {
                         /* subtract the value from the local */
                         INT_SUB(valp, valp2->val.intval);
-                        
+
                         /* discard the subtrahend */
                         discard();
                     }
@@ -3139,7 +3139,7 @@ resume_execution:
                     }
                     else
                     {
-                        /* 
+                        /*
                          *   no native implementation - check for an
                          *   overload; do this recursively since we need to
                          *   update the local on return
@@ -3238,16 +3238,16 @@ resume_execution:
                     /* get the local */
                     int itmp = get_op_uint8(&p);
                     valp = get_local(vmg_ itmp);
-                    
+
                     /* get the index value */
                     val2.set_int(get_op_uint8(&p));
-                    
+
                     /* pop the value to assign */
                     popval(vmg_ &val3);
-                    
-                    /* 
+
+                    /*
                      *   set the index value - this will update the local
-                     *   variable directly if the container value changes 
+                     *   variable directly if the container value changes
                      */
                     if (!set_index(vmg_ valp, &val2, &val3))
                     {
@@ -3326,11 +3326,11 @@ resume_execution:
                 /* pop the exception object */
                 pop_obj(vmg_ &val);
 
-                /* 
+                /*
                  *   Throw it.  Note that we pass the start of the current
                  *   instruction as the program counter, since we want to
                  *   find the exception handler (if any) for the current
-                 *   instruction, not for the next instruction. 
+                 *   instruction, not for the next instruction.
                  */
                 if ((p = do_throw(vmg_ p - 1, val.val.obj)) == 0)
                 {
@@ -3348,11 +3348,11 @@ resume_execution:
                 /* get the object whose property we're fetching */
                 pop(&propev.self);
 
-                /* 
+                /*
                  *   if the object is not an object, it's one of the native
                  *   types, in which case we'll definitely run native code to
                  *   evaluate the property, in which case it's not valid for
-                 *   speculative evaluation 
+                 *   speculative evaluation
                  */
                 if (propev.self.typ != VM_OBJ)
                     err_throw(VMERR_BAD_SPEC_EVAL);
@@ -3372,11 +3372,11 @@ resume_execution:
                 pop_prop(vmg_ &val);
                 pop(&propev.self);
 
-                /* 
+                /*
                  *   if the object is not an object, it's one of the native
                  *   types, in which case we'll definitely run native code to
                  *   evaluate the property, in which case it's not valid for
-                 *   speculative evaluation 
+                 *   speculative evaluation
                  */
                 if (propev.self.typ != VM_OBJ)
                     err_throw(VMERR_BAD_SPEC_EVAL);
@@ -3454,12 +3454,12 @@ resume_execution:
                 if (halt_vm_)
                     err_throw(VMERR_DBG_HALT);
 
-                /* 
+                /*
                  *   go back and execute the current instruction - bypass
                  *   single-step tracing into the debugger in this case,
                  *   since the debugger expects when it returns that one
                  *   instruction will always be traced before the debugger is
-                 *   re-entered 
+                 *   re-entered
                  */
                 goto exec_instruction;
 
@@ -3493,7 +3493,7 @@ resume_execution:
              *   we go to some extra lengths to optimize it where possible.
              *   See tads2/osifc.h for information on how to use
              *   OS_FILL_OUT_CASE_TABLES and OS_IMPOSSIBLE_DEFAULT_CASE.
-             *   
+             *
              *   Our controlling expression is an unsigned character value,
              *   so we know the range of possible values will be limited to
              *   0-255.  Therefore, we simply need to provide a "case"
@@ -3505,7 +3505,7 @@ resume_execution:
              *   table if many cases point to shared code, to reduce the size
              *   of the table, but we don't want that here because this
              *   switch is critical to VM performance so we want it as fast
-             *   as possible.  
+             *   as possible.
              */
             case 0x00: val.val.intval = 0x00;
             case 0x11: val.val.intval = 0x11;
@@ -3607,7 +3607,7 @@ resume_execution:
 
 #else /* OS_FILL_OUT_CASE_TABLES */
             case 0:
-                /* 
+                /*
                  *   Explicitly call out this invalid instruction case so
                  *   that we can avoid extra work in computing the switch.
                  *   Some compilers will be smart enough to observe that we
@@ -3619,14 +3619,14 @@ resume_execution:
                  *   values outside of the 0-255 range.)  This doesn't
                  *   guarantee that the compiler will be smart, but it does
                  *   help with some compilers and shouldn't hurt performance
-                 *   with those that don't make any use of the situation.  
+                 *   with those that don't make any use of the situation.
                  */
                 err_throw(VMERR_INVALID_OPCODE);
-                
+
             case 0xFF:
-                /* 
+                /*
                  *   explicitly call out this invalid instruction for the
-                 *   same reasons we call out case 0 above 
+                 *   same reasons we call out case 0 above
                  */
                 err_throw(VMERR_INVALID_OPCODE);
 
@@ -3641,7 +3641,7 @@ resume_execution:
 
         /*
          *   We jump to this label when it's time to terminate execution
-         *   and return to the host environment which called us. 
+         *   and return to the host environment which called us.
          */
     exit_loop:
         /* note that we're ready to return */
@@ -3657,28 +3657,28 @@ resume_execution:
 
         err_try
         {
-            /* 
+            /*
              *   Return to the start of the most recent instruction - we've
              *   already at least partially decoded the instruction, so we
              *   won't be pointing to its first byte.  Note that last_pc is
              *   a non-register variable (because we take its address to
              *   store in pc_ptr_), so it will correctly indicate the
              *   current instruction even though we've jumped here via
-             *   longjmp.  
+             *   longjmp.
              */
             p = last_pc;
-                
-            /* 
+
+            /*
              *   Create a new exception object to describe the error.  The
              *   arguments to the constructor are the error number and the
              *   error parameters.
-             *   
+             *
              *   If the error code is "unhandled exception," it means that
              *   an exception occurred in a recursive interpreter
              *   invocation, and the exception wasn't handled within the
              *   code called recursively; in this case, we can simply
              *   re-throw the original error, and perhaps handle it in the
-             *   context of the current code.  
+             *   context of the current code.
              */
             if (err->get_error_code() == VMERR_UNHANDLED_EXC)
             {
@@ -3691,8 +3691,8 @@ resume_execution:
                 VM_IF_DEBUGGER(
                 {
                     const uchar *dbgp;
-                    
-                    /* 
+
+                    /*
                      *   If we're in the process of halting the VM, don't
                      *   bother stepping into the debugger.  We'll check the
                      *   same thing in a moment, after we get back from
@@ -3700,7 +3700,7 @@ resume_execution:
                      *   redundant: we could already be halting even before
                      *   we enter the debugger here, because we could be
                      *   unwinding the native (C++) error stack on our way
-                     *   out from such a halt. 
+                     *   out from such a halt.
                      */
                     if (halt_vm_)
                     {
@@ -3710,12 +3710,12 @@ resume_execution:
 
                     /* make a copy of the PC for the debugger's use */
                     dbgp = p;
-                    
+
                     /* step into the debugger */
                     G_debugger->step(vmg_ &dbgp, entry_ptr_native_, FALSE,
                                      err->get_error_code());
-                    
-                    /* 
+
+                    /*
                      *   If the VM was halted while in the debugger, throw
                      *   the DEBUG HALT error.  (We formerly just exited the
                      *   byte-code loop, but that has the effect of returning
@@ -3729,38 +3729,38 @@ resume_execution:
                     if (halt_vm_)
                         err_throw(VMERR_DBG_HALT);
 
-                    /* 
+                    /*
                      *   if they moved the execution pointer, resume
                      *   execution at the new point, discarding the
-                     *   exception 
+                     *   exception
                      */
                     if (dbgp != p)
                     {
                         /* resume execution at the new location */
                         p = dbgp;
-                        
+
                         /* discard the exception and resume execution */
                         goto skip_throw;
                     }
                 }
                 );
 
-                /* 
+                /*
                  *   If this is a stack overflow exception, there's probably
                  *   not enough stack left to create the exception object.
                  *   Fortunately, we have an emergency stack reserve just for
                  *   such conditions, so release it now, hopefully giving us
-                 *   enough room to work with to construct the exception.  
+                 *   enough room to work with to construct the exception.
                  */
                 if (err->get_error_code() == VMERR_STACK_OVERFLOW)
                     released_reserve = release_reserve();
-            
+
                 /* push the error parameters (in reverse order) */
                 for (i = err->get_param_count() ; i > 0 ; )
                 {
                     /* go to the next parameter */
                     --i;
-                    
+
                     /* see what we have and push an appropriate value */
                     switch(err->get_param_type(i-1))
                     {
@@ -3795,22 +3795,22 @@ resume_execution:
                     }
                 }
 
-                /* 
+                /*
                  *   if there's a RuntimeError base class defined, create an
                  *   instance; otherwise, create a simple instance of the
                  *   basic object type to throw as a placeholder, since the
                  *   program hasn't made any provision to catch run-time
-                 *   errors 
+                 *   errors
                  */
                 if (G_predef->rterr != VM_INVALID_OBJ)
                 {
                     /* push the error number */
                     push_int(vmg_ err->get_error_code());
-                    
-                    /* 
+
+                    /*
                      *   Create the new RuntimeException instance.  Run the
                      *   constructor in a recursive invocation of the
-                     *   interpreter (by passing a null PC pointer).  
+                     *   interpreter (by passing a null PC pointer).
                      */
                     vm_objp(vmg_ G_predef->rterr)
                         ->create_instance(vmg_ G_predef->rterr, 0,
@@ -3823,22 +3823,22 @@ resume_execution:
                 }
                 else
                 {
-                    /* 
+                    /*
                      *   There's no RuntimeError object defined by the image
                      *   file, so create a basic object to throw.  This
                      *   won't convey any information to the program except
                      *   that it's not one of the errors they're expecting;
                      *   this is fine, since they have made no provisions to
                      *   catch VM errors, as demonstrated by their lack of a
-                     *   RuntimeError definition.  
+                     *   RuntimeError definition.
                      */
                     obj = CVmObjTads::create(vmg_ FALSE, 0, 1);
                 }
 
-                /* 
+                /*
                  *   if possible, set the exceptionMessage property in the
                  *   new exception object to the default error message for
-                 *   the run-time error we're processing 
+                 *   the run-time error we're processing
                  */
                 if (G_predef->rterrmsg_prop != VM_INVALID_PROP)
                 {
@@ -3851,10 +3851,10 @@ resume_execution:
                                       err->get_error_code(), FALSE);
                     err_format_msg(buf, sizeof(buf), msg, err);
 
-                    /* 
+                    /*
                      *   momentarily push the new exception object, so we
                      *   don't lose track of it if we run garbage collection
-                     *   here 
+                     *   here
                      */
                     push_obj(vmg_ obj);
 
@@ -3862,30 +3862,30 @@ resume_execution:
                     str_obj =
                         CVmObjString::create(vmg_ FALSE, buf, strlen(buf));
 
-                    /* 
+                    /*
                      *   before we can build a stack trace, let the debugger
-                     *   synchronize its current position information 
+                     *   synchronize its current position information
                      */
                     VM_IF_DEBUGGER(
                         G_debugger->sync_exec_pos(vmg_ p, entry_ptr_native_));
-                    
+
                     /* set the property in the new object */
                     val.set_obj(str_obj);
                     vm_objp(vmg_ obj)
                         ->set_prop(vmg_ G_undo, obj,
                                    G_predef->rterrmsg_prop, &val);
-                    
+
                     /* we don't need gc protection any more */
                     discard();
                 }
             }
-        
-            /* 
+
+            /*
              *   If we released the stack reserve, take it back.  We've
              *   finished creating the exception object, so we don't need the
              *   emergency stack space any more.  We want to put it back now
              *   that we're done with it so that it'll be there for us if we
-             *   should run into another stack overflow in the future.  
+             *   should run into another stack overflow in the future.
              */
             if (released_reserve)
                 recover_reserve();
@@ -3896,16 +3896,16 @@ resume_execution:
                 /* remember the unhandled exception for a moment */
                 unhandled_exc = obj;
             }
-            
+
             /* come here to skip throwing the exception */
             VM_IF_DEBUGGER(skip_throw: );
         }
         err_catch_disc
         {
-            /* 
+            /*
              *   we got another exception trying to handle the first
              *   exception - just throw the error again, but at least clean
-             *   up statics on the way out 
+             *   up statics on the way out
              */
             pc_ptr_ = old_pc_ptr;
 
@@ -3920,17 +3920,17 @@ resume_execution:
     }
     err_end;
 
-    /* 
+    /*
      *   If an unhandled exception occurred, re-throw it.  This will wrap our
      *   exception object in a C++ object and throw it through our C++
      *   err_try/err_catch exception mechanism, so that the exception is
-     *   thrown out of the recursive native-code invoker.  
+     *   thrown out of the recursive native-code invoker.
      */
     if (unhandled_exc != VM_INVALID_OBJ)
     {
         /* restore the enclosing PC pointer */
         pc_ptr_ = old_pc_ptr;
-        
+
         /* re-throw the unhandled exception */
         err_throw_a(VMERR_UNHANDLED_EXC, 1,
                     ERR_TYPE_ULONG, (unsigned long)unhandled_exc);
@@ -3947,7 +3947,7 @@ resume_execution:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Validate the built-in function pointer at top of stack 
+ *   Validate the built-in function pointer at top of stack
  */
 void CVmRun::validate_bifptr(VMG0_)
 {
@@ -3970,7 +3970,7 @@ void CVmRun::validate_bifptr(VMG0_)
 /* ------------------------------------------------------------------------ */
 /*
  *   Create a method context object suitable for use with the STORECTX and
- *   LOADCTX instructions. 
+ *   LOADCTX instructions.
  */
 void CVmRun::create_loadctx_obj(VMG_ vm_val_t *result,
                                 vm_obj_id_t self,
@@ -3979,24 +3979,24 @@ void CVmRun::create_loadctx_obj(VMG_ vm_val_t *result,
                                 vm_prop_id_t targprop)
 {
     char buf[VMB_LEN + 4*VMB_DATAHOLDER];
-    
+
     /* initialize a list template for a four-element list */
     vmb_put_len(buf, 4);
-    
-    /* 
+
+    /*
      *   put the list elements: 'self', targetprop, original target object,
-     *   and defining object 
+     *   and defining object
      */
     vmb_put_dh_obj(buf + VMB_LEN, self);
     vmb_put_dh_prop(buf + VMB_LEN + VMB_DATAHOLDER, targprop);
     vmb_put_dh_obj(buf + VMB_LEN + 2*VMB_DATAHOLDER, targobj);
     vmb_put_dh_obj(buf + VMB_LEN + 3*VMB_DATAHOLDER, defobj);
-    
+
     /* create and return a new list copied from our prepared buffer */
     result->set_obj(CVmObjList::create(vmg_ FALSE, buf));
 }
 
-                
+
 /* ------------------------------------------------------------------------ */
 /*
  *   Get a local variable, parameter, or context local from a stack frame.
@@ -4077,7 +4077,7 @@ void CVmRun::set_local_in_frame(VMG_ const vm_val_t *val, vm_val_t *fp,
 /*
  *   Get a named argument table from a stack frame.  Returns a pointer to the
  *   table if we find one, null if not.  Fills in arg0 with the first named
- *   argument in the stack frame; the nth named argument is at (arg0+n).  
+ *   argument in the stack frame; the nth named argument is at (arg0+n).
  */
 const uchar *CVmRun::get_named_args_from_frame(
     VMG_ vm_val_t *fp, vm_val_t **arg0)
@@ -4101,7 +4101,7 @@ const uchar *CVmRun::get_named_args_from_frame(
 
     /* get the return instruction pointer */
     const uchar *ip = ep + ofs;
-    
+
     /* if it's a NamedArgPtr instruction, follows the pointer */
     if (*ip == OPC_NAMEDARGPTR)
         ip += 2 + osrp2(ip+2);
@@ -4109,15 +4109,15 @@ const uchar *CVmRun::get_named_args_from_frame(
     /* make sure we're at a NamedArgTab instruction */
     if (*ip == OPC_NAMEDARGTAB)
     {
-        /* 
+        /*
          *   We have a named argument table.  Fill in *arg0 with a pointer to
          *   the first named argument value in the stack frame.
-         *   
+         *
          *   If there's a native caller at this level, get the arguments to
          *   the native caller instead of the arguments to the bytecode
          *   callee.  Native callers never send named arguments, so we can
          *   ignore the callee's arguments and look only at the native
-         *   caller's arguments.  
+         *   caller's arguments.
          */
         int argc;
         if (rc != 0)
@@ -4136,20 +4136,20 @@ const uchar *CVmRun::get_named_args_from_frame(
         /* skip the NamedArgTab opcode and table length prefix */
         ip += 1 + 2;
 
-        /* 
+        /*
          *   Adjust arg0 for the number of arguments.  The compiler generates
          *   the names in the same order as the pushes, so the first name is
-         *   the first value pushed. 
+         *   the first value pushed.
          */
         *arg0 -= (osrp2(ip) - 1);
 
-        /* 
+        /*
          *   return the table pointer - it starts after the NamedArgTab
-         *   instruction and table byte length prefix 
+         *   instruction and table byte length prefix
          */
         return ip;
     }
-    
+
     /* there's no named argument table in this return frame */
     return 0;
 }
@@ -4157,7 +4157,7 @@ const uchar *CVmRun::get_named_args_from_frame(
 /* ------------------------------------------------------------------------ */
 /*
  *   Throw an exception of the given class, with the constructor arguments
- *   on the stack.  
+ *   on the stack.
  */
 void CVmRun::throw_new_class(VMG_ vm_obj_id_t cls, uint argc,
                              const char *fallback_msg)
@@ -4167,19 +4167,19 @@ void CVmRun::throw_new_class(VMG_ vm_obj_id_t cls, uint argc,
     {
         /* create the object */
         vm_objp(vmg_ cls)->create_instance(vmg_ cls, 0, argc);
-        
+
         /* make sure we created an object */
         if (r0_.typ == VM_OBJ)
         {
             vm_obj_id_t exc_obj;
-            
+
             /* get the object from R0 */
             exc_obj = r0_.val.obj;
-            
-            /* 
+
+            /*
              *   throw an 'unhandled exception' with this object as the
              *   parameter; the execution loop will catch it and dispatch it
-             *   properly 
+             *   properly
              */
             err_throw_a(VMERR_UNHANDLED_EXC, 1,
                         ERR_TYPE_ULONG, (unsigned long)exc_obj);
@@ -4188,16 +4188,16 @@ void CVmRun::throw_new_class(VMG_ vm_obj_id_t cls, uint argc,
             err_throw(VMERR_EXCEPTION_OBJ_REQD);
     }
 
-    /* 
+    /*
      *   the imported exception class isn't defined, or we failed to create
      *   it; throw a generic intrinsic class exception with the fallback
-     *   message string 
+     *   message string
      */
     err_throw_a(VMERR_INTCLS_GENERAL_ERROR, 1, ERR_TYPE_CHAR, fallback_msg);
 }
 
 /*
- *   Throw a new RuntimeError subclass. 
+ *   Throw a new RuntimeError subclass.
  */
 void CVmRun::throw_new_rtesub(VMG_ vm_obj_id_t cls, uint argc, int errnum)
 {
@@ -4221,7 +4221,7 @@ void CVmRun::throw_new_rtesub(VMG_ vm_obj_id_t cls, uint argc, int errnum)
  *   Throw an exception.  Returns true if an exception handler was found,
  *   which means that execution can proceed; returns false if no handler
  *   was found, in which case the execution loop must throw the exception
- *   to its caller.  
+ *   to its caller.
  */
 const uchar *CVmRun::do_throw(VMG_ const uchar *pc, vm_obj_id_t exception_obj)
 {
@@ -4229,7 +4229,7 @@ const uchar *CVmRun::do_throw(VMG_ const uchar *pc, vm_obj_id_t exception_obj)
      *   Search the stack for a handler for this exception class.  Start
      *   at the current stack frame; if we find a handler here, use it;
      *   otherwise, unwind the stack to the enclosing frame and search for
-     *   a handler there; repeat until we exhaust the stack.  
+     *   a handler there; repeat until we exhaust the stack.
      */
     for (;;)
     {
@@ -4252,17 +4252,17 @@ const uchar *CVmRun::do_throw(VMG_ const uchar *pc, vm_obj_id_t exception_obj)
 
             /* set up a pointer to the first table entry */
             tab.set_entry_ptr(vmg_ &entry, 0);
-            
+
             /* loop through the entries */
             for (i = 0, cnt = tab.get_count() ; i < cnt ;
                  ++i, entry.inc(vmg0_))
             {
-                /* 
+                /*
                  *   Check to see if we're in the range for this entry.
                  *   If this entry covers the appropriate range, and the
                  *   exception we're handling is of the class handled by
                  *   this exception (or derives from that class), this
-                 *   handler handles this exception. 
+                 *   handler handles this exception.
                  */
                 if (ofs >= entry.get_start_ofs()
                     && ofs <= entry.get_end_ofs()
@@ -4271,9 +4271,9 @@ const uchar *CVmRun::do_throw(VMG_ const uchar *pc, vm_obj_id_t exception_obj)
                         || (vm_objp(vmg_ exception_obj)
                             ->is_instance_of(vmg_ entry.get_exception()))))
                 {
-                    /* 
+                    /*
                      *   this is it - move the program counter to the
-                     *   first byte of the handler's code 
+                     *   first byte of the handler's code
                      */
                     pc = func_start + entry.get_handler_ofs();
 
@@ -4286,7 +4286,7 @@ const uchar *CVmRun::do_throw(VMG_ const uchar *pc, vm_obj_id_t exception_obj)
             }
         }
 
-        /* 
+        /*
          *   We didn't find a handler in the current function - unwind the
          *   stack one level, using an ordinary RETURN operation (we're not
          *   really returning, though, so we don't need to provide a return
@@ -4302,11 +4302,11 @@ const uchar *CVmRun::do_throw(VMG_ const uchar *pc, vm_obj_id_t exception_obj)
         /* try unwinding the stack a level */
         if ((pc = do_return(vmg0_)) == 0)
         {
-            /* 
+            /*
              *   The enclosing frame is a recursive invocation, so we cannot
              *   unwind any further at this point.  Return null to indicate
              *   that the exception was not handled and should be thrown out
-             *   of the current recursive VM invocation.  
+             *   of the current recursive VM invocation.
              */
             return 0;
         }
@@ -4316,16 +4316,16 @@ const uchar *CVmRun::do_throw(VMG_ const uchar *pc, vm_obj_id_t exception_obj)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Call a built-in function 
+ *   Call a built-in function
  */
 void CVmRun::call_bif(VMG_ uint set_index, uint func_index, uint argc)
 {
-    /* 
+    /*
      *   Call the function -- presume the compiler has ensured that the
      *   function set index is valid for the load image, and that the
      *   function index is valid for the function set; all of this can be
      *   determined at compile time, since function sets are statically
-     *   defined. 
+     *   defined.
      */
     G_bif_table->call_func(vmg_ set_index, func_index, argc);
 }
@@ -4333,17 +4333,17 @@ void CVmRun::call_bif(VMG_ uint set_index, uint func_index, uint argc)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Call a function pointer 
+ *   Call a function pointer
  */
 const uchar *CVmRun::call_func_ptr(VMG_ const vm_val_t *funcptr, uint argc,
                                    const vm_rcdesc *recurse_ctx,
                                    uint caller_ofs)
 {
-    /* 
+    /*
      *   Prepare the invocation frame.  Even though we're calling this as a
      *   function, if the value is an object, pass it as the 'self' value,
      *   for compatibility with the old anonymous function invocation
-     *   protocol.  
+     *   protocol.
      */
     vm_val_t *fp = G_stk->push(5);
     (fp++)->set_propid(VM_INVALID_PROP);
@@ -4368,7 +4368,7 @@ const uchar *CVmRun::call_func_ptr_fr(VMG_ const vm_val_t *funcptr, uint argc,
 {
     vm_val_t invoker;
     CVmObject *io;
-    
+
     /* check what we have */
     switch (funcptr->typ)
     {
@@ -4383,16 +4383,16 @@ const uchar *CVmRun::call_func_ptr_fr(VMG_ const vm_val_t *funcptr, uint argc,
             case VM_FUNCPTR:
                 invoke_addr = G_code_pool->get_ptr(invoker.val.ofs);
                 break;
-                
+
             case VM_CODEPTR:
                 invoke_addr = invoker.val.ptr;
                 break;
-                
+
             default:
                 invoke_addr = 0;
                 break;
             }
-            
+
             /* if we got a valid address, invoke the code */
             if (invoke_addr != 0)
             {
@@ -4402,23 +4402,23 @@ const uchar *CVmRun::call_func_ptr_fr(VMG_ const vm_val_t *funcptr, uint argc,
                     recurse_ctx);
             }
         }
-        
+
         /* it's not invokable - throw an error */
         err_throw(VMERR_FUNCPTR_VAL_REQD);
         AFTER_ERR_THROW(return 0;)
-            
+
     case VM_FUNCPTR:
         /* call the function */
         return do_call(vmg_ caller_ofs,
                        (const uchar *)G_code_pool->get_ptr(funcptr->val.ofs),
                        argc, recurse_ctx);
-        
+
     case VM_BIFPTR:
-        /* 
+        /*
          *   Built-in function.  First, discard the invocation frame the
          *   caller set up for a regular method/function call, as builtins
          *   don't use those.  Then, decode the SetIndex:FuncIndex value and
-         *   call the function.  
+         *   call the function.
          */
         discard(5);
         call_bif(vmg_ funcptr->val.bifptr.set_idx,
@@ -4426,7 +4426,7 @@ const uchar *CVmRun::call_func_ptr_fr(VMG_ const vm_val_t *funcptr, uint argc,
 
         /* proceed from the caller's address */
         return entry_ptr_native_ + caller_ofs;
-        
+
     default:
         /* invalid type */
         err_throw(VMERR_FUNCPTR_VAL_REQD);
@@ -4436,14 +4436,14 @@ const uchar *CVmRun::call_func_ptr_fr(VMG_ const vm_val_t *funcptr, uint argc,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Call a function, non-recursively. 
- *   
+ *   Call a function, non-recursively.
+ *
  *   This is a separate form of do_call(), but simplified for cases where we
  *   know in advance that we won't need to check for recursion and when we
  *   know in advance that we're calling a function and thus have no 'self'
  *   or other method context objects.  These simplifications reduce the
  *   amount of work we have to do, so that ordinary function calls run a
- *   little faster than they would if we used the full do_call() routine.  
+ *   little faster than they would if we used the full do_call() routine.
  */
 const uchar *CVmRun::do_call_func_nr(VMG_ uint caller_ofs,
                                      pool_ofs_t target_ofs, uint argc)
@@ -4524,7 +4524,7 @@ const uchar *CVmRun::do_call_func_nr(VMG_ uint caller_ofs,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Recursive call descriptor 
+ *   Recursive call descriptor
  */
 
 /* set up a descriptor for a system caller */
@@ -4582,7 +4582,7 @@ void vm_rcdesc::init(VMG_ const char *name,
 }
 
 /*
- *   Calculate the return address in the calling frame 
+ *   Calculate the return address in the calling frame
  */
 const uchar *vm_rcdesc::get_return_addr() const
 {
@@ -4590,7 +4590,7 @@ const uchar *vm_rcdesc::get_return_addr() const
     if (caller_addr == 0)
         return 0;
 
-    /* 
+    /*
      *   caller_addr is a pointer to the instruction that triggered the call
      *   to the native code that in turn made the recursive call represented
      *   by 'this'.  The return address is the next instruction, so we just
@@ -4633,20 +4633,20 @@ const uchar *CVmRun::do_call(VMG_ uint caller_ofs,
     /* get the number of locals from the header */
     lcl_cnt = hdr_ptr.get_local_cnt();
 
-    /* 
+    /*
      *   Get the space needs of the new function, and ensure we have enough
      *   stack space available.  Include the size of the frame that we store
      *   (the original target object, the target property, the defining
      *   object, the 'self' object, the caller's code offset, the caller's
      *   entrypoint offset, the actual parameter count, and the enclosing
-     *   frame pointer) in our space needs.  
+     *   frame pointer) in our space needs.
      */
     if (!check_space(hdr_ptr.get_stack_depth() + 11))
         err_throw(VMERR_STACK_OVERFLOW);
 
-    /* 
+    /*
      *   Allocate the stack frame.  Note that the caller has already pushed
-     *   targetprop, targetobj, definingobj, and self. 
+     *   targetprop, targetobj, definingobj, and self.
      */
     fp = push(6 + lcl_cnt);
 
@@ -4656,12 +4656,12 @@ const uchar *CVmRun::do_call(VMG_ uint caller_ofs,
     /* push the native code descriptor */
     (fp++)->set_codeptr(recurse_ctx);
 
-    /* 
+    /*
      *   Push the caller's code offset.  Note that if the caller's offset is
      *   zero, it indicates that the caller is not the byte-code interpreter
      *   and that this is a recursive invocation; we represent recursive
      *   frames using a zero caller offset, so we can just use the zero
-     *   value as given in this case. 
+     *   value as given in this case.
      */
     (fp++)->set_codeofs(caller_ofs);
 
@@ -4674,17 +4674,17 @@ const uchar *CVmRun::do_call(VMG_ uint caller_ofs,
     /* push the current frame pointer */
     (fp++)->set_stack(frame_ptr_);
 
-    /* 
+    /*
      *   check the argument count - do this before establishing the new
      *   frame and entry pointers, so that if we report a stack traceback in
      *   the debugger, we'll report the error in the calling frame, which is
-     *   where it really belongs 
+     *   where it really belongs
      */
     if (!hdr_ptr.argc_ok(argc))
     {
-        /* 
+        /*
          *   if we're making a recursive call, throw an error indicating
-         *   what kind of recursive call we're making 
+         *   what kind of recursive call we're making
          */
         if (recurse_ctx != 0)
         {
@@ -4699,9 +4699,9 @@ const uchar *CVmRun::do_call(VMG_ uint caller_ofs,
         }
     }
 
-    /* 
+    /*
      *   set up the new frame so that the frame pointer points to the old
-     *   frame pointer stored in the stack 
+     *   frame pointer stored in the stack
      */
     frame_ptr_ = fp;
 
@@ -4719,9 +4719,9 @@ const uchar *CVmRun::do_call(VMG_ uint caller_ofs,
     /* if desired, make a recursive call into the byte code interpreter */
     if (caller_ofs != 0)
     {
-        /* 
+        /*
          *   return the new program counter at the first byte of code in the
-         *   new function, which immediately follows the header 
+         *   new function, which immediately follows the header
          */
         return target_ptr + get_funchdr_size();
     }
@@ -4730,9 +4730,9 @@ const uchar *CVmRun::do_call(VMG_ uint caller_ofs,
         /* recursively call the interpreter loop */
         run(vmg_ target_ptr + get_funchdr_size());
 
-        /* 
+        /*
          *   this was a recursive call, so there's no program counter to
-         *   return - just return null 
+         *   return - just return null
          */
         return 0;
     }
@@ -4742,7 +4742,7 @@ const uchar *CVmRun::do_call(VMG_ uint caller_ofs,
  *   Return from the current function.  Returns true if execution can
  *   proceed, false if this returns us out of the outermost function, in
  *   which case the execution loop must terminate and return control to
- *   the host environment.  
+ *   the host environment.
  */
 const uchar *CVmRun::do_return(VMG0_)
 {
@@ -4756,7 +4756,7 @@ const uchar *CVmRun::do_return(VMG0_)
      *   The frame pointer always points to the location on the stack
      *   where we pushed the enclosing frame pointer.  Reset the stack
      *   pointer to the current frame pointer, then pop the enclosing
-     *   frame pointer.  
+     *   frame pointer.
      */
     set_sp(frame_ptr_);
     frame_ptr_ = (vm_val_t *)get(0)->val.ptr;
@@ -4770,12 +4770,12 @@ const uchar *CVmRun::do_return(VMG0_)
     /* restore the enclosing code offset */
     pool_ofs_t caller_ofs = get(3)->val.ofs;
 
-    /* 
+    /*
      *   Discard the actual parameters, plus the 'self', defining object,
      *   original target object, and target property values.  While we're at
      *   it, also discard the enclosing frame pointer, enclosing argument
      *   count, enclosing entry pointer, and enclosing code offset, which
-     *   we've already restored.  
+     *   we've already restored.
      */
     discard(argc + 11);
 
@@ -4786,28 +4786,28 @@ const uchar *CVmRun::do_return(VMG0_)
     /* if we're debugging, notify the debugger of the return */
     VM_IF_DEBUGGER(G_debugger->step_return(vmg0_));
 
-    /* 
+    /*
      *   if this is a special return address code, execute the appropraite
-     *   local subroutine 
+     *   local subroutine
      */
     if (vmrun_is_special_return(caller_ofs))
     {
         vm_val_t v;
-        
+
         switch (caller_ofs)
         {
         case VMRUN_RET_RECURSIVE:
-            /* 
+            /*
              *   return from recursive VM invocation - just return 0 as the
              *   finishing offset to tell the caller to exit the bytecode
-             *   execution loop 
+             *   execution loop
              */
             return 0;
 
         case VMRUN_RET_OP:
-            /* 
+            /*
              *   returning from operator evaluation - push R0 as the operand
-             *   result, and return to the address currently at TOS 
+             *   result, and return to the address currently at TOS
              */
             caller_ofs = get(0)->val.intval;
             *get(0) = r0_;
@@ -4817,7 +4817,7 @@ const uchar *CVmRun::do_return(VMG0_)
             /*
              *   Returning from an operator evaluation, with assignment to a
              *   local.  The local variable number is at TOS; assign it, then
-             *   return to the address next on the stack. 
+             *   return to the address next on the stack.
              */
             pop(&v);
             *get_local(vmg_ v.val.intval) = r0_;
@@ -4826,9 +4826,9 @@ const uchar *CVmRun::do_return(VMG0_)
             break;
 
         default:
-            /* 
+            /*
              *   invalid address; we're going to dump into random code if we
-             *   continue, so nip it in the bud and throw an invalid op now 
+             *   continue, so nip it in the bud and throw an invalid op now
              */
             err_throw(VMERR_INVALID_OPCODE);
         }
@@ -4837,7 +4837,7 @@ const uchar *CVmRun::do_return(VMG0_)
     /*
      *   Empirically, about half the time, the caller will push the return
      *   value onto the stack.  It's a little faster to test for that case
-     *   here and handle it specially.  
+     *   here and handle it specially.
      */
     if (*(entry_ptr_native_ + caller_ofs) == OPC_GETR0)
     {
@@ -4845,9 +4845,9 @@ const uchar *CVmRun::do_return(VMG0_)
         caller_ofs += 1;
     }
 
-    /* 
+    /*
      *   return the new program counter - calculate the PC offset by adding
-     *   the offset within the method to the entry pointer 
+     *   the offset within the method to the entry pointer
      */
     return entry_ptr_native_ + caller_ofs;
 }
@@ -4857,13 +4857,13 @@ const uchar *CVmRun::do_return(VMG0_)
 /*
  *   Execution context save/restore - these are for the debugger's use, so
  *   that it can save the machine registers while executing a debugger
- *   expression. 
+ *   expression.
  */
 
 #ifdef VM_DEBUGGER
 
 /*
- *   save the execution context 
+ *   save the execution context
  */
 void CVmRun::save_context(VMG_ vmrun_save_ctx *ctx)
 {
@@ -4877,7 +4877,7 @@ void CVmRun::save_context(VMG_ vmrun_save_ctx *ctx)
 }
 
 /*
- *   restore the execution context 
+ *   restore the execution context
  */
 void CVmRun::restore_context(VMG_ vmrun_save_ctx *ctx)
 {
@@ -4896,12 +4896,12 @@ void CVmRun::restore_context(VMG_ vmrun_save_ctx *ctx)
 /* ------------------------------------------------------------------------ */
 /*
  *   Append a stack trace to a string.  This is only meaningful in a
- *   debugger-equipped version. 
+ *   debugger-equipped version.
  */
 #if VM_DEBUGGER
 
 /*
- *   callback context for stack trace appender 
+ *   callback context for stack trace appender
  */
 struct append_stack_ctx
 {
@@ -4916,7 +4916,7 @@ struct append_stack_ctx
 };
 
 /*
- *   stack trace callback 
+ *   stack trace callback
  */
 static void append_stack_cb(void *ctx0, const char *str, int strl)
 {
@@ -4934,9 +4934,9 @@ static void append_stack_cb(void *ctx0, const char *str, int strl)
     old_len = vmb_get_len(old_str);
     old_str += VMB_LEN;
 
-    /* 
+    /*
      *   allocate a new string, big enough for the old string plus the new
-     *   text, plus a newline 
+     *   text, plus a newline
      */
     new_len = old_len + strl + 1;
     ctx->str_obj = CVmObjString::create(vmg_ FALSE, new_len);
@@ -4949,17 +4949,17 @@ static void append_stack_cb(void *ctx0, const char *str, int strl)
     new_str[old_len] = '\n';
     memcpy(new_str + old_len + 1, str, strl);
 
-    /* 
+    /*
      *   replace our gc-protective stack reference to the old string with
      *   the new string - we're done with the old string now, so it's okay
      *   if it gets collected, but we obviously want to keep the new one
-     *   around 
+     *   around
      */
     G_interpreter->get_from_frame(ctx->gc_fp, 0)->set_obj(ctx->str_obj);
 }
 
 /*
- *   append a stack trace to the given string 
+ *   append a stack trace to the given string
  */
 vm_obj_id_t CVmRun::append_stack_trace(VMG_ vm_obj_id_t str_obj)
 {
@@ -4967,7 +4967,7 @@ vm_obj_id_t CVmRun::append_stack_trace(VMG_ vm_obj_id_t str_obj)
 
     /* push the string for protection from gc */
     push_obj(vmg_ str_obj);
-    
+
     /* call the debugger to set up the stack traceback */
     ctx.str_obj = str_obj;
     ctx.vmg = VMGLOB_ADDR;
@@ -4985,7 +4985,7 @@ vm_obj_id_t CVmRun::append_stack_trace(VMG_ vm_obj_id_t str_obj)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Set a property of an object 
+ *   Set a property of an object
  */
 void CVmRun::set_prop(VMG_ vm_obj_id_t obj, vm_prop_id_t prop,
                       const vm_val_t *new_val)
@@ -5001,24 +5001,24 @@ void CVmRun::set_prop(VMG_ vm_obj_id_t obj, vm_prop_id_t prop,
  *   property ID; 'argc' is the number of additional operands (0 for a unary
  *   op, 1 for a binary op); 'err' is the VMERR_xxx error number for applying
  *   the operator to a value that doesn't implement it.
- *   
+ *
  *   If the object doesn't provide the property, we'll throw the error, since
  *   we're attempting to apply an operator to a value that doesn't implement
  *   it.  This is in contrast to ordinary property evaluations, which just
  *   return nil for an unimplemented property.
- *   
+ *
  *   The 'prop' usually comes from G_predef, since it's an imported name from
  *   the image file.  If this is undefined (VM_INVALID_PROP), we certainly
  *   can't have an overload for the operator, so we'll simply throw the
  *   error.
- *   
+ *
  *   The 'obj' value doesn't have to be an object, since the program could
  *   attempt to apply the operator to any type.  If the value is of a type
  *   that doesn't support property evaluations, we'll throw the same error.
- *   
+ *
  *   If 'asi_lcl' is 0 or greater, it's the local variable number to assign
  *   the value to on return from the operator overload.  If this is negative,
- *   the return value is to be pushed onto the stack on return.  
+ *   the return value is to be pushed onto the stack on return.
  */
 const uchar *CVmRun::op_overload(VMG_ uint caller_ofs, int asi_lcl,
                                  const vm_val_t *obj, vm_prop_id_t prop,
@@ -5028,17 +5028,17 @@ const uchar *CVmRun::op_overload(VMG_ uint caller_ofs, int asi_lcl,
     vm_obj_id_t srcobj;
     vm_val_t new_self;
 
-    /* 
+    /*
      *   if the program defines any overloads for the operator, it must
      *   define the export property; so if the export property isn't defined,
-     *   we can't have any overloading for the operator 
+     *   we can't have any overloading for the operator
      */
     if (prop == VM_INVALID_PROP)
         err_throw(err);
 
-    /* 
+    /*
      *   if the value isn't an object, list, or string, there's no property,
-     *   so throw the specified error 
+     *   so throw the specified error
      */
     switch (obj->typ)
     {
@@ -5051,44 +5051,44 @@ const uchar *CVmRun::op_overload(VMG_ uint caller_ofs, int asi_lcl,
         {
             /* presume this is not actually a procedure call */
             int is_call = FALSE;
-            
-            /* 
+
+            /*
              *   Got it.  Set up the appropriate special local subroutine for
              *   processing the return value.
-             *   
+             *
              *   - For a recursive call, the caller will provide the special
              *   handling on return, so there's nothing special to do.
-             *   
+             *
              *   - If there's no local to assign, we simply push the value
              *   onto the stack on return, then do a local return to the
              *   actual caller.  Push our return offset as the local return
              *   address.
-             *   
+             *
              *   - If there's a local, we assign the value to the local on
              *   return.  Push the return offset as the local return address,
-             *   and push the local number after that.  
+             *   and push the local number after that.
              */
             if (val.typ == VM_CODEOFS
                 || val.typ == VM_DSTRING
                 || val.typ == VM_OBJX)
             {
-                /* 
+                /*
                  *   These will all result in subroutine calls.  Set up the
-                 *   return frame patch accordingly. 
+                 *   return frame patch accordingly.
                  */
                 is_call = TRUE;
                 if (caller_ofs == 0)
                 {
-                    /* 
+                    /*
                      *   this is a recursive call - no return processing
-                     *   patch is required 
+                     *   patch is required
                      */
                 }
                 else if (asi_lcl < 0)
                 {
                     /* open one stack slot above the arguments */
                     insert(argc, 1);
-                    
+
                     /* on return, push the value onto the stack */
                     get(argc)->set_int(caller_ofs);
                     caller_ofs = VMRUN_RET_OP;
@@ -5097,14 +5097,14 @@ const uchar *CVmRun::op_overload(VMG_ uint caller_ofs, int asi_lcl,
                 {
                     /* open two stack slots above the arguments */
                     insert(argc, 2);
-                    
+
                     /* on return, store the value in locl #asi_lcl */
                     get(argc + 1)->set_int(caller_ofs);
                     get(argc)->set_int(asi_lcl);
                     caller_ofs = VMRUN_RET_OP_ASILCL;
                 }
             }
-                
+
             /* evaluate the property */
             const uchar *ret = eval_prop_val(
                 vmg_ TRUE, caller_ofs, &val, obj->val.obj, prop,
@@ -5146,7 +5146,7 @@ const uchar *CVmRun::op_overload(VMG_ uint caller_ofs, int asi_lcl,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Evaluate a property of an object 
+ *   Evaluate a property of an object
  */
 const uchar *CVmRun::get_prop(VMG_ uint caller_ofs,
                               const vm_val_t *target_obj,
@@ -5176,13 +5176,13 @@ const uchar *CVmRun::get_prop(VMG_ uint caller_ofs,
                       || val.typ == VM_OBJX
                       || val.typ == VM_BIFPTRX))
         {
-            /* 
+            /*
              *   add the target property as the additional first argument to
              *   propNotDefined (we push backwards, so this will conveniently
-             *   become the new first argument) 
+             *   become the new first argument)
              */
             push_prop(vmg_ target_prop);
-            
+
             /* count the additional argument */
             ++argc;
 
@@ -5190,14 +5190,14 @@ const uchar *CVmRun::get_prop(VMG_ uint caller_ofs,
             target_prop = G_predef->prop_not_defined_prop;
         }
     }
-    
+
     /* evaluate whatever we found or didn't find */
     return eval_prop_val(vmg_ found, caller_ofs, &val, self->val.obj,
                          target_prop, target_obj, srcobj, argc, rc);
 }
 
 /*
- *   Simplified property evaluator 
+ *   Simplified property evaluator
  */
 void CVmRun::get_prop(VMG_ vm_val_t *result,
                       const vm_val_t *obj, vm_prop_id_t prop, uint argc,
@@ -5218,7 +5218,7 @@ void CVmRun::get_prop(VMG_ vm_val_t *result,
 }
 
 /*
- *   Look up a property without evaluating it. 
+ *   Look up a property without evaluating it.
  */
 inline int CVmRun::get_prop_no_eval(VMG_ const vm_val_t **target_obj,
                                     vm_prop_id_t target_prop,
@@ -5229,10 +5229,10 @@ inline int CVmRun::get_prop_no_eval(VMG_ const vm_val_t **target_obj,
 {
     int found;
     const char *target_ptr;
-    
-    /* 
+
+    /*
      *   we can evaluate properties of regular objects, as well as string
-     *   and list constants - see what we have 
+     *   and list constants - see what we have
      */
     switch((*target_obj)->typ)
     {
@@ -5250,10 +5250,10 @@ inline int CVmRun::get_prop_no_eval(VMG_ const vm_val_t **target_obj,
                                            target_ptr, target_prop,
                                            srcobj, argc);
 
-        /* 
+        /*
          *   If the result is a method to run, we need an actual object for
          *   'self'.  In this case, create a dynamic list object with the
-         *   same contents as the constant list value.  
+         *   same contents as the constant list value.
          */
         if (found
             && (val->typ == VM_CODEOFS
@@ -5285,10 +5285,10 @@ inline int CVmRun::get_prop_no_eval(VMG_ const vm_val_t **target_obj,
                                              target_ptr, target_prop,
                                              srcobj, argc);
 
-        /* 
+        /*
          *   If the result is a method to run, we need an actual object for
          *   'self'.  In this case, create a dynamic string object with the
-         *   same contents as the constant string value.  
+         *   same contents as the constant string value.
          */
         if (found
             && (val->typ == VM_CODEOFS
@@ -5336,10 +5336,10 @@ inline int CVmRun::get_prop_no_eval(VMG_ const vm_val_t **target_obj,
  *   evaluate the value.  If the value contains code, we'll execute the
  *   code; if it contains a self-printing string, we'll display the
  *   string; otherwise, we'll just store the value in R0.
- *   
+ *
  *   'found' indicates whether or not the property value is defined.
  *   False indicates that the property value is not defined by the object;
- *   true indicates that it is.  
+ *   true indicates that it is.
  */
 const uchar *CVmRun::eval_prop_val(VMG_ int found, uint caller_ofs,
                                    const vm_val_t *val,
@@ -5356,10 +5356,10 @@ const uchar *CVmRun::eval_prop_val(VMG_ int found, uint caller_ofs,
         switch(val->typ)
         {
         case VM_CODEOFS:
-            /* 
+            /*
              *   It's a method - invoke the method.  This will set us up
              *   to start executing this new code, so there's nothing more
-             *   we need to do here.  
+             *   we need to do here.
              */
 
             /* push targetprop, targetobj, definingobj, self, and invokee */
@@ -5376,23 +5376,23 @@ const uchar *CVmRun::eval_prop_val(VMG_ int found, uint caller_ofs,
             return do_call(vmg_ caller_ofs,
                            (const uchar *)G_code_pool->get_ptr(val->val.ofs),
                            argc, rc);
-            
+
         case VM_DSTRING:
             /* no arguments are allowed */
             if (argc != 0)
                 err_throw(VMERR_WRONG_NUM_OF_ARGS);
-            
-            /* 
+
+            /*
              *   it's a self-printing string - invoke the default string
-             *   output function (this is effectively a do_call()) 
+             *   output function (this is effectively a do_call())
              */
             return disp_dstring(vmg_ val->val.ofs, caller_ofs, self);
 
         case VM_OBJX:
-            /* 
+            /*
              *   Execute-on-eval object.  If the value is an anonymous
              *   function or other invokable object, call it.  If it's a
-             *   string, print it.  
+             *   string, print it.
              */
             if (vm_objp(vmg_ val->val.obj)->get_invoker(vmg_ 0))
             {
@@ -5426,12 +5426,12 @@ const uchar *CVmRun::eval_prop_val(VMG_ int found, uint caller_ofs,
 
             /* resume execution where we left off */
             return entry_ptr_native_ + caller_ofs;
-            
+
         default:
             /* for any other value, no arguments are allowed */
             if (argc != 0)
                 err_throw(VMERR_WRONG_NUM_OF_ARGS);
-            
+
             /* store the result in R0 */
             r0_ = *val;
 
@@ -5441,7 +5441,7 @@ const uchar *CVmRun::eval_prop_val(VMG_ int found, uint caller_ofs,
     }
     else
     {
-        /* 
+        /*
          *   the property or method is not defined - discard arguments and
          *   set R0 to nil
          */
@@ -5456,7 +5456,7 @@ const uchar *CVmRun::eval_prop_val(VMG_ int found, uint caller_ofs,
 /* ------------------------------------------------------------------------ */
 /*
  *   Inherit a property or method from the appropriate superclass of the
- *   object that defines currently executing code.  
+ *   object that defines currently executing code.
  */
 const uchar *CVmRun::inh_prop(VMG_ uint caller_ofs,
                               vm_prop_id_t prop, uint argc)
@@ -5485,10 +5485,10 @@ const uchar *CVmRun::inh_prop(VMG_ uint caller_ofs,
     /* if we didn't find it, try inheriting propNotDefined */
     if (!found && G_predef->prop_not_defined_prop != VM_INVALID_PROP)
     {
-        /* 
+        /*
          *   Look up propNotDefined using the same search conditions we used
          *   to find the original inherited property.  This lets us look up
-         *   the "inherited" propNotDefined.  
+         *   the "inherited" propNotDefined.
          */
         found = vm_objp(vmg_ self)->inh_prop(vmg_
                                              G_predef->prop_not_defined_prop,
@@ -5496,10 +5496,10 @@ const uchar *CVmRun::inh_prop(VMG_ uint caller_ofs,
                                              orig_target_obj.val.obj,
                                              defining_obj, &srcobj, &argc);
 
-        /* 
+        /*
          *   if we found it, and it's code, push the original property ID we
          *   were attempting to inherit - this becomes the new first
-         *   parameter to the propNotDefined method 
+         *   parameter to the propNotDefined method
          */
         if (found
             && (val.typ == VM_CODEOFS
@@ -5517,10 +5517,10 @@ const uchar *CVmRun::inh_prop(VMG_ uint caller_ofs,
         }
     }
 
-    /* 
+    /*
      *   evaluate and store the result - note that "self" remains the
      *   current "self" object, since we're inheriting within the context
-     *   of the original method call 
+     *   of the original method call
      */
     return eval_prop_val(vmg_ found, caller_ofs, &val, self, prop,
                          &orig_target_obj, srcobj, argc, 0);
@@ -5529,7 +5529,7 @@ const uchar *CVmRun::inh_prop(VMG_ uint caller_ofs,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Display a dstring via the default string display mechanism 
+ *   Display a dstring via the default string display mechanism
  */
 const uchar *CVmRun::disp_dstring(VMG_ pool_ofs_t ofs, uint caller_ofs,
                                   vm_obj_id_t self)
@@ -5543,23 +5543,23 @@ const uchar *CVmRun::disp_dstring(VMG_ pool_ofs_t ofs, uint caller_ofs,
 
 /*
  *   Display the value at top of stack via the default string display
- *   mechanism 
+ *   mechanism
  */
 const uchar *CVmRun::disp_string_val(VMG_ uint caller_ofs, vm_obj_id_t self)
 {
-    /* 
+    /*
      *   if there's a valid 'self' object, and there's a default display
      *   method defined, and 'self' defines or inherits that method,
-     *   invoke the method 
+     *   invoke the method
      */
     if (say_method_ != VM_INVALID_PROP && self != VM_INVALID_OBJ)
     {
         vm_obj_id_t src_obj;
         vm_val_t val;
 
-        /* 
+        /*
          *   look up the property - if we find it, and it's a regular
-         *   method, invoke it 
+         *   method, invoke it
          */
         if (vm_objp(vmg_ self)->get_prop(vmg_ say_method_, &val, self,
                                          &src_obj, 0)
@@ -5575,7 +5575,7 @@ const uchar *CVmRun::disp_string_val(VMG_ uint caller_ofs, vm_obj_id_t self)
                                  say_method_, &self_val, src_obj, 1, 0);
         }
     }
-    
+
     /* if the "say" function isn't initialized, it's an error */
     if (say_func_ == 0 || say_func_->val.typ == VM_NIL)
         err_throw(VMERR_SAY_IS_NOT_DEFINED);
@@ -5589,9 +5589,9 @@ const uchar *CVmRun::disp_string_val(VMG_ uint caller_ofs, vm_obj_id_t self)
  */
 void CVmRun::set_say_func(VMG_ const vm_val_t *val)
 {
-    /* 
+    /*
      *   if we haven't yet allocated a global to hold the 'say' function,
-     *   allocate one now 
+     *   allocate one now
      */
     if (say_func_ == 0)
         say_func_ = G_obj_table->create_global_var();
@@ -5601,13 +5601,13 @@ void CVmRun::set_say_func(VMG_ const vm_val_t *val)
 }
 
 /*
- *   Get the current "say" function 
+ *   Get the current "say" function
  */
 void CVmRun::get_say_func(vm_val_t *val) const
 {
-    /* 
+    /*
      *   if we ever allocated a global to hold the 'say' function, return its
-     *   value; otherwise, there's no 'say' function, so the result is nil 
+     *   value; otherwise, there's no 'say' function, so the result is nil
      */
     if (say_func_ != 0)
         *val = say_func_->val;
@@ -5617,7 +5617,7 @@ void CVmRun::get_say_func(vm_val_t *val) const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Push a string value 
+ *   Push a string value
  */
 void CVmRun::push_string(VMG_ const char *str, size_t len)
 {
@@ -5628,7 +5628,7 @@ void CVmRun::push_string(VMG_ const char *str, size_t len)
 }
 
 /*
- *   Push a printf-formatted string 
+ *   Push a printf-formatted string
  */
 void CVmRun::push_stringf(VMG_ const char *fmt, ...)
 {
@@ -5640,7 +5640,7 @@ void CVmRun::push_stringf(VMG_ const char *fmt, ...)
 }
 
 /*
- *   Push a vprintf-formatted string 
+ *   Push a vprintf-formatted string
  */
 void CVmRun::push_stringvf(VMG_ const char *fmt, va_list args)
 {
@@ -5656,7 +5656,7 @@ void CVmRun::push_stringvf(VMG_ const char *fmt, va_list args)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Check a property for speculative evaluation 
+ *   Check a property for speculative evaluation
  */
 void CVmRun::check_prop_spec_eval(VMG_ vm_obj_id_t obj, vm_prop_id_t prop)
 {
@@ -5674,10 +5674,10 @@ void CVmRun::check_prop_spec_eval(VMG_ vm_obj_id_t obj, vm_prop_id_t prop)
         case VM_BIFPTRX:
         case VM_DSTRING:
         case VM_NATIVE_CODE:
-            /* 
+            /*
              *   evaulating these types could result in side effects, so
              *   this property cannot be evaulated during a speculative
-             *   evaluation 
+             *   evaluation
              */
             err_throw(VMERR_BAD_SPEC_EVAL);
             break;
@@ -5691,7 +5691,7 @@ void CVmRun::check_prop_spec_eval(VMG_ vm_obj_id_t obj, vm_prop_id_t prop)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Set up a function header pointer for the current function 
+ *   Set up a function header pointer for the current function
  */
 void CVmRun::set_current_func_ptr(VMG_ CVmFuncPtr *func_ptr)
 {
@@ -5701,7 +5701,7 @@ void CVmRun::set_current_func_ptr(VMG_ CVmFuncPtr *func_ptr)
 
 /*
  *   Set up a function header pointer for the return address of the given
- *   stack frame 
+ *   stack frame
  */
 void CVmRun::set_return_funcptr_from_frame(VMG_ CVmFuncPtr *func_ptr,
                                            vm_val_t *frame_ptr)
@@ -5712,13 +5712,13 @@ void CVmRun::set_return_funcptr_from_frame(VMG_ CVmFuncPtr *func_ptr,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Get the frame pointer at a given stack level 
+ *   Get the frame pointer at a given stack level
  */
 vm_val_t *CVmRun::get_fp_at_level(VMG_ int level) VM_REG_CONST
 {
     vm_val_t *fp;
     const vm_rcdesc *rc;
-    
+
     /* walk up the stack to the desired level */
     for (fp = frame_ptr_, rc = 0 ; fp != 0 && level != 0 ; --level)
     {
@@ -5727,7 +5727,7 @@ vm_val_t *CVmRun::get_fp_at_level(VMG_ int level) VM_REG_CONST
         {
             /* move to the bytecode caller at this level */
             rc = 0;
-            
+
             /* count the level */
             if (--level == 0)
                 break;
@@ -5738,9 +5738,9 @@ vm_val_t *CVmRun::get_fp_at_level(VMG_ int level) VM_REG_CONST
         fp = get_enclosing_frame_ptr(vmg_ fp);
     }
 
-    /* 
+    /*
      *   if we ran out of frames before we reached the desired level, or we
-     *   stopped at a native caller, the requested frame doesn't exist 
+     *   stopped at a native caller, the requested frame doesn't exist
      */
     if (fp == 0 || (rc != 0 && rc->has_return_addr()))
         err_throw(VMERR_BAD_FRAME);
@@ -5751,7 +5751,7 @@ vm_val_t *CVmRun::get_fp_at_level(VMG_ int level) VM_REG_CONST
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Get the message from an exception object 
+ *   Get the message from an exception object
  */
 void CVmRun::get_exc_message(VMG_ const CVmException *exc,
                              char *buf, size_t buflen, int add_unh_prefix)
@@ -5762,13 +5762,13 @@ void CVmRun::get_exc_message(VMG_ const CVmException *exc,
 
     /* set up our temporary exception object with no parameters by default */
     tmpexc.param_count_ = 0;
-    
+
     /* check for unhandled program exceptions */
     if (exc->get_error_code() == VMERR_UNHANDLED_EXC)
     {
         size_t msg_len;
-        
-        /* 
+
+        /*
          *   This is not a VM error, but is simply an exception that the
          *   program itself threw but did not handle.  We might be able to
          *   find an informational message in the exception object itself.
@@ -5778,8 +5778,8 @@ void CVmRun::get_exc_message(VMG_ const CVmException *exc,
         msg = get_exc_message(vmg_ exc, &msg_len);
         if (msg != 0)
         {
-            /* 
-             *   we got a message from the exception object - use it 
+            /*
+             *   we got a message from the exception object - use it
              */
 
             /* set up our parameters for the formatting */
@@ -5789,7 +5789,7 @@ void CVmRun::get_exc_message(VMG_ const CVmException *exc,
             /*
              *   If they want an "unhandled exception" prefix, get the
              *   message for the prefix; otherwise, just use the message
-             *   from the exception without further adornment. 
+             *   from the exception without further adornment.
              */
             if (add_unh_prefix)
             {
@@ -5816,14 +5816,14 @@ void CVmRun::get_exc_message(VMG_ const CVmException *exc,
     }
     else
     {
-        /* 
+        /*
          *   It's a VM exception, so we can determine the error's meaning
          *   from the error code.  Look up the message for the error code
-         *   in our error message list.  
+         *   in our error message list.
          */
         msg = err_get_msg(vm_messages, vm_message_count,
                           exc->get_error_code(), FALSE);
-        
+
         /* if that failed, just show the error number */
         if (msg == 0)
         {
@@ -5844,7 +5844,7 @@ void CVmRun::get_exc_message(VMG_ const CVmException *exc,
 
             /* format the message from the exception parameters */
             err_format_msg(tmpbuf, sizeof(tmpbuf), msg, exc);
-            
+
             /* get the prefix message */
             tmpmsg = err_get_msg(vm_messages, vm_message_count,
                                  VMERR_VM_EXC_PARAM, FALSE);
@@ -5867,15 +5867,15 @@ const char *CVmRun::get_exc_message(VMG_ const CVmException *exc,
 {
     vm_obj_id_t exc_obj;
 
-    /* 
+    /*
      *   if the error isn't "unhandled exception," there's not a stored
      *   exception object; likewise, if there's no object parameter in the
-     *   exception, there's nothing to use to obtain the message 
+     *   exception, there's nothing to use to obtain the message
      */
     if (exc->get_error_code() != VMERR_UNHANDLED_EXC
         || exc->get_param_count() < 1)
         return 0;
-    
+
     /* get the exception object */
     exc_obj = (vm_obj_id_t)exc->get_param_ulong(0);
 
@@ -5884,7 +5884,7 @@ const char *CVmRun::get_exc_message(VMG_ const CVmException *exc,
 }
 
 /*
- *   Get the message from an exception object 
+ *   Get the message from an exception object
  */
 const char *CVmRun::get_exc_message(VMG_ vm_obj_id_t exc_obj, size_t *msg_len)
 {
@@ -5892,15 +5892,15 @@ const char *CVmRun::get_exc_message(VMG_ vm_obj_id_t exc_obj, size_t *msg_len)
     vm_obj_id_t src_obj;
     const char *str;
     uint argc;
-    
+
     /* if there's no object, there's no message */
     if (exc_obj == VM_INVALID_OBJ)
         return 0;
-    
-    /* 
+
+    /*
      *   get the exceptionMessage property value from the object; if
      *   there's not a valid exceptionMessage property defined, or the
-     *   object doesn't have a value for the property, there's no message 
+     *   object doesn't have a value for the property, there's no message
      */
     argc = 0;
     if (G_predef->rterrmsg_prop == VM_INVALID_PROP
@@ -5909,7 +5909,7 @@ const char *CVmRun::get_exc_message(VMG_ vm_obj_id_t exc_obj, size_t *msg_len)
                                              &argc)))
         return 0;
 
-    /* 
+    /*
      *   We got the property.  If it's a string or an object containing a
      *   string, retrieve the string.
      */
@@ -5934,11 +5934,11 @@ const char *CVmRun::get_exc_message(VMG_ vm_obj_id_t exc_obj, size_t *msg_len)
     /* check to see if we got a string */
     if (str != 0)
     {
-        /* 
+        /*
          *   The string is in the standard VM internal format, which means
          *   it has a 2-byte length prefix followed by the bytes of the
          *   string (with no null termination).  Read the length prefix,
-         *   then skip past it so the caller doesn't have to.  
+         *   then skip past it so the caller doesn't have to.
          */
         *msg_len = osrp2(str);
         str += VMB_LEN;
@@ -5952,7 +5952,7 @@ const char *CVmRun::get_exc_message(VMG_ vm_obj_id_t exc_obj, size_t *msg_len)
 /*
  *   Get the boundaries of the current statement, based on debugging
  *   information.  Returns true if valid debugging information was found for
- *   the given code location, false if not.  
+ *   the given code location, false if not.
  */
 int CVmRun::get_stm_bounds(VMG_ const CVmFuncPtr *func_ptr,
                            ulong method_ofs,
@@ -5967,9 +5967,9 @@ int CVmRun::get_stm_bounds(VMG_ const CVmFuncPtr *func_ptr,
     /* presume we won't find anything */
     *stm_start = *stm_end = 0;
 
-    /* 
+    /*
      *   if the current method has no line records, we can't find the
-     *   boundaries 
+     *   boundaries
      */
     if (!func_ptr->set_dbg_ptr(&dbg_ptr)
         || dbg_ptr.get_line_count(vmg0_) == 0)
@@ -5980,7 +5980,7 @@ int CVmRun::get_stm_bounds(VMG_ const CVmFuncPtr *func_ptr,
 
     /*
      *   We must perform a binary search of the line records for the line
-     *   that contains this program counter offset.  
+     *   that contains this program counter offset.
      */
     lo = 0;
     hi = dbg_ptr.get_line_count(vmg0_) - 1;
@@ -5997,18 +5997,18 @@ int CVmRun::get_stm_bounds(VMG_ const CVmFuncPtr *func_ptr,
         /* get the current statement's start relative to the method header */
         start_ofs = line_ptr.get_start_ofs();
 
-        /* 
+        /*
          *   Get the next statement's start offset, which gives us the end
          *   of this statement.  If this is the last statement in the table,
          *   it runs to the end of the function; use the debug records table
-         *   offset as the upper bound in this case.  
+         *   offset as the upper bound in this case.
          */
         if (cur == (int)dbg_ptr.get_line_count(vmg0_) - 1)
         {
-            /* 
+            /*
              *   it's the last record - use the debug table offset as an
              *   upper bound, since we know the function can't have any
-             *   executable code past this point 
+             *   executable code past this point
              */
             end_ofs = func_ptr->get_debug_ofs();
         }
@@ -6059,7 +6059,7 @@ int CVmRun::get_stm_bounds(VMG_ const CVmFuncPtr *func_ptr,
 #ifdef VM_PROFILER
 
 /*
- *   Profiler master hash table entry 
+ *   Profiler master hash table entry
  */
 class CVmHashEntryProfiler: public CVmHashEntryCI
 {
@@ -6084,7 +6084,7 @@ public:
 };
 
 /*
- *   Begin profiling 
+ *   Begin profiling
  */
 void CVmRun::start_profiling()
 {
@@ -6099,7 +6099,7 @@ void CVmRun::start_profiling()
 }
 
 /*
- *   End profiling 
+ *   End profiling
  */
 void CVmRun::end_profiling()
 {
@@ -6116,7 +6116,7 @@ struct vmrun_prof_enum
 {
     /* globals object */
     vm_globals *globals;
-    
+
     /* interpreter object */
     CVmRun *terp;
 
@@ -6130,7 +6130,7 @@ struct vmrun_prof_enum
 };
 
 /*
- *   Get the profiling data 
+ *   Get the profiling data
  */
 void CVmRun::get_profiling_data(VMG_
                                 void (*cb)(void *,
@@ -6158,7 +6158,7 @@ void CVmRun::get_profiling_data(VMG_
 }
 
 /*
- *   Callback for enumerating the profiling data 
+ *   Callback for enumerating the profiling data
  */
 void CVmRun::prof_enum_cb(void *ctx0, CVmHashEntry *entry0)
 {
@@ -6172,16 +6172,16 @@ void CVmRun::prof_enum_cb(void *ctx0, CVmHashEntry *entry0)
     if (entry->rec_.obj != VM_INVALID_OBJ)
     {
         char *dst;
-        
+
         /* look up the object name */
         p = ctx->dbg->objid_to_sym(entry->rec_.obj);
 
         /* get the original name, if this is a synthetic 'modify' object */
         p = ctx->dbg->get_modifying_sym(p);
 
-        /* 
+        /*
          *   if we got an object name, use it; otherwise, synthesize a name
-         *   using the object number 
+         *   using the object number
          */
         if (p != 0)
             strcpy(namebuf, p);
@@ -6246,9 +6246,9 @@ void CVmRun::prof_enter(VMG_ const uchar *fptr)
         /* get a pointer to the outgoing entry */
         p = &prof_stack_[prof_stack_idx_ - 1];
 
-        /* 
+        /*
          *   add the time since the last start to the cumulative time spent
-         *   in this function 
+         *   in this function
          */
         prof_calc_elapsed(&delta, &cur, &prof_start_);
         prof_add_elapsed(&p->sum_direct, &delta);
@@ -6306,9 +6306,9 @@ void CVmRun::prof_leave()
         /* get a pointer to the outgoing entry */
         p = &prof_stack_[prof_stack_idx_];
 
-        /* 
+        /*
          *   add the time since the last start to the cumulative time spent
-         *   in this function 
+         *   in this function
          */
         prof_calc_elapsed(&delta, &cur, &prof_start_);
         prof_add_elapsed(&p->sum_direct, &delta);
@@ -6317,7 +6317,7 @@ void CVmRun::prof_leave()
          *   Find or create the master record for the terminating function or
          *   method, and add the cumulative times from this call to the
          *   master record's cumulative times.  Also count the invocation in
-         *   the master record.  
+         *   the master record.
          */
         entry = prof_find_master_rec(p);
         prof_add_elapsed(&entry->rec_.sum_direct, &p->sum_direct);
@@ -6330,7 +6330,7 @@ void CVmRun::prof_leave()
          *   in all of its children.  We must add this to the caller's
          *   cumulative child time, since this function and all of its
          *   children are children of the caller and thus must count in the
-         *   caller's total child time.  
+         *   caller's total child time.
          */
         chi = p->sum_direct;
         prof_add_elapsed(&chi, &p->sum_chi);
@@ -6344,23 +6344,23 @@ void CVmRun::prof_leave()
         /* get a pointer to the resuming entry */
         p = &prof_stack_[prof_stack_idx_ - 1];
 
-        /* 
+        /*
          *   add the time spent in the child and its children to our
-         *   cumulative child time 
+         *   cumulative child time
          */
         prof_add_elapsed(&p->sum_chi, &chi);
     }
 
-    /* 
+    /*
      *   remember the new start time for the function we're resuming - we
      *   must reset this to the current time, since we measure deltas from
-     *   the last call or return on each call or return 
+     *   the last call or return on each call or return
      */
     os_prof_curtime(&prof_start_);
 }
 
 /*
- *   Calculate an elapsed 64-bit time value 
+ *   Calculate an elapsed 64-bit time value
  */
 void CVmRun::prof_calc_elapsed(vm_prof_time *diff, const vm_prof_time *a,
                                const vm_prof_time *b)
@@ -6369,9 +6369,9 @@ void CVmRun::prof_calc_elapsed(vm_prof_time *diff, const vm_prof_time *a,
     diff->lo = a->lo - b->lo;
     diff->hi = a->hi - b->hi;
 
-    /* 
+    /*
      *   if the low part ended up higher than it started, then we
-     *   underflowed, and hence must borrow from the high part 
+     *   underflowed, and hence must borrow from the high part
      */
     if (diff->lo > a->lo)
         --(diff->hi);
@@ -6386,32 +6386,32 @@ void CVmRun::prof_add_elapsed(vm_prof_time *sum, const vm_prof_time *val)
 
     /* remember the original low part */
     orig_lo = sum->lo;
-    
+
     /* add the low parts and high parts */
     sum->lo += val->lo;
     sum->hi += val->hi;
 
-    /* 
+    /*
      *   if the low part of the sum is less than where it started, then it
-     *   overflowed, and we must hence carry to the high part 
+     *   overflowed, and we must hence carry to the high part
      */
     if (sum->lo < orig_lo)
         ++(sum->hi);
 }
 
 /*
- *   Find or create a hash table entry for a profiler record 
+ *   Find or create a hash table entry for a profiler record
  */
 CVmHashEntryProfiler *CVmRun::prof_find_master_rec(const vm_profiler_rec *p)
 {
     const size_t id_siz = sizeof(p->func) + sizeof(p->obj) + sizeof(p->prop);
     char id[id_siz];
     CVmHashEntryProfiler *entry;
-    
-    /* 
+
+    /*
      *   Build the ID string, which we'll use as our hash key.  We never have
      *   to serialize this, so it doesn't matter that it's dependent on byte
-     *   order and word size. 
+     *   order and word size.
      */
     memcpy(id, &p->func, sizeof(p->func));
     memcpy(id + sizeof(p->func), &p->obj, sizeof(p->obj));
@@ -6440,7 +6440,7 @@ CVmHashEntryProfiler *CVmRun::prof_find_master_rec(const vm_profiler_rec *p)
 /*
  *   Footnote - for the referring code, search the code above for
  *   [REGISTER_P_FOOTNOTE].
- *   
+ *
  *   This footnote pertains to a 'register' declaration that causes gcc (and
  *   probably some other compilers) to generate a warning message.  The
  *   'register' declaration is useful on some compilers and will be retained.
@@ -6448,7 +6448,7 @@ CVmHashEntryProfiler *CVmRun::prof_find_master_rec(const vm_profiler_rec *p)
  *   explaining why I'm choosing to leave the 'register' declaration in, and
  *   why I think this 'register' declaration is actually correct and useful
  *   despite the warning it generates on some compilers.
- *   
+ *
  *   The basic issue is that the code takes the address of the variable in
  *   question in expressions passed as parameters to certain function calls.
  *   These function calls all happen to be in-linable functions, and it
@@ -6456,12 +6456,12 @@ CVmHashEntryProfiler *CVmRun::prof_find_master_rec(const vm_profiler_rec *p)
  *   out by a '*' dereference operator - in other words, we have '*&p', which
  *   the compiler can turn into just plain 'p' when the calls are in-lined,
  *   eliminating the need to actually take the address of 'p'.
- *   
+ *
  *   Nikos:
  *.  >I'm no expert, but I think GCC barks at this because it isn't possible
  *.  >at all to store the variable in a register if the code wants its
  *.  >address, therefore the 'register' in the declaration does nothing.
- *   
+ *
  *   That's correct, but a compiler is always free to ignore 'register'
  *   declarations *anyway*, even if enregistration is possible.  Therefore a
  *   warning that it's not possible to obey 'register' is unnecessary,
@@ -6472,7 +6472,7 @@ CVmHashEntryProfiler *CVmRun::prof_find_master_rec(const vm_profiler_rec *p)
  *   behavior than the compiler will deliver; in the case of an ignored
  *   'register' attribute, the programmer is *required* to expect that the
  *   attribute might be ignored, so a warning to this effect is superfluous.
- *   
+ *
  *   Now, I understand why they generate the warning - it's because the
  *   compiler believes that the program code itself makes enregistration
  *   impossible, not because the compiler has chosen for optimization
@@ -6485,38 +6485,38 @@ CVmHashEntryProfiler *CVmRun::prof_find_master_rec(const vm_profiler_rec *p)
  *   makes (which have to do with in-line vs out-of-line calls), but it
  *   really is compiler decisions that make it impossible, not the inherent
  *   structure of the code.
- *   
+ *
  *.  >Furthermore, I'm not sure I understand the relationship
  *.  >between 'register' and inlining; why should "*(&p)" do something
  *.  >else "in calls to inlines" than its obvious meaning?
- *   
+ *
  *   When a function is in-lined, the compiler is not required to generate
  *   the same code it would generate for the most general case of the same
  *   function call, as long as the meaning is the same.
- *   
+ *
  *   For example, suppose we have some code that contains a call to a
  *   function like so:
- *   
+ *
  *   a = myFunc(a + 7, 3);
- *   
+ *
  *   In the general out-of-line case, the compiler must generate some
  *   machine-code instructions like this:
- *   
+ *
  *.  push #3
  *.  mov [a], d0
  *.  add #7, d0
  *.  push d0
  *.  call #myFunc
  *.  mov d0, [a]
- *   
+ *
  *   The compiler doesn't have access to the inner workings of myFunc, so it
  *   must generate the appropriate code for the generic interface to an
  *   external function.
- *   
+ *
  *   Now, suppose the function is defined like so:
- *   
+ *
  *   int myFunc(int a, int b) { return a - 6; }
- *   
+ *
  *   and further suppose that the compiler decides to in-line this function.
  *   In-lining means the compiler will generate the code that implements the
  *   function directly in the caller; there will be no call to an external
@@ -6530,7 +6530,7 @@ CVmHashEntryProfiler *CVmRun::prof_find_master_rec(const vm_profiler_rec *p)
  *   generate a separate call to the same function, but registers d3 and d7
  *   are the ones available, we can use those instead.  Each generated copy
  *   of the function can fit its exact context.
- *   
+ *
  *   Furthermore, looking at this function and at the arguments passed, we
  *   can see that the formal parameter 'b' has no effect on the function's
  *   results, and the actual parameter '3' passed for 'b' has no side
@@ -6538,74 +6538,74 @@ CVmHashEntryProfiler *CVmRun::prof_find_master_rec(const vm_profiler_rec *p)
  *   parameter - there's no need to generate any code for it at all, since we
  *   have sufficient knowledge to see that it has no effect on the meaning of
  *   the code.
- *   
+ *
  *   Further still, we can globally optimize the entire function.  So, we can
  *   see that myFunc(a+7, 3) is going to turn into the expression (a+7-6).
  *   We can fold constants to arrive at (a+1) as the result of the function.
  *   We can therefore generate the entire code for the function's invocation
  *   like so:
- *   
+ *
  *   inc [a]
- *   
+ *
  *   Okay, now let's look at the &p case.  In the specific examples in
  *   vmrun.cpp, we have a bunch of function invocations like this:
- *   
+ *
  *   register const char *p;
  *.  int x = myfunc(&p);
- *   
+ *
  *   In the most general case, we have to generate code like this:
- *   
+ *
  *.  lea [p], d0        ; load effective address
  *.  push d0
  *.  call #myfunc
  *.  mov d0, [x]
- *   
+ *
  *   So, in the most general case of a call with external linkage, we need
  *   'p' to have a main memory address so that we can push it on the stack as
  *   the parameter to this call.  Registers don't have main memory addresses,
  *   so 'p' can't go in a register.
- *   
+ *
  *   However, we know what myfunc() looks like:
- *   
+ *
  *.  char myfunc(const char **p)
  *.  {
  *.      char c = **p;
  *.      *p += 1;
  *.      return c;
  *.  }
- *   
+ *
  *   If the compiler chooses to in-line this function, it can globally
  *   optimize its linkage and implementation as we saw earlier.  So, the
  *   compiler can rewrite the code like so:
- *   
+ *
  *   register const char *p;
  *.  int x = **(&p);
  *.  *(&p) += 1;
- *   
+ *
  *   which can be further rewritten to:
- *   
+ *
  *.  register const char *p;
  *.  int x = *p;
  *.  p += 1;
- *   
+ *
  *   Now we can generate the machine code for the final optimized form:
- *   
+ *
  *.  mov [p], a0         ; get the *value* of p into index register 0
  *.  mov.byte [a0+0], d0 ; get the value index register 0 points to
  *.  mov.byte d0, [x]    ; store it in x
  *.  inc [p]             ; inc the value of p
- *   
+ *
  *   Nowhere do we need a main memory address for p.  This means the compiler
  *   can keep p in a register, say d5:
- *   
+ *
  *.  mov d5, a0
  *.  mov.byte [a0+0], d0
  *.  mov.byte d0, [x]
  *.  inc d5
- *   
+ *
  *   And this is indeed exactly what the code that comes out of vc++ looks
- *   like (changed from my abstract machine to 32-bit x86, of course).  
- *   
+ *   like (changed from my abstract machine to 32-bit x86, of course).
+ *
  *   So: if the compiler chooses to in-line the functions that are called
  *   with '&p' as a parameter, and the compiler performs the available
  *   optimizations on those calls once they're in-lined, then a memory
@@ -6623,5 +6623,5 @@ CVmHashEntryProfiler *CVmRun::prof_find_master_rec(const vm_profiler_rec *p)
  *   superficial reading of the code would not reveal the optimization
  *   opportunity; but the warning is nonetheless unnecessary, and the
  *   'register' does provide useful optimization hinting to at least vc++, so
- *   I think it's best to leave it in and ignore the warning.  
+ *   I think it's best to leave it in and ignore the warning.
  */

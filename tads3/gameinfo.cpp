@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 2001, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -48,7 +48,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Name/value pair list entry 
+ *   Name/value pair list entry
  */
 struct tads_valinfo
 {
@@ -64,7 +64,7 @@ struct tads_valinfo
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Create 
+ *   Create
  */
 CTadsGameInfo::CTadsGameInfo()
 {
@@ -77,7 +77,7 @@ CTadsGameInfo::CTadsGameInfo()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Delete 
+ *   Delete
  */
 CTadsGameInfo::~CTadsGameInfo()
 {
@@ -94,11 +94,11 @@ CTadsGameInfo::~CTadsGameInfo()
  *   this routine from its overridden destructor, to ensure that the vtable
  *   still has a reference to the subclass version of free_value() when this
  *   is called.
- *   
+ *
  *   Since this routine deletes each entry and leaves us with an empty list,
  *   it's harmless to call this more than once; each subclass can thus
  *   safely call this from its own destructor, even if it thinks its own
- *   superclass or subclasses might call it as well.  
+ *   superclass or subclasses might call it as well.
  */
 void CTadsGameInfo::free_value_list()
 {
@@ -107,9 +107,9 @@ void CTadsGameInfo::free_value_list()
         /* remember the next one */
         tads_valinfo *nxt = first_val_->nxt;
 
-        /* 
+        /*
          *   delete this one - delete its value string and then the
-         *   structure itself 
+         *   structure itself
          */
         free_value(first_val_->val);
         osfree(first_val_);
@@ -147,9 +147,9 @@ int CTadsGameInfo::read_from_file(const char *fname)
     if ((fp = osfoprb(fname, OSFTGAME)) == 0
         && (fp = osfoprb(fname, OSFTT3IMG)) == 0)
     {
-        /* 
+        /*
          *   we can't open the file, so we obviously can't parse it to find
-         *   game information 
+         *   game information
          */
         return 0;
     }
@@ -166,7 +166,7 @@ int CTadsGameInfo::read_from_file(const char *fname)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Is this a vertical whitespace character?  
+ *   Is this a vertical whitespace character?
  */
 static int is_vspace(wchar_t ch)
 {
@@ -175,13 +175,13 @@ static int is_vspace(wchar_t ch)
 
 /*
  *   Is this a horizontal whitespace character (i.e., any whitespace
- *   character other than a newline character of some kind)?  
+ *   character other than a newline character of some kind)?
  */
 static int is_hspace(wchar_t ch)
 {
-    /* 
+    /*
      *   it's a horizontal whitespace character if it's a whitespace
-     *   character and it's not a vertical whitespace character 
+     *   character and it's not a vertical whitespace character
      */
     return is_space(ch) && !is_vspace(ch);
 }
@@ -189,7 +189,7 @@ static int is_hspace(wchar_t ch)
 /* ------------------------------------------------------------------------ */
 /*
  *   Skip a newline sequence.  We'll skip the longest of the following
- *   sequences we find: CR, LF, CR-LF, LF-CR, 0x2028. 
+ *   sequences we find: CR, LF, CR-LF, LF-CR, 0x2028.
  */
 static void skip_newline(utf8_ptr *p, size_t *rem)
 {
@@ -201,10 +201,10 @@ static void skip_newline(utf8_ptr *p, size_t *rem)
     switch(p->getch())
     {
     case '\n':
-        /* 
+        /*
          *   it's an LF, so skip it and check for a CR; if a CR immediately
          *   follows, consider the entire LF-CR to be a single newline, so
-         *   skip the CR as well 
+         *   skip the CR as well
          */
         p->inc(rem);
         if (*rem != 0 && p->getch() == '\r')
@@ -212,10 +212,10 @@ static void skip_newline(utf8_ptr *p, size_t *rem)
         break;
 
     case '\r':
-        /* 
+        /*
          *   it's a CR, so skip it and check for an LF; if an LF immediately
          *   follows, consider the entire CR-LF to be a single newline, so
-         *   skip the LF as well 
+         *   skip the LF as well
          */
         p->inc(rem);
         if (*rem != 0 && p->getch() == '\n')
@@ -223,11 +223,11 @@ static void skip_newline(utf8_ptr *p, size_t *rem)
         break;
 
     case 0x2028:
-        /* 
+        /*
          *   it's a Unicode line separator character - this indicates a
          *   newline but cannot be used in combination with any other
          *   characters to form multi-character newline sequences, so simply
-         *   skip this one and we're done 
+         *   skip this one and we're done
          */
         p->inc(rem);
         break;
@@ -240,7 +240,7 @@ static void skip_newline(utf8_ptr *p, size_t *rem)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Skip to the start of the next line 
+ *   Skip to the start of the next line
  */
 static void skip_to_next_line(utf8_ptr *p, size_t *rem)
 {
@@ -264,7 +264,7 @@ static void skip_to_next_line(utf8_ptr *p, size_t *rem)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parse a file 
+ *   Parse a file
  */
 int CTadsGameInfo::parse_file(osfildef *fp, unsigned long res_seek_pos,
                               unsigned long res_size)
@@ -273,18 +273,18 @@ int CTadsGameInfo::parse_file(osfildef *fp, unsigned long res_seek_pos,
     tads_valinfo *last_val;
     for (last_val = first_val_ ; last_val != 0 && last_val->nxt != 0 ;
          last_val = last_val->nxt) ;
-    
+
     /* we found the resource - seek to it in the file */
     if (osfseek(fp, res_seek_pos, OSFSK_SET))
         return FALSE;
 
-    /* 
+    /*
      *   Allocate a block of memory for loading the game information.  The
      *   game information resource is typically fairly small, so for
      *   simplicity we'll just allocate a single block of memory and load
      *   the whole resource into the block.  Allocate space for one extra
      *   byte, so that we can ensure we have a newline at the end of the
-     *   buffer.  
+     *   buffer.
      */
     buf_ = (char *)osmalloc(res_size + 1);
     if (buf_ == 0)
@@ -294,11 +294,11 @@ int CTadsGameInfo::parse_file(osfildef *fp, unsigned long res_seek_pos,
     if (osfrb(fp, buf_, res_size))
         return FALSE;
 
-    /* 
+    /*
      *   store an extra newline at the end of the buffer, so that we can be
      *   certain that the last line ends in a newline - at worst, this will
      *   add an extra blank line to the end, but since we ignore blank lines
-     *   this will do no harm 
+     *   this will do no harm
      */
     buf_[res_size++] = '\n';
 
@@ -343,13 +343,13 @@ int CTadsGameInfo::parse_file(osfildef *fp, unsigned long res_seek_pos,
         /* skip the colon and any whitespace immediately after it */
         for (p.inc(&rem) ; rem != 0 && is_hspace(p.getch()) ; p.inc(&rem)) ;
 
-        /* 
+        /*
          *   Whatever terminated the name, replace it with a null character
          *   - this is safe, since we at least have a colon character to
          *   replace, and we've already skipped it so we can overwrite it
          *   now.  A null character in utf-8 is simply a single zero byte,
          *   so we can store our byte directly without worrying about any
-         *   utf-8 multi-byte strangeness.  
+         *   utf-8 multi-byte strangeness.
          */
         *(name_start.getptr() + name_len) = '\0';
 
@@ -365,35 +365,35 @@ int CTadsGameInfo::parse_file(osfildef *fp, unsigned long res_seek_pos,
          *   the next line is a continuation of the current value, and that
          *   the entire sequence of newlines and immediately following
          *   whitespace should be converted to a single space in the value.
-         *   
+         *
          *   Note that we copy the transformed value directly over the old
          *   version of the value in the buffer.  This is safe because the
          *   transformation can only remove characters - we merely collapse
-         *   each newline-whitespace sequence into a single space.  
+         *   each newline-whitespace sequence into a single space.
          */
         while (rem != 0)
         {
             /* get this character */
             wchar_t ch = p.getch();
-            
+
             /* check for a newline */
             if (is_vspace(ch))
             {
-                /* 
+                /*
                  *   it's a newline - skip it (and any other characters in
-                 *   the newline sequence) 
+                 *   the newline sequence)
                  */
                 skip_newline(&p, &rem);
 
-                /* 
+                /*
                  *   if there's no leading whitespace on the next line,
                  *   we've reached the end of this value
                  */
                 if (rem == 0 || !is_hspace(p.getch()))
                 {
-                    /* 
+                    /*
                      *   no whitespace -> end of the value - stop scanning
-                     *   the value 
+                     *   the value
                      */
                     break;
                 }
@@ -402,10 +402,10 @@ int CTadsGameInfo::parse_file(osfildef *fp, unsigned long res_seek_pos,
                 while (rem != 0 && is_hspace(p.getch()))
                     p.inc(&rem);
 
-                /* 
+                /*
                  *   add a single whitespace character to the output for the
                  *   entire sequence of the newline plus the leading
-                 *   whitespace on the line 
+                 *   whitespace on the line
                  */
                 dst.setch(' ');
             }
@@ -427,20 +427,20 @@ int CTadsGameInfo::parse_file(osfildef *fp, unsigned long res_seek_pos,
             }
         }
 
-        /* 
+        /*
          *   Store a null terminator at the end of the value (it's safe to
          *   write this to the buffer because at worst it'll overwrite the
          *   newline at the end of the last line, which we've already
          *   skipped in the source).  Note that we obtain the length of the
          *   value string before storing the null terminator, because we
-         *   don't want to count the null byte in the value's length.  
+         *   don't want to count the null byte in the value's length.
          */
         dst.setch('\0');
 
-        /* 
+        /*
          *   Create a new value list entry.  Point the entry directly into
          *   our buffer, since we're keeping the buffer around as long as
-         *   the value list is around. 
+         *   the value list is around.
          */
         tads_valinfo *val_info =
             (tads_valinfo *)osmalloc(sizeof(tads_valinfo));
@@ -474,11 +474,11 @@ const char *CTadsGameInfo::get_val(const char *name) const
     /* scan our list of value entries for the given name */
     for (tads_valinfo *cur = first_val_ ; cur != 0 ; cur = cur->nxt)
     {
-        /* 
+        /*
          *   If the name matches, return the value for this entry.  Note
          *   that, since the name is always a plain ASCII string, we can
          *   perform a simple byte-by-byte case-insensitive comparison using
-         *   memicmp. 
+         *   memicmp.
          */
         if (cur->name_len == name_len
             && memicmp(cur->name, name, name_len) == 0)
@@ -494,7 +494,7 @@ const char *CTadsGameInfo::get_val(const char *name) const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Enumerate all name/value pairs 
+ *   Enumerate all name/value pairs
  */
 void CTadsGameInfo::enum_values(CTadsGameInfo_enum *cb)
 {
@@ -507,7 +507,7 @@ void CTadsGameInfo::enum_values(CTadsGameInfo_enum *cb)
 /*
  *   Testing routine.  We'll find the game information in a given file, then
  *   display all of the strings.  We'll convert the values to the display
- *   character set before showing them.  
+ *   character set before showing them.
  */
 #ifdef TEST
 #include "charmap.h"
@@ -517,13 +517,13 @@ void CTadsGameInfo::enum_values(CTadsGameInfo_enum *cb)
 /*
  *   name/value pair enumeration interface implementation - this is an
  *   implementation for the testing program that merely displays the
- *   name/value pair on the standard output 
+ *   name/value pair on the standard output
  */
 class CTestEnum: public CTadsGameInfo_enum
 {
 public:
-    /* 
-     *   CTadsGameInfo_enum implementation 
+    /*
+     *   CTadsGameInfo_enum implementation
      */
 
     /* receive a name/value pair in the enumeration */
@@ -535,7 +535,7 @@ public:
 };
 
 /*
- *   main test program entrypoint 
+ *   main test program entrypoint
  */
 int main(int argc, char **argv)
 {
@@ -549,9 +549,9 @@ int main(int argc, char **argv)
     /* get the arguments */
     const char *fname = argv[1];
 
-    /* 
+    /*
      *   set up a game information reader that translates to the default
-     *   local display character set 
+     *   local display character set
      */
     CTadsGameInfo *info = new CTadsGameInfoLocal(argv[0]);
 

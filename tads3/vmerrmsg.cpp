@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -16,7 +16,7 @@ Function
   Defines the message text for VM errors.  All error text is isolated into
   this module for easy replacement in translated versions.
 Notes
-  
+
 Modified
   05/13/00 MJRoberts  - Creation
 */
@@ -31,7 +31,7 @@ Modified
 /*
  *   Enable or disable verbose messages.  To conserve memory, verbose
  *   messages can be omitted.  To omit verbose messages, the platform
- *   makefile should define the preprocessor symbol VMERR_OMIT_VERBOSE. 
+ *   makefile should define the preprocessor symbol VMERR_OMIT_VERBOSE.
  */
 #ifdef VMERR_OMIT_VERBOSE
 # define VMsg(msg) ""
@@ -42,21 +42,21 @@ Modified
 #ifdef VMERR_BOOK_MSG
 # define VBook(msg) , msg
 #else
-# define VBook(msg) 
+# define VBook(msg)
 #endif
 
 /*
  *   To conserve even more memory, the messages can be omitted entirely.  To
- *   disable all compiled-in messages, define VMERR_OMIT_MESSAGES. 
+ *   disable all compiled-in messages, define VMERR_OMIT_MESSAGES.
  */
 
 
 /* ------------------------------------------------------------------------ */
 /*
- *   T3 VM Error Messages 
- *   
+ *   T3 VM Error Messages
+ *
  *   The messages must be sorted by message number, so that we can perform
- *   a binary search to look up a message by number.  
+ *   a binary search to look up a message by number.
  */
 const err_msg_t vm_messages_english[] =
 {
@@ -65,7 +65,7 @@ const err_msg_t vm_messages_english[] =
     { 0, 0, 0  VBook(0) }
 
 #else /* VMERR_OMIT_MESSAGES */
-    
+
     { VMERR_READ_FILE,
     "error reading file",
     VMsg("Error reading file.  The file might be corrupted or a media error "
@@ -323,7 +323,7 @@ const err_msg_t vm_messages_english[] =
          "VM is \"%s\".  This program cannot run with this version of the "
          "VM; you must use a more recent version of the VM to execute this "
          "program.") },
-         
+
     { VMERR_INVAL_METACLASS_DATA,
     "invalid intrinsic class data - image file may be corrupted",
     VMsg("Invalid data were detected in an intrinsic class.  This might "
@@ -545,12 +545,12 @@ const err_msg_t vm_messages_english[] =
     "numeric overflow",
     VMsg("A numeric calculation overflowed the limits of the datatype.") },
 
-    { VMERR_BAD_TYPE_MUL, 
+    { VMERR_BAD_TYPE_MUL,
     "invalid datatypes for multiplication operator",
     VMsg("Invalid datatypes for multiplication operator.  The values "
          "being added cannot be combined in this manner.") },
 
-    { VMERR_BAD_TYPE_DIV, 
+    { VMERR_BAD_TYPE_DIV,
     "invalid datatypes for division operator",
     VMsg("Invalid datatypes for division operator.  The values being added "
          "cannot be combined in this manner.") },
@@ -671,7 +671,7 @@ const err_msg_t vm_messages_english[] =
     { VMERR_MISSING_NAMED_ARG,
     "missing named argument '%s'",
     VMsg("The named argument '%s' was expected in a function or method "
-         "call, but it wasn't provided by the caller.") }, 
+         "call, but it wasn't provided by the caller.") },
 
     { VMERR_BAD_TYPE_CALL,
     "invalid type for call",
@@ -746,7 +746,7 @@ const err_msg_t vm_messages_english[] =
 
     /*
      *   Note - do NOT use the VMsg() macro on this message, since we always
-     *   want to have this verbose message available. 
+     *   want to have this verbose message available.
      */
     { VMERR_NO_CHARMAP_FILE,
     "No mapping file available for local character set \"%.32s\"",
@@ -774,7 +774,7 @@ const err_msg_t vm_messages_english[] =
     "exceptions that terminate the program.  When it can't find "
     "any message for the VM error code, the interpreter simply "
     "displays the error number using this template.") },
-    
+
     { VMERR_EXC_IN_STATIC_INIT,
     "Exception in static initializer for %s.%s: %s",
     VMsg("An exception occurred in the static initializer for "
@@ -859,10 +859,10 @@ const err_msg_t vm_messages_english[] =
 size_t vm_message_count_english =
     sizeof(vm_messages_english)/sizeof(vm_messages_english[0]);
 
-/* 
+/*
  *   the actual message array - we'll initialize this to the
  *   english list that's linked in, but if we find an external message
- *   file, we'll use the external file instead 
+ *   file, we'll use the external file instead
  */
 const err_msg_t *vm_messages = vm_messages_english;
 
@@ -872,6 +872,6 @@ size_t vm_message_count =
 
 /* ------------------------------------------------------------------------ */
 /*
- *   we don't need the VMsg() (verbose message) cover macro any more 
+ *   we don't need the VMsg() (verbose message) cover macro any more
  */
 #undef VMsg

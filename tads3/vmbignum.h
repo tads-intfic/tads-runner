@@ -1,18 +1,18 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmbignum.h - big number metaclass
 Function
-  
+
 Notes
-  
+
 Modified
   02/18/00 MJRoberts  - Creation
 */
@@ -46,34 +46,34 @@ struct CVmBigNumCacheReg
         nxt_ = 0;
     }
 
-    /* 
+    /*
      *   Allocate memory for this register.  Returns true if we had to
      *   allocate memory, false if the register was already at the given
-     *   size. 
+     *   size.
      */
     int alloc_mem(size_t siz)
     {
-        /* 
+        /*
          *   if I'm already at least this large, there's no need to change
-         *   anything 
+         *   anything
          */
         if (siz_ >= siz)
             return FALSE;
 
-        /* 
+        /*
          *   round up the size a bit - this will avoid repeatedly
          *   reallocating at slightly different sizes, which could
          *   fragment the heap quite a bit; we'll use a little more memory
          *   than the caller actually asked for, but if they come back and
          *   ask for slightly more next time, an additional allocation
          *   probably won't be necessary, which will save memory in the
-         *   long run 
+         *   long run
          */
         siz = (siz + 63) & ~63;
 
         /* delete any existing memory */
         free_mem();
-        
+
         /* remember the new size */
         siz_ = siz;
 
@@ -91,7 +91,7 @@ struct CVmBigNumCacheReg
         if (buf_ != 0)
             t3free(buf_);
     }
-    
+
     /* register's buffer */
     char *buf_;
 
@@ -103,19 +103,19 @@ struct CVmBigNumCacheReg
 };
 
 /*
- *   register cache 
+ *   register cache
  */
 class CVmBigNumCache
 {
 public:
     CVmBigNumCache(size_t max_regs);
     ~CVmBigNumCache();
-    
-    /* 
+
+    /*
      *   Allocate a temporary register with a minimum of the given byte
      *   size.  Returns a pointer to the register's buffer, and fills in
      *   '*hdl' with the handle of the register, which must be used to
-     *   release the register.  
+     *   release the register.
      */
     char *alloc_reg(size_t siz, uint *hdl);
 
@@ -125,17 +125,17 @@ public:
     /* release all registers */
     void release_all();
 
-    /* 
+    /*
      *   Get a special dedicated constant value register, reallocating it
      *   to the required precision if it's not already available at the
      *   required precision or greater.  We'll set '*expanded' to true if
-     *   we had to expand the register, false if not.  
+     *   we had to expand the register, false if not.
      */
 
     /* get the constant ln(10) register */
     char *get_ln10_reg(size_t siz, int *expanded)
         { return alloc_reg(&ln10_, siz, expanded); }
-    
+
     /* get the constant ln(2) register */
     char *get_ln2_reg(size_t siz, int *expanded)
         { return alloc_reg(&ln2_, siz, expanded); }
@@ -166,7 +166,7 @@ private:
         /* return the register's buffer */
         return reg->buf_;
     }
-    
+
     /* our register array */
     CVmBigNumCacheReg *reg_;
 
@@ -203,39 +203,39 @@ private:
  *   digits; we store two digits in each byte.  Our bytes are stored from
  *   most significant to least significant, and each byte has the more
  *   significant half in the high part of the byte.
- *   
+ *
  *   UINT2 number_of_digits
  *.  INT2 exponent
  *.  BYTE flags
  *.  BYTE most_significant_byte
  *.  ...
  *.  BYTE least_significant_byte
- *   
+ *
  *   Note that the number of bytes of the varying length mantissa string
  *   is equal to (number_of_digits+1)/2, because one byte stores two
  *   digits.
- *   
+ *
  *   The flags are:
- *   
+ *
  *   (flags & 0x0001) - sign bit; zero->non-negative, nonzero->negative
- *   
+ *
  *   (flags & 0x0006):
  *.  0x0000 -> normal number
  *.  0x0002 -> NOT A NUMBER
  *.  0x0004 -> INFINITY (sign bit indicates sign of infinity)
  *.  0x0006 -> reserved for future use
- *   
+ *
  *   (flags & 0x0008) - zero bit; if set, the number's value is zero
- *   
+ *
  *   All other flag bits are reserved and should be set to zero.
- *   
+ *
  *   The exponent field gives the base-10 exponent of the number.  This is
  *   a signed quantity; a negative value indicates that the mantissa is to
  *   be divided by (10 ^ abs(exponent)), and a positive value indicates
  *   that the mantissa is to be multiplied by (10 ^ exponent).
- *   
+ *
  *   There is an implicit decimal point before the first byte of the
- *   mantissa.  
+ *   mantissa.
  */
 
 /* byte offsets in byte string of various parts */
@@ -257,7 +257,7 @@ private:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Flags for cvt_to_string 
+ *   Flags for cvt_to_string
  */
 
 /* always show a sign, even if positive */
@@ -287,11 +287,11 @@ private:
 /* use European-style formatting */
 #define VMBN_FORMAT_EUROSTYLE     0x0080
 
-/* 
+/*
  *   Use scientific notation if it's more compact, a la C printf 'g' format.
  *   This automatically uses exponent notation if the exponent is less then
  *   -4 or greater than or equal to the number of digits after the decimal
- *   point.  
+ *   point.
  */
 #define VMBN_FORMAT_COMPACT       0x0100
 
@@ -304,7 +304,7 @@ private:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   BigNumber metaclass - intrinsic function vector indices 
+ *   BigNumber metaclass - intrinsic function vector indices
  */
 enum vmobjbn_meta_fnset
 {
@@ -385,7 +385,7 @@ enum vmobjbn_meta_fnset
 
     /* sqrt */
     VMOBJBN_SQRT = 25,
-    
+
     /* natural log */
     VMOBJBN_LN = 26,
 
@@ -420,16 +420,16 @@ enum vmobjbn_meta_fnset
 
 /* ------------------------------------------------------------------------ */
 /*
- *   String formatter output buffer interface. 
+ *   String formatter output buffer interface.
  */
 class IBigNumStringBuf
 {
 public:
-    /* 
+    /*
      *   Get the string buffer to use, given the required string length.  If
      *   it's not possible to get a buffer of the required size, returns
      *   null, in which case the formatter will return failure as well.
-     *   
+     *
      *   The formatter always fills in the first two bytes of the result
      *   buffer with a VMB_LEN length prefix, TADS-string style.  The space
      *   for the two-byte prefix is included in the 'need' value passed.
@@ -469,10 +469,10 @@ public:
             strval->set_nil();
     }
 
-    /* 
+    /*
      *   create with a buffer - uses the buffer if it's big enough, otherwise
      *   allocates a new String object, storing the object in our 'strval'
-     *   member 
+     *   member
      */
     CBigNumStringBufAlo(VMG_ vm_val_t *strval, char *buf, size_t len)
         : CBigNumStringBufFixed(buf, len), strval(strval)
@@ -502,7 +502,7 @@ template <int prec> class bignum_t;
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Big Number metaclass 
+ *   Big Number metaclass
  */
 class CVmObjBigNum: public CVmObject
 {
@@ -527,16 +527,16 @@ public:
     static void init_cache();
     static void term_cache();
 
-    /* 
+    /*
      *   write to a 'data' mode file - returns zero on success, non-zero on
-     *   I/O or other error 
+     *   I/O or other error
      */
     int write_to_data_file(class CVmDataSource *fp);
 
-    /* 
+    /*
      *   Read from a 'data' mode file, creating a new BigNumber object to
      *   hold the result.  Returns zero on success, non-zero on failure.  On
-     *   success, *retval will be filled in with the new BigNumber object.  
+     *   success, *retval will be filled in with the new BigNumber object.
      */
     static int read_from_data_file(
         VMG_ vm_val_t *retval, class CVmDataSource *fp);
@@ -599,18 +599,18 @@ public:
         return id;
     }
 
-    /* 
+    /*
      *   Create from a 64-bit integer in portable little-endian notation.
      *   This is the 64-bit int equivalent of osrp2(), osrp4(), etc - the
      *   name is meant to parallel those names.  The buffer must be stored in
      *   our standard portable format: little-endian, two's complement.
      *   create_rp8() treats the value as unsigned, create_rp8s() treats it
-     *   as signed.  
+     *   as signed.
      */
     static vm_obj_id_t create_rp8(VMG_ int in_root_set, const char *buf);
     static vm_obj_id_t create_rp8s(VMG_ int in_root_set, const char *buf);
 
-    /* 
+    /*
      *   Create from a 64-bit integer expressed as two 32-bit portions.  We
      *   currently only provide an unsigned version, because (a) we don't
      *   have an immediate need for signed, and (b) breaking a signed 64-bit
@@ -633,16 +633,16 @@ public:
     static vm_obj_id_t create_from_ieee754(
         VMG_ int in_root_set, const char *buf, int bits);
 
-    /* 
+    /*
      *   create from a string value, using the precision required to hold the
-     *   value in the string 
+     *   value in the string
      */
     static vm_obj_id_t create(VMG_ int in_root_set,
                               const char *str, size_t len);
 
-    /* 
+    /*
      *   create from a string value in a given radix, using the precision
-     *   required to hold the value in the string 
+     *   required to hold the value in the string
      */
     static vm_obj_id_t create_radix(VMG_ int in_root_set,
                                     const char *str, size_t len, int radix);
@@ -651,17 +651,17 @@ public:
     static int is_bignum_obj(VMG_ vm_obj_id_t obj)
         { return vm_objp(vmg_ obj)->is_of_metaclass(metaclass_reg_); }
 
-    /* 
+    /*
      *   Cast a value to a BigNumber.  We can convert strings, integers, and
      *   of course BigNumber values.  Fills in bnval with the BigNumber
      *   value, which will be newly allocated if the source isn't already a
-     *   BigNumber (in which case bnval is just a copy of srcval).  
+     *   BigNumber (in which case bnval is just a copy of srcval).
      */
     static void cast_to_bignum(VMG_ vm_val_t *bnval, const vm_val_t *srcval);
 
-    /* 
+    /*
      *   Parse a string value into an extension buffer.  If radix is 0, we
-     *   infer the radix using radix_from_string() rules. 
+     *   infer the radix using radix_from_string() rules.
      */
     static void parse_str_into(char *ext, const char *str, size_t len);
     static void parse_str_into(char *ext, const char *str, size_t len,
@@ -671,7 +671,7 @@ public:
     static char *parse_str_alo(size_t &buflen,
                                const char *str, size_t len, int radix);
 
-    /* 
+    /*
      *   Get the precision required to hold the number with the given string
      *   representation.  If radix is 0, we infer the radix using
      *   radix_from_string() rules.
@@ -679,11 +679,11 @@ public:
     static int precision_from_string(const char *str, size_t len);
     static int precision_from_string(const char *str, size_t len, int radix);
 
-    /* 
+    /*
      *   Parse a string to determine its radix.  If the string starts with
      *   '0x' or '0', and contains no decimal point or 'E' exponent
      *   indicator, it's a hex or octal integer, respectively.  Otherwise
-     *   it's a decimal integer or floating point value. 
+     *   it's a decimal integer or floating point value.
      */
     static int radix_from_string(const char *str, size_t len);
 
@@ -702,7 +702,7 @@ public:
     void notify_new_savept() { }
     void apply_undo(VMG_ struct CVmUndoRecord *) { }
     void mark_undo_ref(VMG_ struct CVmUndoRecord *) { }
-    void remove_stale_undo_weak_ref(VMG_ struct CVmUndoRecord *) { }    
+    void remove_stale_undo_weak_ref(VMG_ struct CVmUndoRecord *) { }
 
     /* mark references - we have no references so this does nothing */
     void mark_refs(VMG_ uint) { }
@@ -758,72 +758,72 @@ public:
     /* compare to another value */
     int compare_to(VMG_ vm_obj_id_t /*self*/, const vm_val_t *) const;
 
-    /* 
+    /*
      *   Create a string representation of the number.  We'll use a
      *   default format that uses no more than a maximum number of
      *   characters to represent the string.  We'll avoid exponential
      *   format if possible, but we'll fall back on exponential format if
      *   the non-exponential result would exceed our default maximum
-     *   length.  
+     *   length.
      */
     virtual const char *cast_to_string(VMG_ vm_obj_id_t self,
                                        vm_val_t *new_str) const;
 
     /*
-     *   Explicitly cast to string with a given radix 
+     *   Explicitly cast to string with a given radix
      */
     virtual const char *explicit_to_string(
         VMG_ vm_obj_id_t self, vm_val_t *new_str, int radix, int flags) const;
 
-    /* 
+    /*
      *   Static method to convert big number data to a string.  We'll create
      *   a new string object and store a reference in new_str, returning a
      *   pointer to its data buffer.
-     *   
+     *
      *   max_digits is the maximum number of digits we should produce.  If
      *   our precision is greater than this would allow, we'll round.  If we
      *   have more digits before the decimal point than this would allow,
      *   we'll use exponential notation.
-     *   
+     *
      *   If the flag VMBN_FORMAT_MAXSIG is set, max_digits is taken as the
      *   maximum number of *significant* digits to display. That is, we won't
      *   count leading zeros against the maximum.
-     *   
+     *
      *   whole_places is the number of places before the decimal point that
      *   we should produce.  This is a minimum; if we need more places (and
      *   we're not in exponential notation), we'll take the additional
      *   places.  If, however, we don't manage to fill this quota, we'll pad
      *   with spaces to the left.  We ignore whole_places in exponential
      *   format.
-     *   
+     *
      *   frac_digits is the number of digits after the decimal point that we
      *   should produce.  We'll round if we have more precision than this
      *   would allow, or pad with zeros if we don't have enough precision.
      *   If frac_digits is -1, we will produce as many fractional digits as
      *   we need up to the max_digits limit.
-     *   
+     *
      *   If the VMBN_FORMAT_EXP flag isn't set, we'll format the number
      *   without an exponent as long as we have enough space in max_digits
      *   for the part before the decimal point, and we have enough space in
      *   max_digits and frac_digits that a number with a small absolute value
      *   wouldn't show up as all zeros.
-     *   
+     *
      *   If the VMBN_FORMAT_POINT flag is set, we'll show a decimal point for
      *   all numbers.  Otherwise, if frac_digits is zero, or frac_digits is
      *   -1 and the number has no fractional part, we'll suppress the decimal
      *   point.  This doesn't matter when frac_digits is greater than zero,
      *   or it's -1 and there's a fractional part to display.
-     *   
+     *
      *   If exp_digits is non-zero, it specifies the minimum number of digits
      *   to display in the exponent.  We'll pad with zeros to make this many
      *   digits if necessary.
-     *   
+     *
      *   If lead_fill is provided, it must be a string value.  We'll fill the
      *   string with the characters from this string, looping to repeat the
      *   string if necessary.  If this string isn't provided, we'll use
      *   leading spaces.  This is only needed if the whole_places value
      *   requires us to insert filler.
-     *   
+     *
      *   Note that VMG_ can be passed as VMGNULL_ (null global context) for
      *   the cvt_to_string_buf() functions IF 'new_str' and 'lead_fill' are
      *   null.
@@ -844,18 +844,18 @@ public:
         int max_digits, int whole_places, int frac_digits, int exp_digits,
         ulong flags, const char *lead_fill, size_t lead_fill_len);
 
-    /* 
+    /*
      *   format the value into the given buffer, or into a new String if the
-     *   value overflows the buffer 
+     *   value overflows the buffer
      */
     const char *cvt_to_string_buf(
         VMG_ vm_val_t *new_str, char *buf, size_t buflen, int max_digits,
         int whole_places, int frac_digits, int exp_digits, ulong flags);
-        
 
-    /* 
+
+    /*
      *   format a regular integer value into a buffer as though it were a
-     *   BigNumber value 
+     *   BigNumber value
      */
     static const char *cvt_int_to_string_buf(
         char *buf, size_t buflen, int32_t intval,
@@ -900,22 +900,22 @@ public:
     static void compute_sinhcosh_into(char *dst, const char *src,
                                       int is_cosh, int is_tanh);
 
-    /* 
+    /*
      *   Determine if two values are exactly equal.  If one value has more
      *   precision than the other, we'll implicitly extend the shorter
-     *   value with trailing zeros. 
+     *   value with trailing zeros.
      */
     static int compute_eq_exact(const char *ext1, const char *ext2);
 
-    /* 
+    /*
      *   Determine if two values are equal with rounding.  If one value is
      *   less precise than the other, we'll round the more precise value
      *   to the shorter precision, and compare the shorter number to the
-     *   rounded longer number. 
+     *   rounded longer number.
      */
     static int compute_eq_round(VMG_ const char *ext1, const char *ext2);
 
-    /* 
+    /*
      *   Create a rounded value, rounding to the given precision.  If
      *   always_create is true, we'll create a new number regardless of
      *   whether rounding is required; otherwise, when the caller can
@@ -970,16 +970,16 @@ public:
     /* promote an integer to a BigNumber */
     virtual void promote_int(VMG_ vm_val_t *val) const;
 
-    /* 
+    /*
      *   Convert to an integer value (signed or unsigned).  We set 'ov' to
-     *   true if the value overflows the integer type. 
+     *   true if the value overflows the integer type.
      */
     int32_t convert_to_int(int &ov) const { return ext_to_int(ext_, ov); }
     uint32_t convert_to_uint(int &ov) const;
 
-    /* 
+    /*
      *   convert to integer; sets 'ov' to true if the result doesn't fit an
-     *   int32 
+     *   int32
      */
     static int32_t ext_to_int(const char *ext, int &ov);
 
@@ -1012,7 +1012,7 @@ public:
     double convert_to_double() const { return ext_to_double(ext_); }
     static double ext_to_double(const char *ext);
 
-    /* 
+    /*
      *   Convert to the IEEE 754-2008 binary interchange format with the
      *   given bit size.  These are a portable formats, which are not
      *   necessarily the same as any of the local system's native floating
@@ -1023,19 +1023,19 @@ public:
      *   "double") type.  We assume that the buffer is big enough for the
      *   requested bit size.  We use the standard IEEE format, *except* that
      *   we use little-endian byte order for consistency with the TADS
-     *   pack/unpack formats. 
+     *   pack/unpack formats.
      */
     void convert_to_ieee754(VMG_ char *buf, int bits, int &ov);
 
     /* set the value from an IEEE 754 buffer */
     void set_ieee754_value(VMG_ const char *buf, int bits);
 
-    /* 
+    /*
      *   Write a 64-bit integer representation, using the standard TADS
      *   portable integer format: 8-bit bytes, little-endian, two's
      *   complement.  These are analogous to the osifc routines oswp2(),
      *   oswp2s(), etc., thus the names.
-     *   
+     *
      *   (Why don't we need more osifc routines for these?  Because BigNumber
      *   internal representation is all under the control of the portable
      *   code, and the byte buffer representation is portable as well.  We
@@ -1047,7 +1047,7 @@ public:
      *   ruthlessly efficient on most platforms by directly accessing the
      *   byte structure of the local int type rather than doing a bunch of
      *   arithmetic.  There's no such efficiency gain possible with
-     *   BigNumbers, which aren't native anywhere.)  
+     *   BigNumbers, which aren't native anywhere.)
      */
     void wp8(char *buf, int &ov) const;
     void wp8s(char *buf, int &ov) const;
@@ -1058,7 +1058,7 @@ public:
 protected:
     /* create with no extension */
     CVmObjBigNum();
-    
+
     /* create with a given precision */
     CVmObjBigNum(VMG_ size_t digits);
 
@@ -1077,11 +1077,11 @@ protected:
     /* get the magnitude of the integer conversion, ignoring the sign bit */
     static uint32_t convert_to_int_base(const char *ext, int &ov);
 
-    /* 
+    /*
      *   general string conversion routine
      */
     static const char *cvt_to_string_gen(
-        IBigNumStringBuf *buf, const char *ext, 
+        IBigNumStringBuf *buf, const char *ext,
         int max_digits, int whole_places, int frac_digits, int exp_digits,
         ulong flags, const char *lead_fill, size_t lead_fill_len);
 
@@ -1228,18 +1228,18 @@ protected:
     static void calc_asincos_into(char *new_ext, const char *ext,
                                   int is_acos);
 
-    /* 
+    /*
      *   Calculate the arcsin series expansion; valid only for small
      *   values of x (0 < x < 1/sqrt(2)).  The argument value is in ext1,
-     *   and we return a pointer to the register containing the result.  
+     *   and we return a pointer to the register containing the result.
      */
     static char *calc_asin_series(char *ext1, char *ext2,
                                   char *ext3, char *ext4, char *ext5);
 
-    /* 
+    /*
      *   Compute the ln series expansion.  This is valid only for small
      *   arguments; the argument is in ext1 initially.  Returns a pointer
-     *   to the register containing the result 
+     *   to the register containing the result
      */
     static char *compute_ln_series_into(char *ext1, char *ext2,
                                         char *ext3, char *ext4, char *ext5);
@@ -1262,11 +1262,11 @@ protected:
     static void compute_sum_into(char *new_ext,
                                  const char *ext1, const char *ext2);
 
-    /* 
+    /*
      *   Compute the sum of the absolute values of the operands into the
      *   given buffer.  The result is always positive.  The result buffer
      *   must have a precision at least as large as the larger of the two
-     *   input precisions.  
+     *   input precisions.
      */
     static void compute_abs_sum_into(char *new_ext,
                                      const char *ext1, const char *ext2);
@@ -1280,7 +1280,7 @@ protected:
      *   into the given buffer.  The result is positive if the first value
      *   is larger than the second, negative if the first value is smaller
      *   than the second.  The result buffer must have precision at least
-     *   as large as the larger of the two input precisions.  
+     *   as large as the larger of the two input precisions.
      */
     static void compute_abs_diff_into(char *new_ext,
                                       const char *ext1, const char *ext2);
@@ -1288,14 +1288,14 @@ protected:
     /*
      *   Compute the product of the two values into the given buffer.  The
      *   result buffer must have precision at least as large as the larger
-     *   of the two input precisions.  
+     *   of the two input precisions.
      */
     static void compute_prod_into(char *new_ext,
                                   const char *ext1, const char *ext2);
 
     /*
      *   Compute the quotient of the two values into the given buffer.  If
-     *   new_rem_ext is not null, we'll store the remainder there.  
+     *   new_rem_ext is not null, we'll store the remainder there.
      */
     static void compute_quotient_into(char *new_ext,
                                       char *new_rem_ext,
@@ -1303,14 +1303,14 @@ protected:
 
     /* compare extensions - return 0 if equal, <0 if a<b, >0 if a>b */
     static int compare_ext(const char *a, const char *b);
-    
+
     /*
      *   Compare the absolute values of two numbers.  If the first is
      *   greater than the second, we'll return a positive result.  If the
      *   two are equal, we'll return zero.  If the first is less than the
      *   second, we'll return a negative result.  This routine ignores NAN
      *   and INF values, so the caller must ensure that only ordinary
-     *   numbers are passed to this routine.  
+     *   numbers are passed to this routine.
      */
     static int compare_abs(const char *ext1, const char *ext2);
 
@@ -1342,13 +1342,13 @@ protected:
     /* get the number type */
     static int get_type(const char *ext)
         { return ext[VMBN_FLAGS] & VMBN_F_TYPE_MASK; }
-    
+
     /* set the number type (to a VMBN_T_xxx value) */
     static void set_type(char *ext, int typ)
     {
         /* clear the old number type */
         ext[VMBN_FLAGS] &= ~VMBN_F_TYPE_MASK;
-        
+
         /* set the new number type */
         ext[VMBN_FLAGS] |= typ;
     }
@@ -1359,17 +1359,17 @@ protected:
         /* get the digit pair containing our digit */
         unsigned int pair = ext[VMBN_MANT + i/2];
 
-        /* 
+        /*
          *   If it's an even index, we need the high half.  Otherwise, we
          *   need the low half.
-         *   
+         *
          *   This is a bit tricky, all to avoid a condition branch.  If
          *   the index is even, (i & 1) will be 0, otherwise (i & 1) will
          *   be 1.  So, (1 - (i & 1)) will be 1 if even, 0 if odd.  That
          *   quantity shifted left twice will hence be 4 if the index is
          *   even, 0 if the index is odd.  Thus, we'll shift the pair
          *   right by 4 if the index is even, yielding the high part, or
-         *   shift right by 0 if the index is odd, keeping the low part.  
+         *   shift right by 0 if the index is odd, keeping the low part.
          */
         pair >>= ((1 - (i & 1)) << 2);
 
@@ -1385,12 +1385,12 @@ protected:
         /* make sure our input digit is just a digit */
         dig &= 0x0F;
 
-        /* 
+        /*
          *   If it's an even index, we need to store our digit in the high
          *   half.  Otherwise, we need to store it in the low half.  So,
          *   if we're storing in an even index, shift our number left 4
          *   bits so that it's in the high half of its low byte;
-         *   otherwise, leave the number as-is.  
+         *   otherwise, leave the number as-is.
          */
         dig <<= ((1 - (i & 1)) << 2);
 
@@ -1400,17 +1400,17 @@ protected:
          *   half.  So, we need 0x0F if we're setting the high half (even
          *   index), or 0xF0 if we're setting the low half (odd index).
          *   Use the same trick as above, with the shift sense inverted,
-         *   so generate our mask.  
+         *   so generate our mask.
          */
         mask = (0x0F << ((i & 1) << 2));
-        
+
         /* mask out our part from the pair */
         ext[VMBN_MANT + i/2] &= mask;
 
         /* OR in our digit now that we've masked the place clear */
         ext[VMBN_MANT + i/2] |= (unsigned char)dig;
     }
-    
+
     /* shift mantissa left/right, leaving the exponent unchanged */
     static void shift_left(char *ext, unsigned int shift);
     static void shift_right(char *ext, unsigned int shift);
@@ -1418,13 +1418,13 @@ protected:
     /* multiply a number by a long integer value */
     static void mul_by_long(char *ext, unsigned long val);
 
-    /* 
+    /*
      *   Divide a number by a long integer value.
-     *   
+     *
      *   Important: 'val' must not exceed ULONG_MAX/10.  Our algorithm
      *   computes integer dividends from ext's digits; these can range up to
      *   10*val and have to fit in a ulong, thus the ULONG_MAX/10 limit on
-     *   val.  
+     *   val.
      */
     static void div_by_long(char *ext, unsigned long val,
                             unsigned long *remp = 0);
@@ -1432,9 +1432,9 @@ protected:
     /* divide by 2^32 */
     static void div_by_2e32(char *ext, uint32_t *remainder);
 
-    /* 
+    /*
      *   store the portable 64-bit integer representation of the absolute
-     *   value of this number in the given buffer 
+     *   value of this number in the given buffer
      */
     void wp8abs(char *buf, int &ov) const;
 
@@ -1457,27 +1457,27 @@ protected:
     /* round an extension to the given number of digits */
     static void round_to(char *ext, int digits);
 
-    /* 
+    /*
      *   get the rounding direction for rounding to the given number of
      *   digits: 1 means round up, 0 means round down, so you can simply add
-     *   the return value to the last digit you're keeping 
+     *   the return value to the last digit you're keeping
      */
     static int get_round_dir(const char *ext, int digits);
 
-    /* 
+    /*
      *   round up: add 1 to the least significant digit of the number we're
-     *   keeping (if not specified, we're keep all digits) 
+     *   keeping (if not specified, we're keep all digits)
      */
     static void round_up_abs(char *ext);
     static void round_up_abs(char *ext, int keep_digits);
 
-    /* 
+    /*
      *   copy a value - if the new value has greater precision than the
      *   old value, we'll extend with zeros in the new least significance
      *   digits; if the new value has smaller precision than the old
      *   value, and 'round' is false, we'll simply truncate the value to
      *   the new precision.  If 'round' is true and we're reducing the
-     *   precision, we'll round up the value instead of truncating it.  
+     *   precision, we'll round up the value instead of truncating it.
      */
     static void copy_val(char *dst, const char *src, int round);
 
@@ -1529,9 +1529,9 @@ protected:
     /* check to see if the fractional part is zero */
     static int is_frac_zero(const char *ext);
 
-    /* 
+    /*
      *   check for NAN and INF conditions - returns true if the number is
-     *   a NAN or INF, false if it's an ordinary number 
+     *   a NAN or INF, false if it's an ordinary number
      */
     static int is_nan(const char *ext)
     {
@@ -1553,9 +1553,9 @@ protected:
                          char *ext3, char *ext4, char *ext5,
                          char *ext6, char *ext7);
 
-    /* 
+    /*
      *   given an object number known to refer to a CVmObjBigNum object, get
-     *   the object's extension 
+     *   the object's extension
      */
     static char *get_objid_ext(VMG_ vm_obj_id_t obj_id)
     {
@@ -1563,7 +1563,7 @@ protected:
         return get_objid_obj(vmg_ obj_id)->get_ext();
     }
 
-    /* 
+    /*
      *   given an object number known to refer to a CVmObjBigNum object, get
      *   the object pointer
      */
@@ -1576,27 +1576,27 @@ protected:
     /* allocate a temporary register */
     static char *alloc_temp_reg(size_t prec, uint *hdl);
 
-    /* 
+    /*
      *   Allocate a set of temporary registers; throws an error on
      *   failure.  For each register, there is an additional pair of
      *   arguments: a (char **) to receive a pointer to the register
-     *   memory, and a (uint *) to receive the register handle.  
+     *   memory, and a (uint *) to receive the register handle.
      */
     static void alloc_temp_regs(size_t prec, size_t cnt, ...);
 
-    /* 
+    /*
      *   Release a set of temporary registers.  For each register, there
-     *   is a uint argument giving the handle of the register to release. 
+     *   is a uint argument giving the handle of the register to release.
      */
     static void release_temp_regs(size_t cnt, ...);
 
     /* release a temporary register */
     static void release_temp_reg(uint hdl);
 
-    /* 
+    /*
      *   Get the natural logarithm of 10 to the required precision.  We'll
      *   return the cached value if available, or compute and cache the
-     *   constant to (at least) the required precision if not.  
+     *   constant to (at least) the required precision if not.
      */
     static const char *cache_ln10(size_t prec);
 
@@ -1626,7 +1626,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Registration table object 
+ *   Registration table object
  */
 class CVmMetaclassBigNum: public CVmMetaclass
 {
@@ -1673,7 +1673,7 @@ public:
 template <int prec> class bignum_t
 {
     friend class CVmObjBigNum;
-    
+
 public:
     bignum_t() { init(); }
     bignum_t(long i) { init(); set(i); }
@@ -1683,13 +1683,13 @@ public:
         { init(); set(b); }
     template <int precb> bignum_t(const bignum_t<precb> *b)
         { init(); set(*b); }
-    
-        
+
+
     void set(long i) { CVmObjBigNum::set_int_val(ext, i); }
     void set(double d) { CVmObjBigNum::set_double_val(ext, d); }
     template <int bprec> void set(const bignum_t<bprec> &b)
         { CVmObjBigNum::copy_val(ext, b.ext, TRUE); }
-    
+
     void set(VMG_ const vm_val_t *val)
     {
         CVmObjBigNum *b;
@@ -1717,7 +1717,7 @@ public:
         return CVmObjBigNum::ext_to_double(ext);
     }
 
-    /* 
+    /*
      *   addition operators
      */
     bignum_t operator +(long l) const
@@ -1744,7 +1744,7 @@ public:
     template <int precb> bignum_t &operator +=(bignum_t<precb> b)
         { set(*this + b); return *this; }
 
-    /* 
+    /*
      *   subtraction operators
      */
     bignum_t operator -(long l) const
@@ -1772,7 +1772,7 @@ public:
         { set(*this - b); return *this; }
 
     /*
-     *   Negation 
+     *   Negation
      */
     bignum_t<prec> operator -()
     {
@@ -1781,7 +1781,7 @@ public:
         return result;
     }
 
-    /* 
+    /*
      *   multiplication operators
      */
     bignum_t operator *(long l) const
@@ -1808,7 +1808,7 @@ public:
     template <int precb> bignum_t &operator *=(bignum_t<precb> b)
         { set(*this * b); return *this; }
 
-    /* 
+    /*
      *   division operators
      */
     bignum_t operator /(long l) const
@@ -1835,7 +1835,7 @@ public:
     template <int precb> bignum_t &operator /=(bignum_t<precb> b)
         { set(*this / b); return *this; }
 
-    /* 
+    /*
      *   modulo operators
      */
     bignum_t operator %(long l) const
@@ -1860,7 +1860,7 @@ public:
         { set(*this % b); return *this; }
 
     /*
-     *   formatting 
+     *   formatting
      */
     void format(char *buf, size_t buflen)
     {
@@ -1873,7 +1873,7 @@ public:
             buf, buflen, ext, maxdigits, -1, fracdigits, -1,
             VMBN_FORMAT_POINT, 0, 0);
     }
-                                        
+
 protected:
     void init()
     {
@@ -2064,6 +2064,6 @@ protected:
 #endif /* VMBIGNUM_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjBigNum)

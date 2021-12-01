@@ -1,16 +1,16 @@
 /* $Header: d:/cvsroot/tads/tads3/VMERRNUM.H,v 1.3 1999/07/11 00:46:58 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmerrnum.h - VM error numbers
 Function
-  
+
 Notes
   VM Error Numbers are in the range 1 to 9999.
 Modified
@@ -23,7 +23,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   File errors 
+ *   File errors
  */
 
 /* error reading file */
@@ -65,10 +65,10 @@ Modified
  *   Memory manager errors
  */
 
-/* 
+/*
  *   requested object ID is already allocated to another object (this
  *   generally indicates that an image file or a saved state file contains
- *   invalid data) 
+ *   invalid data)
  */
 #define VMERR_OBJ_IN_USE          201
 
@@ -90,14 +90,14 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Image file errors 
+ *   Image file errors
  */
 
-/* 
+/*
  *   Unsupported metaclass -- the image file requires a metaclass that
  *   this VM implementation does not provide.  This may indicate a version
  *   mismatch (a newer version of the VM is required), or that the image
- *   file is designed for a different host application environment.  
+ *   file is designed for a different host application environment.
  */
 #define VMERR_UNKNOWN_METACLASS   301
 
@@ -106,7 +106,7 @@ Modified
  *   set that this VM implementation does not provide.  This may indicate
  *   a version mismatch (a newer version of the VM is required), or that
  *   the image file is designed for a different host application
- *   environment.  
+ *   environment.
  */
 #define VMERR_UNKNOWN_FUNC_SET    302
 
@@ -167,13 +167,13 @@ Modified
 /* image file has incompatible format: method header too old */
 #define VMERR_IMAGE_INCOMPAT_HDR_FMT 321
 
-/* 
+/*
  *   Unavailable intrinsic function called (index %d in function set "%s")
  *   -- this indicates that a function was invoked in a function set that
  *   provides only a subset of its functions.  This normally can occur
  *   only when running 'preinit' or similar special situations when
  *   intrinsics are resolved on each call rather than during the initial
- *   load. 
+ *   load.
  */
 #define VMERR_UNAVAIL_INTRINSIC   322
 
@@ -216,7 +216,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Network errors 
+ *   Network errors
  */
 
 /* network safety level error (operation prohibited by safety settings) */
@@ -225,7 +225,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Property-related errors 
+ *   Property-related errors
  */
 
 /* this property cannot be set for this object */
@@ -234,7 +234,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Saved state file errors 
+ *   Saved state file errors
  */
 
 /* file is not a valid saved state file */
@@ -384,10 +384,10 @@ Modified
 /* code pointer value required */
 #define VMERR_CODEPTR_VAL_REQD    2039
 
-/* 
+/*
  *   exception object required (the VM threw an error based on an exception
  *   class defined in the bytecode program, but 'new X' didn't yield an
- *   object) 
+ *   object)
  */
 #define VMERR_EXCEPTION_OBJ_REQD  2040
 
@@ -402,7 +402,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Method and function invocation errors 
+ *   Method and function invocation errors
  */
 
 /* wrong number of arguments */
@@ -427,12 +427,12 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Object creation errors 
+ *   Object creation errors
  */
 
-/* 
+/*
  *   cannot create an instance of the object, because the object is not a
- *   class 
+ *   class
  */
 #define VMERR_CANNOT_CREATE_INST  2270
 
@@ -442,7 +442,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   General execution errors 
+ *   General execution errors
  */
 
 /* invalid opcode */
@@ -487,14 +487,14 @@ Modified
 /* exception executing static initializer for %*s.%*s: %s */
 #define VMERR_EXC_IN_STATIC_INIT  2314
 
-/* 
+/*
  *   intrinsic class error (this is used as a fallback when an intrinsic
  *   class wants to throw an imported exception class, but the import
  *   doesn't exist; this doesn't provide any real information, but if the
  *   program doesn't export the required class then it's obviously not set
  *   up to receive any information anyway)
- *   
- *   this exception takes a string describing the error 
+ *
+ *   this exception takes a string describing the error
  */
 #define VMERR_INTCLS_GENERAL_ERROR 2315
 
@@ -506,7 +506,7 @@ Modified
 /*
  *   Debugger interface errors.  These are errors that the debugger throws
  *   in response to the corresponding UI commands, to allow the user some
- *   rough interactive control over execution in the debugger environment. 
+ *   rough interactive control over execution in the debugger environment.
  */
 
 /* abort - abort current command */
@@ -523,11 +523,11 @@ Modified
 
 /* debugger not available */
 #define VMERR_NO_DEBUGGER         2396
-   
+
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Debugger-related errors 
+ *   Debugger-related errors
  */
 
 /* invalid frame (in debug local/parameter operation) */
@@ -541,10 +541,10 @@ Modified
 
 /* image file has no debugging information (must be recompiled) */
 #define VMERR_NO_IMAGE_DBG_INFO   2503
-   
+
 /* ------------------------------------------------------------------------ */
 /*
- *   BigNumber package errors 
+ *   BigNumber package errors
  */
 
 /* out of temporary registers - BigNumber calculation too complex */

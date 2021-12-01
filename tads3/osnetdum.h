@@ -11,7 +11,7 @@ Function
   system.  This should be used on platforms that don't provide TADS
   networking functionality.
 Notes
-  
+
 Modified
   08/11/10 MJRoberts  - Creation
 */

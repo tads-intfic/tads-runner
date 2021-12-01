@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) <year> Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmhttpsrv.cpp - CVmObjHTTPServer object
 Function
-  
+
 Notes
-  
+
 Modified
   04/22/10 MJRoberts  - Creation
 */
@@ -47,7 +47,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Allocate an extension structure 
+ *   Allocate an extension structure
  */
 vm_httpsrv_ext *vm_httpsrv_ext::alloc_ext(
     VMG_ CVmObjHTTPServer *self)
@@ -69,7 +69,7 @@ vm_httpsrv_ext *vm_httpsrv_ext::alloc_ext(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjHTTPServer object statics 
+ *   CVmObjHTTPServer object statics
  */
 
 /* metaclass registration object */
@@ -89,7 +89,7 @@ int (CVmObjHTTPServer::*CVmObjHTTPServer::func_table_[])(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjHTTPServer intrinsic class implementation 
+ *   CVmObjHTTPServer intrinsic class implementation
  */
 
 /*
@@ -102,7 +102,7 @@ CVmObjHTTPServer::CVmObjHTTPServer(VMG_ int)
 }
 
 /*
- *   create dynamically using stack arguments 
+ *   create dynamically using stack arguments
  */
 vm_obj_id_t CVmObjHTTPServer::create_from_stack(
     VMG_ const uchar **pc_ptr, uint argc)
@@ -110,8 +110,8 @@ vm_obj_id_t CVmObjHTTPServer::create_from_stack(
     vm_obj_id_t id;
     const char *errmsg;
 
-    /* 
-     *   parse arguments - new HTTPServer(addr?, port?) 
+    /*
+     *   parse arguments - new HTTPServer(addr?, port?)
      */
     if (argc > 3)
         err_throw(VMERR_WRONG_NUM_OF_ARGS);
@@ -160,9 +160,9 @@ vm_obj_id_t CVmObjHTTPServer::create_from_stack(
         break;
 
     case VM_NET_SAFETY_LOCALHOST:
-        /* 
+        /*
          *   localhost only - if the host isn't 'localhost' or '127.0.0.1',
-         *   don't allow it 
+         *   don't allow it
          */
         if (stricmp(addr, "localhost") != 0
             && stricmp(addr, "127.0.0.1") != 0)
@@ -181,9 +181,9 @@ vm_obj_id_t CVmObjHTTPServer::create_from_stack(
         AFTER_ERR_THROW(break;)
     }
 
-    /* 
+    /*
      *   allocate the object ID - this type of construction never creates a
-     *   root object 
+     *   root object
      */
     id = vm_new_id(vmg_ FALSE, FALSE, FALSE);
 
@@ -222,8 +222,8 @@ vm_obj_id_t CVmObjHTTPServer::create_from_stack(
     return id;
 }
 
-/* 
- *   notify of deletion 
+/*
+ *   notify of deletion
  */
 void CVmObjHTTPServer::notify_delete(VMG_ int /*in_root_set*/)
 {
@@ -237,18 +237,18 @@ void CVmObjHTTPServer::notify_delete(VMG_ int /*in_root_set*/)
             /* tell it to terminate */
             ext->l->shutdown();
 
-            /* 
+            /*
              *   Notify the listener thread that we're being deleted, so that
              *   it can drop its reference on us.  The listener thread object
              *   keeps a reference on us, but it isn't itself a
              *   garbage-collected object, so its reference on us won't
              *   prevent us from being deleted.  We therefore need to
              *   manually remove its reference on us when we're about to be
-             *   deleted.  
+             *   deleted.
              */
             ((TadsHttpListenerThread *)ext->l->get_thread())
                 ->detach_server_obj();
-            
+
             /* we're done with the listener object */
             ext->l->release_ref();
         }
@@ -261,8 +261,8 @@ void CVmObjHTTPServer::notify_delete(VMG_ int /*in_root_set*/)
     }
 }
 
-/* 
- *   set a property 
+/*
+ *   set a property
  */
 void CVmObjHTTPServer::set_prop(VMG_ class CVmUndo *undo,
                                 vm_obj_id_t self, vm_prop_id_t prop,
@@ -272,32 +272,32 @@ void CVmObjHTTPServer::set_prop(VMG_ class CVmUndo *undo,
     err_throw(VMERR_INVALID_SETPROP);
 }
 
-/* 
- *   get a property 
+/*
+ *   get a property
  */
 int CVmObjHTTPServer::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                                vm_obj_id_t self, vm_obj_id_t *source_obj,
                                uint *argc)
 {
     uint func_idx;
-    
+
     /* translate the property into a function vector index */
     func_idx = G_meta_table
                ->prop_to_vector_idx(metaclass_reg_->get_reg_idx(), prop);
-    
+
     /* call the appropriate function */
     if ((this->*func_table_[func_idx])(vmg_ self, retval, argc))
     {
         *source_obj = metaclass_reg_->get_class_obj(vmg0_);
         return TRUE;
     }
-    
+
     /* inherit default handling from our base class */
     return CVmObject::get_prop(vmg_ prop, retval, self, source_obj, argc);
 }
 
-/* 
- *   load from an image file 
+/*
+ *   load from an image file
  */
 void CVmObjHTTPServer::load_from_image(VMG_ vm_obj_id_t self,
                                        const char *ptr, size_t siz)
@@ -305,15 +305,15 @@ void CVmObjHTTPServer::load_from_image(VMG_ vm_obj_id_t self,
     /* load our image data */
     load_image_data(vmg_ ptr, siz);
 
-    /* 
+    /*
      *   save our image data pointer in the object table, so that we can
-     *   access it (without storing it ourselves) during a reload 
+     *   access it (without storing it ourselves) during a reload
      */
     G_obj_table->save_image_pointer(self, ptr, siz);
 }
 
 /*
- *   reload from the image file 
+ *   reload from the image file
  */
 void CVmObjHTTPServer::reload_from_image(VMG_ vm_obj_id_t self,
                                          const char *ptr, size_t siz)
@@ -323,7 +323,7 @@ void CVmObjHTTPServer::reload_from_image(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   load or reload data from the image 
+ *   load or reload data from the image
  */
 void CVmObjHTTPServer::load_image_data(VMG_ const char *ptr, size_t siz)
 {
@@ -336,8 +336,8 @@ void CVmObjHTTPServer::load_image_data(VMG_ const char *ptr, size_t siz)
 }
 
 
-/* 
- *   save to a file 
+/*
+ *   save to a file
  */
 void CVmObjHTTPServer::save_to_file(VMG_ class CVmFile *fp)
 {
@@ -345,8 +345,8 @@ void CVmObjHTTPServer::save_to_file(VMG_ class CVmFile *fp)
     assert(FALSE);
 }
 
-/* 
- *   restore from a file 
+/*
+ *   restore from a file
  */
 void CVmObjHTTPServer::restore_from_file(VMG_ vm_obj_id_t self,
                                          CVmFile *fp, CVmObjFixup *fixups)
@@ -355,7 +355,7 @@ void CVmObjHTTPServer::restore_from_file(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   Shut down the server 
+ *   Shut down the server
  */
 int CVmObjHTTPServer::getp_shutdown(VMG_ vm_obj_id_t self,
                                     vm_val_t *retval, uint *oargc)
@@ -376,7 +376,7 @@ int CVmObjHTTPServer::getp_shutdown(VMG_ vm_obj_id_t self,
     {
         /* add a reference on the listener while we're using it */
         ext->l->add_ref();
-        
+
         /* shut down the server */
         ext->l->shutdown();
 
@@ -384,12 +384,12 @@ int CVmObjHTTPServer::getp_shutdown(VMG_ vm_obj_id_t self,
         if (wait)
             ext->l->get_thread()->wait();
 
-        /* 
+        /*
          *   Return true if the thread is done, nil if it's still running.
          *   The main listener thread waits for all of its launched server
          *   threads to exit before it itself exits, so once the listener
          *   thread is done, we can be sure that all of its launched threads
-         *   are done as well. 
+         *   are done as well.
          */
         retval->set_logical(ext->l->get_thread()->test());
 
@@ -456,7 +456,7 @@ int CVmObjHTTPServer::getp_get_port(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   Get the listener address 
+ *   Get the listener address
  */
 int CVmObjHTTPServer::getp_get_addr(VMG_ vm_obj_id_t self,
                                     vm_val_t *retval, uint *oargc)
@@ -484,7 +484,7 @@ int CVmObjHTTPServer::getp_get_addr(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   Get the listener IP address 
+ *   Get the listener IP address
  */
 int CVmObjHTTPServer::getp_get_ip(VMG_ vm_obj_id_t self,
                                   vm_val_t *retval, uint *oargc)

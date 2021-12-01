@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/OSNOUI.C,v 1.3 1999/07/11 00:46:30 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1997, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -17,7 +17,7 @@ Function
   no UI component and can be implemented in general for a range of
   operating systems.
 Notes
-  
+
 Modified
   04/11/99 CNebel        - Improve const-ness; fix C++ errors.
   11/02/97 MJRoberts  - Creation
@@ -44,7 +44,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Safe strcpy 
+ *   Safe strcpy
  */
 void safe_strcpyl(char *dst, size_t dstlen,
                   const char *src, size_t srclen)
@@ -63,9 +63,9 @@ void safe_strcpyl(char *dst, size_t dstlen,
     if (src == 0)
         src = "";
 
-    /* 
+    /*
      *   figure the copy length - use the smaller of the actual string size
-     *   or the available buffer size, minus one for the null terminator 
+     *   or the available buffer size, minus one for the null terminator
      */
     copylen = srclen;
     if (copylen > dstlen - 1)
@@ -94,28 +94,28 @@ void safe_strcpy(char *dst, size_t dstlen, const char *src)
  *   of course, MS-DOS itself) can use the os_defext and os_remext
  *   routines below by defining USE_DOSEXT.  Unix and VMS filenames will
  *   also be parsed correctly by these implementations, but untranslated
- *   VMS logical names may not be.  
+ *   VMS logical names may not be.
  */
 
 #ifdef USE_DOSEXT
-/* 
+/*
  *   os_defext(fn, ext) should append the default extension ext to the
  *   filename in fn.  It is assumed that the buffer at fn is big enough to
  *   hold the added characters in the extension.  The result should be
  *   null-terminated.  When an extension is already present in the
  *   filename at fn, no action should be taken.  On systems without an
- *   analogue of extensions, this routine should do nothing.  
+ *   analogue of extensions, this routine should do nothing.
  */
 #ifndef OSNOUI_OMIT_OS_DEFEXT
 void os_defext(char *fn, const char *ext)
 {
     char *p;
 
-    /* 
+    /*
      *   Scan backwards from the end of the string, looking for the last
      *   dot ('.') in the filename.  Stop if we encounter a path separator
      *   character of some kind, because that means we reached the start
-     *   of the filename without encountering a period.  
+     *   of the filename without encountering a period.
      */
     p = fn + strlen(fn);
     while (p > fn)
@@ -123,16 +123,16 @@ void os_defext(char *fn, const char *ext)
         /* on to the previous character */
         p--;
 
-        /* 
+        /*
          *   if it's a period, return without doing anything - this
-         *   filename already has an extension, so don't apply a default 
+         *   filename already has an extension, so don't apply a default
          */
         if (*p == '.')
             return;
 
-        /* 
+        /*
          *   if this is a path separator character, we're no longer in the
-         *   filename, so stop looking for a period 
+         *   filename, so stop looking for a period
          */
         if (ispathchar(*p))
             break;
@@ -145,7 +145,7 @@ void os_defext(char *fn, const char *ext)
 #endif
 
 /*
- *   Add an extension, even if the filename currently has one 
+ *   Add an extension, even if the filename currently has one
  */
 #ifndef OSNOUI_OMIT_OS_ADDEXT
 void os_addext(char *fn, const char *ext)
@@ -158,11 +158,11 @@ void os_addext(char *fn, const char *ext)
 }
 #endif
 
-/* 
+/*
  *   os_remext(fn) removes the extension from fn, if present.  The buffer
  *   at fn should be modified in place.  If no extension is present, no
  *   action should be taken.  For systems without an analogue of
- *   extensions, this routine should do nothing.  
+ *   extensions, this routine should do nothing.
  */
 #ifndef OSNOUI_OMIT_OS_REMEXT
 void os_remext(char *fn)
@@ -186,9 +186,9 @@ void os_remext(char *fn)
             return;
         }
 
-        /* 
+        /*
          *   if this is a path separator, there's no extension, so we can
-         *   stop looking 
+         *   stop looking
          */
         if (ispathchar(*p))
             return;
@@ -201,7 +201,7 @@ void os_remext(char *fn)
  *   implementation is included in the ifdef USE_DOSEXT section, since it
  *   seems safe to assume that if a platform has filenames that are
  *   sufficiently DOS-like for the extension parsing routines, the same
- *   will be true of path parsing.  
+ *   will be true of path parsing.
  */
 #ifndef OSNOUI_OMIT_OS_GET_ROOTNAME
 char *os_get_root_name(const char *buf)
@@ -218,37 +218,37 @@ char *os_get_root_name(const char *buf)
         if (ispathchar(*buf))
         {
 #ifdef MSDOS
-            /* 
+            /*
              *   if this is the last character in the name, and it's beyond
              *   the second character, assume it's a device name colon rather
-             *   than a path separator colon 
+             *   than a path separator colon
              */
             if (*buf == ':' && buf > orig + 1 && buf[1] == '\0')
                 continue;
 #endif
 
-            /* 
+            /*
              *   It's a path separators - for now, assume the root will
              *   start at the next character after this separator.  If we
              *   find another separator later, we'll forget about this one
-             *   and use the later one instead.  
+             *   and use the later one instead.
              */
             rootname = buf + 1;
         }
     }
 
-    /* 
+    /*
      *   Return the last root name candidate that we found.  (Cast it to
      *   non-const for the caller's convenience: *we're* not allowed to
      *   modify this buffer, but the caller is certainly free to pass in a
-     *   writable buffer, and they're free to write to it after we return.)  
+     *   writable buffer, and they're free to write to it after we return.)
      */
     return (char *)rootname;
 }
 #endif
 
 /*
- *   Extract the path from a filename 
+ *   Extract the path from a filename
  */
 #ifndef OSNOUI_OMIT_OS_GET_PATH_NAME
 void os_get_path_name(char *pathbuf, size_t pathbuflen, const char *fname)
@@ -257,9 +257,9 @@ void os_get_path_name(char *pathbuf, size_t pathbuflen, const char *fname)
     const char *p;
     size_t len;
     int root_path;
-    
+
 #ifdef MSDOS
-    /* 
+    /*
      *   Special case for DOS/Windows: If we have a bare drive letter, or an
      *   explicit current directory path on a drive letter (X:.), there is no
      *   parent directory.  Our normal algorithm won't catch this because of
@@ -278,7 +278,7 @@ void os_get_path_name(char *pathbuf, size_t pathbuflen, const char *fname)
     /* find the last separator in the filename */
     for (p = fname, lastsep = fname ; *p != '\0' ; ++p)
     {
-        /* 
+        /*
          *   If it's a path separator character, remember it as the last one
          *   we've found so far.  However, don't count it if it's the last
          *   separator - i.e., if only more path separators follow.
@@ -286,7 +286,7 @@ void os_get_path_name(char *pathbuf, size_t pathbuflen, const char *fname)
         if (ispathchar(*p))
         {
             const char *q;
-            
+
             /* skip any immediately adjacent path separators */
             for (q = p + 1 ; *q != '\0' && ispathchar(*q) ; ++q) ;
 
@@ -295,30 +295,30 @@ void os_get_path_name(char *pathbuf, size_t pathbuflen, const char *fname)
                 lastsep = p;
         }
     }
-    
+
     /* get the length of the prefix, not including the separator */
     len = lastsep - fname;
-    
+
     /*
      *   Normally, we don't include the last path separator in the path; for
      *   example, on Unix, the path of "/a/b/c" is "/a/b", not "/a/b/".
      *   However, on Unix/DOS-like file systems, a root path *does* require
      *   the last path separator: the path of "/a" is "/", not an empty
      *   string.  So, we need to check to see if the file is in a root path,
-     *   and if so, include the final path separator character in the path.  
+     *   and if so, include the final path separator character in the path.
      */
     for (p = fname, root_path = TRUE ; p != lastsep ; ++p)
     {
         /*
          *   if this is NOT a path separator character, we don't have all
          *   path separator characters before the filename, so we don't have
-         *   a root path 
+         *   a root path
          */
         if (!ispathchar(*p))
         {
             /* note that we don't have a root path */
             root_path = FALSE;
-            
+
             /* no need to look any further */
             break;
         }
@@ -332,7 +332,7 @@ void os_get_path_name(char *pathbuf, size_t pathbuflen, const char *fname)
     /*
      *   On DOS, we have a special case: if the path is of the form "x:\",
      *   where "x" is any letter, then we have a root filename and we want to
-     *   include the backslash.  
+     *   include the backslash.
      */
     if (lastsep == fname + 2
         && isalpha(fname[0]) && fname[1] == ':' && fname[2] == '\\')
@@ -349,7 +349,7 @@ void os_get_path_name(char *pathbuf, size_t pathbuflen, const char *fname)
     if (len == 1 && *lastsep == ':')
         len = 2;
 #endif
-    
+
     /* make sure it fits in our buffer (with a null terminator) */
     if (len > pathbuflen - 1)
         len = pathbuflen - 1;
@@ -364,7 +364,7 @@ void os_get_path_name(char *pathbuf, size_t pathbuflen, const char *fname)
      *   directory element, it refers to the current working directory on
      *   drive X: (DOS/Win keep a working directory per drive letter).  To
      *   make this more explicit, change it to "X:.", so that we actually
-     *   have the name of a directory.  
+     *   have the name of a directory.
      */
     if (lastsep == fname + 1 && pathbuf[1] == ':' && pathbuflen >= 4)
     {
@@ -376,7 +376,7 @@ void os_get_path_name(char *pathbuf, size_t pathbuflen, const char *fname)
 #endif
 
 /*
- *   Canonicalize a path: remove ".." and "." relative elements 
+ *   Canonicalize a path: remove ".." and "." relative elements
  */
 #if !defined(OSNOUI_OMIT_OS_BUILD_FULL_PATH) && !defined(OSNOUI_OMIT_OS_COMBINE_PATHS)
 void canonicalize_path(char *path)
@@ -387,7 +387,7 @@ void canonicalize_path(char *path)
     char *trimpt = 0;
     int dotcnt = 0;
 
-    /* 
+    /*
      *   First, skip the root element.  This is unremovable.  For Unix, the
      *   root element is simply a leading slash (or series of slashes).  For
      *   DOS/Win, we can also have drive letters and UNC paths (as in
@@ -401,9 +401,9 @@ void canonicalize_path(char *path)
         for (path += 2 ; *path != '\0' && *path != '\\' && *path != '/' ;
              ++path) ;
 
-        /* 
+        /*
          *   further skip to the slash after that, as the drive name is part
-         *   of the root as well 
+         *   of the root as well
          */
         if (*path != '\0')
         {
@@ -425,9 +425,9 @@ void canonicalize_path(char *path)
     /* skip leading slashes */
     for ( ; ispathchar(*path) ; ++path) ;
 
-    /* 
+    /*
      *   if we didn't choose a different trim starting point, trim from after
-     *   the root slashes 
+     *   the root slashes
      */
     if (trimpt == 0)
         trimpt = path;
@@ -456,14 +456,14 @@ void canonicalize_path(char *path)
         }
         else if (ele_len == 2 && ele[0] == '.' && ele[1] == '.')
         {
-            /* 
+            /*
              *   '..' -> parent directory; remove this element and the
              *   previous element.  If there is no previous element, or the
              *   previous element is a DOS drive letter or root path slash,
              *   we can't remove it.  Leaving a '..' at the root level will
              *   result in an invalid path, but it would change the meaning
              *   to remove it, so leave it intact.
-             *   
+             *
              *   There's also a special case if the previous element is
              *   another '..'.  If so, it means this was an unremovable '..',
              *   so we can't do any combining - we need to keep this '..'
@@ -486,20 +486,20 @@ void canonicalize_path(char *path)
                 /* remove the element */
                 memmove(prvele, p, strlen(p) + 1);
 
-                /* 
+                /*
                  *   start the scan over from the beginning; this is a little
                  *   inefficient, but it's the easiest way to ensure
                  *   accuracy, since we'd otherwise have to back up to find
-                 *   the previous element, which can be tricky 
+                 *   the previous element, which can be tricky
                  */
                 p = ele = path;
                 prvele = 0;
             }
             else
             {
-                /* 
+                /*
                  *   no previous element, so keep the .. as it is and move on
-                 *   to the next element 
+                 *   to the next element
                  */
                 prvele = ele;
                 ele = p;
@@ -521,7 +521,7 @@ void canonicalize_path(char *path)
     /*
      *   If that left us with an empty string, and we had one or more "." or
      *   ".."  elements, the "." and ".." elements must have canceled out the
-     *   other elements.  In this case return "." as the result. 
+     *   other elements.  In this case return "." as the result.
      */
     if (orig[0] == '\0' && dotcnt != 0)
     {
@@ -559,10 +559,10 @@ static void build_path(char *fullpathbuf, size_t fullpathbuflen,
         && !(filename[1] == '\\' && filename[1] == '/'))
     {
         const char *p;
-        
-        /* 
+
+        /*
          *   'filename' is a root path without a drive letter.  Determine if
-         *   'path' starts with a drive letter or a UNC path. 
+         *   'path' starts with a drive letter or a UNC path.
          */
         if (isalpha(path[0]) && path[1] == ':')
         {
@@ -572,9 +572,9 @@ static void build_path(char *fullpathbuf, size_t fullpathbuflen,
         else if ((path[0] == '\\' || path[0] == '/')
                  && (path[1] == '\\' || path[1] == '/'))
         {
-            /* 
+            /*
              *   UNC-style name - copy the whole \\MACHINE\PATH part.  Look
-             *   for the first path separator after the machine name... 
+             *   for the first path separator after the machine name...
              */
             for (p = path + 2 ; *p != '\0' && *p != '\\' && *p != '/' ; ++p) ;
 
@@ -587,10 +587,10 @@ static void build_path(char *fullpathbuf, size_t fullpathbuflen,
         }
         else
         {
-            /* 
+            /*
              *   we have a root path on the filename side, but no drive
              *   letter or UNC prefix on the path side, so there's nothing to
-             *   add to the filename 
+             *   add to the filename
              */
             plen = 0;
         }
@@ -616,16 +616,16 @@ static void build_path(char *fullpathbuf, size_t fullpathbuflen,
     if (os_is_file_absolute(filename))
         plen = 0;
 
-    /* 
+    /*
      *   Note whether we need to add a separator.  If the path prefix ends in
      *   a separator, don't add another; otherwise, add the standard system
      *   separator character.
-     *   
+     *
      *   Don't add a separator if the path is completely empty, since this
-     *   simply means that we want to use the current directory.  
+     *   simply means that we want to use the current directory.
      */
     add_sep = (plen != 0 && path[plen] == '\0' && !ispathchar(path[plen-1]));
-    
+
     /* copy the path to the full path buffer, limiting to the buffer length */
     if (plen > fullpathbuflen - 1)
         plen = fullpathbuflen - 1;
@@ -665,7 +665,7 @@ void os_build_full_path(char *fullpathbuf, size_t fullpathbuflen,
 
 /*
  *   Build a combined path, returning the literal combination without
- *   resolving any relative links. 
+ *   resolving any relative links.
  */
 #ifndef OSNOUI_OMIT_OS_COMBINE_PATHS
 void os_combine_paths(char *fullpathbuf, size_t fullpathbuflen,
@@ -680,24 +680,24 @@ void os_combine_paths(char *fullpathbuf, size_t fullpathbuflen,
  *   Determine if a path is absolute or relative.  If the path starts with
  *   a path separator character, we consider it absolute, otherwise we
  *   consider it relative.
- *   
+ *
  *   Note that, on DOS, an absolute path can also follow a drive letter.
  *   So, if the path contains a letter followed by a colon, we'll consider
- *   the path to be absolute. 
+ *   the path to be absolute.
  */
 #ifndef OSNOUI_OMIT_IS_FILE_ABSOLUTE
 int os_is_file_absolute(const char *fname)
 {
 #ifdef MSDOS
-    /* 
+    /*
      *   on DOS, a file is absolute if it starts with a drive letter followed
-     *   by a path separator 
+     *   by a path separator
      */
     if (isalpha(fname[0]) && fname[1] == ':'
         && (fname[2] == '/' || fname[2] == '\\'))
         return TRUE;
 
-    /* 
+    /*
      *   it's also absolute if it starts with a UNC-style path
      *   (\\MACHINE\DRIVE)
      */
@@ -705,7 +705,7 @@ int os_is_file_absolute(const char *fname)
         && (fname[1] == '\\' || fname[1] == '/'))
     {
         const char *p;
-            
+
         /* make sure we have another \ sometime later */
         for (p = fname + 2 ; *p != '\0' && *p != '/' && *p != '\\' ; ++p) ;
         if (*p != '\0')
@@ -726,9 +726,9 @@ int os_is_file_absolute(const char *fname)
 #endif
 
 
-/* 
+/*
  *   path letter/substring comparison; define this according to whether the
- *   local file system is case-sensitive (e.g., Unix) or not (DOS, Windows) 
+ *   local file system is case-sensitive (e.g., Unix) or not (DOS, Windows)
  */
 #if defined(MSDOS)
 # define pathmemcmp(a, b, len) memicmp(a, b, len)
@@ -760,7 +760,7 @@ static const char *oss_parse_volume(const char *path)
  *   Get the relative form of a path name.  Given a base path and a filename,
  *   get the name of the file with its path expressed relative to the base
  *   path, if possible.  Both paths must be in absolute format.
- *   
+ *
  *   For DOS-like systems with drive letters, if the filename and base path
  *   are on different drives, there's no way to express the filename in
  *   relative terms, so we'll return it unchanged.
@@ -785,7 +785,7 @@ int os_get_rel_path(char *result, size_t result_len,
      *   volume level, or the parent of a volume root, which means there's no
      *   way to write a filename in relative terms when it's on a different
      *   volume from the base path.
-     *   
+     *
      *   So: start by checking for a drive/volume prefix.  If both paths have
      *   one (and they both should if the system uses them at all, as both
      *   paths are supposed to be handed to us in absolute format), make sure
@@ -812,10 +812,10 @@ int os_get_rel_path(char *result, size_t result_len,
          pathchareq(*fp, *bp) || (ispathchar(*fp) && ispathchar(*bp)) ;
          ++fp, ++bp)
     {
-        /* 
+        /*
          *   if this is a separator character, note it - we want to keep
          *   track of the last separator in the common portion, since this is
-         *   the end of the common path prefix 
+         *   the end of the common path prefix
          */
         if (ispathchar(*fp) || *fp == '\0')
         {
@@ -864,7 +864,7 @@ int os_get_rel_path(char *result, size_t result_len,
      *   ancestor; then add the rest of the filename path.
      */
 
-    /* 
+    /*
      *   first, set up to copy into the result buffer - leave space for null
      *   termination
      */
@@ -899,7 +899,7 @@ int os_get_rel_path(char *result, size_t result_len,
 
     /*
      *   Copy the remainder of the filename, or as much as will fit, and
-     *   ensure that the result is properly null-terminated 
+     *   ensure that the result is properly null-terminated
      */
     strncpy(rp, fsep, rem);
     rp[rem] = '\0';
@@ -920,7 +920,7 @@ int os_get_rel_path(char *result, size_t result_len,
 
 /*
  *   A port can define USE_TIMERAND if it wishes to randomize from the
- *   system clock.  This should be usable by most ports.  
+ *   system clock.  This should be usable by most ports.
  */
 #ifdef USE_TIMERAND
 # include <time.h>
@@ -928,7 +928,7 @@ int os_get_rel_path(char *result, size_t result_len,
 void os_rand(long *seed)
 {
     time_t t;
-    
+
     time( &t );
     *seed = (long)t;
 }
@@ -940,14 +940,14 @@ static int pathfind(const char *fname, int flen, const char *pathvar,
                     char *buf, size_t bufsiz)
 {
     char   *e;
-    
+
     if ( (e = getenv(pathvar)) == 0 )
         return(0);
     for ( ;; )
     {
         char   *sep;
         size_t  len;
-        
+
         if ( (sep = strchr(e, OSPATHSEP)) != 0 )
         {
             len = (size_t)(sep-e);
@@ -975,9 +975,9 @@ static int pathfind(const char *fname, int flen, const char *pathvar,
  *   Look for a tads-related file in the standard locations and, if the
  *   search is successful, store the result file name in the given buffer.
  *   Return 1 if the file was located, 0 if not.
- *   
+ *
  *   Search the following areas for the file: current directory, program
- *   directory (as derived from argv[0]), and the TADS path.  
+ *   directory (as derived from argv[0]), and the TADS path.
  */
 int os_locate(const char *fname, int flen, const char *arg0,
               char *buf, size_t bufsiz)
@@ -989,39 +989,39 @@ int os_locate(const char *fname, int flen, const char *arg0,
         buf[flen] = 0;
         return(1);
     }
-    
+
     /* Check the program directory */
     if (arg0 && *arg0)
     {
         const char *p;
-        
+
         /* find the end of the directory name of argv[0] */
         for (p = arg0 + strlen(arg0); p > arg0 && !ispathchar(*(p-1)); --p) ;
-        
+
         /* don't bother if there's no directory on argv[0] */
         if (p > arg0)
         {
             size_t  len = (size_t)(p - arg0);
-            
+
             memcpy(buf, arg0, len);
             memcpy(buf+len, fname, flen);
             buf[len+flen] = 0;
             if (osfacc(buf) == 0) return(1);
         }
     }
-    
+
 #ifdef USE_PATHSEARCH
     /* Check TADS path */
     if ( pathfind(fname, flen, "TADS", buf, bufsiz) )
         return(1);
 #endif /* USE_PATHSEARCH */
-    
+
     return(0);
 }
 
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   Define the version of memcmp to use for comparing filename path elements
  *   for equality.  For case-sensitive file systems, use memcmp(); for
  *   systems that ignore case, use memicmp().
@@ -1070,8 +1070,8 @@ static const char *prev_path_ele(const char *start, const char *p,
             *ele_len = (dotdot != 0 ? 2 : 0);
             return dotdot;
         }
-        
-        /* 
+
+        /*
          *   back up through any adjacent path separators before the current
          *   element, so that we're pointing to the first separator after the
          *   previous element
@@ -1080,7 +1080,7 @@ static const char *prev_path_ele(const char *start, const char *p,
 
         /*
          *   If we're at the start of the string, this is an absolute path.
-         *   Treat it specially by returning a zero-length initial element. 
+         *   Treat it specially by returning a zero-length initial element.
          */
         if (p == start)
         {
@@ -1094,16 +1094,16 @@ static const char *prev_path_ele(const char *start, const char *p,
         /* now back up to the path separator before this element */
         for ( ; p != start && !ispathchar(*(p-1)) ; --p) ;
 
-        /* 
+        /*
          *   if this is ".", skip it, since this simply means that this
-         *   element matches the same folder as the previous element 
+         *   element matches the same folder as the previous element
          */
         if (endp - p == 1 && p[0] == '.')
             continue;
 
-        /* 
+        /*
          *   if this is "..", it cancels out the preceding non-relative
-         *   element; up the cancel count and keep searching 
+         *   element; up the cancel count and keep searching
          */
         if (endp - p == 2 && p[0] == '.' && p[1] == '.')
         {
@@ -1129,9 +1129,9 @@ static const char *prev_path_ele(const char *start, const char *p,
             /* this absorbs one level of cancellation */
             --cancel;
 
-            /* 
+            /*
              *   if that's the last cancellation, we've absorbed all ".."
-             *   effects, so the last ".." we found is no longer significant 
+             *   effects, so the last ".." we found is no longer significant
              */
             if (cancel == 0)
                 dotdot = 0;
@@ -1148,7 +1148,7 @@ static const char *prev_path_ele(const char *start, const char *p,
 
 
 /*
- *   Compare two paths for equality 
+ *   Compare two paths for equality
  */
 int os_file_names_equal(const char *a, const char *b)
 {
@@ -1183,17 +1183,17 @@ int os_file_names_equal(const char *a, const char *b)
  *   ISAAC random number generator.  This is a small, fast, cryptographic
  *   quality random number generator that we use internally for some generic
  *   purposes:
- *   
+ *
  *   - for os_gen_temp_filename(), we use it to generate a GUID-style random
  *   filename
- *   
+ *
  *   - for our generic implementation of os_gen_rand_bytes(), we use it as
- *   the source of the random bytes 
+ *   the source of the random bytes
  */
 
-/* 
+/*
  *   include ISAAC if we're using our generic temporary filename generator
- *   with long filenames, or we're using our generic os_gen_rand_bytes() 
+ *   with long filenames, or we're using our generic os_gen_rand_bytes()
  */
 #if !defined(OSNOUI_OMIT_TEMPFILE) && (defined(T_WIN32) || !defined(MSDOS))
 #define INCLUDE_ISAAC
@@ -1205,7 +1205,7 @@ int os_file_names_equal(const char *a, const char *b)
 #ifdef INCLUDE_ISAAC
 /*
  *   ISAAC random number generator implementation, for generating
- *   GUID-strength random temporary filenames 
+ *   GUID-strength random temporary filenames
  */
 #define ISAAC_RANDSIZL   (8)
 #define ISAAC_RANDSIZ    (1<<ISAAC_RANDSIZL)
@@ -1302,9 +1302,9 @@ static void isaac_init(unsigned long *rsl)
     if ((ctx = S_isaacctx) == 0)
         ctx = S_isaacctx = (struct isaacctx *)malloc(sizeof(struct isaacctx));
 
-    /* 
+    /*
      *   If we're already initialized, AND the caller isn't re-seeding with
-     *   explicit data, we're done.  
+     *   explicit data, we're done.
      */
     if (inited && rsl == 0)
         return;
@@ -1321,9 +1321,9 @@ static void isaac_init(unsigned long *rsl)
         isaac_mix(a, b, c, d, e, f, g, h);
     }
 
-    /* 
+    /*
      *   if they sent in explicit initialization bytes, use them; otherwise
-     *   seed the generator with truly random bytes from the system 
+     *   seed the generator with truly random bytes from the system
      */
     if (rsl != 0)
         memcpy(ctx->rsl, rsl, sizeof(ctx->rsl));
@@ -1353,7 +1353,7 @@ static void isaac_init(unsigned long *rsl)
     /* fill in the first set of results */
     isaac_gen_group(ctx);
 
-    /* prepare to use the first set of results */    
+    /* prepare to use the first set of results */
     ctx->cnt = ISAAC_RANDSIZ;
 }
 #endif /* INCLUDE_ISAAC */
@@ -1364,7 +1364,7 @@ static void isaac_init(unsigned long *rsl)
  *   Generic implementation of os_gen_rand_bytes().  This can be used when
  *   the operating system doesn't have a native source of true randomness,
  *   but prefereably only as a last resort - see below for why.
- *   
+ *
  *   This generator uses ISAAC to generate the bytes, seeded by the system
  *   time.  This algorithm isn't nearly as good as using a native OS-level
  *   randomness source, since any decent OS API will have access to
@@ -1385,7 +1385,7 @@ static void isaac_init(unsigned long *rsl)
  *   virtualize the process environment to such an extent that each fresh run
  *   will start with exactly the same initial memory environment, including
  *   the stack address and malloc heap configuration.
- *   
+ *
  *   We make the most of these limited entropy sources by using them to seed
  *   an ISAAC RNG, then generating the returned random bytes via ISAAC.
  *   ISAAC's design as a cryptographic RNG means that it thoroughly mixes up
@@ -1399,7 +1399,7 @@ static void isaac_init(unsigned long *rsl)
  *   problem" dictates that with 12 bits of variation from one run to the
  *   next, we'd have a good chance of seeing a repeat of the *exact same byte
  *   sequence* within about 100 runs.  This is why it's so much better to
- *   customize this routine using a native OS mechanism whenever possible.  
+ *   customize this routine using a native OS mechanism whenever possible.
  */
 #ifdef USE_GENRAND
 
@@ -1415,11 +1415,11 @@ void os_gen_rand_bytes(unsigned char *buf, size_t buflen)
         } o;
     } r;
     void *p, *q;
-    
-    /* 
+
+    /*
      *   Seed ISAAC with what little entropy we have access to in a generic
      *   cross-platform implementation:
-     *   
+     *
      *   - the current wall-clock time
      *.  - the high-precision (millisecond) system timer
      *.  - the current stack pointer
@@ -1427,7 +1427,7 @@ void os_gen_rand_bytes(unsigned char *buf, size_t buflen)
      *.  - whatever garbage is in the random heap pointer from malloc()
      *.  - whatever random garbage is in the rest of our stack buffer 'r'
      *.  - the contents of system registers from 'setjmp'
-     *   
+     *
      *   The millisecond timer is by far the most reliable source of real
      *   entropy we have available.  The wall clock time doesn't vary quickly
      *   enough to produce more than a few bits of entropy from run to run;
@@ -1439,7 +1439,7 @@ void os_gen_rand_bytes(unsigned char *buf, size_t buflen)
      *   process.  Some systems virtualize the memory space such that the
      *   program is always loaded at the same virtual address, always has its
      *   stack at the same virtual address, etc.
-     *   
+     *
      *   Note that we try to add some variability to our malloc heap probing,
      *   first by making the allocation size vary according to the low bits
      *   of the system millisecond timer, then by doing a second allocation
@@ -1455,7 +1455,7 @@ void os_gen_rand_bytes(unsigned char *buf, size_t buflen)
      *   a given timer value, so we're effectively adding f(timer) for some
      *   deterministic function f(), which is the same in terms of additional
      *   real entropy as just adding the timer again, which is the same as
-     *   adding nothing.  
+     *   adding nothing.
      */
     r.r[0] = (unsigned long)time(0);
     r.r[1] = (unsigned long)os_get_sys_clock_ms();
@@ -1482,7 +1482,7 @@ void os_gen_rand_bytes(unsigned char *buf, size_t buflen)
     {
         unsigned long n;
         size_t copylen;
-        
+
         /* generate a number */
         n = isaac_rand();
 
@@ -1501,25 +1501,25 @@ void os_gen_rand_bytes(unsigned char *buf, size_t buflen)
 /* ------------------------------------------------------------------------ */
 /*
  *   Temporary files
- *   
+ *
  *   This default implementation is layered on the normal osifc file APIs, so
  *   our temp files are nothing special: they're just ordinary files that we
  *   put in a special directory (the temp path), and which we count on our
  *   caller to delete before the app terminates (which assumes that the app
  *   terminates normally, AND that our portable caller correctly keeps track
  *   of every temp file it creates and explicitly deletes it).
- *   
+ *
  *   On systems that have native temp file support, you might want to use the
  *   native API instead, since native temp file APIs often have the useful
  *   distinction that they'll automatically delete any outstanding temp files
  *   on application termination, even on crashy exits.  To remove these
  *   default implementations from the build, #define OSNOUI_OMIT_TEMPFILE
- *   in your makefile.  
+ *   in your makefile.
  */
 #ifndef OSNOUI_OMIT_TEMPFILE
 
 /*
- *   Create and open a temporary file 
+ *   Create and open a temporary file
  */
 osfildef *os_create_tempfile(const char *swapname, char *buf)
 {
@@ -1556,7 +1556,7 @@ osfildef *os_create_tempfile(const char *swapname, char *buf)
  *   os_create_tempfile() simply uses osfoprwtb() to open the file, a
  *   temporary file's handle is not any different from any other file
  *   handle - in particular, the OS doesn't automatically delete the file
- *   when closed.  Hence, we need to delete the file explicitly here. 
+ *   when closed.  Hence, we need to delete the file explicitly here.
  */
 int osfdel_temp(const char *fname)
 {
@@ -1574,7 +1574,7 @@ int osfdel_temp(const char *fname)
  *   version, suitable only for platforms that can handle filenames of at
  *   least 45 characters in just the root name portion.  For systems with
  *   short filenames (e.g., MS-DOS, this must use a different algorithm - see
- *   the MSDOS section below for a fairly portable "8.3" implementation.  
+ *   the MSDOS section below for a fairly portable "8.3" implementation.
  */
 int os_gen_temp_filename(char *buf, size_t buflen)
 {
@@ -1586,10 +1586,10 @@ int os_gen_temp_filename(char *buf, size_t buflen)
     /* seed ISAAC with random data from the system */
     isaac_init(0);
 
-    /* 
+    /*
      *   Generate a GUID-strength random filename.  ISAAC is a cryptographic
      *   quality RNG, so the chances of collisions with other filenames
-     *   should be effectively zero. 
+     *   should be effectively zero.
      */
     sprintf(fname, "TADS-%08lx-%08lx-%08lx-%08lx.tmp",
             isaac_rand(), isaac_rand(), isaac_rand(), isaac_rand());
@@ -1607,7 +1607,7 @@ int os_gen_temp_filename(char *buf, size_t buflen)
 /* ------------------------------------------------------------------------ */
 
 /*
- *   print a null-terminated string to osfildef* file 
+ *   print a null-terminated string to osfildef* file
  */
 #ifndef OSNOUI_OMIT_OS_FPRINTZ
 void os_fprintz(osfildef *fp, const char *str)
@@ -1616,9 +1616,9 @@ void os_fprintz(osfildef *fp, const char *str)
 }
 #endif
 
-/* 
+/*
  *   print a counted-length string (which might not be null-terminated) to a
- *   file 
+ *   file
  */
 #ifndef OSNOUI_OMIT_OS_FPRINT
 void os_fprint(osfildef *fp, const char *str, size_t len)
@@ -1631,7 +1631,7 @@ void os_fprint(osfildef *fp, const char *str, size_t len)
 
 #ifdef T_WIN32
 /*
- *   Windows implementation - get the temporary file path. 
+ *   Windows implementation - get the temporary file path.
  */
 void os_get_tmp_path(char *buf)
 {
@@ -1643,7 +1643,7 @@ void os_get_tmp_path(char *buf)
 /*
  *   MS-DOS implementation - Get the temporary file path.  Tries getting
  *   the values of various environment variables that are typically used
- *   to define the location for temporary files.  
+ *   to define the location for temporary files.
  */
 void os_get_tmp_path(char *buf)
 {
@@ -1695,7 +1695,7 @@ void os_get_tmp_path(char *buf)
  *   filenames are limited to short names, we can't pack enough randomness
  *   into a filename to guarantee uniqueness by virtue of randomness alone,
  *   so we cope by actually checking for an existing file for each random
- *   name we roll up, trying again if our selected name is in use.  
+ *   name we roll up, trying again if our selected name is in use.
  */
 int os_gen_temp_filename(char *buf, size_t buflen)
 {
@@ -1705,17 +1705,17 @@ int os_gen_temp_filename(char *buf, size_t buflen)
     time_t timer;
     int pass;
 
-    /* 
+    /*
      *   Fail if our buffer is smaller than OSFNMAX.  os_get_tmp_path()
      *   assumes an OSFNMAX-sized buffer, so we'll have problems if the
-     *   passed-in buffer is shorter than that. 
+     *   passed-in buffer is shorter than that.
      */
     if (buflen < OSFNMAX)
         return FALSE;
 
-    /* 
+    /*
      *   Try a few times with the temporary file path; if we can't find an
-     *   available filename there, try again with the working directory.  
+     *   available filename there, try again with the working directory.
      */
     for (pass = 1 ; pass <= 2 ; ++pass)
     {
@@ -1728,30 +1728,30 @@ int os_gen_temp_filename(char *buf, size_t buflen)
         }
         else
         {
-            /* 
+            /*
              *   second pass - we couldn't find any free names in the system
-             *   temp directory, so try the working directory 
+             *   temp directory, so try the working directory
              */
             buf[0] = '\0';
             len = 0;
         }
-        
+
         /* get the current time, as a basis for a unique identifier */
         time(&timer);
-        
+
         /* try until we find a non-existent filename */
         for (attempt = 0 ; attempt < 100 ; ++attempt)
         {
             /* generate a name based on time and try number */
             sprintf(buf + len, "SW%06ld.%03d",
                     (long)timer % 999999, attempt);
-            
+
             /* check to see if a file by this name already exists */
             if (osfacc(buf))
             {
                 /* the file doesn't exist - try creating it */
                 fp = osfoprwtb(buf, OSFTSWAP);
-                
+
                 /* if that succeeded, return this file */
                 if (fp != 0)
                 {
@@ -1767,7 +1767,7 @@ int os_gen_temp_filename(char *buf, size_t buflen)
             }
         }
     }
-    
+
     /* we couldn't find a free filename - return failure */
     return FALSE;
 }
@@ -1783,7 +1783,7 @@ void os_settype(const char *f, os_filetype_t t)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   URL/local path conversion 
+ *   URL/local path conversion
  */
 
 #if defined(TURBO) || defined(DJGPP) || defined(MICROSOFT) || defined(MSOS2)
@@ -1805,7 +1805,7 @@ static void cvtaddchars(char **dst, size_t *rem, const char *src, size_t len)
 #endif
 
 /*
- *   Convert an OS filename path to a relative URL 
+ *   Convert an OS filename path to a relative URL
  */
 void os_cvt_dir_url(char *result_buf, size_t result_buf_size,
                     const char *src_path)
@@ -1819,7 +1819,7 @@ void os_cvt_dir_url(char *result_buf, size_t result_buf_size,
      *   If there's a DOS/Windows drive letter, start with the drive letter
      *   and leading '\', if present, as a separate path element.  If it's a
      *   UNC-style path, add the UNC \\MACHINE\SHARE as the first element.
-     *   
+     *
      *   In either case, we'll leave the source pointer positioned at the
      *   rest of the path after the drive root or UNC share, which means
      *   we're pointing to the relative portion of the path that follows.
@@ -1834,7 +1834,7 @@ void os_cvt_dir_url(char *result_buf, size_t result_buf_size,
         cvtaddchars(&dst, &rem, src, 2);
         src += 2;
 
-        /* 
+        /*
          *   if it's just "X:" and not "X:\", translate it to "X:." to make
          *   it explicit that we're talking about the working directory on X:
          */
@@ -1846,7 +1846,7 @@ void os_cvt_dir_url(char *result_buf, size_t result_buf_size,
     {
         const char *p;
 
-        /* 
+        /*
          *   UNC-style path.  Find the next separator to get the end of the
          *   machine name.
          */
@@ -1864,14 +1864,14 @@ void os_cvt_dir_url(char *result_buf, size_t result_buf_size,
     /*
      *   Run through the source buffer, copying characters to the output
      *   buffer.  If we encounter a path separator character, replace it with
-     *   a forward slash.  
+     *   a forward slash.
      */
     for ( ; *src != '\0' && rem > 1 ; ++dst, ++src, --rem)
     {
-        /* 
+        /*
          *   If this is a local path separator character, replace it with the
          *   URL-style path separator character.  Otherwise, copy it
-         *   unchanged.  
+         *   unchanged.
          */
         if (strchr(OSPATHURL, *src) != 0)
         {
@@ -1894,7 +1894,7 @@ void os_cvt_dir_url(char *result_buf, size_t result_buf_size,
 }
 
 /*
- *   Convert a relative URL to a relative file system path name 
+ *   Convert a relative URL to a relative file system path name
  */
 #ifndef OSNOUI_OMIT_OS_CVT_URL_DIR
 void os_cvt_url_dir(char *result_buf, size_t result_buf_size,
@@ -1904,8 +1904,8 @@ void os_cvt_url_dir(char *result_buf, size_t result_buf_size,
     const char *src = src_url;
     size_t rem = result_buf_size;
 
-    /* 
-     *   check for an absolute path 
+    /*
+     *   check for an absolute path
      */
 #if defined(TURBO) || defined(DJGPP) || defined(MICROSOFT) || defined(MSOS2)
     if (*src == '/')
@@ -1924,19 +1924,19 @@ void os_cvt_url_dir(char *result_buf, size_t result_buf_size,
         /* check to see if it looks like a UNC-style path */
         is_unc = (src[0] == '\\' && src[1] == '\\');
 
-        /* 
+        /*
          *   if it's a drive letter or UNC path, it's a valid Windows root
          *   path element - copy it exactly, then decode the rest of the path
-         *   as a simple relative path relative to this root 
+         *   as a simple relative path relative to this root
          */
         if (is_drive || is_unc)
         {
             /* it's a drive letter or drive root path - copy it exactly */
             cvtaddchars(&dst, &rem, src, p - src);
 
-            /* 
+            /*
              *   if it's an X:. path, remove the . and the following path
-             *   separator 
+             *   separator
              */
             if (is_drive && p - src == 3 && src[2] == '.')
             {
@@ -1954,7 +1954,7 @@ void os_cvt_url_dir(char *result_buf, size_t result_buf_size,
         }
         else
         {
-            /* 
+            /*
              *   It's not a valid DOS root element, so make this a
              *   non-drive-letter root path, converting the first element as
              *   a directory name.
@@ -1993,9 +1993,9 @@ void os_cvt_url_dir(char *result_buf, size_t result_buf_size,
      */
     for ( ; *src != '\0' && rem > 1 ; ++src, ++dst, --rem)
     {
-        /* 
+        /*
          *   replace slashes with path separators; expand '%' sequences; copy
-         *   all other characters unchanged 
+         *   all other characters unchanged
          */
         if (*src == '/')
         {
@@ -2026,7 +2026,7 @@ void os_cvt_url_dir(char *result_buf, size_t result_buf_size,
 /* ------------------------------------------------------------------------ */
 /*
  *   Service routine for searching - build the full output path name.  (This
- *   is used in the various DOS/Windows builds.)  
+ *   is used in the various DOS/Windows builds.)
  */
 #if defined(TURBO) || defined(DJGPP) || defined(MICROSOFT) || defined(MSOS2)
 
@@ -2060,7 +2060,7 @@ static void oss_build_outpathbuf(char *outpathbuf, size_t outpathbufsiz,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Borland C implementation of directory functions 
+ *   Borland C implementation of directory functions
  */
 #if defined(TURBO) || defined(DJGPP)
 
@@ -2078,7 +2078,7 @@ int os_open_dir(const char *dir, osdirhdl_t *hdl)
     char *pat;
     size_t patsiz;
     struct oss_find_ctx_t *ctx;
-    
+
     /* create a copy of the string with "\*.*" appended */
     patsiz = strlen(dir) + 32;
     pat = (char *)malloc(patsiz);
@@ -2109,7 +2109,7 @@ int os_read_dir(osdirhdl_t hdl, char *buf, size_t buflen)
 {
     /* cast the handle to our private structure */
     struct oss_find_ctx_t *ctx = (struct oss_find_ctx_t *)hdl;
-    
+
     /* if we're out of files, return failure */
     if (!ctx->found)
         return FALSE;
@@ -2157,10 +2157,10 @@ void *os_find_first_file(const char *dir, const char *pattern, char *outbuf,
     const char *lastsep;
     const char *p;
 
-    /* 
+    /*
      *   construct the filename pattern from the directory and pattern
      *   segments, using "*" as the default wildcard pattern if no
-     *   explicit pattern was provided 
+     *   explicit pattern was provided
      */
     strcpy(realpat, dir);
     if ((l = strlen(realpat)) != 0 && realpat[l - 1] != '\\')
@@ -2178,9 +2178,9 @@ void *os_find_first_file(const char *dir, const char *pattern, char *outbuf,
             lastsep = p;
     }
 
-    /* 
+    /*
      *   if we found a separator, the path prefix is everything up to and
-     *   including the separator; otherwise, there's no path prefix 
+     *   including the separator; otherwise, there's no path prefix
      */
     if (lastsep != 0)
     {
@@ -2235,10 +2235,10 @@ void *os_find_first_file(const char *dir, const char *pattern, char *outbuf,
     /* return the directory indication  */
     *isdir = (ctx->ff.ff_attrib & FA_DIREC) != 0;
 
-    /* 
+    /*
      *   return the context - it will be freed later when find-next
      *   reaches the last file or find-close is called to cancel the
-     *   search 
+     *   search
      */
     return ctx;
 }
@@ -2262,12 +2262,12 @@ void *os_find_next_file(void *ctx0, char *outbuf, size_t outbufsiz,
         {
             /* no more files - delete the context and give up */
             free(ctx);
-            
+
             /* return null to indicate that the search is finished */
             return 0;
         }
     } while ((ctx->ff.ff_attrib & (FA_HIDDEN | FA_SYSTEM)) != 0);
-    
+
     /* return the name */
     l = strlen(ctx->ff.ff_name);
     if (l > outbufsiz - 1) l = outbufsiz - 1;
@@ -2281,11 +2281,11 @@ void *os_find_next_file(void *ctx0, char *outbuf, size_t outbufsiz,
     oss_build_outpathbuf(outpathbuf, outpathbufsiz,
                          ctx->path, ctx->ff.ff_name);
 
-    /* 
+    /*
      *   indicate that the search was successful by returning the non-null
      *   context pointer -- the context has been updated for the new
      *   position in the search, so we just return the same context
-     *   structure that we've been using all along 
+     *   structure that we've been using all along
      */
     return ctx;
 }
@@ -2305,7 +2305,7 @@ void os_find_close(void *ctx0)
 #endif /* DEPRECATED */
 
 /*
- *   Time-zone initialization 
+ *   Time-zone initialization
  */
 void os_tzset()
 {
@@ -2315,7 +2315,7 @@ void os_tzset()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Get file attributes 
+ *   Get file attributes
  */
 unsigned long oss_get_file_attrs(const char *fname)
 {
@@ -2342,7 +2342,7 @@ unsigned long oss_get_file_attrs(const char *fname)
 }
 
 /*
- *   Get file status information 
+ *   Get file status information
  */
 int os_file_stat(const char *fname, int follow_links, os_file_stat_t *s)
 {
@@ -2352,7 +2352,7 @@ int os_file_stat(const char *fname, int follow_links, os_file_stat_t *s)
     /* get the file information */
     if (stat(fname, &info))
     {
-        /* 
+        /*
          *   stat() doesn't work for devices; try running through osfmode(),
          *   which does special checks for reserved device names
          */
@@ -2364,7 +2364,7 @@ int os_file_stat(const char *fname, int follow_links, os_file_stat_t *s)
             s->cre_time = 0;
             s->mod_time = 0;
             s->acc_time = 0;
-            
+
             /* success */
             return TRUE;
         }
@@ -2397,7 +2397,7 @@ int os_file_stat(const char *fname, int follow_links, os_file_stat_t *s)
 }
 
 /*
- *   Resolve a symbolic link 
+ *   Resolve a symbolic link
  */
 int os_resolve_symlink(const char *fname, char *target, size_t target_size)
 {
@@ -2410,7 +2410,7 @@ int os_resolve_symlink(const char *fname, char *target, size_t target_size)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Microsoft C implementation of directory functions 
+ *   Microsoft C implementation of directory functions
  */
 #ifdef MICROSOFT
 
@@ -2492,7 +2492,7 @@ void os_close_dir(osdirhdl_t hdl)
 
     /* close the system search handle */
     _findclose(ctx->handle);
-    
+
     /* free the context structure */
     free(hdl);
 }
@@ -2512,7 +2512,7 @@ typedef struct
 } ossfcx;
 
 /*
- *   find first matching file 
+ *   find first matching file
  */
 void *os_find_first_file(const char *dir, const char *pattern, char *outbuf,
                          size_t outbufsiz, int *isdir,
@@ -2524,11 +2524,11 @@ void *os_find_first_file(const char *dir, const char *pattern, char *outbuf,
     size_t path_len;
     const char *lastsep;
     const char *p;
-    
-    /* 
+
+    /*
      *   construct the filename pattern from the directory and pattern
      *   segments, using "*" as the default wildcard pattern if no
-     *   explicit pattern was provided 
+     *   explicit pattern was provided
      */
     strcpy(realpat, dir);
     if ((l = strlen(realpat)) != 0 && realpat[l - 1] != '\\')
@@ -2546,9 +2546,9 @@ void *os_find_first_file(const char *dir, const char *pattern, char *outbuf,
             lastsep = p;
     }
 
-    /* 
+    /*
      *   if we found a separator, the path prefix is everything up to and
-     *   including the separator; otherwise, there's no path prefix 
+     *   including the separator; otherwise, there's no path prefix
      */
     if (lastsep != 0)
     {
@@ -2602,11 +2602,11 @@ void *os_find_first_file(const char *dir, const char *pattern, char *outbuf,
     /* build the full path, if desired */
     oss_build_outpathbuf(outpathbuf, outpathbufsiz,
                          ctx->path, ctx->data.name);
-    
-    /* 
+
+    /*
      *   return the context - it will be freed later when find-next
      *   reaches the last file or find-close is called to cancel the
-     *   search 
+     *   search
      */
     return ctx;
 }
@@ -2631,7 +2631,7 @@ void *os_find_next_file(void *ctx0, char *outbuf, size_t outbufsiz,
             /* no more files - close the search and delete the context */
             _findclose(ctx->handle);
             free(ctx);
-            
+
             /* return null to indicate that the search is finished */
             return 0;
         }
@@ -2650,11 +2650,11 @@ void *os_find_next_file(void *ctx0, char *outbuf, size_t outbufsiz,
     oss_build_outpathbuf(outpathbuf, outpathbufsiz,
                          ctx->path, ctx->data.name);
 
-    /* 
+    /*
      *   indicate that the search was successful by returning the non-null
      *   context pointer -- the context has been updated for the new
      *   position in the search, so we just return the same context
-     *   structure that we've been using all along 
+     *   structure that we've been using all along
      */
     return ctx;
 }
@@ -2663,7 +2663,7 @@ void *os_find_next_file(void *ctx0, char *outbuf, size_t outbufsiz,
 void os_find_close(void *ctx0)
 {
     ossfcx *ctx = (ossfcx *)ctx0;
-    
+
     /* if the search was already cancelled, do nothing */
     if (ctx == 0)
         return;
@@ -2675,7 +2675,7 @@ void os_find_close(void *ctx0)
 #endif /* DEPCRECATED */
 
 /*
- *   Time-zone initialization 
+ *   Time-zone initialization
  */
 void os_tzset()
 {
@@ -2691,7 +2691,7 @@ unsigned long oss_get_file_attrs(const char *fname)
 {
     unsigned long attrs = 0;
     struct _finddata_t ff;
-    
+
     /* get the DOS attribute flags */
     ff.attrib = 0;
 #ifdef T_WIN32
@@ -2726,9 +2726,9 @@ unsigned long oss_get_file_attrs(const char *fname)
      *   from the RDONLY attribute is correct after all.
      */
     {
-        /* 
+        /*
          *   get the file's DACL and owner/group security info; first, ask
-         *   how much space we need to allocate for the returned information 
+         *   how much space we need to allocate for the returned information
          */
         DWORD len = 0;
         SECURITY_INFORMATION info = (SECURITY_INFORMATION)(
@@ -2750,10 +2750,10 @@ unsigned long oss_get_file_attrs(const char *fname)
                     /* impersonate myself for security purposes */
                     ImpersonateSelf(SecurityImpersonation);
 
-                    /* 
+                    /*
                      *   get the security token for the current thread, which
                      *   is the context in which the caller will presumably
-                     *   eventually attempt to access the file 
+                     *   eventually attempt to access the file
                      */
                     if (OpenThreadToken(
                         GetCurrentThread(), TOKEN_ALL_ACCESS, TRUE, &ttok))
@@ -2813,7 +2813,7 @@ unsigned long oss_get_file_attrs(const char *fname)
 
 
 /*
- *   Get file status information 
+ *   Get file status information
  */
 int os_file_stat(const char *fname, int follow_links, os_file_stat_t *s)
 {
@@ -2841,13 +2841,13 @@ int os_file_stat(const char *fname, int follow_links, os_file_stat_t *s)
 }
 
 /*
- *   Resolve a symbolic link 
+ *   Resolve a symbolic link
  */
 int os_resolve_symlink(const char *fname, char *target, size_t target_size)
 {
-    /* 
+    /*
      *   We don't currently support symbolic links.  (We should change this
-     *   to support Windows symlinks and junction points. 
+     *   to support Windows symlinks and junction points.
      */
     //$$$
     return FALSE;
@@ -2859,7 +2859,7 @@ int os_resolve_symlink(const char *fname, char *target, size_t target_size)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Create a directory 
+ *   Create a directory
  */
 #ifdef MSDOS
 
@@ -2872,10 +2872,10 @@ int os_resolve_symlink(const char *fname, char *target, size_t target_size)
 
 int os_mkdir(const char *dir, int create_parents)
 {
-    /* 
+    /*
      *   if we're to create the intermediate parent folders, and the path
      *   contains multiple elements, recursively create the parent
-     *   directories first 
+     *   directories first
      */
     if (create_parents
         && (strchr(dir, ':') != 0
@@ -2899,7 +2899,7 @@ int os_mkdir(const char *dir, int create_parents)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Remove a directory 
+ *   Remove a directory
  */
 #ifdef MSDOS
 
@@ -2919,7 +2919,7 @@ int os_rmdir(const char *dir)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   OS/2 implementation of directory functions 
+ *   OS/2 implementation of directory functions
  */
 #ifdef MSOS2
 
@@ -3026,10 +3026,10 @@ void *os_find_first_file(const char *dir, const char *pattern, char *outbuf,
     const char *lastsep;
     const char *p;
 
-    /* 
+    /*
      *   construct the filename pattern from the directory and pattern
      *   segments, using "*" as the default wildcard pattern if no
-     *   explicit pattern was provided 
+     *   explicit pattern was provided
      */
     strcpy(realpat, dir);
     if ((l = strlen(realpat)) != 0 && realpat[l - 1] != '\\')
@@ -3047,9 +3047,9 @@ void *os_find_first_file(const char *dir, const char *pattern, char *outbuf,
             lastsep = p;
     }
 
-    /* 
+    /*
      *   if we found a separator, the path prefix is everything up to and
-     *   including the separator; otherwise, there's no path prefix 
+     *   including the separator; otherwise, there's no path prefix
      */
     if (lastsep != 0)
     {
@@ -3103,10 +3103,10 @@ void *os_find_first_file(const char *dir, const char *pattern, char *outbuf,
     oss_build_outpathbuf(outpathbuf, outpathbufsiz,
                          ctx->path, ctx->ff.data.name);
 
-    /* 
+    /*
      *   return the context - it will be freed later when find-next
      *   reaches the last file or find-close is called to cancel the
-     *   search 
+     *   search
      */
     return ctx;
 }
@@ -3130,7 +3130,7 @@ void *os_find_next_file(void *ctx0, char *outbuf, size_t outbufsiz,
         {
             /* no more files - delete the context and give up */
             free(ctx);
-            
+
             /* return null to indicate that the search is finished */
             return 0;
         }
@@ -3149,11 +3149,11 @@ void *os_find_next_file(void *ctx0, char *outbuf, size_t outbufsiz,
     oss_build_outpathbuf(outpathbuf, outpathbufsiz,
                          ctx->ff.path, ctx->ff.data.name);
 
-    /* 
+    /*
      *   indicate that the search was successful by returning the non-null
      *   context pointer -- the context has been updated for the new
      *   position in the search, so we just return the same context
-     *   structure that we've been using all along 
+     *   structure that we've been using all along
      */
     return ctx;
 }
@@ -3176,7 +3176,7 @@ void os_find_close(void *ctx0)
 
 #ifdef MSDOS
 /*
- *   Check for a special filename 
+ *   Check for a special filename
  */
 enum os_specfile_t os_is_special_file(const char *fname)
 {

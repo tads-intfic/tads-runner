@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2001, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmrunsym.cpp - runtime symbol table
 Function
-  
+
 Notes
-  
+
 Modified
   02/17/01 MJRoberts  - Creation
 */
@@ -31,13 +31,13 @@ CVmRuntimeSymbols::~CVmRuntimeSymbols()
 {
     vm_runtime_sym *sym;
     vm_runtime_sym *nxt;
-    
+
     /* delete each symbol */
     for (sym = head_ ; sym != 0 ; sym = nxt)
     {
-        /* 
+        /*
          *   remember the next one, since we're deleting our link pointer
-         *   along with the structure 
+         *   along with the structure
          */
         nxt = sym->nxt;
 
@@ -47,13 +47,13 @@ CVmRuntimeSymbols::~CVmRuntimeSymbols()
 }
 
 /*
- *   add a symbol 
+ *   add a symbol
  */
 void CVmRuntimeSymbols::add_sym(const char *sym, size_t len,
                                 const vm_val_t *val)
 {
     vm_runtime_sym *new_sym;
-    
+
     /* allocate a new structure */
     new_sym = (vm_runtime_sym *)t3malloc(osrndsz(
         sizeof(vm_runtime_sym) + len));
@@ -85,11 +85,11 @@ void CVmRuntimeSymbols::add_sym(const char *sym, size_t len,
 }
 
 /*
- *   Add a macro definition 
+ *   Add a macro definition
  */
 vm_runtime_sym *CVmRuntimeSymbols::add_macro(const char *sym, size_t len,
                                              size_t explen,
-                                             unsigned int flags, 
+                                             unsigned int flags,
                                              int argc, size_t arglen)
 {
     /* allocate the structure */
@@ -144,7 +144,7 @@ vm_runtime_sym *CVmRuntimeSymbols::add_macro(const char *sym, size_t len,
 
 
 /*
- *   Find the name for a value 
+ *   Find the name for a value
  */
 const char *CVmRuntimeSymbols::find_val_name(VMG_ const vm_val_t *val,
                                              size_t *name_len) const

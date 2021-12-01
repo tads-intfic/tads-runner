@@ -2,11 +2,11 @@
 $Header: d:/cvsroot/tads/TADS2/TIO.H,v 1.2 1999/05/17 02:52:13 MJRoberts Exp $
 */
 
-/* 
+/*
  *   Copyright (c) 1992, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -49,7 +49,7 @@ typedef struct tiocxdef tiocxdef;
 
 /*
  *   Initialize the output formatter subsystem.  This must be called once
- *   at startup. 
+ *   at startup.
  */
 void out_init(void);
 
@@ -107,10 +107,10 @@ void outflush(void);
 /* reset output state */
 void outreset(void);
 
-/* 
+/*
  *   Get a string from the keyboard.  Returns non-zero if an error occurs
  *   (in particular, if no more input is available from the keyboard),
- *   zero on success.  
+ *   zero on success.
  */
 int getstring(char *prompt, char *buf, int bufl);
 
@@ -129,17 +129,17 @@ int tiologcls(tiocxdef *ctx);
  *   automatically copy text to the log file; any text that the caller
  *   knows should be in the log file during times when more mode is turned
  *   off can be explicitly added with this function.
- *   
+ *
  *   If nl is true, we'll add a newline at the end of this text.  The
  *   caller should not include any newlines in the text being displayed
- *   here.  
+ *   here.
  */
 void out_logfile_print(char *txt, int nl);
 
 
 /*
  *   Check output status.  Indicate whether output is currently hidden,
- *   and whether any hidden output has occurred. 
+ *   and whether any hidden output has occurred.
  */
 void outstat(int *hidden, int *output_occurred);
 
@@ -162,9 +162,9 @@ void tiocapture(tiocxdef *tioctx, mcmcxdef *memctx, int flag);
 /* clear all captured output */
 void tioclrcapture(tiocxdef *tioctx);
 
-/* 
+/*
  *   clear captured output back to a given point -- this can be used to
- *   remove captured output in an inner capture from an enclosing capture 
+ *   remove captured output in an inner capture from an enclosing capture
  */
 void tiopopcapture(tiocxdef *tioctx, uint orig_size);
 
@@ -193,7 +193,7 @@ char *qasgets(char *buf, int bufl);
  *   expansions.  The HTML run-time uses its own expansion mechanism, so
  *   it will ignore this information.  The standard character-mode TADS
  *   run-time, however, uses this information to map HTML entities to the
- *   local character set. 
+ *   local character set.
  */
 void tio_set_html_expansion(unsigned int html_char_val,
                             const char *expansion, size_t expansion_len);
@@ -211,7 +211,7 @@ void out_set_doublespace(int dbl);
  *   Ask for a filename, using a system-defined dialog (via os_askfile) if
  *   possible.  Uses the same interface as os_askfile(), which we will
  *   call directly for graphical implementations.  We'll use formatted
- *   text for text-only implementations.  
+ *   text for text-only implementations.
  */
 int tio_askfile(const char *prompt, char *fname_buf, int fname_buf_len,
                 int prompt_type, os_filetype_t file_type);
@@ -220,7 +220,7 @@ int tio_askfile(const char *prompt, char *fname_buf, int fname_buf_len,
  *   Display a dialog, using a system-defined dialog (via os_input_dialog)
  *   if possible.  Uses the same interface as os_input_dialog(), which we
  *   will call directly for graphical implementations.  We'll use
- *   formatted text for text-only implementations.  
+ *   formatted text for text-only implementations.
  */
 int tio_input_dialog(int icon_id, const char *prompt, int standard_button_set,
                      const char **buttons, int button_count,

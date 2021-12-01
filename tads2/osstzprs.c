@@ -6,7 +6,7 @@ Function
   This routine parses a POSIX-style "TZ" variable, filling in an
   os_tzinfo_t structure for os_get_timezone_info().
 Notes
-  
+
 Modified
   02/13/12 MJRoberts  - Creation
 */
@@ -21,12 +21,12 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Internal service routines 
+ *   Internal service routines
  */
 
-/* 
+/*
  *   parse a time zone name; returns the end of the name; optionally copies
- *   the string to an output buffer 
+ *   the string to an output buffer
  */
 static const char *parse_zone_name(char *dst, size_t dstlen,
                                    const char *p, size_t *len)
@@ -37,9 +37,9 @@ static const char *parse_zone_name(char *dst, size_t dstlen,
         /* skip alphabetics */
         for ( ; *len != 0 && isalpha(*p) ; ++p, --*len)
         {
-            /* 
+            /*
              *   copy to the output if there's room for this character plus a
-             *   null terminator 
+             *   null terminator
              */
             if (dstlen > 1)
                 *dst++ = *p;
@@ -65,7 +65,7 @@ static const char *parse_digits(int *val, const char *p, size_t *len)
     return p;
 }
 
-/* 
+/*
  *   Parse an offset value - [+-]hh[:mm[:ss]]; returns a pointer to the next
  *   character after the parsed offset value, and fills in '*secs' with the
  *   number of seconds represented by the offset value.
@@ -73,7 +73,7 @@ static const char *parse_digits(int *val, const char *p, size_t *len)
 static const char *parse_offset(int *secs, const char *p, size_t *len)
 {
     int sign = 1, hh = 0, mm = 0, ss = 0;
-    
+
     /* check for a sign (which must be followed by a digit) */
     if (*len >= 2 && *p == '+' && isdigit(p[1]))
         ++p, --*len;
@@ -110,7 +110,7 @@ static const char *parse_offset(int *secs, const char *p, size_t *len)
 }
 
 /*
- *   Parse a DST start/end rule 
+ *   Parse a DST start/end rule
  */
 static const char *parse_dst_rule(struct os_tzrule_t *rule,
                                   const char *p, size_t *len)
@@ -150,11 +150,11 @@ static const char *parse_dst_rule(struct os_tzrule_t *rule,
         p = parse_digits(&rule->week, p, len);
         if (rule->week < 1 || rule->week > 5)
             return start;
-        
+
         /* check for the required '.' and a following digit */
         if (*len < 2 || *p != '.' || !isdigit(p[1]))
             return start;
-        
+
         /* parse the day of the week; adjust from 0-6 to our 1-7 range */
         ++p, --*len;
         p = parse_digits(&rule->day, p, len);
@@ -188,7 +188,7 @@ static const char *parse_dst_rule(struct os_tzrule_t *rule,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Parse a "TZ" environment variable string 
+ *   Parse a "TZ" environment variable string
  */
 int oss_parse_posix_tz(struct os_tzinfo_t *info, const char *tz, size_t len,
                        int west_is_positive)
@@ -234,10 +234,10 @@ int oss_parse_posix_tz(struct os_tzinfo_t *info, const char *tz, size_t len,
         /* found a daylight zone name - note it */
         dst_name = p;
         dst_name_len = tz - p;
-        
-        /* 
+
+        /*
          *   check for an optional offset value; if it's not present,
-         *   daylight time is implicitly one hour ahead of standard time 
+         *   daylight time is implicitly one hour ahead of standard time
          */
         p = tz;
         if ((tz = parse_offset(&dst_ofs, tz, &len)) == p)
@@ -270,7 +270,7 @@ int oss_parse_posix_tz(struct os_tzinfo_t *info, const char *tz, size_t len,
         if ((tz = parse_dst_rule(&dst_end, tz, &len)) == p)
             return FALSE;
     }
-    
+
     /* we need to be done now, other than trailing spaces */
     for ( ; len != 0 && isspace(*tz) ; ++tz) ;
     if (len != 0)

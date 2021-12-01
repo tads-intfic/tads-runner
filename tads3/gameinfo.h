@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 2001, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -37,7 +37,7 @@ Modified
 /*
  *   Base game information parser.  This base version, when used directly,
  *   uses UTF-8 encoding for all value strings.  If values are desired in a
- *   different character set, use the CTadsGameInfoLocal subclass.  
+ *   different character set, use the CTadsGameInfoLocal subclass.
  */
 class CTadsGameInfo
 {
@@ -52,7 +52,7 @@ public:
      *   Parse a game file and extract the game information.  Returns FALSE
      *   if there is no game information in the file, the file is not a
      *   valid game file, or any other error occurs.  Returns TRUE on
-     *   success.  
+     *   success.
      */
     int read_from_file(const char *fname);
 
@@ -63,7 +63,7 @@ public:
      */
     int read_from_fp(osfildef *fp);
 
-    /* 
+    /*
      *   Find a value given the value name.  Returns a pointer to a
      *   null-terminated value string, which uses the character set
      *   appropriate to the game information reader; this is UTF-8 for this
@@ -71,8 +71,8 @@ public:
      *   the pointer is valid as long as 'this' is valid - i.e., as long as
      *   'this' isn't deleted.)  Returns null if there is no value with the
      *   given name.
-     *   
-     *   The name is given as an ASCII string and is insensitive to case.  
+     *
+     *   The name is given as an ASCII string and is insensitive to case.
      */
     const char *get_val(const char *name) const;
 
@@ -83,22 +83,22 @@ public:
     void enum_values(class CTadsGameInfo_enum *cb);
 
 protected:
-    /* 
+    /*
      *   Store a value string.  The value is given as UTF-8; the result
      *   should be in the appropriate character set for the subclass.  This
      *   is virtualized to allow subclasses to translate the value's
      *   character set before storing the value.
-     *   
+     *
      *   The given value string is null-terminated, and is in memory managed
      *   by the class and retained as long as the class is valid.
      *   Implementations can thus return the given value string unchanged,
-     *   if desired.  
+     *   if desired.
      */
     virtual const char *store_value(const char *val, size_t len)
     {
         /*
          *   The base version can simply return a reference to the original
-         *   string, since we want to store the values in UTF-8 as given.  
+         *   string, since we want to store the values in UTF-8 as given.
          */
         return val;
     }
@@ -106,7 +106,7 @@ protected:
     /* free a value string previously stored with store_value() */
     virtual void free_value(const char *)
     {
-        /* 
+        /*
          *   The base version doesn't allocate the value strings separately
          *   (it just uses the original pool of strings), so we don't have
          *   to free the strings separately.  We thus simply do nothing.
@@ -119,7 +119,7 @@ protected:
     /* parse the given file data; returns true on success, false on error */
     int parse_file(osfildef *fp, unsigned long res_seek_pos,
                    unsigned long res_size);
-    
+
     /* buffer containing the contents of the game information */
     char *buf_;
 
@@ -133,7 +133,7 @@ protected:
  *   the local character set, rather than in utf-8.  By default, we use the
  *   local display character set as specified by os_get_charmap(), but the
  *   caller can specify a character set explicitly by name, or by giving us
- *   a character mapper object.  
+ *   a character mapper object.
  */
 class CTadsGameInfoLocal: public CTadsGameInfo
 {
@@ -159,10 +159,10 @@ protected:
 
     /* initialize from a named character mapping */
     void init(const char *argv0, const char *charset_name);
-    
-    /* 
+
+    /*
      *   our unicode-to-local character mapper, for the local character set
-     *   methods; this is null if we haven't had a need for it yet 
+     *   methods; this is null if we haven't had a need for it yet
      */
     class CCharmapToLocal *local_mapper_;
 };
@@ -171,7 +171,7 @@ protected:
 
 /*
  *   Enumerator interface.  This interface must be implemented in order to
- *   call CTadsGameInfo::enum_values().  
+ *   call CTadsGameInfo::enum_values().
  */
 class CTadsGameInfo_enum
 {
@@ -182,11 +182,11 @@ public:
      *   null-terminated string giving the value text.  The value string
      *   will be encoded in the character set which the GameInfo reader is
      *   using.
-     *   
+     *
      *   The name and value pointers refer to memory managed as part of the
      *   CTadsGameInfo object doing the enumerating.  The memory to which
      *   these pointers refer is valid as long as the CTadsGameInfo object
-     *   is valid (i.e., until it's deleted).  
+     *   is valid (i.e., until it's deleted).
      */
     virtual void tads_enum_game_info(const char *name, const char *val) = 0;
 };

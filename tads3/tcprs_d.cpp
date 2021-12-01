@@ -8,19 +8,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   [OBSOLETE] tcprs_d.cpp - stubs for parser functions not needed in debugger
 Function
-  
+
 Notes
-  
+
 Modified
   02/02/00 MJRoberts  - Creation
 */
@@ -44,14 +44,14 @@ void CTPNStmBase::add_debug_line_rec(CTcTokFileDesc *, long)
 }
 
 /*
- *   Anonymous functions are illegal in the debugger 
+ *   Anonymous functions are illegal in the debugger
  */
 CTcPrsNode *CTcPrsOpUnary::parse_anon_func(
     int /*short_form*/, int /*is_method*/)
 {
-    /* 
+    /*
      *   we can't parse these - generate an error, consume the token, and
-     *   return failure 
+     *   return failure
      */
     G_tok->log_error(TCERR_DBG_NO_ANON_FUNC);
     G_tok->next();
@@ -60,7 +60,7 @@ CTcPrsNode *CTcPrsOpUnary::parse_anon_func(
 
 /*
  *   local contexts aren't needed in the debugger, because anonymous
- *   functions aren't allowed 
+ *   functions aren't allowed
  */
 void CTcParser::init_local_ctx()
 {
@@ -77,7 +77,7 @@ void CTPNStmObjectBase::add_implicit_constructor()
 
 /*
  *   Add an entry to the global symbol table.  We can't define new global
- *   symbols in an interactive debug session, so this does nothing.  
+ *   symbols in an interactive debug session, so this does nothing.
  */
 void CTcPrsSymtab::add_to_global_symtab(CTcPrsSymtab *, CTcSymbol *)
 {

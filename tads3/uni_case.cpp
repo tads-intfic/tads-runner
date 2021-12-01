@@ -1,35 +1,35 @@
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 
 /*
  *   Unicode Case Mapping Generator
- *   
+ *
  *   Read the Unicode character database files, and use the information in
  *   the file to generate C++ source code for functions that perform
  *   lower-to-upper and upper-to-lower case mapping and character
  *   classifications for upper-case, lower-case, alphabetic, and numeric
  *   characters.
- *   
+ *
  *   We read the following files:
- *   
+ *
  *.     UnicodeData.txt - the main character database file
  *.     SpecialCasing.txt - special upper/lower case conversions
  *.     CaseFolding.txt - case folding table
- *   
+ *
  *   The command line must provide the path prefix to the Unicode source
  *   files, in a format where we can simply append the filenames to the
  *   prefix to get the full path.  E.g., on Windows, specify "unidata\", on
  *   Unix "unidata/".
- *   
+ *
  *   We generate our tables as a two-level array, since the mappings are
  *   sparse (i.e., the majority of character positions have no mappings,
  *   because they do not contain letters or contain letters with no case
  *   conversions).
- *   
+ *
  *   The size of the lower-level array page can be set via the CASE_PAGE_SIZE
  *   macro defined below.  This value is arbitrary, but it's probably most
  *   efficient to choose a power of two so that the compiler can generate
@@ -45,12 +45,12 @@
  *   with a few values of CASE_PAGE_SIZE (powers of two from 32 to 2048 are
  *   good things to try) to find an efficient size.  As of this writing, the
  *   value chosen below seems to produce the smallest overall table data.
- *   
+ *
  *   THE UNICODE CHARACTER LISTING SOURCE FILE IS NOT PART OF THE T3
  *   DISTRIBUTION.  Obtain the character listing file from the Unicode web
  *   site at:
- *   
- *   ftp://ftp.unicode.org/Public/UNIDATA/UnicodeData-Latest.txt 
+ *
+ *   ftp://ftp.unicode.org/Public/UNIDATA/UnicodeData-Latest.txt
  */
 
 #include <stdio.h>
@@ -58,7 +58,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
-   
+
 #include "vmuni.h"
 
 #define TRUE 1
@@ -121,9 +121,9 @@ static void get_multihex_field(char **p, unsigned long *val, size_t valcnt)
         /* if we're out of space, flag an error */
         if (valcnt <= 1)
         {
-            /* 
+            /*
              *   not very good diagnostics, but it should never happen; if it
-             *   ever does we can upgrade this as needed 
+             *   ever does we can upgrade this as needed
              */
             printf("#error get_multihex_field() value too long!\n");
             exit(1);
@@ -171,9 +171,9 @@ static void get_str_field(char **p, char *dst, size_t dstlen)
     /* skip leading spaces */
     for ( ; isspace(**p) ; ++(*p)) ;
 
-    /* 
+    /*
      *   find the end of the field, copying characters as we go (up to the
-     *   result buffer size) 
+     *   result buffer size)
      */
     for ( ; **p != '\0' && **p != ';' ; ++(*p))
     {
@@ -274,9 +274,9 @@ static int page_has_cases(int pg)
     return FALSE;
 }
 
-/* 
+/*
  *   allocate a wchar_t string from a string of 32-bit characters; if the
- *   string contains any invalid characters, we'll fail and return null 
+ *   string contains any invalid characters, we'll fail and return null
  */
 static wchar_t *alloc_wstr(const unsigned long *s, size_t len)
 {
@@ -319,7 +319,7 @@ static int wstr_len(const wchar_t *s)
 {
     if (s == 0)
         return 0;
-    
+
     int l;
     for (l = 0 ; *s != 0 ; ++s, ++l);
     return l;
@@ -363,7 +363,7 @@ static int copy_case_exp(wchar_t *caseexp, int &caseofs, const wchar_t *str)
 }
 
 /*
- *   Main entrypoint 
+ *   Main entrypoint
  */
 int main(int argc, char **argv)
 {
@@ -408,7 +408,7 @@ int main(int argc, char **argv)
     /* process the file */
     for (chardef *prv = 0 ; ; )
     {
-        
+
         /* read the next line; stop at EOF */
         char buf[256];
         if (fgets(buf, sizeof(buf), fp) == 0)
@@ -419,7 +419,7 @@ int main(int argc, char **argv)
 
         /* start parsing at the beginning of the buffer */
         char *p = buf;
-        
+
         /* read the fields */
         unsigned long ch, upper, lower, title;
         unsigned int decimal_val, digit_val, combining;
@@ -441,12 +441,12 @@ int main(int argc, char **argv)
         get_hex_field(&p, &lower);
         get_hex_field(&p, &title);
 
-        /* 
+        /*
          *   If the character code is zero, it means either that this is the
          *   null character definition or that this is a comment line or a
          *   blank line - ignore all of these cases.  If the character is
          *   over 0xffff, ignore it as well, since we only handle the "base
-         *   multilingual plane" characters, in range 0-ffff. 
+         *   multilingual plane" characters, in range 0-ffff.
          */
         if (ch == 0 || ch > 0xffff)
             continue;
@@ -473,14 +473,14 @@ int main(int argc, char **argv)
                 break;
 
             case 't':
-                /* 
+                /*
                  *   title-case letter (actually, letters - I'm pretty sure
                  *   these are all ligatures of an upper-case and lower-case
-                 *   letter) 
+                 *   letter)
                  */
                 cd->attr = T3_CTYPE_TITLE;
                 break;
-                
+
             case 'l':
                 /* lower-case letter */
                 cd->attr = T3_CTYPE_LOWER;
@@ -511,10 +511,10 @@ int main(int argc, char **argv)
             break;
 
         case 'C':
-            /* 
+            /*
              *   Control character - check the bidi class to see if it's a
              *   spacing character of some kind.
-             *   
+             *
              *.     WS - ordinary horizontal whitespace
              *.     S - horizontal separator (tab, etc); counts as whitespace
              *.     B - vertical whitespace (CR, LF, etc)
@@ -556,7 +556,7 @@ int main(int argc, char **argv)
         /*
          *   If the name ends in "last>", and the previous item's name ends
          *   in "first>", we have a range of identical character definitions.
-         *   Repeat the attributes over the range. 
+         *   Repeat the attributes over the range.
          */
         if (prv != 0 && cd->name_ends_with(", last>")
             && prv->name_ends_with(", first>"))
@@ -611,9 +611,9 @@ int main(int argc, char **argv)
         if (cond[0] != '\0')
             continue;
 
-        /* 
+        /*
          *   set the updated case conversion fields; omit self-references to
-         *   save space 
+         *   save space
          */
         chardef *cd = &ctab[ch];
         if (keep_case(lower, ch))
@@ -658,7 +658,7 @@ int main(int argc, char **argv)
         /* get the character table entry */
         chardef *cd = &ctab[ch];
 
-        /* 
+        /*
          *   If it's a "simple" folding, skip it, but verify our assumption
          *   that all simple foldings are identical to the single-character
          *   lower-case conversion in the main UnicodeData.txt table.  At
@@ -684,14 +684,14 @@ int main(int argc, char **argv)
             continue;
         }
 
-        /* 
+        /*
          *   if it's a Common entry, it counts as both a Simple and Full
-         *   folding - mark the entry as having a Simple folding 
+         *   folding - mark the entry as having a Simple folding
          */
         if (status[0] == 'C')
             cd->has_simple_folding = TRUE;
 
-        /* 
+        /*
          *   Ignore the Turkic-only folding rules.  We don't currently have a
          *   mechanism to select rules by language, so we can't use these.
          */
@@ -701,8 +701,8 @@ int main(int argc, char **argv)
         /* store it */
         cd->fold = alloc_wstr(fold, countof(fold));
     }
-    
-    /* 
+
+    /*
      *   Generate the character type table.  We only have 9 character types
      *   currently, so a character type fits in 4 bits; we can thus pack two
      *   types in a byte.  So pack each pair of characters, with the even
@@ -731,7 +731,7 @@ int main(int argc, char **argv)
     /*
      *   Build the case conversion tables.  Break these up into pages, since
      *   the case conversions are only used sparsely.
-     *   
+     *
      *   Each case conversion entry is a 16-bit offset into the case
      *   expansion array, which consists of null-terminated strings of
      *   wchar_t's (explicitly as uint16's, since we don't currently support
@@ -746,11 +746,11 @@ int main(int argc, char **argv)
      */
     wchar_t *caseexp = new wchar_t[65536];
 
-    /* 
+    /*
      *   start the table with a null - we use index 0 to mean null, so we'll
      *   never point anything here, and in addition we want to ensure there's
      *   a null character before the start of each entry, so zeroing this
-     *   element satisfies both purposes 
+     *   element satisfies both purposes
      */
     caseexp[0] = 0;
 
@@ -775,14 +775,14 @@ int main(int argc, char **argv)
             chardef *ch = &ctab[i*PAGE_SIZE];
             for (int j = 0 ; j < PAGE_SIZE ; ++j, ++ch)
             {
-                /* 
+                /*
                  *   Check our assumption that all lower-case mappings are
                  *   single characters, with a single exception (see below).
                  *   The reason we make this assumption is that it allows us
                  *   to use the lower mapping as the simple case folding, so
                  *   that we don't have to store a separate field (and more
                  *   data) for the simple folding.
-                 *   
+                 *
                  *   U+0130, capital I with dot above, is the only entry in
                  *   the current database that violates this assumption.  It
                  *   does so because the regular lower case i already has a
@@ -811,7 +811,7 @@ int main(int argc, char **argv)
                 /*
                  *   Now verify our second assumption, that any character
                  *   with a simple single-character lower-case mapping has a
-                 *   simple case folding. 
+                 *   simple case folding.
                  */
                 if (ch->lower != 0 && ch->lower[0] != 0 && ch->lower[1] == 0
                     && !ch->has_simple_folding)
@@ -823,7 +823,7 @@ int main(int argc, char **argv)
                 lower = copy_case_exp(caseexp, caseofs, ch->lower);
                 title = copy_case_exp(caseexp, caseofs, ch->title);
 
-                /* 
+                /*
                  *   in many cases (most, actually), the title and upper
                  *   strings are identical - if so, point them both to the
                  *   same table entry to save space
@@ -843,7 +843,7 @@ int main(int argc, char **argv)
                     fold = lower;
                 else
                     fold = copy_case_exp(caseexp, caseofs, ch->fold);
-                
+
                 printf("    { 0x%04x, 0x%04x, 0x%04x, 0x%04x }%c"
                        "  /* %04x %s */\n",
                        lower, title, upper, fold,
@@ -913,10 +913,10 @@ int main(int argc, char **argv)
            "}\n\n",
            PAGE_SHIFT, PAGE_MASK);
 
-    /* 
+    /*
      *   Make a note of the total data size.  Count the page data plus the
      *   4-byte pointers to the tables (the null pointers count in the
-     *   master page table, too, of course). 
+     *   master page table, too, of course).
      */
     printf("/* total static data size (%d-bit pointers) = %d bytes */\n",
            POINTER_BYTES*4, data_size);

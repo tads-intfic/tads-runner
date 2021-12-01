@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2010 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmhttpreq.cpp - CVmObjHTTPRequest object
 Function
-  
+
 Notes
-  
+
 Modified
    MJRoberts  - Creation
 */
@@ -56,7 +56,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Allocate an extension structure 
+ *   Allocate an extension structure
  */
 vm_httpreq_ext *vm_httpreq_ext::alloc_ext(VMG_ CVmObjHTTPRequest *self)
 {
@@ -79,7 +79,7 @@ vm_httpreq_ext *vm_httpreq_ext::alloc_ext(VMG_ CVmObjHTTPRequest *self)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjHTTPRequest object statics 
+ *   CVmObjHTTPRequest object statics
  */
 
 /* metaclass registration object */
@@ -112,7 +112,7 @@ int (CVmObjHTTPRequest::*CVmObjHTTPRequest::func_table_[])(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjHTTPRequest intrinsic class implementation 
+ *   CVmObjHTTPRequest intrinsic class implementation
  */
 
 /*
@@ -125,7 +125,7 @@ CVmObjHTTPRequest::CVmObjHTTPRequest(VMG_ int)
 }
 
 /*
- *   create 
+ *   create
  */
 vm_obj_id_t CVmObjHTTPRequest::create(
     VMG_ int in_root_set, TadsHttpRequest *req, vm_obj_id_t server)
@@ -152,14 +152,14 @@ vm_obj_id_t CVmObjHTTPRequest::create(
 }
 
 /*
- *   create dynamically using stack arguments 
+ *   create dynamically using stack arguments
  */
 vm_obj_id_t CVmObjHTTPRequest::create_from_stack(
     VMG_ const uchar **pc_ptr, uint argc)
 {
-    /* 
+    /*
      *   we can't be created with 'new' - we can only be created via the
-     *   getNetEvent() intrinsic function 
+     *   getNetEvent() intrinsic function
      */
     err_throw(VMERR_BAD_DYNAMIC_NEW);
 
@@ -167,8 +167,8 @@ vm_obj_id_t CVmObjHTTPRequest::create_from_stack(
     AFTER_ERR_THROW(return VM_INVALID_OBJ;)
 }
 
-/* 
- *   notify of deletion 
+/*
+ *   notify of deletion
  */
 void CVmObjHTTPRequest::notify_delete(VMG_ int /*in_root_set*/)
 {
@@ -183,14 +183,14 @@ void CVmObjHTTPRequest::notify_delete(VMG_ int /*in_root_set*/)
         /* delete the cookies */
         if (ext->cookies != 0)
             delete ext->cookies;
-        
+
         /* delete the extension */
         G_mem->get_var_heap()->free_mem(ext_);
     }
 }
 
 /*
- *   Mark references 
+ *   Mark references
  */
 void CVmObjHTTPRequest::mark_refs(VMG_ uint state)
 {
@@ -200,8 +200,8 @@ void CVmObjHTTPRequest::mark_refs(VMG_ uint state)
         G_obj_table->mark_all_refs(ext->server, state);
 }
 
-/* 
- *   set a property 
+/*
+ *   set a property
  */
 void CVmObjHTTPRequest::set_prop(VMG_ class CVmUndo *undo,
                                  vm_obj_id_t self, vm_prop_id_t prop,
@@ -211,31 +211,31 @@ void CVmObjHTTPRequest::set_prop(VMG_ class CVmUndo *undo,
     err_throw(VMERR_INVALID_SETPROP);
 }
 
-/* 
- *   get a property 
+/*
+ *   get a property
  */
 int CVmObjHTTPRequest::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                                 vm_obj_id_t self, vm_obj_id_t *source_obj,
                                 uint *argc)
 {
-    
+
     /* translate the property into a function vector index */
     uint func_idx = G_meta_table->prop_to_vector_idx(
         metaclass_reg_->get_reg_idx(), prop);
-    
+
     /* call the appropriate function */
     if ((this->*func_table_[func_idx])(vmg_ self, retval, argc))
     {
         *source_obj = metaclass_reg_->get_class_obj(vmg0_);
         return TRUE;
     }
-    
+
     /* inherit default handling from our base class */
     return CVmObject::get_prop(vmg_ prop, retval, self, source_obj, argc);
 }
 
-/* 
- *   load from an image file 
+/*
+ *   load from an image file
  */
 void CVmObjHTTPRequest::load_from_image(VMG_ vm_obj_id_t self,
                                         const char *ptr, size_t siz)
@@ -243,15 +243,15 @@ void CVmObjHTTPRequest::load_from_image(VMG_ vm_obj_id_t self,
     /* load our image data */
     load_image_data(vmg_ ptr, siz);
 
-    /* 
+    /*
      *   save our image data pointer in the object table, so that we can
-     *   access it (without storing it ourselves) during a reload 
+     *   access it (without storing it ourselves) during a reload
      */
     G_obj_table->save_image_pointer(self, ptr, siz);
 }
 
 /*
- *   reload from the image file 
+ *   reload from the image file
  */
 void CVmObjHTTPRequest::reload_from_image(VMG_ vm_obj_id_t self,
                                           const char *ptr, size_t siz)
@@ -261,7 +261,7 @@ void CVmObjHTTPRequest::reload_from_image(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   load or reload data from the image 
+ *   load or reload data from the image
  */
 void CVmObjHTTPRequest::load_image_data(VMG_ const char *ptr, size_t siz)
 {
@@ -274,8 +274,8 @@ void CVmObjHTTPRequest::load_image_data(VMG_ const char *ptr, size_t siz)
 }
 
 
-/* 
- *   save to a file 
+/*
+ *   save to a file
  */
 void CVmObjHTTPRequest::save_to_file(VMG_ class CVmFile *fp)
 {
@@ -283,8 +283,8 @@ void CVmObjHTTPRequest::save_to_file(VMG_ class CVmFile *fp)
     assert(FALSE);
 }
 
-/* 
- *   restore from a file 
+/*
+ *   restore from a file
  */
 void CVmObjHTTPRequest::restore_from_file(VMG_ vm_obj_id_t self,
                                           CVmFile *fp, CVmObjFixup *fixups)
@@ -294,7 +294,7 @@ void CVmObjHTTPRequest::restore_from_file(VMG_ vm_obj_id_t self,
 
 /*
  *   Create a new validated ASCII string.  This converts any 8-bit characters
- *   to '?' to ensure that the result is well-formed UTF-8.  
+ *   to '?' to ensure that the result is well-formed UTF-8.
  */
 static void new_ascii_string(VMG_ vm_val_t *ret, const char *str, size_t len)
 {
@@ -303,7 +303,7 @@ static void new_ascii_string(VMG_ vm_val_t *ret, const char *str, size_t len)
     vm_obj_id_t strid = CVmObjString::create(vmg_ FALSE, str, len);
     ret->set_obj(strid);
 
-    /* 
+    /*
      *   We expected a plain ASCII string as input, so any character outside
      *   of the 7-bit ASCII range (0-127) is invalid.  Scan the string and
      *   convert any invalid characters to '?' characters.  If we didn't do
@@ -313,7 +313,7 @@ static void new_ascii_string(VMG_ vm_val_t *ret, const char *str, size_t len)
      *   Eliminating any 8-bit characters up front thus protects us against
      *   errant or malicious clients by ensuring that we have a well-formed
      *   UTF-8 string in all cases (since any string containing only plain
-     *   ASCII characters is inherently a well-formed UTF-8 string).  
+     *   ASCII characters is inherently a well-formed UTF-8 string).
      */
     CVmObjString *strp = (CVmObjString *)vm_objp(vmg_ strid);
     for (char *p = strp->cons_get_buf() ; len != 0 ; ++p, --len)
@@ -385,9 +385,9 @@ int CVmObjHTTPRequest::getp_getQuery(VMG_ vm_obj_id_t self,
 #define ENCMODE_FORM   2        /* form-data: translate %xx, and + to space */
 #define ENCMODE_MIME   3               /* MIME header: translate ?= strings */
 
-/* 
+/*
  *   Create a parsed URL string value.  This converts %xx sequences to bytes,
- *   and ensures that the results are well-formed UTF-8 characters. 
+ *   and ensures that the results are well-formed UTF-8 characters.
  */
 static void new_parsed_str(VMG_ vm_val_t *ret, const char *str, size_t len,
                            int encmode)
@@ -402,7 +402,7 @@ static void new_parsed_str(VMG_ vm_val_t *ret, const char *str, size_t len,
     char *buf = s->cons_get_buf();
     char *bufend = buf + len;
 
-    /* 
+    /*
      *   if desired, decode url-encoding: run through the string, converting
      *   '%xx' sequences to bytes, and '+' characters to spaces
      */
@@ -421,9 +421,9 @@ static void new_parsed_str(VMG_ vm_val_t *ret, const char *str, size_t len,
                 /* skip the three-character %xx sequence */
                 src += 3;
 
-                /* 
+                /*
                  *   if this is an encoded CR, and an LF follows, decode the
-                 *   whole sequence to a single '\n' 
+                 *   whole sequence to a single '\n'
                  */
                 if (c == '\r'
                     && src + 2 < bufend
@@ -435,7 +435,7 @@ static void new_parsed_str(VMG_ vm_val_t *ret, const char *str, size_t len,
                     /* skip the in the source */
                     src += 3;
                 }
-                
+
                 /* set the character in the output */
                 *dst++ = (char)(unsigned char)c;
             }
@@ -458,10 +458,10 @@ static void new_parsed_str(VMG_ vm_val_t *ret, const char *str, size_t len,
                 *dst++ = *src++;
             }
         }
-        
-        /* 
+
+        /*
          *   update the length - the string might have contracted, since
-         *   '%xx' sequences might have turned into single bytes 
+         *   '%xx' sequences might have turned into single bytes
          */
         len = dst - buf;
         bufend = dst;
@@ -494,9 +494,9 @@ static void add_parsed_val(VMG_ CVmObjLookupTable *tab, const vm_val_t *key,
     if (tab->index_check(vmg_ &oldval, key)
         && (oldstr = oldval.get_as_string(vmg0_)) != 0)
     {
-        /* 
+        /*
          *   it's already in the table - make it a comma-separated list by
-         *   appending ", val" to the existing key 
+         *   appending ", val" to the existing key
          */
 
         /* get the parsed string we're adding */
@@ -555,7 +555,7 @@ static void add_parsed_val(VMG_ CVmObjLookupTable *tab,
 /*
  *   Parse query parameters.  This can be used for the part of a URL query
  *   string after the first '?', or for a message body with content-type
- *   application/x-www-form-urlencoded, since they have identical formats.  
+ *   application/x-www-form-urlencoded, since they have identical formats.
  */
 static void parse_query_params(VMG_ CVmObjLookupTable *tab, const char *p,
                                int encmode)
@@ -605,9 +605,9 @@ int CVmObjHTTPRequest::getp_parseQuery(VMG_ vm_obj_id_t self,
     CVmObjLookupTable *tab =
         (CVmObjLookupTable *)vm_objp(vmg_ retval->val.obj);
 
-    /* 
+    /*
      *   the resource name is the part of the query up to the first '?', or
-     *   the entire string if there's no '?' 
+     *   the entire string if there's no '?'
      */
     const char *qq = strchr(q, '?');
     if (qq == 0)
@@ -671,10 +671,10 @@ int CVmObjHTTPRequest::getp_getQueryParam(VMG_ vm_obj_id_t self,
         if (eq == 0 || eq > amp)
             eq = amp;
 
-        /* 
+        /*
          *   Compare this to the name we're looking for.  Note that URLs are
          *   either plain ASCII or UTF-8, so we can just do the comparison on
-         *   a byte-by-byte basis as our paramName string is also UTF-8.  
+         *   a byte-by-byte basis as our paramName string is also UTF-8.
          */
         if ((size_t)(eq - qq) == paramLen
             && memcmp(qq, paramName, paramLen) == 0)
@@ -718,10 +718,10 @@ int CVmObjHTTPRequest::getp_getHeaders(VMG_ vm_obj_id_t self,
     CVmObjLookupTable *tab =
         (CVmObjLookupTable *)vm_objp(vmg_ retval->val.obj);
 
-    /* 
+    /*
      *   The first item in the list is the special "request line," with the
      *   HTTP verb and resource name; it's not really a header, as it doesn't
-     *   have a name/value pair, so we file it under the key [1]. 
+     *   have a name/value pair, so we file it under the key [1].
      */
     add_parsed_val(vmg_ tab, 1, hdrs->name, strlen(hdrs->name), ENCMODE_NONE);
 
@@ -798,7 +798,7 @@ int CVmObjHTTPRequest::getp_getCookie(VMG_ vm_obj_id_t self,
                     /* stop looking */
                     goto done;
                 }
-                
+
                 /* scan ahead to the next non-delimiter */
                 for ( ; *p != '\0' && strchr(" \t;,", *p) != 0 ; ++p) ;
             }
@@ -911,10 +911,10 @@ static int parse_attr_token(const char *str, const char *attr_name,
         /* skip the '=' and subsequent spaces */
         for (++p ; isspace(*p) ; ++p) ;
 
-        /* 
+        /*
          *   Okay, we're at the attribute value.  If there's a quote mark,
          *   the value is everything from here to the close quote.  Otherwise
-         *   it's everything up to the next space or semicolon.  
+         *   it's everything up to the next space or semicolon.
          */
         if (*p == '"')
         {
@@ -938,7 +938,7 @@ static int parse_attr_token(const char *str, const char *attr_name,
 }
 
 /*
- *   Match two attribute tokens 
+ *   Match two attribute tokens
  */
 static int match_attrs(const char *a, size_t alen,
                        const char *b, size_t blen)
@@ -1013,9 +1013,9 @@ int CVmObjHTTPRequest::getp_setCookie(VMG_ vm_obj_id_t self,
             parse_attr_token(cookie->val, "path", vpath, vpathlen);
             parse_attr_token(cookie->val, "domain", vdom, vdomlen);
 
-            /*   
+            /*
              *   Check to see if the path and domain match.  If not, this
-             *   counts as a distinct cookie.  
+             *   counts as a distinct cookie.
              */
             if (!match_attrs(vpath, vpathlen, cpath, cpathlen)
                 || !match_attrs(vdom, vdomlen, cdom, cdomlen))
@@ -1058,7 +1058,7 @@ int CVmObjHTTPRequest::getp_setCookie(VMG_ vm_obj_id_t self,
  *   nil case we set cs->val.obj = VM_INVALID_OBJ, so you can use that field
  *   where a vm_obj_id_t is required in either case.  We return the file mode
  *   to use for a file opened on this content: VMOBJFILE_MODE_TEXT if we find
- *   a character set, VMOBJFILE_MODE_RAW if not.  
+ *   a character set, VMOBJFILE_MODE_RAW if not.
  */
 static int get_charset_map(VMG_ const char *ct, vm_val_t *cs)
 {
@@ -1071,9 +1071,9 @@ static int get_charset_map(VMG_ const char *ct, vm_val_t *cs)
         && (memcmp(ct, "text/", 5) == 0
             || memcmp(ct, "application/x-www-form-urlencoded", 33) == 0))
     {
-        /* 
+        /*
          *   It's a text content type, so we'll use a text mapping.  Scan the
-         *   content-type string for a "charset" parameter.  
+         *   content-type string for a "charset" parameter.
          */
         const char *cname;
         size_t cnamelen;
@@ -1105,7 +1105,7 @@ static int get_charset_map(VMG_ const char *ct, vm_val_t *cs)
 /*
  *   StringRef data source.  This is a simple subclass of the basic string
  *   data source; the only specialization is that we keep a reference to the
- *   StringRef object, and release it on close. 
+ *   StringRef object, and release it on close.
  */
 class CVmStringRefSource: public CVmStringSource
 {
@@ -1141,13 +1141,13 @@ protected:
 };
 
 /*
- *   throw a network error 
+ *   throw a network error
  */
 static void throw_net_err(VMG_ const char *msg, int sock_err)
 {
-    /* 
+    /*
      *   Determine the exception class, based on the error code:
-     *   
+     *
      *.  - ECONNRESET -> SocketDisconnectException
      *.  - everything else -> the base NetException
      */
@@ -1160,7 +1160,7 @@ static void throw_net_err(VMG_ const char *msg, int sock_err)
         break;
     }
 
-    /* 
+    /*
      *   if we didn't pick a special class for the error, or the class we
      *   selected wasn't imported, use the base NetException class by default
      */
@@ -1179,7 +1179,7 @@ static void throw_net_err(VMG_ const char *msg, int sock_err)
 }
 
 /*
- *   Seek the next multi-part boundary 
+ *   Seek the next multi-part boundary
  */
 static const char *next_boundary(const char *startp, const char *endp,
                                  const char *b, size_t blen, int need_crlf)
@@ -1209,10 +1209,10 @@ static const char *next_boundary(const char *startp, const char *endp,
 static void parse_multipart(VMG_ CVmObjLookupTable *tab, StringRef *body,
                             const char *ct)
 {
-    /* 
+    /*
      *   find the "boundary" attribute in the content-type string; if it's
      *   not present, we can't go on, since this is required to parse the
-     *   content sections 
+     *   content sections
      */
     const char *bndry;
     size_t bndry_len;
@@ -1239,7 +1239,7 @@ static void parse_multipart(VMG_ CVmObjLookupTable *tab, StringRef *body,
         if (*p++ != '\r' || *p++ != '\n')
             break;
 
-        /* 
+        /*
          *   Parse the headers for this section.  To do this, we'll need to
          *   make a separate writable copy of the header section - scan ahead
          *   for the double CR-LF.
@@ -1255,10 +1255,10 @@ static void parse_multipart(VMG_ CVmObjLookupTable *tab, StringRef *body,
         if ((p = next_boundary(p, endp, bndry, bndry_len, TRUE)) == 0)
             break;
 
-        /* 
+        /*
          *   Note the length of the body - if exclude.  The body excludes the
          *   CR-LF and the "--" preceding the boundary marker, so deduct four
-         *   bytes from the current position.  
+         *   bytes from the current position.
          */
         long sbody_len = p - sbody - 4;
 
@@ -1278,10 +1278,10 @@ static void parse_multipart(VMG_ CVmObjLookupTable *tab, StringRef *body,
         vm_val_t fldval, keyval;
         int has_fname;
 
-        /* 
+        /*
          *   Use text/plain as the default content type.  Since we send text
          *   out in utf-8 mode, assume that responses come back in utf-8
-         *   mode. 
+         *   mode.
          */
         if (sct == 0)
             sct = "text/plain; charset=utf-8";
@@ -1290,36 +1290,36 @@ static void parse_multipart(VMG_ CVmObjLookupTable *tab, StringRef *body,
         if (scd == 0 || memcmp(scd, "form-data", 9) != 0)
             goto section_done;
 
-        /* 
+        /*
          *   Get the "name" attribute - this is <INPUT> field's NAME value.
          *   This is the table key for this section, so if it's not set we
-         *   can't do anything with this section. 
+         *   can't do anything with this section.
          */
         if (!parse_attr_token(scd, "name", fldname, fldname_len))
             goto section_done;
 
-        /* 
+        /*
          *   Get the "filename" attribute.  If this is an uploaded file, this
          *   gives the name of the client-side file being uploaded.  If it's
          *   not present, this is a data <INPUT> field rather than a file
-         *   upload, so the content body is simply the field value.  
-         *   
+         *   upload, so the content body is simply the field value.
+         *
          *   If the filename is empty and the file content has zero length,
          *   it means that the user didn't select a file in this field.  In
-         *   this case, use nil in place of the FileUpload object.  
+         *   this case, use nil in place of the FileUpload object.
          */
         has_fname = parse_attr_token(scd, "filename", filename, filename_len);
         if (has_fname && filename_len != 0 && sbody_len != 0)
         {
-            /* 
+            /*
              *   There's a "filename" attribute, so this is a file upload.
              *   We'll represent this as a FileUpload object, with a
              *   string-sourced File representing the body.
-             *   
+             *
              *   If it's a text content type, we'll open the file in Text
              *   mode with the character mapping specifed in the content type
              *   parameter.  Otherwise, we'll open it in raw mode.  Start by
-             *   checking the mode implied by the content type parameter.  
+             *   checking the mode implied by the content type parameter.
              */
             vm_val_t charset;
             int mode = get_charset_map(vmg_ sct, &charset);
@@ -1338,9 +1338,9 @@ static void parse_multipart(VMG_ CVmObjLookupTable *tab, StringRef *body,
                 vmg_ FALSE, 0, textmode ? charset.val.obj : VM_INVALID_OBJ,
                 ds, mode, VMOBJFILE_ACCESS_READ, textmode));
 
-            /* 
+            /*
              *   discard the gc protection for the character set (it's safely
-             *   ensconced in the file now), and push the new file object 
+             *   ensconced in the file now), and push the new file object
              */
             G_stk->discard();
             G_stk->push(&file);
@@ -1370,16 +1370,16 @@ static void parse_multipart(VMG_ CVmObjLookupTable *tab, StringRef *body,
         {
             /*
              *   We have a filename attribute, but it's empty, and there's no
-             *   content body.  Use nil as the value.  
+             *   content body.  Use nil as the value.
              */
             fldval.set_nil();
             G_stk->push(&fldval);
         }
         else
         {
-            /* 
+            /*
              *   There's no filename attribute, so this is a simple data
-             *   field, with the section content body as the field value.  
+             *   field, with the section content body as the field value.
              */
             new_parsed_str(vmg_ &fldval, sbody, sbody_len, ENCMODE_NONE);
             G_stk->push(&fldval);
@@ -1463,16 +1463,16 @@ int CVmObjHTTPRequest::getp_getFormFields(VMG_ vm_obj_id_t self,
     /* parse the content type that we found */
     if (typ == 0)
     {
-        /* 
+        /*
          *   URL-encoded form data.  This is the same format as a URL query
-         *   string, so we can just apply that parser to the message body. 
+         *   string, so we can just apply that parser to the message body.
          */
         parse_query_params(vmg_ tab, body->get(), ENCMODE_FORM);
     }
     else if (typ == 1)
     {
-        /* 
-         *   Multipart form-data.  Invoke our generic multipart parser.  
+        /*
+         *   Multipart form-data.  Invoke our generic multipart parser.
          */
         parse_multipart(vmg_ tab, body, ct);
     }
@@ -1485,7 +1485,7 @@ int CVmObjHTTPRequest::getp_getFormFields(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   get the request body 
+ *   get the request body
  */
 int CVmObjHTTPRequest::getp_getClientAddress(VMG_ vm_obj_id_t self,
                                              vm_val_t *retval, uint *oargc)
@@ -1502,7 +1502,7 @@ int CVmObjHTTPRequest::getp_getClientAddress(VMG_ vm_obj_id_t self,
     G_interpreter->push_int(vmg_ t->get_client_port());
     G_interpreter->push_string(vmg_ t->get_client_ip());
     retval->set_obj(CVmObjList::create_from_stack(vmg_ 0, 2));
-    
+
     /* handled */
     return TRUE;
 }
@@ -1551,13 +1551,13 @@ int CVmObjHTTPRequest::getp_getBody(VMG_ vm_obj_id_t self,
 
     /* discard the gc protection */
     G_stk->discard();
-                                       
+
     /* handled */
     return TRUE;
 }
 
 /*
- *   look up a standard status code by number 
+ *   look up a standard status code by number
  */
 static const char *look_up_status(int n, size_t &len)
 {
@@ -1645,7 +1645,7 @@ static const char *look_up_status(int n, size_t &len)
 }
 
 /*
- *   look up an HTTP status message by code number 
+ *   look up an HTTP status message by code number
  */
 static const char *get_status_arg(VMG_ int body_status_code,
                                   int argn, int argc, size_t &len)
@@ -1660,7 +1660,7 @@ static const char *get_status_arg(VMG_ int body_status_code,
         len = 6;
         return "200 OK";
     }
-    
+
     /* check the type of the argument value */
     const vm_val_t *argp = G_stk->get(argn);
     const char *status;
@@ -1674,20 +1674,20 @@ static const char *get_status_arg(VMG_ int body_status_code,
         /* nil - use the default 200 */
         len = 6;
         return "200 OK";
-        
+
     default:
         /* it's not an integer, so it has to be a string */
         if ((status = argp->get_as_string(vmg0_)) == 0)
             err_throw(VMERR_STRING_VAL_REQD);
-        
+
         /* get the length and return the buffer pointer */
         len = vmb_get_len(status);
         return status + VMB_LEN;
     }
 }
-    
+
 /*
- *   send headers 
+ *   send headers
  */
 static void send_custom_headers(VMG_ TadsServerThread *t,
                                 const vm_val_t *headers)
@@ -1735,7 +1735,7 @@ struct http_reply_err
 
 /*
  *   Body argument descriptor.  This handles the various different source
- *   types we handle for body values - strings, ByteArrays, StringBuffers. 
+ *   types we handle for body values - strings, ByteArrays, StringBuffers.
  */
 struct bodyArg
 {
@@ -1788,7 +1788,7 @@ struct bodyArg
             /* note the size */
             len = file->get_file_size(vmg0_);
 
-            /* 
+            /*
              *   Get the data source and file spec.  Use the file spec as the
              *   source object, not the File itself; it's the spec that we
              *   want to keep around, since we're directly accessing a data
@@ -1803,9 +1803,9 @@ struct bodyArg
         }
         else if (srcval.typ == VM_INT)
         {
-            /* 
+            /*
              *   Integer value - treat this as an HTTP status code.  The
-             *   content body is a generated HTML page for the status code. 
+             *   content body is a generated HTML page for the status code.
              */
             status_code = (int)srcval.val.intval;
 
@@ -1869,7 +1869,7 @@ struct bodyArg
     }
 
     /*
-     *   prepare for async use 
+     *   prepare for async use
      */
     void init_async(VMG0_)
     {
@@ -1877,7 +1877,7 @@ struct bodyArg
         if (datasource != 0)
             datasource = datasource->clone(vmg_ "rb");
 
-        /* 
+        /*
          *   If we have a string buffer or byte array, make a private copy.
          *   These objects aren't designed to be thread-safe, so we can't
          *   access them from the background thread.
@@ -1890,7 +1890,7 @@ struct bodyArg
             /* extract the contents into the buffer */
             int32_t ofs = 0;
             extract(buf, ofs, len);
-            
+
             /* use this as the string buffer */
             str = buf;
             stralo = TRUE;
@@ -1903,9 +1903,9 @@ struct bodyArg
             srcval.set_nil();
         }
 
-        /* 
+        /*
          *   if the source value is an object, create a VM global for gc
-         *   protection as long as the background thread is running 
+         *   protection as long as the background thread is running
          */
         if (srcval.typ == VM_OBJ)
         {
@@ -1985,18 +1985,18 @@ struct bodyArg
         return TRUE;
     }
 
-    /* 
+    /*
      *   Extract a portion of the contents.  If possible, we'll simply return
      *   a direct pointer to the buffer containing the data; if this isn't
      *   possible, we'll copy the data to the caller's buffer.
-     *   
+     *
      *   On input, 'ofs' is the starting offset of the extraction.  The
      *   meaning varies according to the underlying data type, so this should
      *   always be either 0 (for the start of the string) or the output value
      *   of a previous call to this routine.  'ofs' is an in-out variable: on
      *   return, we've updated it to reflect the starting offset of the next
      *   character after the chunk we extract here.
-     *   
+     *
      *   'len' is also an in-out variable.  On input, this is the size in
      *   bytes of the buffer.  On output, it reflects the actual number of
      *   bytes copied to the buffer.  This might be smaller than the
@@ -2005,7 +2005,7 @@ struct bodyArg
      *   the end of the buffer if filling the buffer exactly would require
      *   copying a fractional utf-8 character.  Note, however, that we make
      *   no guarantee that a fractional character won't be copied: some data
-     *   sources won't do this, but others will.  
+     *   sources won't do this, but others will.
      */
     const char *extract(char *buf, int32_t &ofs, int32_t &len)
     {
@@ -2027,7 +2027,7 @@ struct bodyArg
         }
         else if (strbuf != 0)
         {
-            /* 
+            /*
              *   for a string buffer, we have to translate to utf8 - this
              *   updates 'idx' and 'len' per our interface
              */
@@ -2035,10 +2035,10 @@ struct bodyArg
         }
         else if (bytarr != 0)
         {
-            /* 
+            /*
              *   It's a byte array - copy bytes to the caller's buffer.  Note
              *   that we use 0-based offsets, and the byte array uses 1-based
-             *   offsets, so adjust accordingly. 
+             *   offsets, so adjust accordingly.
              */
             len = bytarr->copy_to_buf((unsigned char *)buf, ofs + 1, len);
 
@@ -2047,9 +2047,9 @@ struct bodyArg
         }
         else if (file != 0)
         {
-            /* 
+            /*
              *   It's a File object - read bytes from the file into the
-             *   caller's buffer. 
+             *   caller's buffer.
              */
             datasource->seek(ofs, OSFSK_SET);
             len = datasource->readc(buf, len);
@@ -2103,7 +2103,7 @@ struct bodyArg
 };
 
 /*
- *   Compare two strings, skipping spaces in the source string. 
+ *   Compare two strings, skipping spaces in the source string.
  */
 static int eq_skip_sp(const char *src, size_t len, const char *ref)
 {
@@ -2114,16 +2114,16 @@ static int eq_skip_sp(const char *src, size_t len, const char *ref)
     /* keep going until we run out of one string or the other */
     for (utf8_ptr srcp((char *)src) ; len != 0 && *ref != '\0' ; ++ref)
     {
-        /* 
+        /*
          *   if this source character is a space, match any run of
-         *   whitespace; otherwise we must match exactly 
+         *   whitespace; otherwise we must match exactly
          */
         wchar_t c = to_lower(srcp.getch());
         if (*ref == ' ' && is_space(c))
         {
-            /* 
+            /*
              *   we have a whitespace match - skip any additional whitespace
-             *   in the source string 
+             *   in the source string
              */
             for (srcp.inc(&len) ; len != 0 && is_space(srcp.getch()) ;
                  srcp.inc(&len)) ;
@@ -2140,16 +2140,16 @@ static int eq_skip_sp(const char *src, size_t len, const char *ref)
         }
     }
 
-    /* 
+    /*
      *   if we ran out of the reference string, we have a match; otherwise we
      *   must have run out of the source string first, in which case we don't
-     *   match because we have additional unmatched reference characters 
+     *   match because we have additional unmatched reference characters
      */
     return (*ref == '\0');
 }
 
 /*
- *   send the cookie headers 
+ *   send the cookie headers
  */
 static void send_cookies(VMG_ TadsServerThread *t, vm_httpreq_cookie *c)
 {
@@ -2165,7 +2165,7 @@ static void send_cookies(VMG_ TadsServerThread *t, vm_httpreq_cookie *c)
 }
 
 /*
- *   send a reply 
+ *   send a reply
  */
 int CVmObjHTTPRequest::getp_sendReply(
     VMG_ vm_obj_id_t self, vm_val_t *retval, uint *oargc)
@@ -2201,7 +2201,7 @@ struct http_header
     {
         /* start with an empty list */
         http_header *head = 0, **tailp = &head;
-        
+
         /* parse the value list */
         int cnt = lstval->ll_length(vmg0_);
         for (int i = 1 ; i <= cnt ; ++i)
@@ -2209,7 +2209,7 @@ struct http_header
             /* get this list element */
             vm_val_t ele;
             lstval->ll_index(vmg_ &ele, i);
-            
+
             /* it has to be a string */
             const char *h = ele.get_as_string(vmg0_);
             if (h == 0)
@@ -2257,7 +2257,7 @@ struct http_header
 };
 
 /*
- *   Asynchronous HTTP reply result event 
+ *   Asynchronous HTTP reply result event
  */
 class TadsHttpReplyResult: public TadsEventMessage
 {
@@ -2354,7 +2354,7 @@ public:
 class HTTPReplySender: public CVmRefCntObj
 {
     friend class HTTPReplySenderThread;
-    
+
 public:
     HTTPReplySender()
     {
@@ -2379,12 +2379,12 @@ public:
                     const char *cont_type, size_t cont_type_len,
                     vm_httpreq_cookie *cookies)
     {
-        /* 
+        /*
          *   Save the values.  For reference types (string buffers, etc),
          *   just keep pointers to the originals; for synchronous replies,
          *   the caller will block on the send, so these will stay around for
          *   the send.  For asynchronous (threaded) replies, we'll make
-         *   private copies when we start the new thread. 
+         *   private copies when we start the new thread.
          */
         this->reqid = reqid;
         this->req = req;
@@ -2437,18 +2437,18 @@ public:
             delete body;
     }
 
-    /* 
+    /*
      *   send the reply; returns true on success, false on failure (and fills
-     *   in '*err' with error information on failure) 
+     *   in '*err' with error information on failure)
      */
     int send(http_reply_err *err)
     {
         /* presume success */
         int ok = TRUE;
-        
+
         /*
          *   We've gathered all of the information, so send the reply.  Start
-         *   with the status code.  
+         *   with the status code.
          */
         TadsServerThread *t = req->thread;
         if (!t->send("HTTP/1.1 ")
@@ -2499,7 +2499,7 @@ public:
         /* send the reply body */
         if (ok && !body->send(t, err))
             ok = FALSE;
-        
+
         /* mark the request as completed */
         req->complete();
 
@@ -2520,7 +2520,7 @@ public:
         if ((queue = G_net_queue) != 0)
             queue->add_ref();
 
-        /* 
+        /*
          *   remove the original parametres from our member variables before
          *   we set async mode, in case we throw an error in the course of
          *   making copies - we wouldn't want to delete the originals, as
@@ -2532,7 +2532,7 @@ public:
 
         /* note that we're now in async mode */
         async = TRUE;
-        
+
         /* install copies in our member variables */
         status = lib_copy_str(ostatus, status_len);
         cont_type = lib_copy_str(ocont_type, cont_type_len);
@@ -2542,9 +2542,9 @@ public:
         /* initialize async mode in the body object */
         body->init_async(vmg0_);
 
-        /* 
+        /*
          *   create a global variable for the request object ID, to keep it
-         *   around until the request is completed 
+         *   around until the request is completed
          */
         reqvar = G_obj_table->create_global_var();
         reqvar->val.set_obj(reqid);
@@ -2553,7 +2553,7 @@ public:
         HTTPReplySenderThread *t = new HTTPReplySenderThread(this);
         if (!t->launch())
         {
-            /* 
+            /*
              *   the thread failed - post a 'finished' event with an error,
              *   since the thread can't do this on its own if it never runs
              */
@@ -2591,7 +2591,7 @@ protected:
         /* create the result event */
         TadsHttpReplyResult *evt = new TadsHttpReplyResult(
             vmg_ req, reqvar, body, sock_err, msg);
-        
+
         /* queue the event (this transfers ownership to the queue) */
         queue->post(evt);
 
@@ -2601,7 +2601,7 @@ protected:
         reqvar = 0;
     }
 
-    /* 
+    /*
      *   VM globals (we need these for the "finished" event object) - note
      *   that the background thread isn't allowed to access VM globals since
      *   they're not thread safe and thus are restricted to the main thread
@@ -2634,10 +2634,10 @@ protected:
 
     /* cookie list head */
     vm_httpreq_cookie *cookies;
-    
-    /* 
+
+    /*
      *   Are we sending the reply asynchronously?  If this is true, the
-     *   parameters that point to memory buffers are private copies. 
+     *   parameters that point to memory buffers are private copies.
      */
     int async;
 };
@@ -2657,7 +2657,7 @@ void HTTPReplySenderThread::thread_main()
     sender->thread_main();
 }
 
-/* 
+/*
  *   Common handler for sendReply and sendReplyAsync.
  */
 int CVmObjHTTPRequest::common_sendReply(
@@ -2715,10 +2715,10 @@ int CVmObjHTTPRequest::common_sendReply(
         }
         else
         {
-            /* 
+            /*
              *   There's no content type argument, so we need to infer the
              *   type from the 'body' argument.  First, extract the initial
-             *   section of the content to check for common signatures.  
+             *   section of the content to check for common signatures.
              */
             char buf[512];
             int32_t ofs = 0, len = sizeof(buf);
@@ -2727,10 +2727,10 @@ int CVmObjHTTPRequest::common_sendReply(
             /* check to see if the body is text or binary */
             if (body->is_text(vmg0_))
             {
-                /* 
+                /*
                  *   it's text data, so check for tell-tale signs of HTML and
                  *   XML, after skipping leading whitespace and HTML-style
-                 *   comments 
+                 *   comments
                  */
                 utf8_ptr p((char *)bufp);
                 size_t rem = (size_t)len;
@@ -2787,9 +2787,9 @@ int CVmObjHTTPRequest::common_sendReply(
             }
             else
             {
-                /* 
+                /*
                  *   Treat it as binary data.  Check the first few bytes to
-                 *   see if the file signature matches a known media type.  
+                 *   see if the file signature matches a known media type.
                  */
                 if (len > 10
                     && (unsigned char)bufp[0] == 0xff
@@ -2903,7 +2903,7 @@ int CVmObjHTTPRequest::common_sendReply(
 
     /* no result */
     retval->set_nil();
-    
+
     /* handled */
     return TRUE;
 }
@@ -2952,7 +2952,7 @@ int CVmObjHTTPRequest::getp_startChunkedReply(
     }
 
     /*
-     *   Send the headers, starting with the status code 
+     *   Send the headers, starting with the status code
      */
     TadsServerThread *t = req->thread;
     if (!t->send("HTTP/1.1 ")
@@ -3014,7 +3014,7 @@ int CVmObjHTTPRequest::getp_sendReplyChunk(VMG_ vm_obj_id_t self,
         /* make sure we initialized the body correctly */
         if (body->init_err != 0)
             err_throw(body->init_err);
-        
+
         /* send the length prefix */
         char lbuf[20];
         t3sprintf(lbuf, sizeof(lbuf), "%lx\r\n", (long)body->len);
@@ -3105,14 +3105,14 @@ int CVmObjHTTPRequest::getp_endChunkedReply(VMG_ vm_obj_id_t self,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   HTTP request object 
+ *   HTTP request object
  */
 
-/* 
+/*
  *   Prepare the event object.  This creates an HTTPRequest object (the
  *   intrinsic class representing an incoming HTTP request), and sets up a
  *   NetRequestEvent (the byte-code object representing a request) to wrap
- *   it.  
+ *   it.
  */
 vm_obj_id_t TadsHttpRequest::prep_event_obj(VMG_ int *argc, int *evt_type)
 {

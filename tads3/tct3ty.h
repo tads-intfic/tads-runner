@@ -1,18 +1,18 @@
 /* $Header: d:/cvsroot/tads/tads3/TCT3TY.H,v 1.1 1999/07/11 00:46:57 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   tct3ty.h - T3 Target-specific Type definitions
 Function
-  
+
 Notes
-  
+
 Modified
   07/09/99 MJRoberts  - Creation
 */
@@ -24,7 +24,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   target type specifications 
+ *   target type specifications
  */
 
 /* global object ID */

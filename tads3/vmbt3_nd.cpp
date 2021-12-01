@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmbt3_nd.cpp - T3 VM system interface function set - non-debugger version
 Function
-  
+
 Notes
-  
+
 Modified
   03/11/00 MJRoberts  - Creation
 */
@@ -34,7 +34,7 @@ Modified
 
 
 /*
- *   Debug Trace 
+ *   Debug Trace
  */
 void CVmBifT3::debug_trace(VMG_ uint argc)
 {
@@ -72,7 +72,7 @@ void CVmBifT3::debug_trace(VMG_ uint argc)
             /* decode and skip the length prefix */
             int len = vmb_get_len(str);
             str += VMB_LEN;
-            
+
             /* convert the string to the local file character set */
             char *lstr;
             size_t llen = G_cmap_to_file->map_utf8_alo(&lstr, str, len);

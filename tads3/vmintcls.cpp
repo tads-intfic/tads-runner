@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmintcls.cpp - T3 metaclass - intrinsic class
 Function
-  
+
 Notes
-  
+
 Modified
   03/08/00 MJRoberts  - Creation
 */
@@ -36,7 +36,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   statics 
+ *   statics
  */
 
 /* metaclass registration object */
@@ -45,8 +45,8 @@ CVmMetaclass *CVmObjClass::metaclass_reg_ = &metaclass_reg_obj;
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   create dynamically using stack arguments 
+/*
+ *   create dynamically using stack arguments
  */
 vm_obj_id_t CVmObjClass::create_from_stack(VMG_ const uchar **pc_ptr,
                                            uint argc)
@@ -56,8 +56,8 @@ vm_obj_id_t CVmObjClass::create_from_stack(VMG_ const uchar **pc_ptr,
     AFTER_ERR_THROW(return VM_INVALID_OBJ;)
 }
 
-/* 
- *   create with no initial contents 
+/*
+ *   create with no initial contents
  */
 vm_obj_id_t CVmObjClass::create(VMG_ int in_root_set)
 {
@@ -67,7 +67,7 @@ vm_obj_id_t CVmObjClass::create(VMG_ int in_root_set)
 }
 
 /*
- *   create with a given dependency index 
+ *   create with a given dependency index
  */
 vm_obj_id_t CVmObjClass::create_dyn(VMG_ uint meta_idx)
 {
@@ -95,7 +95,7 @@ vm_intcls_ext *CVmObjClass::alloc_ext(VMG0_)
 }
 
 /*
- *   create with a given dependency index 
+ *   create with a given dependency index
  */
 CVmObjClass::CVmObjClass(VMG_ int in_root_set, uint meta_idx,
                          vm_obj_id_t self)
@@ -117,8 +117,8 @@ CVmObjClass::CVmObjClass(VMG_ int in_root_set, uint meta_idx,
     register_meta(vmg_ self);
 }
 
-/* 
- *   notify of deletion 
+/*
+ *   notify of deletion
  */
 void CVmObjClass::notify_delete(VMG_ int in_root_set)
 {
@@ -154,7 +154,7 @@ void CVmObjClass::set_prop(VMG_ CVmUndo *undo,
 }
 
 /*
- *   Get a list of our properties 
+ *   Get a list of our properties
  */
 void CVmObjClass::build_prop_list(VMG_ vm_obj_id_t self, vm_val_t *retval)
 {
@@ -203,9 +203,9 @@ void CVmObjClass::build_prop_list(VMG_ vm_obj_id_t self, vm_val_t *retval)
     }
     else
     {
-        /* 
+        /*
          *   we have no modifier object - for the result list, we simply
-         *   need our own list, so set the modifier list to nil 
+         *   need our own list, so set the modifier list to nil
          */
         mod_val.set_nil();
         mod_prop_cnt = 0;
@@ -217,7 +217,7 @@ void CVmObjClass::build_prop_list(VMG_ vm_obj_id_t self, vm_val_t *retval)
 
     /*
      *   Allocate a list big enough to hold the modifier's list plus our own
-     *   list.  
+     *   list.
      */
     retval->set_obj(CVmObjList::
                     create(vmg_ FALSE, my_prop_cnt + mod_prop_cnt));
@@ -256,7 +256,7 @@ void CVmObjClass::mark_refs(VMG_ uint state)
 /*
  *   List my metaclass's properties.  Returns the number of properties we
  *   find.  We'll add the properties to the given list; if the list is null,
- *   we'll simply return the count.  
+ *   we'll simply return the count.
  */
 size_t CVmObjClass::list_class_props(VMG_ vm_obj_id_t self,
                                       vm_meta_entry_t *entry,
@@ -266,7 +266,7 @@ size_t CVmObjClass::list_class_props(VMG_ vm_obj_id_t self,
     ushort i;
     size_t cnt;
     size_t idx;
-    
+
     /* count the valid entries */
     for (i = 1, idx = starting_idx, cnt = 0 ;
          i <= entry->func_xlat_cnt_ ; ++i)
@@ -277,19 +277,19 @@ size_t CVmObjClass::list_class_props(VMG_ vm_obj_id_t self,
 
         /* get this property */
         prop = entry->xlat_func(i);
-        
-        /* 
+
+        /*
          *   If this one's valid, check to see if it's we're interested in
          *   it.  If we want only statics, include it only if it's
          *   implemented as a static method on this intrinsic class object;
          *   otherwise, include it unconditionally.
-         *   
+         *
          *   To determine if the property is implemented as a static, call
          *   the property on self without an argc pointer - this is the
          *   special form of the call which merely retrieves the value of the
          *   property without evaluating it.  If the property is defined on
          *   the object, and the source of the definition is self, include
-         *   this one in the list of directly-defined properties.  
+         *   this one in the list of directly-defined properties.
          */
         if (prop != VM_INVALID_PROP
             && (!static_only
@@ -320,7 +320,7 @@ size_t CVmObjClass::list_class_props(VMG_ vm_obj_id_t self,
 
 
 /*
- *   get a static property 
+ *   get a static property
  */
 int CVmObjClass::call_stat_prop(VMG_ vm_val_t *result, const uchar **pc_ptr,
                                 uint *argc, vm_prop_id_t prop)
@@ -334,16 +334,16 @@ int CVmObjClass::call_stat_prop(VMG_ vm_val_t *result, const uchar **pc_ptr,
         return s_getp_is_int_class(vmg_ result, argc);
 
     default:
-        /* 
+        /*
          *   we don't define this one - inherit the default from the base
-         *   object metaclass 
+         *   object metaclass
          */
         return CVmObject::call_stat_prop(vmg_ result, pc_ptr, argc, prop);
     }
 }
 
 /*
- *   static method: isIntrinsicClass(x) 
+ *   static method: isIntrinsicClass(x)
  */
 int CVmObjClass::s_getp_is_int_class(VMG_ vm_val_t *result, uint *argc)
 {
@@ -363,16 +363,16 @@ int CVmObjClass::s_getp_is_int_class(VMG_ vm_val_t *result, uint *argc)
     return TRUE;
 }
 
-/* 
- *   get a property 
+/*
+ *   get a property
  */
 int CVmObjClass::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *val,
                           vm_obj_id_t self, vm_obj_id_t *source_obj,
                           uint *argc)
 {
-    /* 
+    /*
      *   pass the property request as a static property of the metaclass
-     *   with which we're associated 
+     *   with which we're associated
      */
     vm_meta_entry_t *entry = get_meta_entry(vmg0_);
     if (entry != 0 && entry->meta_->call_stat_prop(vmg_ val, 0, argc, prop))
@@ -382,13 +382,13 @@ int CVmObjClass::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *val,
         return TRUE;
     }
 
-    /* 
+    /*
      *   Try handling it through the modifier object, if we have one.  Note
      *   that we must search our own intrinsic superclass chain, because our
      *   own true intrinsic class is 'intrinsic class,' but we want to expose
      *   the nominal superclass hierarchy of the intrinsic class itself (for
      *   example, we want to search List->Collection->Object, not
-     *   List->IntrinsicClass->Object).  
+     *   List->IntrinsicClass->Object).
      */
     if (get_prop_from_mod(vmg_ prop, val, self, source_obj, argc))
         return TRUE;
@@ -417,9 +417,9 @@ int CVmObjClass::get_prop_from_mod(VMG_ vm_prop_id_t prop, vm_val_t *val,
         return TRUE;
     }
 
-    /* 
+    /*
      *   it's not in our modifier(s); check with any intrinsic superclass
-     *   modifiers 
+     *   modifiers
      */
     if (get_superclass_count(vmg_ self) != 0
         && (sc = get_superclass(vmg_ self, 0)) != VM_INVALID_OBJ)
@@ -429,9 +429,9 @@ int CVmObjClass::get_prop_from_mod(VMG_ vm_prop_id_t prop, vm_val_t *val,
             ->get_prop_from_mod(vmg_ prop, val, sc, source_obj, argc);
     }
 
-    /* 
+    /*
      *   we didn't find it, and we have no superclass, so there's nowhere
-     *   else to look - return failure 
+     *   else to look - return failure
      */
     return FALSE;
 }
@@ -446,11 +446,11 @@ vm_obj_id_t CVmObjClass::find_mod_src_obj(VMG_ vm_obj_id_t self,
 {
     vm_obj_id_t my_mod_obj;
     vm_obj_id_t sc;
-    
-    /* 
+
+    /*
      *   Is this one of my modifier objects?  It is if it's my most
      *   specialized modifier object (i.e., get_mod_obj()), or if my most
-     *   specialized modifier object descends from the given object. 
+     *   specialized modifier object descends from the given object.
      */
     my_mod_obj = get_mod_obj();
     if (my_mod_obj != VM_INVALID_OBJ
@@ -461,27 +461,27 @@ vm_obj_id_t CVmObjClass::find_mod_src_obj(VMG_ vm_obj_id_t self,
         return self;
     }
 
-    /* 
+    /*
      *   It's not one of mine, so check my superclasses recursively.  If we
-     *   have no direct superclass, we've failed to find the object.  
+     *   have no direct superclass, we've failed to find the object.
      */
     if (get_superclass_count(vmg_ self) == 0
         || (sc = get_superclass(vmg_ self, 0)) == VM_INVALID_OBJ)
         return VM_INVALID_OBJ;
-    
+
     /* ask the superclass to find the modifier */
     return ((CVmObjClass *)vm_objp(vmg_ sc))
         ->find_mod_src_obj(vmg_ sc, mod_obj);
 }
 
 /*
- *   Get my metaclass table entry 
+ *   Get my metaclass table entry
  */
 vm_meta_entry_t *CVmObjClass::get_meta_entry(VMG0_) const
 {
     /* get my metaclass table index */
     uint meta_idx = get_meta_idx();
-    
+
     /* look up my metaclass table entry, if we have one */
     if (meta_idx < G_meta_table->get_count())
         return G_meta_table->get_entry(meta_idx);
@@ -489,8 +489,8 @@ vm_meta_entry_t *CVmObjClass::get_meta_entry(VMG0_) const
         return 0;
 }
 
-/* 
- *   save to a file 
+/*
+ *   save to a file
  */
 void CVmObjClass::save_to_file(VMG_ class CVmFile *fp)
 {
@@ -505,8 +505,8 @@ void CVmObjClass::save_to_file(VMG_ class CVmFile *fp)
     fp->write_bytes(buf, VMB_DATAHOLDER);
 }
 
-/* 
- *   restore from a file 
+/*
+ *   restore from a file
  */
 void CVmObjClass::restore_from_file(VMG_ vm_obj_id_t self,
                                     CVmFile *fp, CVmObjFixup *fixups)
@@ -518,10 +518,10 @@ void CVmObjClass::restore_from_file(VMG_ vm_obj_id_t self,
     size_t len = fp->read_uint2();
     const size_t expected_len = 2+2+4+VMB_DATAHOLDER;
 
-    /* 
+    /*
      *   read the metaclass index and modifier object ID; note that modifier
      *   objects are always root set objects, so there's no need to worry
-     *   about fixups 
+     *   about fixups
      */
     ext->meta_idx = fp->read_uint2();
     ext->mod_obj = (vm_obj_id_t)fp->read_uint4();
@@ -574,10 +574,10 @@ void CVmObjClass::load_image_data(VMG_ vm_obj_id_t self,
     /* allocate or reallocate the extension */
     vm_intcls_ext *ext = alloc_ext(vmg0_);
 
-    /* 
+    /*
      *   read the metaclass index and modifier object ID; note that modifier
      *   objects are always root set objects, so there's no need to worry
-     *   about fixups 
+     *   about fixups
      */
     ext->meta_idx = osrp2(ptr+2);
     ext->mod_obj = (vm_obj_id_t)t3rp4u(ptr+4);
@@ -586,7 +586,7 @@ void CVmObjClass::load_image_data(VMG_ vm_obj_id_t self,
     ext->class_state.set_nil();
     if (siz >= 2+4+VMB_DATAHOLDER)
         vmb_get_dh(ptr+8, &ext->class_state);
-        
+
     /* register myself */
     register_meta(vmg_ self);
 }
@@ -595,33 +595,33 @@ void CVmObjClass::load_image_data(VMG_ vm_obj_id_t self,
  *   Register myself with the metaclass dependency table - this establishes
  *   the association between the metaclass in the dependency table and this
  *   instance, so that the metaclass knows about the instance that
- *   represents it.  
+ *   represents it.
  */
 void CVmObjClass::register_meta(VMG_ vm_obj_id_t self)
 {
     /* get my metaclass table entry */
     vm_meta_entry_t *entry = get_meta_entry(vmg0_);
 
-    /* 
+    /*
      *   if we have a valid entry, store a reference to myself in the
      *   metaclass table - this will let the metaclass that we represent find
-     *   us when asked for its class object 
+     *   us when asked for its class object
      */
     if (entry != 0)
         entry->class_obj_ = self;
 }
 
 /*
- *   Get the number of superclasses 
+ *   Get the number of superclasses
  */
 int CVmObjClass::get_superclass_count(VMG_ vm_obj_id_t) const
 {
     /* get my metaclass table entry */
     vm_meta_entry_t *entry = get_meta_entry(vmg0_);
 
-    /* 
+    /*
      *   if we have a valid entry, ask the metaclass object to tell us the
-     *   superclass count 
+     *   superclass count
      */
     if (entry != 0)
         return entry->meta_->get_supermeta_count(vmg0_);
@@ -630,16 +630,16 @@ int CVmObjClass::get_superclass_count(VMG_ vm_obj_id_t) const
 }
 
 /*
- *   Get a superclass 
+ *   Get a superclass
  */
 vm_obj_id_t CVmObjClass::get_superclass(VMG_ vm_obj_id_t, int sc_idx) const
 {
     /* get my metaclass table entry */
     vm_meta_entry_t *entry = get_meta_entry(vmg0_);
 
-    /* 
+    /*
      *   if we have a valid entry, ask the metaclass object to retrieve the
-     *   superclass 
+     *   superclass
      */
     if (entry != 0)
         return entry->meta_->get_supermeta(vmg_ sc_idx);
@@ -648,7 +648,7 @@ vm_obj_id_t CVmObjClass::get_superclass(VMG_ vm_obj_id_t, int sc_idx) const
 }
 
 /*
- *   Determine if I'm an instance of the given object 
+ *   Determine if I'm an instance of the given object
  */
 int CVmObjClass::is_instance_of(VMG_ vm_obj_id_t obj)
 {

@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/VMFILE.CPP,v 1.2 1999/05/17 02:52:28 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmfile.cpp - VM file implementation
 Function
-  
+
 Notes
-  
+
 Modified
   10/28/98 MJRoberts  - Creation
 */
@@ -27,7 +27,7 @@ Modified
 
 
 /*
- *   delete the file object 
+ *   delete the file object
  */
 CVmFile::~CVmFile()
 {
@@ -37,7 +37,7 @@ CVmFile::~CVmFile()
 }
 
 /*
- *   open for reading 
+ *   open for reading
  */
 void CVmFile::open_read(const char *fname, os_filetype_t typ)
 {
@@ -50,7 +50,7 @@ void CVmFile::open_read(const char *fname, os_filetype_t typ)
 }
 
 /*
- *   open for writing 
+ *   open for writing
  */
 void CVmFile::open_write(const char *fname, os_filetype_t typ)
 {

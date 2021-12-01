@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/OS0.C,v 1.2 1999/05/17 02:52:12 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1992, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -33,7 +33,7 @@ Function
    to override subsequent instances of the same option; other options
    override by coming later in the string.
 Notes
-  
+
 Modified
   04/04/99 CNebel        - Use new argize function; fix Metrowerks errors.
   04/24/93 JEras         - use new os_locate() to find config file
@@ -53,7 +53,7 @@ Modified
 static int os0main_internal(int oargc, char **oargv,
                             int (*mainfn1)(int, char **, char *),
                             int (*mainfn2)(int, char **, struct appctxdef *,
-                                           char *), 
+                                           char *),
                             const char *before, const char *config,
                             struct appctxdef *appctx)
 {
@@ -70,13 +70,13 @@ static int os0main_internal(int oargc, char **oargv,
 
     /*
      *   Check for an embedded SAVX resource, which specifies the default
-     *   saved game file suffix. 
+     *   saved game file suffix.
      */
     if (oargv != 0 && oargv[0] != 0
         && (fp = os_exeseek(oargv[0], "SAVX")) != 0)
     {
         unsigned short len;
-        
+
         /* read the length and then read the name */
         if (!osfrb(fp, &len, sizeof(len))
             && len < sizeof(buf)
@@ -100,7 +100,7 @@ static int os0main_internal(int oargc, char **oargv,
 
     /*
      *   Try for an embedded configuration file.  If we don't find one,
-     *   try locating an external configuration file. 
+     *   try locating an external configuration file.
      */
     if (oargv != 0 && oargv[0] != 0
         && (fp = os_exeseek(oargv[0], "RCFG")) != 0)
@@ -205,7 +205,7 @@ static int os0main_internal(int oargc, char **oargv,
 
 /*
  *   Old-style os0main: call with main function that doesn't take a host
- *   container application context 
+ *   container application context
  */
 int os0main(int oargc, char **oargv,
             int (*mainfn)(int, char **, char *),
@@ -216,7 +216,7 @@ int os0main(int oargc, char **oargv,
 
 /*
  *   New-style os0main: call with main function that takes a host
- *   container application context 
+ *   container application context
  */
 int os0main2(int oargc, char **oargv,
              int (*mainfn)(int, char **, struct appctxdef *, char *),

@@ -37270,7 +37270,7 @@ static case_table *case_tab[512] =
     0,
     0,
     case_pg_1fe,
-    0 
+    0
 };
 
 static wchar_t case_expansion[] =

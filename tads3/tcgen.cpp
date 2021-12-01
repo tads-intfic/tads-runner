@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/tcgen.cpp,v 1.4 1999/07/11 00:46:58 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   tcgen.cpp - TADS 3 Compiler code generator support classes
 Function
-  
+
 Notes
-  
+
 Modified
   05/09/99 MJRoberts  - Creation
 */
@@ -38,10 +38,10 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Data/Code Stream Parser-Allocated Object 
+ *   Data/Code Stream Parser-Allocated Object
  */
 
-/* 
+/*
  *   allocate via a parser memory allocator
  */
 void *CTcCSPrsAllocObj::operator new(size_t siz, CTcPrsMem *allocator)
@@ -52,11 +52,11 @@ void *CTcCSPrsAllocObj::operator new(size_t siz, CTcPrsMem *allocator)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Data Stream 
+ *   Data Stream
  */
 
 /*
- *   initialize 
+ *   initialize
  */
 CTcDataStream::CTcDataStream(char stream_id)
 {
@@ -81,7 +81,7 @@ CTcDataStream::CTcDataStream(char stream_id)
 }
 
 /*
- *   delete 
+ *   delete
  */
 CTcDataStream::~CTcDataStream()
 {
@@ -100,7 +100,7 @@ CTcDataStream::~CTcDataStream()
 }
 
 /*
- *   Reset 
+ *   Reset
  */
 void CTcDataStream::reset()
 {
@@ -122,7 +122,7 @@ void CTcDataStream::reset()
     /* reset the allocator */
     allocator_->reset();
 
-    /* 
+    /*
      *   forget all of the anchors (no need to delete them explicitly -
      *   they were allocated from our allocator pool, which we've reset to
      *   completely discard everything it contained)
@@ -131,16 +131,16 @@ void CTcDataStream::reset()
 }
 
 /*
- *   Decrement the write offset 
+ *   Decrement the write offset
  */
 void CTcDataStream::dec_ofs(int amount)
 {
     /* adjust the offset */
     ofs_ -= amount;
 
-    /* 
+    /*
      *   calculate the new page we're on, since this may take us to a
-     *   different page 
+     *   different page
      */
     page_cur_ = ofs_ / TCCS_PAGE_SIZE;
 
@@ -152,7 +152,7 @@ void CTcDataStream::dec_ofs(int amount)
 }
 
 /*
- *   Get a pointer to a block at a given offset and a given length.  
+ *   Get a pointer to a block at a given offset and a given length.
  */
 const char *CTcDataStream::get_block_ptr(ulong ofs,
                                          ulong requested_len,
@@ -160,16 +160,16 @@ const char *CTcDataStream::get_block_ptr(ulong ofs,
 {
     size_t page_rem;
 
-    /* 
+    /*
      *   determine how much is left on the page containing the offset
-     *   after the given offset 
+     *   after the given offset
      */
     page_rem = TCCS_PAGE_SIZE - (ofs % TCCS_PAGE_SIZE);
 
-    /* 
+    /*
      *   if the amount remaining on the page is greater than the request
      *   length, the available length is the entire request; otherwise,
-     *   the available length is the amount remaining on the page 
+     *   the available length is the amount remaining on the page
      */
     if (page_rem >= requested_len)
         *available_len = requested_len;
@@ -182,17 +182,17 @@ const char *CTcDataStream::get_block_ptr(ulong ofs,
 
 
 /*
- *   Write bytes to the stream at an earlier offset 
+ *   Write bytes to the stream at an earlier offset
  */
 void CTcDataStream::write_at(ulong ofs, const char *buf, size_t len)
 {
     /* if we're writing to the current offset, use the normal writer */
     if (ofs == ofs_)
         write(buf, len);
-    
-    /* 
+
+    /*
      *   log an internal error, and skip writing anything, if the desired
-     *   range of offsets has not been previously written 
+     *   range of offsets has not been previously written
      */
     if (ofs + len > ofs_)
         G_tok->throw_internal_error(TCERR_WRITEAT_PAST_END);
@@ -202,15 +202,15 @@ void CTcDataStream::write_at(ulong ofs, const char *buf, size_t len)
     {
         size_t cur;
 
-        /* 
+        /*
          *   determine how much is left on the page containing the current
-         *   starting offset 
+         *   starting offset
          */
         cur = TCCS_PAGE_SIZE - (ofs % TCCS_PAGE_SIZE);
 
-        /* 
+        /*
          *   figure out how much we can copy - copy the whole remaining
-         *   size, but no more than the amount remaining on this page 
+         *   size, but no more than the amount remaining on this page
          */
         if (cur > len)
             cur = len;
@@ -226,7 +226,7 @@ void CTcDataStream::write_at(ulong ofs, const char *buf, size_t len)
 }
 
 /*
- *   Copy a chunk of the stream to the given buffer 
+ *   Copy a chunk of the stream to the given buffer
  */
 void CTcDataStream::copy_to_buf(char *buf, ulong start_ofs, ulong len)
 {
@@ -234,16 +234,16 @@ void CTcDataStream::copy_to_buf(char *buf, ulong start_ofs, ulong len)
     while (len != 0)
     {
         size_t cur;
-        
-        /* 
+
+        /*
          *   determine how much is left on the page containing the current
-         *   starting offset 
+         *   starting offset
          */
         cur = TCCS_PAGE_SIZE - (start_ofs % TCCS_PAGE_SIZE);
-        
-        /* 
+
+        /*
          *   figure out how much we can copy - copy the whole remaining
-         *   size, but no more than the amount remaining on this page 
+         *   size, but no more than the amount remaining on this page
          */
         if (cur > len)
             cur = (size_t)len;
@@ -259,7 +259,7 @@ void CTcDataStream::copy_to_buf(char *buf, ulong start_ofs, ulong len)
 }
 
 /*
- *   Reserve space 
+ *   Reserve space
  */
 ulong CTcDataStream::reserve(size_t len)
 {
@@ -267,7 +267,7 @@ ulong CTcDataStream::reserve(size_t len)
 
     /* we'll always return the offset current before the call */
     ret = ofs_;
-    
+
     /* if we have space on the current page, it's easy */
     if (len <= rem_)
     {
@@ -307,7 +307,7 @@ ulong CTcDataStream::reserve(size_t len)
 
 /*
  *   Append data from another stream.  The source stream is permanently
- *   moved to the new stream, destroying the original stream.  
+ *   moved to the new stream, destroying the original stream.
  */
 void CTcDataStream::append_stream(CTcDataStream *stream)
 {
@@ -319,7 +319,7 @@ void CTcDataStream::append_stream(CTcDataStream *stream)
 
     /* remember the starting offset of the copy in my stream */
     start_ofs = get_ofs();
-    
+
     /* copy all data from the other stream */
     for (ofs = 0, rem = stream->get_ofs() ; rem != 0 ; )
     {
@@ -327,9 +327,9 @@ void CTcDataStream::append_stream(CTcDataStream *stream)
         const char *ptr;
         ulong actual;
 
-        /* 
+        /*
          *   request as much as possible from the other stream, up to the
-         *   remaining length or 64k, whichever is smaller 
+         *   remaining length or 64k, whichever is smaller
          */
         request = 65535;
         if (rem < request)
@@ -338,9 +338,9 @@ void CTcDataStream::append_stream(CTcDataStream *stream)
         /* get the chunk from the source stream */
         ptr = stream->get_block_ptr(ofs, request, &actual);
 
-        /* 
+        /*
          *   write this chunk (which we know is less than 64k and can thus
-         *   be safely cast to size_t, even on 16-bit machines) 
+         *   be safely cast to size_t, even on 16-bit machines)
          */
         write(ptr, (size_t)actual);
 
@@ -354,14 +354,14 @@ void CTcDataStream::append_stream(CTcDataStream *stream)
      *   This will ensure that fixups in the other stream have
      *   corresponding fixups in this stream.  Note that we must adjust
      *   the offset of each copied anchor by the offset of the start of
-     *   the copied data in our stream.  
+     *   the copied data in our stream.
      */
     for (anchor = stream->get_first_anchor() ; anchor != 0 ; anchor = nxt)
     {
-        /* 
+        /*
          *   remember the old link to the next anchor, since we're going
          *   to move the anchor to my list and thus forget about its
-         *   position in the old list 
+         *   position in the old list
          */
         nxt = anchor->nxt_;
 
@@ -381,13 +381,13 @@ void CTcDataStream::append_stream(CTcDataStream *stream)
 }
 
 /*
- *   Write bytes to the stream 
+ *   Write bytes to the stream
  */
 void CTcDataStream::write(const char *buf, size_t len)
 {
-    /* 
+    /*
      *   if possible, write it in one go (this is for efficiency, so that
-     *   we can avoid making a few comparisons in the most common case) 
+     *   we can avoid making a few comparisons in the most common case)
      */
     if (len <= rem_)
     {
@@ -432,13 +432,13 @@ void CTcDataStream::write(const char *buf, size_t len)
 }
 
 /*
- *   allocate a new page 
+ *   allocate a new page
  */
 void CTcDataStream::alloc_page()
 {
-    /* 
+    /*
      *   if we're coming back to a page that was previously allocated, we
-     *   need merely re-establish the existing page 
+     *   need merely re-establish the existing page
      */
     if (page_cur_ + 1 < page_cnt_)
     {
@@ -453,9 +453,9 @@ void CTcDataStream::alloc_page()
         return;
     }
 
-    /* 
+    /*
      *   if we don't have room for a new page in the page array, expand
-     *   the page array 
+     *   the page array
      */
     if (page_cnt_ >= page_slots_)
     {
@@ -495,7 +495,7 @@ void CTcDataStream::alloc_page()
 }
 
 /*
- *   Add an absolute fixup for this stream at the current write offset. 
+ *   Add an absolute fixup for this stream at the current write offset.
  */
 void CTcDataStream::add_abs_fixup(CTcAbsFixup **list_head)
 {
@@ -512,7 +512,7 @@ CTcStreamAnchor *CTcDataStream::add_anchor(CTcSymbol *owner_sym,
                                            ulong ofs)
 {
     CTcStreamAnchor *anchor;
-    
+
     /* allocate the anchor, giving it our current offset */
     anchor = new (allocator_) CTcStreamAnchor(owner_sym,
                                               fixup_list_head, ofs);
@@ -529,7 +529,7 @@ CTcStreamAnchor *CTcDataStream::add_anchor(CTcSymbol *owner_sym,
 }
 
 /*
- *   Find an anchor with the given stream offset 
+ *   Find an anchor with the given stream offset
  */
 CTcStreamAnchor *CTcDataStream::find_anchor(ulong ofs) const
 {
@@ -548,13 +548,13 @@ CTcStreamAnchor *CTcDataStream::find_anchor(ulong ofs) const
 }
 
 /*
- *   Write an object ID 
+ *   Write an object ID
  */
 void CTcDataStream::write_obj_id(ulong obj_id)
 {
-    /* 
+    /*
      *   if there's an object ID fixup list, and this is a valid object
-     *   reference (not a 'nil' reference), add this reference 
+     *   reference (not a 'nil' reference), add this reference
      */
     if (G_keep_objfixups && obj_id != TCTARG_INVALID_OBJ)
         CTcIdFixup::add_fixup(&G_objfixup, this, get_ofs(), obj_id);
@@ -564,15 +564,15 @@ void CTcDataStream::write_obj_id(ulong obj_id)
 }
 
 /*
- *   Write an object ID self-reference 
+ *   Write an object ID self-reference
  */
 void CTcDataStream::write_obj_id_selfref(CTcSymObj *obj_sym)
 {
-    /* 
+    /*
      *   Add a fixup list entry to the symbol.  This type of reference
      *   must be kept with the symbol rather than in the global list,
      *   because we must apply this type of fixup each time we renumber
-     *   the symbol. 
+     *   the symbol.
      */
     obj_sym->add_self_ref_fixup(this, get_ofs());
 
@@ -582,7 +582,7 @@ void CTcDataStream::write_obj_id_selfref(CTcSymObj *obj_sym)
 
 
 /*
- *   Write a property ID 
+ *   Write a property ID
  */
 void CTcDataStream::write_prop_id(uint prop_id)
 {
@@ -595,7 +595,7 @@ void CTcDataStream::write_prop_id(uint prop_id)
 }
 
 /*
- *   Write an enumerator ID 
+ *   Write an enumerator ID
  */
 void CTcDataStream::write_enum_id(ulong enum_id)
 {
@@ -608,7 +608,7 @@ void CTcDataStream::write_enum_id(ulong enum_id)
 }
 
 /*
- *   Given a stream ID, get the stream 
+ *   Given a stream ID, get the stream
  */
 CTcDataStream *CTcDataStream::
    get_stream_from_id(char stream_id, const textchar_t *obj_fname)
@@ -652,11 +652,11 @@ CTcDataStream *CTcDataStream::
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Code Stream 
+ *   Code Stream
  */
 
 /*
- *   create the code stream 
+ *   create the code stream
  */
 CTcCodeStream::CTcCodeStream(char stream_id)
     : CTcDataStream(stream_id)
@@ -698,7 +698,7 @@ CTcCodeStream::CTcCodeStream(char stream_id)
 
 
 /*
- *   destroy the code stream 
+ *   destroy the code stream
  */
 CTcCodeStream::~CTcCodeStream()
 {
@@ -716,7 +716,7 @@ CTcCodeStream::~CTcCodeStream()
 }
 
 /*
- *   Set the current local frame 
+ *   Set the current local frame
  */
 CTcPrsSymtab *CTcCodeStream::set_local_frame(CTcPrsSymtab *symtab)
 {
@@ -742,7 +742,7 @@ CTcPrsSymtab *CTcCodeStream::set_local_frame(CTcPrsSymtab *symtab)
 
 
 /*
- *   Reset 
+ *   Reset
  */
 void CTcCodeStream::reset()
 {
@@ -752,9 +752,9 @@ void CTcCodeStream::reset()
     /* clear the line records */
     clear_line_recs();
 
-    /* 
+    /*
      *   forget all of the labels and fixups - they're allocated from the
-     *   allocator pool, which we've completely reset now 
+     *   allocator pool, which we've completely reset now
      */
     free_lbl_ = active_lbl_ = 0;
     free_fixup_ = 0;
@@ -778,7 +778,7 @@ void CTcCodeStream::reset()
 }
 
 /*
- *   Allocate line record pages 
+ *   Allocate line record pages
  */
 void CTcCodeStream::alloc_line_pages(size_t number_to_add)
 {
@@ -805,12 +805,12 @@ void CTcCodeStream::alloc_line_pages(size_t number_to_add)
 }
 
 /*
- *   Allocate a new label object 
+ *   Allocate a new label object
  */
 CTcCodeLabel *CTcCodeStream::alloc_label()
 {
     CTcCodeLabel *ret;
-    
+
     /* if there's anything in the free list, use it */
     if (free_lbl_ != 0)
     {
@@ -878,7 +878,7 @@ void CTcCodeStream::release_labels()
 
     /* we haven't found any errors yet */
     err_cnt = 0;
-    
+
     /* run through the list of active labels */
     while (active_lbl_ != 0)
     {
@@ -896,7 +896,7 @@ void CTcCodeStream::release_labels()
         while (lbl->fhead != 0)
         {
             CTcLabelFixup *fixup;
-            
+
             /* pull this fixup off of the active list */
             fixup = lbl->fhead;
             lbl->fhead = lbl->fhead->nxt;
@@ -904,18 +904,18 @@ void CTcCodeStream::release_labels()
             /* put this fixup on the free list */
             fixup->nxt = free_fixup_;
             free_fixup_ = fixup;
-            
+
             /* count the unresolved label */
             ++err_cnt;
         }
     }
 
-    /* 
+    /*
      *   if we found any unresolved fixups, log the error; there's not
      *   much point in logging each error individually, since this is an
      *   internal compiler error that the user can't do anything about,
      *   but at least give the user a count for compiler diagnostic
-     *   purposes 
+     *   purposes
      */
     if (err_cnt != 0)
         G_tcmain->log_error(0, 0, TC_SEV_INTERNAL,
@@ -928,7 +928,7 @@ void CTcCodeStream::release_labels()
 CTcCodeLabel *CTcCodeStream::new_label_here()
 {
     CTcCodeLabel *lbl;
-    
+
     /* allocate a new label */
     lbl = alloc_label();
 
@@ -941,7 +941,7 @@ CTcCodeLabel *CTcCodeStream::new_label_here()
 }
 
 /*
- *   Allocate a new forward-reference label 
+ *   Allocate a new forward-reference label
  */
 CTcCodeLabel *CTcCodeStream::new_label_fwd()
 {
@@ -960,14 +960,14 @@ CTcCodeLabel *CTcCodeStream::new_label_fwd()
 
 /*
  *   Define the position of a label, resolving any fixups associated with
- *   the label. 
+ *   the label.
  */
 void CTcCodeStream::def_label_pos(CTcCodeLabel *lbl)
 {
     /* set the label's position */
     lbl->ofs = ofs_;
     lbl->is_known = TRUE;
-    
+
     /* resolve each fixup */
     while (lbl->fhead != 0)
     {
@@ -979,9 +979,9 @@ void CTcCodeStream::def_label_pos(CTcCodeLabel *lbl)
         fixup = lbl->fhead;
         lbl->fhead = lbl->fhead->nxt;
 
-        /* 
+        /*
          *   calculate the offset from the fixup position to the label
-         *   position, applying the bias to the fixup position 
+         *   position, applying the bias to the fixup position
          */
         diff = lbl->ofs - (fixup->ofs + fixup->bias);
 
@@ -1006,12 +1006,12 @@ void CTcCodeStream::def_label_pos(CTcCodeLabel *lbl)
 }
 
 /*
- *   Determine if a label has a fixup at a particular offset 
+ *   Determine if a label has a fixup at a particular offset
  */
 int CTcCodeStream::has_fixup_at_ofs(CTcCodeLabel *lbl, ulong ofs)
 {
     CTcLabelFixup *fixup;
-    
+
     /* scan for a match */
     for (fixup = lbl->fhead ; fixup != 0 ; fixup = fixup->nxt)
     {
@@ -1025,7 +1025,7 @@ int CTcCodeStream::has_fixup_at_ofs(CTcCodeLabel *lbl, ulong ofs)
 }
 
 /*
- *   Remove a label's fixup at a particular offset 
+ *   Remove a label's fixup at a particular offset
  */
 void CTcCodeStream::remove_fixup_at_ofs(CTcCodeLabel *lbl, ulong ofs)
 {
@@ -1038,7 +1038,7 @@ void CTcCodeStream::remove_fixup_at_ofs(CTcCodeLabel *lbl, ulong ofs)
     {
         /* remember the next one */
         nxt = fixup->nxt;
-        
+
         /* if this is a match, remove it */
         if (fixup->ofs == ofs)
         {
@@ -1056,7 +1056,7 @@ void CTcCodeStream::remove_fixup_at_ofs(CTcCodeLabel *lbl, ulong ofs)
 }
 
 /*
- *   Write an offset value to the given label 
+ *   Write an offset value to the given label
  */
 void CTcCodeStream::write_ofs(CTcCodeLabel *lbl, int bias, int is_long)
 {
@@ -1064,10 +1064,10 @@ void CTcCodeStream::write_ofs(CTcCodeLabel *lbl, int bias, int is_long)
     if (lbl->is_known)
     {
         long diff;
-        
-        /* 
+
+        /*
          *   calculate the branch offset from the current position,
-         *   applying the bias to the current position 
+         *   applying the bias to the current position
          */
         diff = lbl->ofs - (ofs_ + bias);
 
@@ -1102,7 +1102,7 @@ void CTcCodeStream::write_ofs(CTcCodeLabel *lbl, int bias, int is_long)
 }
 
 /*
- *   Add a new line record at the current code offset 
+ *   Add a new line record at the current code offset
  */
 void CTcCodeStream::add_line_rec(CTcTokFileDesc *file, long linenum)
 {
@@ -1116,13 +1116,13 @@ void CTcCodeStream::add_line_rec(CTcTokFileDesc *file, long linenum)
     /* presume we won't re-use the previous record */
     int reuse = FALSE;
 
-    /* 
+    /*
      *   If we haven't added any code since the previous line record,
      *   overwrite the previous record - it doesn't refer to any
      *   executable code, so it's an unnecessary record.  Similarly, if
      *   the previous record is at the same source position, don't add a
      *   separate line record for it, since the debugger won't be able to
-     *   treat the two lines separately.  
+     *   treat the two lines separately.
      */
     tcgen_line_t *rec;
     if (line_cnt_ > 0)
@@ -1130,14 +1130,14 @@ void CTcCodeStream::add_line_rec(CTcTokFileDesc *file, long linenum)
         /* get the previous record */
         rec = get_line_rec(line_cnt_ - 1);
 
-        /* 
+        /*
          *   if it refers to the same code offset, replace the old record
-         *   with one at this location 
+         *   with one at this location
          */
         if (rec->ofs == cur_ofs)
             reuse = TRUE;
 
-        /* 
+        /*
          *   if it has the identical source file location, don't bother
          *   adding a new record at all
          */
@@ -1149,16 +1149,16 @@ void CTcCodeStream::add_line_rec(CTcTokFileDesc *file, long linenum)
     /* if we're not re-using the previous record, allocate a new one */
     if (!reuse)
     {
-        /* 
+        /*
          *   we need a new record - if we've used all the allocated space,
-         *   allocate more 
+         *   allocate more
          */
         if (line_cnt_ >= line_pages_alloc_ * TCGEN_LINE_PAGE_SIZE)
             alloc_line_pages(5);
 
         /* get a pointer to the next available entry */
         rec = get_line_rec(line_cnt_);
-        
+
         /* count the new record */
         ++line_cnt_;
     }
@@ -1175,7 +1175,7 @@ void CTcCodeStream::add_line_rec(CTcTokFileDesc *file, long linenum)
 }
 
 /*
- *   Get the nth line record 
+ *   Get the nth line record
  */
 tcgen_line_t *CTcCodeStream::get_line_rec(size_t n)
 {
@@ -1184,11 +1184,11 @@ tcgen_line_t *CTcCodeStream::get_line_rec(size_t n)
 }
 
 /*
- *   Add a frame to the list of local frames in the method 
+ *   Add a frame to the list of local frames in the method
  */
 void CTcCodeStream::add_local_frame(CTcPrsSymtab *symtab)
 {
-    /* 
+    /*
      *   If this is the global symbol table, or it's null, or it's already
      *   in a list, ignore it.  Note that we can tell if the item is in a
      *   list by checking its index value - a value of zero is never a
@@ -1198,7 +1198,7 @@ void CTcCodeStream::add_local_frame(CTcPrsSymtab *symtab)
         || symtab == 0
         || symtab->get_list_index() != 0)
         return;
-    
+
     /* link the frame in at the tail of our list */
     symtab->set_list_next(0);
     if (frame_tail_ == 0)
@@ -1210,31 +1210,31 @@ void CTcCodeStream::add_local_frame(CTcPrsSymtab *symtab)
     /* count the new entry in the list */
     ++frame_cnt_;
 
-    /* 
+    /*
      *   Set this frame's index in the list.  Note that we've already
      *   incremented the index value, so the first frame in the list will
-     *   have index 1, as is required. 
+     *   have index 1, as is required.
      */
     symtab->set_list_index(frame_cnt_);
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Data stream anchor 
+ *   Data stream anchor
  */
 
 /*
  *   Get the length.  We can deduce the length by subtracting our offset
  *   from the next item's offset, or, if we're the last item, from the
- *   length of the stream.  
+ *   length of the stream.
  */
 ulong CTcStreamAnchor::get_len(CTcDataStream *ds) const
 {
     if (nxt_ != 0)
     {
-        /* 
+        /*
          *   there's another item after me - my length is the difference
-         *   between the next item's offset and my offset 
+         *   between the next item's offset and my offset
          */
         return (nxt_->ofs_ - ofs_);
     }
@@ -1248,35 +1248,35 @@ ulong CTcStreamAnchor::get_len(CTcDataStream *ds) const
 /*
  *   Set the finaly absoluate address, and apply fixups.  The code
  *   generator must invoke this during the link phase once this object's
- *   final address is known.  
+ *   final address is known.
  */
 void CTcStreamAnchor::set_addr(ulong addr)
 {
     /* remember my address */
     addr_ = addr;
-    
+
     /* apply all outstanding fixups for this object */
     CTcAbsFixup::fix_abs_fixup(*fixup_list_head_, addr);
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Absolute Fixup Object 
+ *   Absolute Fixup Object
  */
 
 /*
  *   Add an absolute fixup at the current stream location to a given fixup
- *   list.  
+ *   list.
  */
 void CTcAbsFixup::add_abs_fixup(CTcAbsFixup **list_head,
                                 CTcDataStream *ds, ulong ofs)
 {
     CTcAbsFixup *fixup;
 
-    /* 
+    /*
      *   create the fixup object - allocate it out of our fixup allocator
      *   pool, since this fixup object has the same attributes (small and
-     *   long-lived) as other fixup objects 
+     *   long-lived) as other fixup objects
      */
     fixup = (CTcAbsFixup *)G_prsmem->alloc(sizeof(CTcAbsFixup));
 
@@ -1290,7 +1290,7 @@ void CTcAbsFixup::add_abs_fixup(CTcAbsFixup **list_head,
 }
 
 /*
- *   Fix up a fix-up list 
+ *   Fix up a fix-up list
  */
 void CTcAbsFixup::fix_abs_fixup(CTcAbsFixup *list_head, ulong final_ofs)
 {
@@ -1299,9 +1299,9 @@ void CTcAbsFixup::fix_abs_fixup(CTcAbsFixup *list_head, ulong final_ofs)
     /* scan the list and fix up each entry */
     for (cur = list_head ; cur != 0 ; cur = cur->nxt)
     {
-        /* 
+        /*
          *   fix this entry by writing the final offset in UINT4 format to
-         *   the target stream at the target offset 
+         *   the target stream at the target offset
          */
         cur->ds->write4_at(cur->ofs, final_ofs);
     }
@@ -1309,17 +1309,17 @@ void CTcAbsFixup::fix_abs_fixup(CTcAbsFixup *list_head, ulong final_ofs)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Object/property ID fixups 
+ *   Object/property ID fixups
  */
 
 /*
- *   add a fixup to a list 
+ *   add a fixup to a list
  */
 void CTcIdFixup::add_fixup(CTcIdFixup **list_head, class CTcDataStream *ds,
                            ulong ofs, ulong id)
 {
     CTcIdFixup *fixup;
-    
+
     /* create the new fixup object */
     fixup = new (G_prsmem) CTcIdFixup(ds, ofs, id);
 

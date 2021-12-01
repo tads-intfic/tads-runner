@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/vmbif.cpp,v 1.3 1999/07/11 00:46:59 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmbif.cpp - built-in function set table implementation
 Function
-  
+
 Notes
-  
+
 Modified
   12/05/98 MJRoberts  - Creation
 */
@@ -41,7 +41,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Create the function set table with a given number of initial entries 
+ *   Create the function set table with a given number of initial entries
  */
 CVmBifTable::CVmBifTable(size_t init_entries)
 {
@@ -70,7 +70,7 @@ CVmBifTable::CVmBifTable(size_t init_entries)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Delete the table 
+ *   Delete the table
  */
 CVmBifTable::~CVmBifTable()
 {
@@ -85,7 +85,7 @@ CVmBifTable::~CVmBifTable()
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Clear all entries from the table 
+ *   Clear all entries from the table
  */
 void CVmBifTable::clear(VMG0_)
 {
@@ -109,19 +109,19 @@ void CVmBifTable::clear(VMG0_)
             lib_free_str(names_[i]);
     }
 
-    /* 
+    /*
      *   Reset the entry counter.  Note that this doesn't affect any
      *   allocation; we keep a separate count of the number of table slots
      *   we have allocated.  Table slots don't have any additional
      *   associated memory, so we don't need to worry about cleaning
-     *   anything up at this point.  
+     *   anything up at this point.
      */
     count_ = 0;
 }
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Ensure that we have space for a given number of entries 
+ *   Ensure that we have space for a given number of entries
  */
 void CVmBifTable::ensure_space(size_t entries, size_t increment)
 {
@@ -142,9 +142,9 @@ void CVmBifTable::ensure_space(size_t entries, size_t increment)
         new_table_size = alloc_ * sizeof(table_[0]);
         new_names_size = alloc_ * sizeof(names_[0]);
 
-        /* 
+        /*
          *   if we have a table already, reallocate it at the larger size;
-         *   otherwise, allocate a new table 
+         *   otherwise, allocate a new table
          */
         if (table_ != 0)
         {
@@ -161,7 +161,7 @@ void CVmBifTable::ensure_space(size_t entries, size_t increment)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Add an entry to the table 
+ *   Add an entry to the table
  */
 void CVmBifTable::add_entry(VMG_ const char *func_set_id)
 {
@@ -189,9 +189,9 @@ void CVmBifTable::add_entry(VMG_ const char *func_set_id)
         if (name_len == entry_name_len
             && memcmp(func_set_id, entry->func_set_id, name_len) == 0)
         {
-            /* 
+            /*
              *   make sure the version provided in the VM is at least as
-             *   high as the requested version 
+             *   high as the requested version
              */
             if (strcmp(vsn, entry_vsn) > 0)
             {
@@ -203,9 +203,9 @@ void CVmBifTable::add_entry(VMG_ const char *func_set_id)
                             ERR_TYPE_VERSION_FLAG);
             }
 
-            /* 
+            /*
              *   It's a match - add the new entry.  Simply keep a pointer
-             *   to the static table entry. 
+             *   to the static table entry.
              */
             table_[count_] = entry;
 
@@ -229,7 +229,7 @@ void CVmBifTable::add_entry(VMG_ const char *func_set_id)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Look up an entry by name 
+ *   Look up an entry by name
  */
 const vm_bif_entry_t *CVmBifTable::get_entry(const char *name)
 {
@@ -251,18 +251,18 @@ const vm_bif_entry_t *CVmBifTable::get_entry(const char *name)
             /* the names match - compare versions */
             if (strcmp(vsn, evsn) <= 0)
             {
-                /* 
+                /*
                  *   the loaded version is at least as new as the requested
-                 *   version, so we have a match 
+                 *   version, so we have a match
                  */
                 return table_[i];
             }
             else
             {
-                /* 
+                /*
                  *   this function set is loaded, but the linked version is
                  *   older than the requested version, so it counts as not
-                 *   loaded 
+                 *   loaded
                  */
                 return 0;
             }
@@ -276,7 +276,7 @@ const vm_bif_entry_t *CVmBifTable::get_entry(const char *name)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Validate an entry 
+ *   Validate an entry
  */
 int CVmBifTable::validate_entry(uint set_index, uint func_index)
 {
@@ -292,7 +292,7 @@ int CVmBifTable::validate_entry(uint set_index, uint func_index)
     /* validate that the function index is in range for the set */
     if (func_index > entry->func_count)
         return FALSE;
-    
+
     /* make sure there's a function pointer in the descriptor */
     vm_bif_desc *desc = &entry->func[func_index];
     if (desc->func == 0)
@@ -304,12 +304,12 @@ int CVmBifTable::validate_entry(uint set_index, uint func_index)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Function Set helper functions 
+ *   Function Set helper functions
  */
 
-/* 
+/*
  *   check arguments; throws an error if the argument count doesn't match
- *   the given value 
+ *   the given value
  */
 void CVmBif::check_argc(VMG_ uint argc, uint needed_argc)
 {
@@ -317,9 +317,9 @@ void CVmBif::check_argc(VMG_ uint argc, uint needed_argc)
         err_throw(VMERR_WRONG_NUM_OF_ARGS);
 }
 
-/* 
+/*
  *   check arguments; throws an error if the argument count is outside of
- *   the given range 
+ *   the given range
  */
 void CVmBif::check_argc_range(VMG_ uint argc, uint argc_min, uint argc_max)
 {
@@ -328,7 +328,7 @@ void CVmBif::check_argc_range(VMG_ uint argc, uint argc_min, uint argc_max)
 }
 
 /*
- *   return a string value 
+ *   return a string value
  */
 void CVmBif::retval_str(VMG_ const char *str)
 {
@@ -361,7 +361,7 @@ void CVmBif::retval_ui_str(VMG_ const char *str, size_t len)
 }
 
 /*
- *   create a new string object from a string in the UI character set 
+ *   create a new string object from a string in the UI character set
  */
 vm_obj_id_t CVmBif::str_from_ui_str(VMG_ const char *str)
 {
@@ -399,7 +399,7 @@ void CVmBif::retval_obj(VMG_ vm_obj_id_t obj)
 }
 
 /*
- *   return a property value 
+ *   return a property value
  */
 void CVmBif::retval_prop(VMG_ vm_prop_id_t prop)
 {
@@ -407,7 +407,7 @@ void CVmBif::retval_prop(VMG_ vm_prop_id_t prop)
 }
 
 /*
- *   return an integer value 
+ *   return an integer value
  */
 void CVmBif::retval_int(VMG_ long val)
 {
@@ -415,7 +415,7 @@ void CVmBif::retval_int(VMG_ long val)
 }
 
 /*
- *   return true 
+ *   return true
  */
 void CVmBif::retval_true(VMG0_)
 {
@@ -423,7 +423,7 @@ void CVmBif::retval_true(VMG0_)
 }
 
 /*
- *   return nil 
+ *   return nil
  */
 void CVmBif::retval_nil(VMG0_)
 {
@@ -431,7 +431,7 @@ void CVmBif::retval_nil(VMG0_)
 }
 
 /*
- *   return a boolean value - nil if false, true if true 
+ *   return a boolean value - nil if false, true if true
  */
 void CVmBif::retval_bool(VMG_ int val)
 {
@@ -439,7 +439,7 @@ void CVmBif::retval_bool(VMG_ int val)
 }
 
 /*
- *   return a function pointer value 
+ *   return a function pointer value
  */
 void CVmBif::retval_fnptr(VMG_ pool_ofs_t ofs)
 {
@@ -447,7 +447,7 @@ void CVmBif::retval_fnptr(VMG_ pool_ofs_t ofs)
 }
 
 /*
- *   return a value 
+ *   return a value
  */
 void CVmBif::retval(VMG_ const vm_val_t *val)
 {
@@ -455,7 +455,7 @@ void CVmBif::retval(VMG_ const vm_val_t *val)
 }
 
 /*
- *   return a built-in function pointer 
+ *   return a built-in function pointer
  */
 void CVmBif::retval_bifptr(VMG_ ushort set_idx, ushort func_idx)
 {
@@ -463,7 +463,7 @@ void CVmBif::retval_bifptr(VMG_ ushort set_idx, ushort func_idx)
 }
 
 /*
- *   return the value at top of stack 
+ *   return the value at top of stack
  */
 void CVmBif::retval_pop(VMG0_)
 {
@@ -472,7 +472,7 @@ void CVmBif::retval_pop(VMG0_)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Pop a string value 
+ *   Pop a string value
  */
 const char *CVmBif::pop_str_val(VMG0_)
 {
@@ -567,7 +567,7 @@ const char *CVmBif::pop_list_val(VMG0_)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Pop a string into a buffer, and null-terminate the result. 
+ *   Pop a string into a buffer, and null-terminate the result.
  */
 void CVmBif::pop_str_val_buf(VMG_ char *buf, size_t buflen)
 {
@@ -578,7 +578,7 @@ void CVmBif::pop_str_val_buf(VMG_ char *buf, size_t buflen)
 }
 
 /*
- *   Get a string value into a buffer, null-terminating the result 
+ *   Get a string value into a buffer, null-terminating the result
  */
 void CVmBif::get_str_val_buf(VMG_ char *buf, size_t buflen,
                              const vm_val_t *val)
@@ -586,9 +586,9 @@ void CVmBif::get_str_val_buf(VMG_ char *buf, size_t buflen,
     /* pop the string value */
     const char *strp = get_str_val(vmg_ val);
 
-    /* 
+    /*
      *   get the length, but limit it to our buffer size, less one byte
-     *   for null termination 
+     *   for null termination
      */
     size_t copy_len = vmb_get_len(strp);
     if (copy_len > buflen - 1)
@@ -605,7 +605,7 @@ void CVmBif::get_str_val_buf(VMG_ char *buf, size_t buflen,
 /* ------------------------------------------------------------------------ */
 /*
  *   Pop a filename value.  The source value can be string or FileName
- *   object. 
+ *   object.
  */
 void CVmBif::pop_fname_val(VMG_ char *buf, size_t buflen)
 {
@@ -635,7 +635,7 @@ void CVmBif::get_fname_val(VMG_ char *buf, size_t buflen, const vm_val_t *val)
 
 /*
  *   Pop a string into a buffer, translating the string into the filename
- *   character set and null-terminating the result.  
+ *   character set and null-terminating the result.
  */
 void CVmBif::pop_str_val_fname(VMG_ char *buf, size_t buflen)
 {
@@ -645,17 +645,17 @@ void CVmBif::pop_str_val_fname(VMG_ char *buf, size_t buflen)
 
 /*
  *   Get a string into a buffer, translting the string into the filename
- *   character set and null-terminating the result. 
+ *   character set and null-terminating the result.
  */
 void CVmBif::get_str_val_fname(VMG_ char *buf, size_t buflen, const char *str)
 {
     /* get the length */
     size_t copy_len = vmb_get_len(str);
 
-    /* 
+    /*
      *   map it into the local filename character set and store the result
      *   in the output buffer - reserve one byte for the null termination
-     *   byte 
+     *   byte
      */
     copy_len = G_cmap_to_fname->map_utf8(buf, buflen - 1,
                                          str + VMB_LEN, copy_len, 0);
@@ -666,7 +666,7 @@ void CVmBif::get_str_val_fname(VMG_ char *buf, size_t buflen, const char *str)
 
 /*
  *   Pop a string into a buffer, translating the string into the user
- *   interface character set and null-terminating the result.  
+ *   interface character set and null-terminating the result.
  */
 char *CVmBif::pop_str_val_ui(VMG_ char *buf, size_t buflen)
 {
@@ -677,7 +677,7 @@ char *CVmBif::pop_str_val_ui(VMG_ char *buf, size_t buflen)
     size_t copy_len = vmb_get_len(strp);
     strp += VMB_LEN;
 
-    /* 
+    /*
      *   if they didn't allocate any space for the buffer, allocate one on
      *   the caller's behalf; otherwise map the string into the caller's
      *   buffer
@@ -702,7 +702,7 @@ char *CVmBif::pop_str_val_ui(VMG_ char *buf, size_t buflen)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Pop an integer value 
+ *   Pop an integer value
  */
 int CVmBif::pop_int_val(VMG0_)
 {
@@ -731,7 +731,7 @@ int CVmBif::pop_int_or_nil(VMG_ int defval)
 }
 
 /*
- *   Pop a long integer value 
+ *   Pop a long integer value
  */
 int32_t CVmBif::pop_long_val(VMG0_)
 {
@@ -744,7 +744,7 @@ int32_t CVmBif::pop_long_val(VMG0_)
 }
 
 /*
- *   Pop a true/nil logical value 
+ *   Pop a true/nil logical value
  */
 int CVmBif::pop_bool_val(VMG0_)
 {
@@ -771,10 +771,10 @@ int CVmBif::pop_bool_val(VMG0_)
         /* anything else is unacceptable */
         err_throw(VMERR_BAD_TYPE_BIF);
 
-        /* 
+        /*
          *   (for the compiler's benefit, which doesn't know err_throw
          *   doesn't return and thus might want to warn about our failure to
-         *   return a value) 
+         *   return a value)
          */
         AFTER_ERR_THROW(return FALSE;)
     }
@@ -794,7 +794,7 @@ vm_obj_id_t CVmBif::pop_obj_val(VMG0_)
 }
 
 /*
- *   Pop a property ID value 
+ *   Pop a property ID value
  */
 vm_prop_id_t CVmBif::pop_propid_val(VMG0_)
 {
@@ -831,9 +831,9 @@ vm_obj_id_t CVmBif::get_charset_obj(VMG_ const vm_val_t *val)
 {
     const char *str;
 
-    /* 
+    /*
      *   check to see if it's a CharacterSet object; if it's not, it must be
-     *   a string giving the character set name 
+     *   a string giving the character set name
      */
     if (val->typ == VM_OBJ && CVmObjCharSet::is_charset(vmg_ val->val.obj))
     {

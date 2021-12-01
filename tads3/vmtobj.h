@@ -1,16 +1,16 @@
 /* $Header: d:/cvsroot/tads/tads3/VMTOBJ.H,v 1.2 1999/05/17 02:52:29 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmtobj.h - VM TADS Object implementation
 Function
-  
+
 Notes
   This implementation assumes a non-relocating memory manager, both for
   the fixed part (the CVmObject part) and the variable part (the
@@ -52,7 +52,7 @@ class CVmObjTads;
  *   TADS-Object image file data.  The image file state is loaded into an
  *   image object data block, and we set up our own internal data based on
  *   it at load time.  The image file data block is arranged as follows:
- *   
+ *
  *.  UINT2 superclass_count
  *.  UINT2 load_image_property_count
  *.  UINT2 flags
@@ -63,8 +63,8 @@ class CVmObjTads;
  *.  DATAHOLDER load_image_property_value_1
  *.  ...
  *.  UINT2 load_image_property_ID_N
- *.  DATAHOLDER load_image_property_value_N 
- */  
+ *.  DATAHOLDER load_image_property_value_N
+ */
 
 /* superclass structure for object extension */
 struct vm_tadsobj_sc
@@ -77,7 +77,7 @@ struct vm_tadsobj_sc
 /*
  *   For our in-memory object extension, we use a structure that stores the
  *   object data.  We store the properties in a hash table keyed on property
- *   ID.  
+ *   ID.
  */
 struct vm_tadsobj_hdr
 {
@@ -93,9 +93,9 @@ struct vm_tadsobj_hdr
     static vm_tadsobj_hdr *expand(VMG_ class CVmObjTads *self,
                                   vm_tadsobj_hdr *obj);
 
-    /* 
+    /*
      *   reallocate an existing object to expand its property table to the
-     *   given minimum number of property entries 
+     *   given minimum number of property entries
      */
     static vm_tadsobj_hdr *expand_to(VMG_ class CVmObjTads *self,
                                      vm_tadsobj_hdr *obj,
@@ -131,17 +131,17 @@ struct vm_tadsobj_hdr
     /* check to see if we have the required number of free entries */
     int has_free_entries(size_t cnt) const
         { return cnt <= (size_t)(prop_entry_free - prop_entry_cnt); }
-    
+
     /* cache and return the inheritance search path for this object */
     struct tadsobj_objid_and_ptr *get_inh_search_path(VMG0_);
 
-    /* 
+    /*
      *   Inheritance search table.  We build and save the search path for any
      *   class with multiple superclasses, because the inheritance path for a
      *   class with multiple base classes can be somewhat time-consuming to
      *   determine.  For objects with only one base class, we don't bother
      *   caching a path, since the path is trivial to calculate in these
-     *   cases.  
+     *   cases.
      */
     struct tadsobj_objid_and_ptr *inh_path;
 
@@ -151,7 +151,7 @@ struct vm_tadsobj_hdr
     /* internal object flags (a combination of VMTO_OBJ_xxx values) */
     unsigned short intern_obj_flags;
 
-    /* 
+    /*
      *   Number of hash buckets, and a pointer to the bucket array.  (The
      *   hash bucket array is allocated as part of the same memory block as
      *   this structure - we suballocate it from the memory block when
@@ -166,19 +166,19 @@ struct vm_tadsobj_hdr
      *   this out of our allocation block.  (Note that this isn't the hash
      *   table; this is the pool of elements out of which hash table entries
      *   - not buckets, but the entries in the lists pointed to by the
-     *   buckets - are allocated.)  
+     *   buckets - are allocated.)
      */
     struct vm_tadsobj_prop *prop_entry_arr;
 
     /* total number of hash entries allocated */
     unsigned short prop_entry_cnt;
 
-    /* 
+    /*
      *   Index of next available hash entry.  Hash entries are never
      *   deleted, so we don't have to worry about returning entries to the
      *   free pool.  So, the free pool simply consists of entries from this
      *   index to the maximum index (prop_entry_cnt - 1).
-     *   
+     *
      *   When we run out of entries, we must reallocate this entire
      *   structure to make room for more.  This means that reallocation is
      *   fairly expensive, but this is acceptable because we will always
@@ -186,15 +186,15 @@ struct vm_tadsobj_hdr
      *   resize the hash table on exhausting our current allocation size
      *   because we pick the hash table size based on the expected maximum
      *   number of entries; once we exceed that maximum, we must reconsider
-     *   the hash table size.  
+     *   the hash table size.
      */
     unsigned short prop_entry_free;
-    
-    /* 
+
+    /*
      *   Number of superclasses, and the array of superclasses.  We
      *   overallocate the structure to make room for enough superclasses.
      *   (Note that this means the 'sc' field must be the last thing in the
-     *   structure.)  
+     *   structure.)
      */
     unsigned short sc_cnt;
     vm_tadsobj_sc sc[1];
@@ -202,7 +202,7 @@ struct vm_tadsobj_hdr
 
 /*
  *   Tads-object property entry.  Each hash table entry points to a linked
- *   list of these entries.  
+ *   list of these entries.
  */
 struct vm_tadsobj_prop
 {
@@ -221,7 +221,7 @@ struct vm_tadsobj_prop
 
 
 /*
- *   Internal object flags 
+ *   Internal object flags
  */
 
 /* from load image - object originally came from image file */
@@ -232,7 +232,7 @@ struct vm_tadsobj_prop
 
 
 /*
- *   Property entry flags 
+ *   Property entry flags
  */
 
 /* modified - this property is not from the load image file */
@@ -244,7 +244,7 @@ struct vm_tadsobj_prop
 /* ------------------------------------------------------------------------ */
 /*
  *   Load Image Object Flag Values - these values are stored in the image
- *   file object header.  
+ *   file object header.
  */
 
 /* class - the object represents a class, not an instance */
@@ -254,7 +254,7 @@ struct vm_tadsobj_prop
 /* ------------------------------------------------------------------------ */
 /*
  *   Initial empty property table size.  When we initially load an object,
- *   we'll allocate this many empty slots for modifiable properties. 
+ *   we'll allocate this many empty slots for modifiable properties.
  */
 const ushort VMTOBJ_PROP_INIT = 16;
 
@@ -268,7 +268,7 @@ class CVmObjTads: public CVmObject
     friend class CVmMetaclassTads;
     friend struct tadsobj_sc_search_ctx;
     friend struct vm_tadsobj_hdr;
-    
+
 public:
     /* metaclass registration object */
     static class CVmMetaclass *metaclass_reg_;
@@ -291,9 +291,9 @@ public:
                                          uint argc)
         { return create_from_stack_intern(vmg_ pc_ptr, argc, FALSE); }
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -302,10 +302,10 @@ public:
     /* create an object with no initial extension */
     static vm_obj_id_t create(VMG_ int in_root_set);
 
-    /* 
+    /*
      *   Create an object with a given number of superclasses, and a given
      *   number of property slots.  The property slots are all initially
-     *   allocated to modified properties.  
+     *   allocated to modified properties.
      */
     static vm_obj_id_t create(VMG_ int in_root_set,
                               ushort superclass_count, ushort prop_slots);
@@ -346,10 +346,10 @@ public:
     /* get the number of superclasses of this object */
     virtual int get_superclass_count(VMG_ vm_obj_id_t self) const
     {
-        /* 
+        /*
          *   if we have no superclass, inherit the default, since we
          *   inherit from the system TadsObject class; if we have our own
-         *   superclasses, return them 
+         *   superclasses, return them
          */
         if (get_sc_count() == 0)
             return CVmObject::get_superclass_count(vmg_ self);
@@ -360,10 +360,10 @@ public:
     /* get the nth superclass of this object */
     virtual vm_obj_id_t get_superclass(VMG_ vm_obj_id_t self, int idx) const
     {
-        /* 
+        /*
          *   if we have no superclass, inherit the default, since we
          *   inherit from the system TadsObject class; if we have our own
-         *   superclasses, return them 
+         *   superclasses, return them
          */
         if (get_sc_count() == 0)
             return CVmObject::get_superclass(vmg_ self, idx);
@@ -408,7 +408,7 @@ public:
     /* build my property list */
     void build_prop_list(VMG_ vm_obj_id_t self, vm_val_t *retval);
 
-    /* 
+    /*
      *   Receive notification of a new savepoint.  We keep track of
      *   whether or not we've saved undo information for each modifiable
      *   property in the current savepoint, so that we can avoid saving
@@ -416,7 +416,7 @@ public:
      *   value (since only the first change in a given savepoint needs to
      *   be recorded).  When we start a new savepoint, we obviously
      *   haven't yet stored any undo information for the new savepoint, so
-     *   we can simply clear all of the undo records.  
+     *   we can simply clear all of the undo records.
      */
     void notify_new_savept()
         { clear_undo_flags(); }
@@ -427,18 +427,18 @@ public:
     /* mark a reference in an undo record */
     void mark_undo_ref(VMG_ struct CVmUndoRecord *undo);
 
-    /* 
+    /*
      *   remove stale weak references from an undo record -- we keep only
-     *   normal strong references, so we don't need to do anything here 
+     *   normal strong references, so we don't need to do anything here
      */
     void remove_stale_undo_weak_ref(VMG_ struct CVmUndoRecord *) { }
 
     /* mark references */
     void mark_refs(VMG_ uint state);
 
-    /* 
+    /*
      *   remove weak references - we keep only normal (strong) references,
-     *   so this routine doesn't need to do anything 
+     *   so this routine doesn't need to do anything
      */
     void remove_stale_weak_refs(VMG0_) { }
 
@@ -492,10 +492,10 @@ protected:
     /* create an object with no initial extension */
     CVmObjTads() { ext_ = 0; }
 
-    /* 
+    /*
      *   Create an object with a given number of superclasses, and a given
      *   number of property slots.  All property slots are initially
-     *   allocated to the modifiable property list.  
+     *   allocated to the modifiable property list.
      */
     CVmObjTads(VMG_ ushort superclass_count, ushort prop_count);
 
@@ -503,13 +503,13 @@ protected:
     static vm_obj_id_t create_from_stack_intern(VMG_ const uchar **pc_ptr,
                                                 uint argc, int is_transient);
 
-    /* 
+    /*
      *   internal handler to create with multiple inheritance from arguments
-     *   passed on the stack 
+     *   passed on the stack
      */
     static vm_obj_id_t create_from_stack_multi(VMG_ uint argc,
                                                int is_transient);
-    
+
     /* get the load image object flags */
     uint get_li_obj_flags() const
         { return get_hdr()->li_obj_flags; }
@@ -518,17 +518,17 @@ protected:
     void set_li_obj_flags(ushort flags)
         { get_hdr()->li_obj_flags = flags; }
 
-    /* 
+    /*
      *   mark the object as modified; sets the VMTO_OBJ_MOD flag, and adds an
-     *   undo record for the transition if the flag wasn't previously set 
+     *   undo record for the transition if the flag wasn't previously set
      */
     void mark_modified(VMG_ class CVmUndo *undo, vm_obj_id_t self);
 
-    /* 
+    /*
      *   Allocate memory - this replaces any existing extension, so the
      *   caller must take care to free the extension (if one has already
      *   been allocated) before calling this routine.
-     *   
+     *
      *   If 'from_image' is true, we're allocating memory for use with an
      *   object loaded from an image file, so we'll ignore the superclass
      *   count and leave the image_data pointer in the header unchanged.
@@ -536,7 +536,7 @@ protected:
      *   object that does not have a presence in the image file, so we'll
      *   allocate space for the superclass list as part of the extension
      *   and set the image_data pointer in the header to refer the extra
-     *   space after the modifiable property array and undo bit array.  
+     *   space after the modifiable property array and undo bit array.
      */
     void alloc_mem(VMG_ ushort sc_count, ushort mod_prop_count,
                    int from_image);
@@ -579,7 +579,7 @@ protected:
     /*
      *   Low-level format management - these routines encapsulate the byte
      *   layout of the object in memory.  This is a bit nasty because we
-     *   keep the object's contents in the portable image format.  
+     *   keep the object's contents in the portable image format.
      */
 
     /* get my header */
@@ -637,32 +637,32 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Registration table object 
+ *   Registration table object
  */
 class CVmMetaclassTads: public CVmMetaclass
 {
 public:
     /* get the global name */
     const char *get_meta_name() const { return "tads-object/030005"; }
-    
+
     /* create from image file */
     void create_for_image_load(VMG_ vm_obj_id_t id)
     {
         new (vmg_ id) CVmObjTads();
         G_obj_table->set_obj_gc_characteristics(id, TRUE, FALSE);
     }
-    
+
     /* create from restoring from saved state */
     void create_for_restore(VMG_ vm_obj_id_t id)
     {
         new (vmg_ id) CVmObjTads();
         G_obj_table->set_obj_gc_characteristics(id, TRUE, FALSE);
     }
-    
+
     /* create dynamically using stack arguments */
     vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr, uint argc)
         { return CVmObjTads::create_from_stack(vmg_ pc_ptr, argc); }
-    
+
     /* call a static property */
     int call_stat_prop(VMG_ vm_val_t *result,
                        const uchar **pc_ptr, uint *argc,
@@ -676,19 +676,19 @@ public:
 /*
  *   Intrinsic class modifier object.  This object is for use as a modifier
  *   object for an intrinsic class.
- *   
+ *
  *   This is a simple subclass of the regular TADS-Object class.  The only
  *   difference is that we resolve properties a little differently: unlike
  *   regular TADS Objects, this class is essentially a mix-in, and has no
  *   intrinsic superclass at all.  This means that the only place we look
  *   for a property in get_prop is in our property list; we specifically do
  *   not look for an intrinsic property, nor do we look for a superclass
- *   that provides an intrinsic property.  
+ *   that provides an intrinsic property.
  */
 class CVmObjIntClsMod: public CVmObjTads
 {
     friend class CVmMetaclassIntClsMod;
-    
+
 public:
     static class CVmMetaclass *metaclass_reg_;
     class CVmMetaclass *get_metaclass_reg() const { return metaclass_reg_; }
@@ -714,9 +714,9 @@ public:
         AFTER_ERR_THROW(return VM_INVALID_OBJ;)
     }
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -742,17 +742,17 @@ public:
     /* create an object with no initial extension */
     CVmObjIntClsMod() { ext_ = 0; }
 
-    /* 
+    /*
      *   Create an object with a given number of superclasses, and a given
      *   number of property slots.  All property slots are initially
-     *   allocated to the modifiable property list.  
+     *   allocated to the modifiable property list.
      */
     CVmObjIntClsMod(VMG_ ushort superclass_count, ushort prop_count)
         : CVmObjTads(vmg_ superclass_count, prop_count) { }
 };
 
 /*
- *   Registration table object 
+ *   Registration table object
  */
 class CVmMetaclassIntClsMod: public CVmMetaclass
 {
@@ -790,7 +790,7 @@ public:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   object ID + pointer structure 
+ *   object ID + pointer structure
  */
 struct tadsobj_objid_and_ptr
 {
@@ -800,7 +800,7 @@ struct tadsobj_objid_and_ptr
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Queue element for the inheritance path search queue 
+ *   Queue element for the inheritance path search queue
  */
 struct pfq_ele
 {
@@ -828,7 +828,7 @@ struct pfq_page
 /*
  *   Queue for search_for_prop().  This implements a special-purpose work
  *   queue that we use to keep track of the objects yet to be processed in
- *   our depth-first search across the inheritance tree.  
+ *   our depth-first search across the inheritance tree.
  */
 class CVmObjTadsInhQueue
 {
@@ -961,7 +961,7 @@ public:
     /*
      *   Insert an object into the queue.  We'll insert after the given
      *   element (null indicates that we insert at the head of the queue).
-     *   Returns a pointer to the newly-inserted element.  
+     *   Returns a pointer to the newly-inserted element.
      */
     pfq_ele *insert_obj(VMG_ vm_obj_id_t obj, CVmObjTads *objp,
                         pfq_ele *ins_pt)
@@ -976,25 +976,25 @@ public:
          *   last superclass that inherits from the common base.  By deleting
          *   previous queue entries that match new queue entries, we ensure
          *   that the common class will move to follow (in inheritance order)
-         *   the last class that derives from it.  
+         *   the last class that derives from it.
          */
         for (ele = head_ ; ele != 0 ; ele = ele->nxt)
         {
             /* if this is the same thing we're inserting, remove it */
             if (ele->obj == obj)
             {
-                /* 
+                /*
                  *   clear the element (don't unlink it, as this could cause
                  *   confusion for the caller, who's tracking an insertion
-                 *   point and traversal point) 
+                 *   point and traversal point)
                  */
                 ele->obj = VM_INVALID_OBJ;
                 ele->objp = 0;
 
-                /* 
+                /*
                  *   no need to look any further - we know we can never have
                  *   the same element appear twice in the queue, thanks to
-                 *   this very code 
+                 *   this very code
                  */
                 break;
             }
@@ -1068,7 +1068,7 @@ protected:
 
     /*
      *   Linked list of element pages.  We allocate memory for elements in
-     *   blocks, to reduce allocation overhead.  
+     *   blocks, to reduce allocation overhead.
      */
     pfq_page *alloc_;
 };
@@ -1079,7 +1079,7 @@ protected:
 #endif /* VMTOBJ_H */
 
 /*
- *   Register the classes 
+ *   Register the classes
  */
 VM_REGISTER_METACLASS(CVmObjTads)
 VM_REGISTER_METACLASS(CVmObjIntClsMod)

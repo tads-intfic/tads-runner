@@ -3,7 +3,7 @@
 ** nifty different Glk startup code bits go.
 **
 ** Notes:
-**   14 Jan 99: Initial creation 
+**   14 Jan 99: Initial creation
 */
 
 #include "glk.h"

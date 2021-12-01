@@ -103,7 +103,7 @@ void oss_revert_path(void);
 */
 
 /* Open a stream, given a string, usage, and a filemode */
-osfildef *oss_open_stream(char *buffer, glui32 tadsusage, glui32 tbusage, 
+osfildef *oss_open_stream(char *buffer, glui32 tadsusage, glui32 tbusage,
                           glui32 fmode, glui32 rock);
 
 /* Process hilighting codes while printing a string */

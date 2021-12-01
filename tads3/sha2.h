@@ -5,27 +5,27 @@
 
  LICENSE TERMS
 
- The free distribution and use of this software in both source and binary 
+ The free distribution and use of this software in both source and binary
  form is allowed (with or without changes) provided that:
 
-   1. distributions of this source code include the above copyright 
+   1. distributions of this source code include the above copyright
       notice, this list of conditions and the following disclaimer;
 
    2. distributions in binary form include the above copyright
       notice, this list of conditions and the following disclaimer
       in the documentation and/or other associated materials;
 
-   3. the copyright holder's name is not used to endorse products 
-      built using this software without specific written permission. 
+   3. the copyright holder's name is not used to endorse products
+      built using this software without specific written permission.
 
  ALTERNATIVELY, provided that this notice is retained in full, this product
  may be distributed under the terms of the GNU General Public License (GPL),
  in which case the provisions of the GPL apply INSTEAD OF those given above.
- 
+
  DISCLAIMER
 
  This software is provided 'as is' with no explicit or implied warranties
- in respect of its properties, including, but not limited to, correctness 
+ in respect of its properties, including, but not limited to, correctness
  and/or fitness for purpose.
  ---------------------------------------------------------------------------
  Issue Date: 30/11/2002
@@ -125,11 +125,11 @@ void sha256_hash(const unsigned char data[], unsigned long len, sha256_ctx ctx[1
 void sha256_end(unsigned char hval[], sha256_ctx ctx[1]);
 void sha256(unsigned char hval[], const unsigned char data[], unsigned long len);
 
-/* 
+/*
  *   Generate a printable version of a hash for a given buffer.  'hash' is an
  *   array of at least 65 characters to receive the hash string.  It's fine
  *   to pass in the same buffer for both 'hash' and 'data', as long as it's
- *   big enough (>=65 characters). [mjr] 
+ *   big enough (>=65 characters). [mjr]
  */
 void sha256_ez(char *hash, const char *data, size_t data_len);
 
@@ -138,26 +138,26 @@ void sha256_ez(char *hash, const char *data, size_t data_len);
  */
 void sha256_datasrc(char *hash, class CVmDataSource *src, unsigned long len);
 
-/* 
+/*
  *   printf-style hash construction: format the string given by 'fmt' and the
- *   subsequent arguments, and hash the result 
+ *   subsequent arguments, and hash the result
  */
 void sha256_ezf(char *hash, const char *fmt, ...);
 
 void sha384_begin(sha384_ctx ctx[1]);
 #define sha384_hash sha512_hash
 void sha384_end(unsigned char hval[], sha384_ctx ctx[1]);
-void sha384(unsigned char hval[], const unsigned char data[], unsigned long len); 
+void sha384(unsigned char hval[], const unsigned char data[], unsigned long len);
 
 void sha512_begin(sha512_ctx ctx[1]);
 void sha512_hash(const unsigned char data[], unsigned long len, sha512_ctx ctx[1]);
 void sha512_end(unsigned char hval[], sha512_ctx ctx[1]);
-void sha512(unsigned char hval[], const unsigned char data[], unsigned long len); 
+void sha512(unsigned char hval[], const unsigned char data[], unsigned long len);
 
 int sha2_begin(unsigned long size, sha2_ctx ctx[1]);
 void sha2_hash(const unsigned char data[], unsigned long len, sha2_ctx ctx[1]);
 void sha2_end(unsigned char hval[], sha2_ctx ctx[1]);
-int sha2(unsigned char hval[], unsigned long size, const unsigned char data[], unsigned long len); 
+int sha2(unsigned char hval[], unsigned long size, const unsigned char data[], unsigned long len);
 
 #if defined(__cplusplus)
 }

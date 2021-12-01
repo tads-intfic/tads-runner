@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/ERR.C,v 1.2 1999/05/17 02:52:11 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -63,7 +63,7 @@ erradef *argv;
                 break;
             }
             break;
-            
+
         case '%':
             ++fmt;
             fmtchar = *fmt;
@@ -73,23 +73,23 @@ erradef *argv;
             case '\0':
                 --fmt;
                 break;
-                
+
             case '%':
                 p = "%";
                 len = 1;
                 break;
-                
+
             case 'd':
                 sprintf(buf, "%d", argv[argi].erraint);
                 len = strlen(buf);
                 p = buf;
                 break;
-                
+
             case 's':
                 p = argv[argi].errastr;
                 len = strlen(p);
                 break;
-                
+
             case 't':
                 {
                     int i;
@@ -111,7 +111,7 @@ erradef *argv;
                         { TOKTEQ, "'='" },
                         { 0, (char *)0 }
                     };
-                    
+
                     for (i = 0 ; toklist[i].toknam ; ++i)
                     {
                         if (toklist[i].tokid == argv[argi].erraint)
@@ -125,7 +125,7 @@ erradef *argv;
                     len = strlen(p);
                     break;
                 }
-                
+
             default:
                 p = "";
                 len = 0;
@@ -134,7 +134,7 @@ erradef *argv;
             }
             ++argi;
             break;
-            
+
         default:
             p = fmt;
             len = 1;
@@ -159,7 +159,7 @@ erradef *argv;
         }
         ++fmt;
     }
-    
+
     if (outbufl) *outbuf++ = '\0';
     return(outlen);
 }
@@ -202,7 +202,7 @@ char     *str;
 int       len;
 {
     char *ret = &ctx->errcxbuf[ctx->errcxofs];
-    
+
     memcpy(ret, str, (size_t)len);
     ret[len] = '\0';
     ctx->errcxofs += len + 1;

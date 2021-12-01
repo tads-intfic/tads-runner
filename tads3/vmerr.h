@@ -1,10 +1,10 @@
 /* $Header: d:/cvsroot/tads/tads3/vmerr.h,v 1.3 1999/05/17 02:52:29 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -86,9 +86,9 @@ Function
          // etc...
      }
      err_end;
-     
+
 Notes
-  
+
 Modified
   10/20/98 MJRoberts  - Creation
 */
@@ -106,7 +106,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Error Message Definition structure 
+ *   Error Message Definition structure
  */
 struct err_msg_t
 {
@@ -128,13 +128,13 @@ struct err_msg_t
 extern const err_msg_t *vm_messages;
 extern size_t vm_message_count;
 
-/* 
+/*
  *   VM error message array - English version.  This version of the
  *   messages is linked directly into the VM; at run time, we can attempt
  *   to replace this version with another language version obtained from
  *   an external file.  We link in the English version so that we will
  *   always have a valid set of messages even if the user doesn't have a
- *   message file installed.  
+ *   message file installed.
  */
 extern const err_msg_t vm_messages_english[];
 extern size_t vm_message_count_english;
@@ -145,7 +145,7 @@ extern size_t vm_message_count_english;
 
 /*
  *   load an external message file - returns zero on success, non-zero on
- *   failure 
+ *   failure
  */
 int err_load_message_file(osfildef *fp,
                           const err_msg_t **arr, size_t *arr_size,
@@ -157,16 +157,16 @@ int err_load_message_file(osfildef *fp,
     err_load_message_file((fp), &vm_messages, &vm_message_count, \
                           vm_messages_english, vm_message_count_english)
 
-/* 
+/*
  *   check to see if an external message file has been loaded for the
- *   default VM message set 
+ *   default VM message set
  */
 int err_is_message_file_loaded();
 
-/* 
+/*
  *   delete messages previously loaded with err_load_message_file (this is
  *   called automatically by err_terminate, so clients generally will not
- *   need to call this directly) 
+ *   need to call this directly)
  */
 void err_delete_message_array(const err_msg_t **arr, size_t *arr_size,
                               const err_msg_t *default_arr,
@@ -175,7 +175,7 @@ void err_delete_message_array(const err_msg_t **arr, size_t *arr_size,
 
 /*
  *   Search an array of messages for a given message number.  The array
- *   must be sorted by message ID.  
+ *   must be sorted by message ID.
  */
 const char *err_get_msg(const err_msg_t *msg_array, size_t msg_count,
                         int msgnum, int verbose);
@@ -185,42 +185,42 @@ const char *err_get_msg(const err_msg_t *msg_array, size_t msg_count,
  *   Returns the size in bytes of the formatted message.  If the output
  *   buffer is null or too small, we'll fill it up as much as possible and
  *   return the actual length required for the full message text.
- *   
+ *
  *   Suports the following format codes:
- *   
+ *
  *   %s - String.  Formats an ERR_TYPE_CHAR, ERR_TYPE_TEXTCHAR, or
  *   ERR_TYPE_TEXTCHAR_LEN value.
- *   
+ *
  *   %d, %u, %x - signed/unsigned decimal integer, hexadecimal integer.
  *   Formats an ERR_TYPE_INT value or an ERR_TYPE_ULONG value.  Automatically
  *   uses the correct size for the argument.
- *   
- *   %% - Formats as a single percent sign.  
+ *
+ *   %% - Formats as a single percent sign.
  */
 size_t err_format_msg(char *outbuf, size_t outbuflen,
                       const char *msg, const struct CVmException *exc);
 
-/* 
+/*
  *   Format a message, allocating a buffer to store the result.  The caller
- *   must free the buffer with t3free(). 
+ *   must free the buffer with t3free().
  */
 char *err_format_msg(const char *msg, const struct CVmException *exc);
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   exception ID - this identifies an error 
+/*
+ *   exception ID - this identifies an error
  */
 typedef uint err_id_t;
 
 /*
- *   Error parameter type codes 
+ *   Error parameter type codes
  */
 enum err_param_type
 {
     /* ---------------- Display Parameters ---------------- */
     /*
      *   The following parameter types are for display purposes.  These are
-     *   substituted into the message string in err_format_msg().  
+     *   substituted into the message string in err_format_msg().
      */
 
     /* parameter is a native 'int' value */
@@ -235,9 +235,9 @@ enum err_param_type
     /* parameter is a 'char *' value (null terminated) */
     ERR_TYPE_CHAR,
 
-    /* 
+    /*
      *   parameter is a 'textchar_t *' value followed by a 'size_t' value
-     *   giving the number of bytes in the string 
+     *   giving the number of bytes in the string
      */
     ERR_TYPE_TEXTCHAR_LEN,
 
@@ -247,29 +247,29 @@ enum err_param_type
     /* ---------------- Non-Display Parameters ---------------- */
     /*
      *   The following parameter types are stored in the exception but are
-     *   NOT used in formatting the error message. 
+     *   NOT used in formatting the error message.
      */
 
-    /* 
+    /*
      *   a char* value giving the ID/Version string for the metaclass
      *   involved in the error (for example, "metaclass missing" or
-     *   "metaclass version not available") 
+     *   "metaclass version not available")
      */
     ERR_TYPE_METACLASS,
 
     /* a char* value the ID/Version string for the function set involved */
     ERR_TYPE_FUNCSET,
 
-    /* 
+    /*
      *   void (no parameter): this is a flag indicating that the error is a
      *   VM version error.  This type of error can usually be solved by
-     *   updating the interpreter to the latest version.  
+     *   updating the interpreter to the latest version.
      */
     ERR_TYPE_VERSION_FLAG
 };
 
 /*
- *   Exception parameter 
+ *   Exception parameter
  */
 struct CVmExcParam
 {
@@ -301,7 +301,7 @@ struct CVmExcParam
 };
 
 /*
- *   Exception object 
+ *   Exception object
  */
 struct CVmException
 {
@@ -361,24 +361,24 @@ struct CVmException
         params_[n].type_ = ERR_TYPE_INT;
         params_[n].val_.intval_ = val;
     }
-    
+
     /* the error code */
     err_id_t error_code_;
 
-    /* 
+    /*
      *   Is this a version-related error?  If this is true, the error is due
      *   to an out-of-date interpreter, and can usually be solved by
-     *   upgrading to the latest version. 
+     *   upgrading to the latest version.
      */
     int version_flag_;
 
-    /* 
+    /*
      *   Some version-related errors are due to component versions, namely
      *   metaclasses or function sets.  For errors due to component versions,
      *   we set the version flag AND set the appropriate identifier here to
      *   indicate the required component version.  (This is the component
      *   version that's set as a dependency in the byte-code program we're
-     *   trying to run.)  
+     *   trying to run.)
      */
     const char *metaclass_;
     const char *funcset_;
@@ -392,45 +392,45 @@ struct CVmException
 
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   Error states.  The states are bit flags.  The following combinations are
  *   possible:
- *   
+ *
  *   ERR_STATE_TRYING - the initial call to setjmp() in the err_try has just
  *   returned
- *   
+ *
  *   ERR_STATE_EXCEPTION - we've just longjmp()'d into the frame from a
  *   throw, and we haven't handled the exception yet
- *   
+ *
  *   ERR_STATE_EXCEPTION | ERR_STATE_FINALLY - we've longjmp()'d into the
  *   frame from a throw, and we've entered the err_finally without
  *   encountering an err_catch
- *   
+ *
  *   ERR_STATE_CAUGHT - we've longjmp()'d into the frame from a throw, and
  *   we've entered the err_catch clause
- *   
+ *
  *   ERR_STATE_CAUGHT | ERR_FINALLY - we've longjmp()'d into the frame from a
  *   throw, gone through the err_catch, and entered the err_finally
- *   
+ *
  *   ERR_STATE_RETHROWN - a new throw occurred within our err_catch or
  *   err_finally clause
- *   
+ *
  *   ERR_STATE_RETHROWN | ERR_STATE_FINALLY - a new error occurred within our
  *   err_catch or err_finally clause, and we've entered the err_finally
  */
 typedef int err_state_t;
 
-/* 
+/*
  *   Trying - initial state, before any exception has been thrown.  Note that
  *   this must have value 0, because we initialize to this state from the
  *   setjmp return going into the error frame, and setjmp always returns 0 on
  *   the initial call.
  */
 const int ERR_STATE_TRYING = 0;
-    
+
 /* exception in progress, and has not been caught */
 const int ERR_STATE_EXCEPTION = 0x0001;
-    
+
 /* exception has been caught */
 const int ERR_STATE_CAUGHT = 0x0002;
 
@@ -446,10 +446,10 @@ const int ERR_STATE_FINALLY = 0x8000;
 
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   Error frame - allocated by err_try.  This object is not manipulated
  *   directly by the client; this is handled automatically by the error
- *   macros. 
+ *   macros.
  */
 struct err_frame_t
 {
@@ -466,7 +466,7 @@ struct err_frame_t
     jmp_buf jmpbuf_;
 };
 
-/* 
+/*
  *   The current error frame active in this thread.  Each time we enter an
  *   err_try, we set up a new frame on the stack and set this thread-global
  *   to point to the new frame, and we store the old value (the enclosing
@@ -484,7 +484,7 @@ void err_init(size_t param_stack_size);
 
 /*
  *   Delete the global error context.  Should be called at program
- *   termination. 
+ *   termination.
  */
 void err_terminate();
 
@@ -493,7 +493,7 @@ void err_terminate();
  *   error code; the second form takes a parameter count followed by that
  *   number of parameters.  Each parameter requires two arguments: the
  *   first is a type code of type err_param_type, and the second the
- *   value, whose interpretation depends on the type code.  
+ *   value, whose interpretation depends on the type code.
  */
 void err_throw(err_id_t error_code);
 void err_throw_a(err_id_t error_code, int param_count, ...);
@@ -503,7 +503,7 @@ void err_throw_a(err_id_t error_code, int param_count, ...);
  */
 void err_rethrow();
 
-/* 
+/*
  *   Get the current exception being handled in the nearest enclosing
  *   err_catch block.  This searches the error frame stack for a frame in the
  *   'caught' state, and returns the exception object from that frame.  This
@@ -513,7 +513,7 @@ void err_rethrow();
 CVmException *err_get_cur_exc();
 
 /*
- *   Fatal error - abort program 
+ *   Fatal error - abort program
  */
 void err_abort(const char *message);
 

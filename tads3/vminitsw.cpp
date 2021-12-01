@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vminitsw.cpp - VM initialization - swapping pool implementation
 Function
-  
+
 Notes
-  
+
 Modified
   07/21/99 MJRoberts  - Creation
 */
@@ -26,7 +26,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Initialize the VM with swapping page pools 
+ *   Initialize the VM with swapping page pools
  */
 void vm_init_swap(vm_globals **vmg, size_t max_pages_in_mem,
                   const vm_init_options *opts)
@@ -36,9 +36,9 @@ void vm_init_swap(vm_globals **vmg, size_t max_pages_in_mem,
     /* initialize the base VM structures */
     vm_init_base(vmg, opts);
 
-    /* 
+    /*
      *   assign the global pointer to the special vmg__ local for
-     *   globals-on-stack configuration 
+     *   globals-on-stack configuration
      */
     vmg__ = *vmg;
 

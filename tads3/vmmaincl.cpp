@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -37,7 +37,7 @@ Function
   filename, followed by t3run switches, the .t3 file name, and finally
   any user arguments to pass to the .t3 file.
 Notes
-  
+
 Modified
   10/07/99 MJRoberts  - Creation
 */
@@ -52,7 +52,7 @@ Modified
 
 
 /*
- *   Main entrypoint 
+ *   Main entrypoint
  */
 int main(int argc, char **argv)
 {
@@ -61,11 +61,11 @@ int main(int argc, char **argv)
     CVmHostIfc *hostifc;
     CVmMainClientConsole clientifc;
 
-    /* 
+    /*
      *   Check for a "-plain" option; if it's there, set the terminal to
      *   plain text mode.  We must make this check before doing anything
      *   else, because os_plain() must be called prior to os_init() if
-     *   it's going to be called at all.  
+     *   it's going to be called at all.
      */
     for (i = 1 ; i < argc ; ++i)
     {
@@ -79,18 +79,18 @@ int main(int argc, char **argv)
         }
     }
 
-    /* 
+    /*
      *   Initialize the OS layer.  Since this is a command-line-only
      *   implementation, there's no need to ask the OS layer to try to get us
      *   a filename to run, so pass in null for the prompt and filename
-     *   buffer.  
+     *   buffer.
      */
     os_init(&argc, argv, 0, 0, 0);
 
     /* install the OS break handler while we're running */
     os_instbrk(1);
 
-    /* 
+    /*
      *   If possible, get the full path to the executable.  This makes any
      *   future references to the exe file or its location independent of the
      *   working directory context.
@@ -108,11 +108,11 @@ int main(int argc, char **argv)
                              TRUE, FALSE, hostifc);
 
 #ifdef TADSNET
-    /* 
+    /*
      *   Disconnect the Web UI, if applicable.  Leave any final UI window
      *   state displayed until the user manually closes it, so that the user
      *   can read any final messages displayed when the game program
-     *   terminated. 
+     *   terminated.
      */
     osnet_disconnect_webui(FALSE);
 
@@ -141,7 +141,7 @@ int main(int argc, char **argv)
 
 /*
  *   For command-line builds, we don't have any special UI setup that depends
- *   on the loaded intrinsics, so we can stub out this routine.  
+ *   on the loaded intrinsics, so we can stub out this routine.
  */
 void os_init_ui_after_load(class CVmBifTable *, class CVmMetaTable *)
 {

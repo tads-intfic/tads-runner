@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2010 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmtmpfil.cpp - CVmObjTemporaryFile object
 Function
-  
+
 Notes
-  
+
 Modified
   11/20/10 MJRoberts  - Creation
 */
@@ -44,7 +44,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Allocate an extension structure 
+ *   Allocate an extension structure
  */
 vm_tmpfil_ext *vm_tmpfil_ext::alloc_ext(VMG_ CVmObjTemporaryFile *self,
                                         const char *fname)
@@ -65,7 +65,7 @@ vm_tmpfil_ext *vm_tmpfil_ext::alloc_ext(VMG_ CVmObjTemporaryFile *self,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjTemporaryFile object statics 
+ *   CVmObjTemporaryFile object statics
  */
 
 /* metaclass registration object */
@@ -83,7 +83,7 @@ int (CVmObjTemporaryFile::*CVmObjTemporaryFile::func_table_[])(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjTemporaryFile intrinsic class implementation 
+ *   CVmObjTemporaryFile intrinsic class implementation
  */
 
 /*
@@ -96,7 +96,7 @@ CVmObjTemporaryFile::CVmObjTemporaryFile(VMG_ const char *fname)
 }
 
 /*
- *   create dynamically using stack arguments 
+ *   create dynamically using stack arguments
  */
 vm_obj_id_t CVmObjTemporaryFile::create_from_stack(
     VMG_ const uchar **pc_ptr, uint argc)
@@ -121,8 +121,8 @@ vm_obj_id_t CVmObjTemporaryFile::create_from_stack(
     return id;
 }
 
-/* 
- *   notify of deletion 
+/*
+ *   notify of deletion
  */
 void CVmObjTemporaryFile::notify_delete(VMG_ int /*in_root_set*/)
 {
@@ -138,8 +138,8 @@ void CVmObjTemporaryFile::notify_delete(VMG_ int /*in_root_set*/)
     }
 }
 
-/* 
- *   set a property 
+/*
+ *   set a property
  */
 void CVmObjTemporaryFile::set_prop(VMG_ class CVmUndo *undo,
                                    vm_obj_id_t self, vm_prop_id_t prop,
@@ -149,32 +149,32 @@ void CVmObjTemporaryFile::set_prop(VMG_ class CVmUndo *undo,
     err_throw(VMERR_INVALID_SETPROP);
 }
 
-/* 
- *   get a property 
+/*
+ *   get a property
  */
 int CVmObjTemporaryFile::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                                   vm_obj_id_t self, vm_obj_id_t *source_obj,
                                   uint *argc)
 {
     uint func_idx;
-    
+
     /* translate the property into a function vector index */
     func_idx = G_meta_table
                ->prop_to_vector_idx(metaclass_reg_->get_reg_idx(), prop);
-    
+
     /* call the appropriate function */
     if ((this->*func_table_[func_idx])(vmg_ self, retval, argc))
     {
         *source_obj = metaclass_reg_->get_class_obj(vmg0_);
         return TRUE;
     }
-    
+
     /* inherit default handling from our base class */
     return CVmObject::get_prop(vmg_ prop, retval, self, source_obj, argc);
 }
 
 /*
- *   apply an undo record 
+ *   apply an undo record
  */
 void CVmObjTemporaryFile::apply_undo(VMG_ struct CVmUndoRecord *)
 {
@@ -182,15 +182,15 @@ void CVmObjTemporaryFile::apply_undo(VMG_ struct CVmUndoRecord *)
 }
 
 /*
- *   discard extra undo information 
+ *   discard extra undo information
  */
 void CVmObjTemporaryFile::discard_undo(VMG_ CVmUndoRecord *)
 {
     /* we don't create undo records */
 }
 
-/* 
- *   load from an image file 
+/*
+ *   load from an image file
  */
 void CVmObjTemporaryFile::load_from_image(VMG_ vm_obj_id_t self,
                                           const char *ptr, size_t siz)
@@ -198,15 +198,15 @@ void CVmObjTemporaryFile::load_from_image(VMG_ vm_obj_id_t self,
     /* load our image data */
     load_image_data(vmg_ ptr, siz);
 
-    /* 
+    /*
      *   save our image data pointer in the object table, so that we can
-     *   access it (without storing it ourselves) during a reload 
+     *   access it (without storing it ourselves) during a reload
      */
     G_obj_table->save_image_pointer(self, ptr, siz);
 }
 
 /*
- *   reload from the image file 
+ *   reload from the image file
  */
 void CVmObjTemporaryFile::reload_from_image(VMG_ vm_obj_id_t self,
                                             const char *ptr, size_t siz)
@@ -216,26 +216,26 @@ void CVmObjTemporaryFile::reload_from_image(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   load or reload data from the image 
+ *   load or reload data from the image
  */
 void CVmObjTemporaryFile::load_image_data(VMG_ const char *ptr, size_t siz)
 {
     /* free our existing extension, if we have one */
     if (ext_ != 0)
         G_mem->get_var_heap()->free_mem(ext_);
-    
-    /* 
+
+    /*
      *   Allocate the extension.  A temp file object loaded from the image is
      *   invalid; these objects are inherently transient.  So simply use an
-     *   empty filename to indicate that the temp file is not openable. 
+     *   empty filename to indicate that the temp file is not openable.
      */
     vm_tmpfil_ext *ext = vm_tmpfil_ext::alloc_ext(vmg_ this, "");
     ext_ = (char *)ext;
 }
 
 
-/* 
- *   save to a file 
+/*
+ *   save to a file
  */
 void CVmObjTemporaryFile::save_to_file(VMG_ class CVmFile *)
 {
@@ -243,8 +243,8 @@ void CVmObjTemporaryFile::save_to_file(VMG_ class CVmFile *)
     assert(FALSE);
 }
 
-/* 
- *   restore from a file 
+/*
+ *   restore from a file
  */
 void CVmObjTemporaryFile::restore_from_file(VMG_ vm_obj_id_t /*self*/,
                                             CVmFile *, CVmObjFixup *)
@@ -287,7 +287,7 @@ int CVmObjTemporaryFile::getp_getFilename(VMG_ vm_obj_id_t self,
  *   the underlying file system object.  It's not necessary for the program
  *   to call this, as we'll automatically release the file when this object
  *   is deleted by the garbage collector, but this method allows the program
- *   to explicitly release the resource as soon as it's done with it.  
+ *   to explicitly release the resource as soon as it's done with it.
  */
 int CVmObjTemporaryFile::getp_deleteFile(VMG_ vm_obj_id_t self,
                                          vm_val_t *retval, uint *oargc)

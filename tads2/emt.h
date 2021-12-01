@@ -2,11 +2,11 @@
 $Header: d:/cvsroot/tads/TADS2/EMT.H,v 1.2 1999/05/17 02:52:11 MJRoberts Exp $
 */
 
-/* 
+/*
  *   Copyright (c) 1991, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -146,20 +146,20 @@ uint emtgslbl(emtcxdef *ctx);
  *   Set a temporary label to the current position, releasing it if
  *   desired.  If the label is released, *lab is set to an invalid label
  *   value (EMTLLNKEND) so that the caller can detect (for error-handling
- *   purposes) whether the label has been freed. 
+ *   purposes) whether the label has been freed.
  */
 void emtslbl(emtcxdef *ctx, noreg uint *lab, int release);
 
 /*
  *   Release a temporary label for re-use.  *lab is set to EMTLLNKEND so
  *   that the caller can detect (for error-handling purposes) whether the
- *   label has been freed. 
+ *   label has been freed.
  */
 void emtdlbl(emtcxdef *ctx, noreg uint *lab);
 
 /*
  *   Clear label, ignoring errors (used for error cleanup). *lab is set
- *   to EMTLLNKEND to flag that it's been freed. 
+ *   to EMTLLNKEND to flag that it's been freed.
  */
 void emtclbl(emtcxdef *ctx, noreg uint *lab);
 

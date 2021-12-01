@@ -25,7 +25,7 @@ void *our_memcpy(void *destp, const void *srcp, size_t size)
     char *dest = (char *)destp;
     char *src = (char *)srcp;
     size_t n;
-    
+
     n = size;
     if (dest < src) {
         while (n > 0) {
@@ -42,7 +42,7 @@ void *our_memcpy(void *destp, const void *srcp, size_t size)
             *dest = *src;
         }
     }
-    
+
     return destp;
 }
 
@@ -221,9 +221,9 @@ void os_build_full_path(char *fullpathbuf, size_t fullpathbuflen,
      *   Note whether we need to add a separator.  If the path prefix ends
      *   in a separator, don't add another; otherwise, add the standard
      *   system separator character.
-     *   
+     *
      *   Do not add a separator if the path is completely empty, since this
-     *   simply means that we want to use the current directory.  
+     *   simply means that we want to use the current directory.
      */
     plen = strlen(path);
     add_sep = (plen != 0
@@ -250,14 +250,14 @@ void os_build_full_path(char *fullpathbuf, size_t fullpathbuflen,
 #endif /* GLKUNIX */
 }
 
-/* 
+/*
  *   Given argv[0], what's the executable's full pathname? The problem under
  *   Unix is that we don't necessarily know. If the interpreter is invoked
  *   using an alias, argv[0] will (under many shells) contain that alias. So
  *   we're going to return failure regardless. The good news is that we only
  *   lose the ability to create bound games, which I don't expect to be an
  *   issue under Unix. If you port Glk TADS to another platform where this
- *   is not the case, feel free to adjust this routine appropriately.  
+ *   is not the case, feel free to adjust this routine appropriately.
  */
 int os_get_exe_filename(char *buf, size_t buflen, const char *argv0)
 {
@@ -265,12 +265,12 @@ int os_get_exe_filename(char *buf, size_t buflen, const char *argv0)
     return FALSE;
 }
 
-/* 
+/*
  *   Get a special path (e.g. path to standard include files or libraries).
  *   Valid id values include OS_GSP_T3_RES, OS_GSP_T3_LIB, and
  *   OS_GSP_T3_INC. If certain compiler variables are set, use those
  *   hardcoded paths. Otherwise, check for environment variables; if those
- *   aren't set, return argv0's path. Note that this is only for Unix Glk 
+ *   aren't set, return argv0's path. Note that this is only for Unix Glk
  */
 void os_get_special_path(char *buf, size_t buflen, const char *argv0, int id)
 {
@@ -305,11 +305,11 @@ void os_get_special_path(char *buf, size_t buflen, const char *argv0, int id)
         /* for application data, use the executable directory */
         os_get_path_name(buf, buflen, argv0);
         break;
-        
+
     default:
         /*
          *   If we're called with another identifier, it must mean that
-         *   we're out of date.  Fail with an assertion.  
+         *   we're out of date.  Fail with an assertion.
          */
         assert(FALSE);
     }
@@ -364,7 +364,7 @@ void os_addext(char *fname, const char *ext)
         p--;
     if (*p == '.')
         return;
-    
+
     strcat(fname, ".");                   /* Append a dot and the extension */
     strcpy(buf, ext);           /* Make the extension lower-case by default */
     os_strlwr(buf);
@@ -380,7 +380,7 @@ void os_remext(char *fname)
     /* Don't do any fiddling if the passed string is a hashed fileref */
     if (oss_is_string_a_fileref(fname))
         return;
-    
+
     p = fname + strlen(fname);
     while (p != fname) {
         p--;
@@ -436,7 +436,7 @@ void os_print(const char *str, size_t len)
     else if (current_status_mode == OSS_STATUS_MODE_STATUS) {
         const char *p;
         size_t      rem;
-        
+
         /* The string requires some fiddling for the status window */
         for (p = str, rem = len ; rem != 0 && *p == '\n'; p++, --rem) ;
         if (rem != 0 && p[rem-1] == '\n')
@@ -524,7 +524,7 @@ unsigned char *os_gets(unsigned char *buf, size_t bufl)
             oss_draw_status_line();
     } while (ev.type != evtype_LineInput);
     buf[ev.val1] = 0;                     /* Don't forget the trailing NULL */
-    
+
     return buf;
 }
 
@@ -735,13 +735,13 @@ int os_get_sysinfo(int code, void *parm, long *result)
         return TRUE;                              /* We recognized the code */
     case SYSINFO_INTERP_CLASS:
         /* we're a text-only character-mode interpreter */
-        /* 
+        /*
          *   $$$ we might want to be more specific: if it's possible to
          *   determine whether we're running on a character-mode or GUI
          *   platform, we should indicate type TEXT or TEXTGUI as
          *   appropriate.  There's no practical difference between these
          *   classes at the moment, though, so it's not very important to
-         *   distinguish them. 
+         *   distinguish them.
          */
         *result = SYSINFO_ICLASS_TEXT;
         return TRUE;
@@ -807,7 +807,7 @@ void os_xlat_html4(unsigned int html4_char, char *result, size_t result_len)
             result[0] = '>'; break;
         case 8482:                                           /* small tilde */
             result[0] = '~'; break;
-            
+
         default:
             /* unmappable character - return space */
             result[0] = (unsigned char)' ';

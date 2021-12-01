@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/TCHOSTSI.CPP,v 1.2 1999/05/17 02:52:27 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   tchostsi.cpp - stdio implementation of host interface
 Function
-  
+
 Notes
-  
+
 Modified
   04/22/99 MJRoberts  - Creation
 */
@@ -33,11 +33,11 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   stdio host interface 
+ *   stdio host interface
  */
 
-/* 
- *   display a message 
+/*
+ *   display a message
  */
 void CTcHostIfcStdio::v_print_msg(const char *msg, va_list args)
 {
@@ -45,7 +45,7 @@ void CTcHostIfcStdio::v_print_msg(const char *msg, va_list args)
     v_printf(msg, args);
 }
 
-/* 
+/*
  *   display a process step message
  */
 void CTcHostIfcStdio::v_print_step(const char *msg, va_list args)
@@ -61,7 +61,7 @@ void CTcHostIfcStdio::v_print_step(const char *msg, va_list args)
     }
 }
 
-/* 
+/*
  *   display an error message
  */
 void CTcHostIfcStdio::v_print_err(const char *msg, va_list args)
@@ -72,12 +72,12 @@ void CTcHostIfcStdio::v_print_err(const char *msg, va_list args)
 
 /*
  *   display a message - internal interface; this routine formats the
- *   message and converts it to the console character set for display 
+ *   message and converts it to the console character set for display
  */
 void CTcHostIfcStdio::v_printf(const char *msg, va_list args)
 {
     char buf[1024];
-    
+
     /* format the message to our internal buffer */
     t3vsprintf(buf, sizeof(buf), msg, args);
 
@@ -97,7 +97,7 @@ void CTcHostIfcStdio::v_printf(const char *msg, va_list args)
         /* if there's room, null-terminate the buffer */
         if (len < sizeof(xlat_buf))
             xlat_buf[len] = '\0';
-        
+
         /* display it on the standard output */
         printf("%s", xlat_buf);
     }
@@ -107,13 +107,13 @@ void CTcHostIfcStdio::v_printf(const char *msg, va_list args)
         printf("%s", buf);
     }
 
-    /* 
+    /*
      *   Flush the standard output immediately.  If our output is being
      *   redirected to a pipe that another program is reading, this will
      *   ensure that the other program will see our output as soon as we
      *   produce it, which might be important in some cases.  In any case,
      *   we don't generally produce so much console output that this should
-     *   significantly affect performance.  
+     *   significantly affect performance.
      */
     fflush(stdout);
 }

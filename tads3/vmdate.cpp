@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2012 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -15,7 +15,7 @@ Name
 Function
   Implements the Date intrinsic class
 Notes
-  
+
 Modified
   01/23/12 MJRoberts  - Creation
 */
@@ -56,7 +56,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Round a double to int32 
+ *   Round a double to int32
  */
 static int32_t round_int32(double d)
 {
@@ -78,26 +78,26 @@ void caldate_t::now(int32_t &dayno, int32_t &daytime)
     long ns;
     os_time_ns(&s, &ns);
 
-    /* 
+    /*
      *   's' is the number of seconds since the Unix Epoch, 1/1/1970 UTC.
      *   Get our day number: divide by seconds per day to get days past the
      *   Unix Epoch, then adjust to our Epoch (3/1/0000 UTC) by adding the
-     *   number of days from our Epoch to the Unix Epoch. 
+     *   number of days from our Epoch to the Unix Epoch.
      */
     dayno = (int32_t)(s/(24*60*60) + caldate_t::UNIX_EPOCH_DAYNO);
 
-    /* 
+    /*
      *   convert 's' to the time of day, adding in the fractional portion
-     *   from 'ns' but only keeping millisecond precision 
+     *   from 'ns' but only keeping millisecond precision
      */
     daytime = (uint32_t)((s % (24*60*60))*1000 + ns/1000000);
 }
 
 
-/* 
+/*
  *   normalize a date/time value: if the daytime value is before 0000 hours
  *   or after 2400 hours, bring it back within bounds and adjust the day
- *   number 
+ *   number
  */
 void caldate_t::normalize(int32_t &dayno, int32_t &daytime)
 {
@@ -158,16 +158,16 @@ public:
             len = strlen(defaults[idx]);
             return defaults[idx];
         }
-        
+
         /* invalid entry */
         len = 0;
         return 0;
     }
 
-    /* 
+    /*
      *   Index a locale list.  If 'sticky' is true, the last item actually
      *   present in the list will be returned if the index is past the end of
-     *   the list. 
+     *   the list.
      */
     const char *index_list(VMG_ size_t &itemlen, int item, int idx, int sticky)
     {
@@ -189,7 +189,7 @@ public:
             const char *comma = lib_strnchr(str, len, ',');
             if (comma == 0)
             {
-                /* 
+                /*
                  *   No more commas, so the index is past the end of the
                  *   list.  If 'sticky' is true, use the last item; otherwise
                  *   return "not found".
@@ -202,17 +202,17 @@ public:
                     return 0;
                 }
             }
-            
+
             /* advance to the comma */
             len -= comma - str;
             str = comma;
         }
-        
+
         /* we have the item; measure its length, up to the next '=' or ',' */
         const char *p;
         for (p = str, itemlen = 0 ; len != 0 && *p != '=' && *p != ',' ;
              --len, ++p, ++itemlen) ;
-        
+
         /* return the item pointer */
         return str;
     }
@@ -328,7 +328,7 @@ static const int LC_FMT_24HOURSECS = 14;
 /*
  *   Figure the ordinal suffix index (in LC_ORDSUF) for a given number.  The
  *   suffix indices are:
- *   
+ *
  *.     0 = 1st
  *.     1 = 2nd
  *.     2 = 3rd
@@ -342,9 +342,9 @@ static int ordinal_index(int n)
     /* get the last digit */
     int lastdig = n % 10;
 
-    /* 
+    /*
      *   if it's in the teens, or the last digit is 0 or 4-9, use the generic
-     *   Nth suffix 
+     *   Nth suffix
      */
     if (lastdig == 0 || lastdig >= 4 || (n > 10 && n < 20))
         return 3;
@@ -356,7 +356,7 @@ static int ordinal_index(int n)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Allocate an extension structure 
+ *   Allocate an extension structure
  */
 vm_date_ext *vm_date_ext::alloc_ext(VMG_ CVmObjDate *self)
 {
@@ -373,7 +373,7 @@ vm_date_ext *vm_date_ext::alloc_ext(VMG_ CVmObjDate *self)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjDate object statics 
+ *   CVmObjDate object statics
  */
 
 /* metaclass registration object */
@@ -422,7 +422,7 @@ CVmObjDate::CVmObjDate(VMG_ int32_t dayno, uint32_t daytime)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Get my date and time in the given local time zone 
+ *   Get my date and time in the given local time zone
  */
 const char *CVmObjDate::get_local_time(
     int32_t &dayno, int32_t &daytime, int32_t &ofs, CVmTimeZone *tz) const
@@ -437,7 +437,7 @@ const char *CVmObjDate::get_local_time(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Date/time parser 
+ *   Date/time parser
  */
 
 /* string capture item */
@@ -459,8 +459,8 @@ struct date_parse_result
     {
         /* remember my calendar interface */
         this->cal = cal;
-        
-        /* 
+
+        /*
          *   Initialize most elements to invalid, out-of-bounds values to
          *   indicate they haven't been set yet.  INT_MIN satisfies this for
          *   all of these, so for the sake of clarity use it for all of them.
@@ -504,10 +504,10 @@ struct date_parse_result
     /* translate a time from local to UTC using our parsed timezone info */
     void local_to_utc(int32_t &dayno, int32_t &daytime)
     {
-        /*   
+        /*
          *   If we have a specific timezone offset, use the offset; otherwise
          *   translate via the time zone object.
-         *   
+         *
          *   Note that it's possible for a parsed date to specify both an
          *   offset and a zone.  If a seasonal zone abbreviation like "PDT"
          *   is used, it tells us both the timezone (America/Los_Angeles in
@@ -549,9 +549,9 @@ struct date_parse_result
         }
     }
 
-    /* 
+    /*
      *   set a default date - this sets any undefined date components
-     *   individually from the given date 
+     *   individually from the given date
      */
     void def_date(int32_t dayno)
     {
@@ -564,31 +564,31 @@ struct date_parse_result
             switch (era)
             {
             case 1:
-                /* 
+                /*
                  *   astronomical '+' notation - the internal year number
-                 *   matches the nominal year 
+                 *   matches the nominal year
                  */
                 break;
-                
+
             case 2:
-                /* 
+                /*
                  *   AD - the internal year matches the nominal year, but an
                  *   explicit AD overrides the need for a century; e.g., AD
                  *   87 is pretty clear that we're talking about an
-                 *   historical date in the first century 
+                 *   historical date in the first century
                  */
                 yy_needs_century = FALSE;
                 break;
-                
+
             case -1:
-                /* 
+                /*
                  *   astronomical '-' notation - the internal year number
                  *   matches the nominal negative year number, since we use
                  *   the same notation internally
                  */
                 yy = -yy;
                 break;
-                
+
             case -2:
                 /* BC - 1 BC is internal year 0, 2 BC is year -1, etc */
                 yy = -yy + 1;
@@ -602,7 +602,7 @@ struct date_parse_result
         def_month(cal->m());
         def_day(cal->d());
 
-        /* 
+        /*
          *   If the year was specified without a century, choose the century
          *   such that it yields the year nearest to the current year.  This
          *   is equivalent to finding the year within 50 years of the current
@@ -619,9 +619,9 @@ struct date_parse_result
         }
     }
 
-    /* 
+    /*
      *   set a default time - this sets any undefined time components
-     *   individually from the given time 
+     *   individually from the given time
      */
     void def_time(int m, int h, int s, int ms)
     {
@@ -630,7 +630,7 @@ struct date_parse_result
             hh = 0;
         else if (ampm == 2 && hh < 12)
             hh += 12;
-        
+
         def_hour(h);
         def_minute(m);
         def_second(s);
@@ -643,7 +643,7 @@ struct date_parse_result
         /* if there's an ISO weekday, convert it to a calendar date */
         if (has_iso_week() && has_year())
         {
-            /* 
+            /*
              *   Calculate the "correction factor" - this is the ISO weekday
              *   number of January 4 of the year, plus 3.  Note that this is
              *   explicitly defined as Jan 4 *Gregorian* by the standard, so
@@ -652,7 +652,7 @@ struct date_parse_result
             caldate_t jan4(yy, 1, 4);
             int corr = jan4.iso_weekday() + 3;
 
-            /* 
+            /*
              *   Set the date to "January 'ord'", where 'ord' is the ISO
              *   ordinal day number calculated from the weekday and
              *   correction factor.  This won't necessarily be a valid date
@@ -680,7 +680,7 @@ struct date_parse_result
 
     /*
      *   Set defaults for the various components.  These will set the
-     *   component only if it hasn't been set to a valid value already. 
+     *   component only if it hasn't been set to a valid value already.
      */
     void def_year(int y) { if (!has_year()) yy = y; }
     void def_month(int m) { if (!has_month()) mm = m; }
@@ -728,10 +728,10 @@ struct date_parse_result
     int mm;
     int dd;
 
-    /* 
+    /*
      *   ISO 8601 week+day - this is the value W*7+D from a date in ISO 8601
      *   format, where W is the week number (1-53) and D is the day of week
-     *   number (1-7). 
+     *   number (1-7).
      */
     int w;
 
@@ -765,7 +765,7 @@ static inline int match_fmt(const char *fmt, const char *fmtend,
     return (len == (size_t)(fmtend - fmt) && memcmp(ref, fmt, len) == 0);
 }
 
-/* 
+/*
  *   match a digit string; the template gives pairs of digits with the bounds
  *   to match - e.g., "09" matches one digit from 0 to 9, "12" matches one
  *   digit from 1 to 2, "0209" matches 00 to 29, etc.  We can also match ','
@@ -787,7 +787,7 @@ static int match_digits(int &acc, const char *&str, size_t &len,
         {
             /* back up to make up for the normal double increment */
             --tpl;
-            
+
             /* allow it to match, but don't require it */
             if (rem != 0 && (*p == ',' || *p == '.'))
                 continue;
@@ -796,7 +796,7 @@ static int match_digits(int &acc, const char *&str, size_t &len,
             --p, ++rem;
             continue;
         }
-        
+
         /* if this input char isn't a digit, we don't have a match */
         if (rem == 0 || !is_digit(*p))
             return FALSE;
@@ -823,7 +823,7 @@ static int match_digits(int &acc, const char *&str, size_t &len,
 }
 
 /*
- *   match literal text 
+ *   match literal text
  */
 static int match_lit(const char *&str, size_t &len,
                      const char *lit, size_t litlen,
@@ -878,7 +878,7 @@ static int match_lit(const char *&str, size_t &len,
         if (isdigit(last) && isdigit(next))
             return FALSE;
     }
-    
+
     /* set the capture data */
     capture.p = str;
     capture.len = p.getptr() - str;
@@ -912,7 +912,7 @@ static int match_list(int &acc, const char *&str, size_t &len,
 
     /* skip leading spaces */
     for ( ; lstlen != 0 && is_space(*lst) ; ++lst, --lstlen) ;
-    
+
     /* keep going until we're out of list */
     for (int idx = 1 ; lstlen != 0 ; )
     {
@@ -935,7 +935,7 @@ static int match_list(int &acc, const char *&str, size_t &len,
             }
         }
 
-        /* 
+        /*
          *   If we're at an '=', an alias for this same item follows, so keep
          *   going without upping the index.  If we're at a comma, we're on
          *   to the next item.  If we're at a ';' or the end of the string,
@@ -1000,18 +1000,18 @@ static int match_tzofs(VMG_ date_parse_result *res,
     /* skip the sign */
     ++p, --rem;
 
-    /* 
+    /*
      *   Get the "hh".  If the "GMT" literal was present, allow a single
-     *   digit; otherwise require the two-digit format. 
+     *   digit; otherwise require the two-digit format.
      */
     int hh;
     if (!match_digits(hh, p, rem, "0509", part)
         && (!gmtlit || !match_digits(hh, p, rem, "09", part)))
         return FALSE;
 
-    /* 
+    /*
      *   check for ":" - if present, the minutes must be present, otherwise
-     *   they're optional 
+     *   they're optional
      */
     int mi = 0;
     if (rem != 0 && *p == ':')
@@ -1060,7 +1060,7 @@ static int match_tzofs(VMG_ date_parse_result *res,
 }
 
 /*
- *   Match a timezone by name 
+ *   Match a timezone by name
  */
 static int match_tzname(VMG_ date_parse_result *res,
                         const char *&str, size_t &len)
@@ -1103,7 +1103,7 @@ static int match_tzname(VMG_ date_parse_result *res,
         tz = G_tzcache->get_zone_by_abbr(vmg_ &tzofs, str, p - str);
         if (tz != 0)
         {
-            /* 
+            /*
              *   Success - we found an abbreviation; this usually gives us
              *   both a timezone and a specific offset, since an abbreviation
              *   is specific to standard or daylight time.  However, some
@@ -1147,7 +1147,7 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
         /* stop if we're at the end of the string */
         if (fmtl == 0)
             break;
-        
+
         /* find the next space or end of string */
         const char *sp = lib_strnchr(fmt, fmtl, ' ');
         sp = (sp != 0 ? sp : fmt + fmtl);
@@ -1188,12 +1188,12 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                     res->dd = acc;
                 else
                     return FALSE;
-                
+
                 /* get the locale ordinal for the digit */
                 size_t ordl;
                 const char *ord = lc->index_list(
                     vmg_ ordl, LC_ORDSUF, ordinal_index(acc), TRUE);
-                
+
                 /* compare it */
                 date_parse_string pdd;
                 if (match_lit(str, len, ord, ordl, pdd))
@@ -1212,11 +1212,11 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                     || match_digits(acc, str, len, "330509", res->pdoy)
                     || match_digits(acc, str, len, "336606", res->pdoy))
                 {
-                    /* 
+                    /*
                      *   set the date to January 'doy' - this isn't
                      *   necessarily a valid calendar date in January, but
                      *   caldate_t handles overflows in the day by carrying
-                     *   to the month and year as needed 
+                     *   to the month and year as needed
                      */
                     res->mm = 1;
                     res->dd = acc;
@@ -1229,18 +1229,18 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
         case 'm':
             if (match_fmt(fmt, sp, "month"))
             {
-                /* 
+                /*
                  *   Month by long name, short name, or Roman numeral.  Get
                  *   the locale strings for the month names; the Roman
                  *   numerals are fixed, so we can set up a static string for
-                 *   those. 
+                 *   those.
                  */
                 size_t mm_long_len, mm_abbr_len;
                 const char *mm_long = lc->get(vmg_ mm_long_len, LC_MONTH);
                 const char *mm_abbr = lc->get(vmg_ mm_abbr_len, LC_MON);
                 static const char *romans =
                     "^I,^II,^III,^IV,^V,^VI,^VII,^VIII,^IX,^X,^XI,^XII;";
-                
+
                 /* try each variation */
                 int acc;
                 if (match_list(acc, str, len, mm_long, mm_long_len, res->pmm)
@@ -1251,7 +1251,7 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                     res->mm = acc;
                 else
                     return FALSE;
-                
+
                 /* specifying a month makes the default day the 1st */
                 res->def_day(1);
             }
@@ -1265,7 +1265,7 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                     res->mm = acc;
                 else
                     return FALSE;
-                
+
                 /* specifying a month makes the default day the 1st */
                 res->def_day(1);
             }
@@ -1279,7 +1279,7 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                     res->mm = acc;
                 else
                     return FALSE;
-                
+
                 /* specifying a month makes the default day the 1st */
                 res->def_day(1);
             }
@@ -1292,7 +1292,7 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                     res->mm = acc;
                 else
                     return FALSE;
-                
+
                 /* specifying a month makes the default day the 1st */
                 res->def_day(1);
             }
@@ -1316,9 +1316,9 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
         case 'W':
             if (match_fmt(fmt, sp, "W"))
             {
-                /* 
+                /*
                  *   ISO week - a two-digit number giving the week of the
-                 *   year, optionally followed by a day number 
+                 *   year, optionally followed by a day number
                  */
                 int w;
                 if (match_digits(w, str, len, "0019", res->pw)
@@ -1341,7 +1341,7 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                         str += 1, len -= 1;
                         res->pw.len += 1;
                     }
-                    
+
                     /* matched */
                     res->w = w*7 + d;
                     return TRUE;
@@ -1375,7 +1375,7 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                 }
                 else
                     return FALSE;
-                
+
                 /* specifying the year makes the default date 1/1 */
                 res->def_month(1);
                 res->def_day(1);
@@ -1391,7 +1391,7 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                 }
                 else
                     return FALSE;
-                
+
                 /* specifying the year makes the default date 1/1 */
                 res->def_month(1);
                 res->def_day(1);
@@ -1404,16 +1404,16 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                     res->yy = acc;
                 else
                     return FALSE;
-                
+
                 /* specifying the year makes the default date 1/1 */
                 res->def_month(1);
                 res->def_day(1);
             }
             else if (match_fmt(fmt, sp, "ye"))
             {
-                /* 
+                /*
                  *   Year with optional era designator (AD/BC).  The era can
-                 *   come before or after the year, with spaces in between. 
+                 *   come before or after the year, with spaces in between.
                  */
                 size_t era_len;
                 const char *era_lst = lc->get(vmg_ era_len, LC_ERA);
@@ -1423,11 +1423,11 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                 {
                     /* note the era - 2 for AD, -2 for BC */
                     res->era = era = (idx == 1 ? 2 : -2);
-                    
+
                     /* allow spaces */
                     for ( ; len != 0 && isspace(*str) ; ++str, --len) ;
                 }
-                
+
                 /* match the year - this part is required */
                 int acc;
                 if (match_digits(acc, str, len, "09,090909,090909", res->pyy)
@@ -1452,23 +1452,23 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                     const char *str2 = str;
                     size_t len2 = len;
                     for ( ; len2 != 0 && isspace(*str2) ; ++str2, --len2) ;
-                    
+
                     /* check for the era */
                     if (match_list(
                         idx, str2, len2, era_lst, era_len, res->pera))
                     {
                         /* found it - set the era identifier */
                         res->era = era = (idx == 1 ? 2 : -2);
-                        
+
                         /* advance past it in the main string */
                         str = str2;
                         len = len2;
                     }
                 }
-                
-                /* 
+
+                /*
                  *   if we matched one or two digits, with no era, we need a
-                 *   default century 
+                 *   default century
                  */
                 if (era == 0 && res->pyy.len <= 2)
                     res->yy_needs_century = TRUE;
@@ -1507,7 +1507,7 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                     res->hh = acc;
                 else
                     return FALSE;
-                
+
                 /* specifying the hour makes the default mm:ss.frac zero */
                 res->def_minute(0);
                 res->def_second(0);
@@ -1522,7 +1522,7 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                     res->hh = acc;
                 else
                     return FALSE;
-                
+
                 /* specifying the hour makes the default minute zero */
                 res->def_minute(0);
                 res->def_second(0);
@@ -1542,7 +1542,7 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                     res->mi = acc;
                 else
                     return FALSE;
-                
+
                 /* specifying the minute makes the default ss.frac zero */
                 res->def_second(0);
                 res->def_msec(0);
@@ -1560,7 +1560,7 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                     res->ss = acc;
                 else
                     return FALSE;
-                
+
                 /* specifying the second makes the default fraction zero */
                 res->def_msec(0);
             }
@@ -1573,7 +1573,7 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                     res->ss = acc;
                 else
                     return FALSE;
-                
+
                 /* specifying the second makes the default fraction zero */
                 res->def_msec(0);
             }
@@ -1582,9 +1582,9 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                 /* fractional seconds */
                 if (len >= 1 && isdigit(str[1]))
                 {
-                    /* 
+                    /*
                      *   parse digits - accumulate up to four digits so that
-                     *   we can round to milliseconds 
+                     *   we can round to milliseconds
                      */
                     res->pms.p = str;
                     res->pms.len = 0;
@@ -1592,9 +1592,9 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                     for ( ; len != 0 && isdigit(*str) ;
                           ++str, --len, ++res->pms.len, mul /= 10)
                     {
-                        /* 
+                        /*
                          *   add the next digit only if significant,
-                         *   otherwise note any non-zero trailing digits 
+                         *   otherwise note any non-zero trailing digits
                          */
                         if (mul > 1)
                             acc *= 10, acc += value_of_digit(*str);
@@ -1610,17 +1610,17 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                     int lastdig = acc % 10;
                     acc /= 10;
 
-                    /* 
+                    /*
                      *   round up if the last digit is 6+, 5+ with a non-zero
                      *   digit following, or exactly 5 with an odd second
-                     *   digit 
+                     *   digit
                      */
                     if (lastdig > 5
                         || (lastdig == 5
                             && (trailing
                                 || ((acc % 10) & 1) != 0)))
                         ++acc;
-                    
+
                     /* store as integer milliseconds */
                     res->ms = acc;
                 }
@@ -1634,10 +1634,10 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
         case 'u':
             if (match_fmt(fmt, sp, "unix"))
             {
-                /* 
+                /*
                  *   Unix timestamp value - any number of digits giving a
                  *   positive or negative offset in seconds from the Unix
-                 *   Epoch (1/1/1970) 
+                 *   Epoch (1/1/1970)
                  */
                 int s = 1;
                 if (len >= 2 && str[0] == '-' && is_digit(str[1]))
@@ -1651,8 +1651,8 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                 }
                 else
                     return FALSE;
-                
-                /* 
+
+                /*
                  *   Parse digits; use a double in case we have more than a
                  *   32-bit int's worth.  (We only work in whole integers
                  *   here, but we might need more precision than an int32.  A
@@ -1669,35 +1669,35 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                     acc *= 10.0;
                     acc += value_of_digit(*str);
                 }
-                
+
                 /* apply the sign */
                 acc *= s;
-                
+
                 /* split into days and seconds */
                 double days = floor(acc / (24.*60.*60.));
                 int32_t secs = (int32_t)fmod(acc, 24.*60.*60.);
-                
+
                 /* make sure it fits an int32 */
                 if (days > INT32MAXVAL)
                     return FALSE;
-                
-                /* 
+
+                /*
                  *   convert to a calendar date, adjusting from the Unix
-                 *   Epoch to our Epoch 
+                 *   Epoch to our Epoch
                  */
                 res->cal->set_dayno(
                     (int32_t)days + caldate_t::UNIX_EPOCH_DAYNO);
-                
+
                 /* set the time and day in the parse results */
                 res->yy = res->cal->y();
                 res->mm = res->cal->m();
                 res->dd = res->cal->d();
-                
+
                 res->hh = secs/(60*60);
                 res->mi = (secs/60) % 60;
                 res->ss = secs % 60;
                 res->ms = 0;
-                
+
                 /* Unix timestamps are relative to UTC */
                 res->tzofs = 0;
             }
@@ -1748,7 +1748,7 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
         other:
             if (match_fmt(fmt, sp, "+-"))
             {
-                /* 
+                /*
                  *   Astronomical-notation era designator - this is the
                  *   system where the year before AD 1 is Year 0, the year
                  *   before that -1, etc.  Positive years can optionally have
@@ -1763,18 +1763,18 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
             }
             else
             {
-                /* 
+                /*
                  *   Anything else is a list of literals to match.  If it
                  *   ends with '*', we can match zero or more; if it ends
                  *   with '+', we can match one or more; otherwise we match
-                 *   exactly one. 
+                 *   exactly one.
                  */
                 const char *fmtend = sp;
                 char suffix = *(sp-1);
                 int mincnt = (suffix == '*' || suffix == '?' ? 0 : 1);
                 int maxcnt = (suffix == '*' || suffix == '+' ? 65535 : 1);
                 fmtend -= (strchr("*?+", suffix) != 0 ? 1 : 0);
-                
+
                 /* scan the character list */
                 int cnt = 0;
                 utf8_ptr strp((char *)str);
@@ -1787,10 +1787,10 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                         /* get the current template and source characters */
                         wchar_t fc = fmtp.getch();
                         wchar_t sc = strp.getch();
-                        
-                        /* 
+
+                        /*
                          *   check for specials: \ quotes the next, _ is a
-                         *   space 
+                         *   space
                          */
                         if (fc == '\\' && fmtp.getptr() < fmtend)
                         {
@@ -1801,7 +1801,7 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                         {
                             fc = ' ';
                         }
-                        
+
                         /* check for a match */
                         if (fc == sc)
                         {
@@ -1815,14 +1815,14 @@ int CVmObjDate::parse_string_fmt(VMG_ date_parse_result *res,
                     if (!found)
                         break;
                 }
-                
+
                 /* if we didn't match the minimum number, it's a mismatch */
                 if (cnt < mincnt)
                     return FALSE;
             }
             break;
         }
-            
+
         /* advance past this field */
         fmtl -= sp - fmt;
         fmt = sp;
@@ -1947,7 +1947,7 @@ struct format_iter
 };
 
 /*
- *   Parse a date string in a constructor argument. 
+ *   Parse a date string in a constructor argument.
  */
 int CVmObjDate::parse_date_string(
     VMG_ int32_t &dayno, int32_t &daytime,
@@ -2033,7 +2033,7 @@ int CVmObjDate::parse_date_string(
     /* get the template filter in "[xx]" format */
     size_t filterlen;
     const char *filter = lc->get(vmg_ filterlen, LC_PARSE_FILTER);
-    
+
     /* keep separate results for each pass */
     date_parse_result result(cal);
 
@@ -2049,7 +2049,7 @@ int CVmObjDate::parse_date_string(
         /* we haven't found a best result for this pass yet */
         int bestlen = 0;
         date_parse_result bestres(cal);
-        
+
         /* search the list for a match */
         format_iter fi(vmg_ fmt, countof(fmt), custom);
         size_t curfmtl;
@@ -2070,9 +2070,9 @@ int CVmObjDate::parse_date_string(
                 /* get the ']' */
                 const char *rb = lib_strnchr(curfmt+1, curfmtl-1, ']');
 
-                /* 
+                /*
                  *   if we found it, and the contents of the brackets don't
-                 *   match the locale filter string, filter out this format 
+                 *   match the locale filter string, filter out this format
                  */
                 if (rb != 0
                     && (rb - curfmt - 1 != (int)filterlen
@@ -2129,7 +2129,7 @@ int CVmObjDate::parse_date_string(
 
     /* set missing date elements to the corresponding reference date values */
     result.def_date(refday);
-    
+
     /* set any missing time elements to midnight or zero past the hour/min */
     result.def_time(0, 0, 0, 0);
 
@@ -2170,8 +2170,8 @@ static void parse_ymd_args(VMG_ int argofs, int argc,
     /* figure the day number for the given calendar date */
     caldate_t cd(y, m, d);
     dayno = cd.dayno();
-    
-    /* 
+
+    /*
      *   if this is the 7-argument version, get the time; otherwise it's
      *   implicitly midnight on the given date
      */
@@ -2183,8 +2183,8 @@ static void parse_ymd_args(VMG_ int argofs, int argc,
         int mm = G_stk->get(argofs + 4)->num_to_int(vmg0_);
         int ss = G_stk->get(argofs + 5)->num_to_int(vmg0_);
         int ms = G_stk->get(argofs + 6)->num_to_int(vmg0_);
-        
-        /* 
+
+        /*
          *   Combine the time components into 'daytime' in milliseconds.
          *   This could be a very large number, so work in double until we
          *   can normalize it.  Note that we're working in whole numbers only
@@ -2214,7 +2214,7 @@ static void parse_ymd_args(VMG_ int argofs, int argc,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Create with a given timestamp 
+ *   Create with a given timestamp
  */
 vm_obj_id_t CVmObjDate::create(VMG_ int in_root_set,
                                int32_t dayno, int32_t daytime)
@@ -2226,13 +2226,13 @@ vm_obj_id_t CVmObjDate::create(VMG_ int in_root_set,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Create from an os_time_t timestamp 
+ *   Create from an os_time_t timestamp
  */
 vm_obj_id_t CVmObjDate::create_from_time_t(VMG_ int in_root_set, os_time_t t)
 {
-    /* 
+    /*
      *   turn the time_t into days and milliseconds after the Unix Epoch (use
-     *   doubles to ensure we don't overflow an int) 
+     *   doubles to ensure we don't overflow an int)
      */
     double d = (double)t;
     double dn = floor(d / (24*60*60));
@@ -2247,14 +2247,14 @@ vm_obj_id_t CVmObjDate::create_from_time_t(VMG_ int in_root_set, os_time_t t)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   create dynamically using stack arguments 
+ *   create dynamically using stack arguments
  */
 vm_obj_id_t CVmObjDate::create_from_stack(VMG_ const uchar **pc_ptr, uint argc)
 {
     int32_t dayno;
     int32_t daytime;
     const char *str;
-    
+
     /* check for the various argument lists */
     if (argc == 0)
     {
@@ -2264,7 +2264,7 @@ vm_obj_id_t CVmObjDate::create_from_stack(VMG_ const uchar **pc_ptr, uint argc)
     else if ((argc >= 1 && argc <= 3)
              && (str = G_stk->get(0)->get_as_string(vmg0_)) != 0)
     {
-        /* 
+        /*
          *   The first argument is a date in string format.  The optional
          *   second argument is the reference time zone; the optional third
          *   argument is the reference date.
@@ -2311,7 +2311,7 @@ vm_obj_id_t CVmObjDate::create_from_stack(VMG_ const uchar **pc_ptr, uint argc)
         double dn, dms;
         if (vmb_get_len(str) == 1 && (str[2] == 'U' || str[2] == 'u'))
         {
-            /* 
+            /*
              *   'U' - Unix time, as seconds past 1/1/1970, UTC.  Get the
              *   argument as a double, and convert it to our day numbering
              *   scheme by dividing by seconds per day and adding the Unix
@@ -2329,7 +2329,7 @@ vm_obj_id_t CVmObjDate::create_from_stack(VMG_ const uchar **pc_ptr, uint argc)
         }
         else if (vmb_get_len(str) == 1 && (str[2] == 'J' || str[2] == 'j'))
         {
-            /* 
+            /*
              *   'J' - Julian day number; get the value, and adjust it to our
              *   Epoch by subtracting the Julian day number of our Epoch.
              *   The whole part is our day number; the fractional part is the
@@ -2351,7 +2351,7 @@ vm_obj_id_t CVmObjDate::create_from_stack(VMG_ const uchar **pc_ptr, uint argc)
         if (dn > INT32MAXVAL || dn < INT32MINVAL)
             err_throw(VMERR_NUM_OVERFLOW);
         dayno = (int32_t)dn;
-        
+
         /* convert milliseconds to int32 */
         daytime = round_int32(dms);
     }
@@ -2405,8 +2405,8 @@ vm_obj_id_t CVmObjDate::create_from_stack(VMG_ const uchar **pc_ptr, uint argc)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   notify of deletion 
+/*
+ *   notify of deletion
  */
 void CVmObjDate::notify_delete(VMG_ int /*in_root_set*/)
 {
@@ -2416,8 +2416,8 @@ void CVmObjDate::notify_delete(VMG_ int /*in_root_set*/)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   set a property 
+/*
+ *   set a property
  */
 void CVmObjDate::set_prop(VMG_ class CVmUndo *undo,
                           vm_obj_id_t self, vm_prop_id_t prop,
@@ -2428,32 +2428,32 @@ void CVmObjDate::set_prop(VMG_ class CVmUndo *undo,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   get a property 
+/*
+ *   get a property
  */
 int CVmObjDate::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                          vm_obj_id_t self, vm_obj_id_t *source_obj,
                          uint *argc)
 {
     uint func_idx;
-    
+
     /* translate the property into a function vector index */
     func_idx = G_meta_table
                ->prop_to_vector_idx(metaclass_reg_->get_reg_idx(), prop);
-    
+
     /* call the appropriate function */
     if ((this->*func_table_[func_idx])(vmg_ self, retval, argc))
     {
         *source_obj = metaclass_reg_->get_class_obj(vmg0_);
         return TRUE;
     }
-    
+
     /* inherit default handling from our base class */
     return CVmObject::get_prop(vmg_ prop, retval, self, source_obj, argc);
 }
 
 /*
- *   get a static (class) property 
+ *   get a static (class) property
  */
 int CVmObjDate::call_stat_prop(VMG_ vm_val_t *result,
                                const uchar **pc_ptr, uint *argc,
@@ -2468,7 +2468,7 @@ int CVmObjDate::call_stat_prop(VMG_ vm_val_t *result,
     {
     case VMDATE_PARSEDATE:
         return s_getp_parseDate(vmg_ result, argc);
-        
+
     case VMDATE_PARSEJULIANDATE:
         return s_getp_parseJulianDate(vmg_ result, argc);
 
@@ -2482,7 +2482,7 @@ int CVmObjDate::call_stat_prop(VMG_ vm_val_t *result,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   cast to a string 
+ *   cast to a string
  */
 const char *CVmObjDate::cast_to_string(
     VMG_ vm_obj_id_t self, vm_val_t *newstr) const
@@ -2519,7 +2519,7 @@ void CVmObjDate::format_string_buf(VMG_ char *buf, size_t buflen) const
 /* ------------------------------------------------------------------------ */
 /*
  *   Date arithmetic - add an integer or BigNumber: adds the given number of
- *   days to the date. 
+ *   days to the date.
  */
 int CVmObjDate::add_val(VMG_ vm_val_t *result, vm_obj_id_t /*self*/,
                         const vm_val_t *val)
@@ -2527,7 +2527,7 @@ int CVmObjDate::add_val(VMG_ vm_val_t *result, vm_obj_id_t /*self*/,
     /* get my date and time */
     int32_t dayno = get_ext()->dayno;
     int32_t daytime = get_ext()->daytime;
-    
+
     /* the other value must be something numeric */
     if (val->typ == VM_INT)
     {
@@ -2547,10 +2547,10 @@ int CVmObjDate::add_val(VMG_ vm_val_t *result, vm_obj_id_t /*self*/,
         /* add the whole part to my day number */
         dayno += (int32_t)dd;
 
-        /* 
+        /*
          *   convert the fractional part to milliseconds (by multiplying it
          *   by the number of milliseconds in a day), then add it to my time
-         *   value 
+         *   value
          */
         daytime += round_int32((double)((d - dd) * (long)(24L*60*60*1000)));
 
@@ -2569,7 +2569,7 @@ int CVmObjDate::add_val(VMG_ vm_val_t *result, vm_obj_id_t /*self*/,
 /*
  *   Date arithmetic - subtract an integer or BigNumber to subtract a number
  *   of days from the date; or subtract another Date value to calculate the
- *   number of days between the dates. 
+ *   number of days between the dates.
  */
 int CVmObjDate::sub_val(VMG_ vm_val_t *result, vm_obj_id_t /*self*/,
                         const vm_val_t *val)
@@ -2616,10 +2616,10 @@ int CVmObjDate::sub_val(VMG_ vm_val_t *result, vm_obj_id_t /*self*/,
         /* add the whole part to my day number */
         dayno -= (int32_t)dd;
 
-        /* 
+        /*
          *   convert the fractional part to milliseconds (by multiplying it
          *   by the number of milliseconds in a day), then subtract it from
-         *   my time value 
+         *   my time value
          */
         daytime -= round_int32((double)((d - dd) * (long)(24L*60*60*1000)));
 
@@ -2637,7 +2637,7 @@ int CVmObjDate::sub_val(VMG_ vm_val_t *result, vm_obj_id_t /*self*/,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Check two Date values for equality 
+ *   Check two Date values for equality
  */
 int CVmObjDate::equals(VMG_ vm_obj_id_t, const vm_val_t *val, int) const
 {
@@ -2660,7 +2660,7 @@ int CVmObjDate::equals(VMG_ vm_obj_id_t, const vm_val_t *val, int) const
 
 
 /*
- *   Compare two Date values 
+ *   Compare two Date values
  */
 int CVmObjDate::compare_to(VMG_ vm_obj_id_t, const vm_val_t *val) const
 {
@@ -2685,8 +2685,8 @@ int CVmObjDate::compare_to(VMG_ vm_obj_id_t, const vm_val_t *val) const
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   load from an image file 
+/*
+ *   load from an image file
  */
 void CVmObjDate::load_from_image(VMG_ vm_obj_id_t self,
                                  const char *ptr, size_t siz)
@@ -2694,15 +2694,15 @@ void CVmObjDate::load_from_image(VMG_ vm_obj_id_t self,
     /* load our image data */
     load_image_data(vmg_ ptr, siz);
 
-    /* 
+    /*
      *   save our image data pointer in the object table, so that we can
-     *   access it (without storing it ourselves) during a reload 
+     *   access it (without storing it ourselves) during a reload
      */
     G_obj_table->save_image_pointer(self, ptr, siz);
 }
 
 /*
- *   reload from the image file 
+ *   reload from the image file
  */
 void CVmObjDate::reload_from_image(VMG_ vm_obj_id_t self,
                                    const char *ptr, size_t siz)
@@ -2712,7 +2712,7 @@ void CVmObjDate::reload_from_image(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   load or reload data from the image 
+ *   load or reload data from the image
  */
 void CVmObjDate::load_image_data(VMG_ const char *ptr, size_t siz)
 {
@@ -2730,8 +2730,8 @@ void CVmObjDate::load_image_data(VMG_ const char *ptr, size_t siz)
 }
 
 
-/* 
- *   save to a file 
+/*
+ *   save to a file
  */
 void CVmObjDate::save_to_file(VMG_ class CVmFile *fp)
 {
@@ -2743,8 +2743,8 @@ void CVmObjDate::save_to_file(VMG_ class CVmFile *fp)
     fp->write_uint4(ext->daytime);
 }
 
-/* 
- *   restore from a file 
+/*
+ *   restore from a file
  */
 void CVmObjDate::restore_from_file(VMG_ vm_obj_id_t self,
                                    CVmFile *fp, CVmObjFixup *)
@@ -2789,7 +2789,7 @@ static void make_int_list(VMG_ vm_val_t *retval, int cnt, ...)
 }
 
 /*
- *   Add a string to a return list 
+ *   Add a string to a return list
  */
 static void enlist_str(VMG_ CVmObjList *lst, int idx,
                        const char *str, size_t len)
@@ -2814,7 +2814,7 @@ static void enlist_str(VMG_ CVmObjList *lst, int idx,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   parseDate method (static) 
+ *   parseDate method (static)
  */
 int CVmObjDate::s_getp_parseDate(VMG_ vm_val_t *retval, uint *oargc)
 {
@@ -2824,7 +2824,7 @@ int CVmObjDate::s_getp_parseDate(VMG_ vm_val_t *retval, uint *oargc)
 }
 
 /*
- *   parseJulianDate method (static) 
+ *   parseJulianDate method (static)
  */
 int CVmObjDate::s_getp_parseJulianDate(VMG_ vm_val_t *retval, uint *oargc)
 {
@@ -2834,7 +2834,7 @@ int CVmObjDate::s_getp_parseJulianDate(VMG_ vm_val_t *retval, uint *oargc)
 }
 
 /*
- *   common parseDate handler for parseDate, parseJulianDate 
+ *   common parseDate handler for parseDate, parseJulianDate
  */
 int CVmObjDate::common_parseDate(VMG_ vm_val_t *retval, uint *oargc,
                                  multicaldate_t *cal)
@@ -2972,7 +2972,7 @@ int CVmObjDate::getp_formatDate(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   formatJulianDate method 
+ *   formatJulianDate method
  */
 int CVmObjDate::getp_formatJulianDate(VMG_ vm_obj_id_t self,
                                       vm_val_t *retval, uint *oargc)
@@ -3071,7 +3071,7 @@ static void _wrtnum(char *&buf, size_t &buflen, size_t &outlen,
     char numbuf[20];
     int i = 0;
     int neg = FALSE;
-    
+
     /* note the sign */
     if (v < 0)
     {
@@ -3126,7 +3126,7 @@ static void _wrtnum(char *&buf, size_t &buflen, size_t &outlen,
         numbuf[i++] = '0' + q.rem;
     } while (v != 0);
 
-    /* 
+    /*
      *   if we didn't generate as many digits as the field requires, add
      *   leading zeros or spaces, as desired
      */
@@ -3151,7 +3151,7 @@ static void _wrtlistitem(VMG_ char *&buf, size_t &buflen, size_t &outlen,
     /* get the list item */
     size_t len;
     const char *str = lc->index_list(vmg_ len, item, idx, sticky);
-    
+
     /* write the item */
     for ( ; len != 0 ; ++str, --len)
         wrtch(*str);
@@ -3163,7 +3163,7 @@ static void _wrtlistitem(VMG_ char *&buf, size_t &buflen, size_t &outlen,
  *   in the *local* time zone - the caller must adjust to local time before
  *   calling.  Null-terminates the result if there's room, but doesn't
  *   include the null terminator in the size count.
- *   
+ *
  *   Most of our format codes are the same as for C/C++/php strftime, which
  *   are mostly the same as MySQL DATE_FORMAT().  We support all of the
  *   strftime formats, with the same letter codes, except for the php tab
@@ -3181,7 +3181,7 @@ size_t CVmObjDate::format_date(VMG_ char *buf, size_t buflen,
 {
     const char *subfmt;
     size_t subfmtl;
-    
+
     /* we haven't written anything to the buffer yet */
     size_t outlen = 0;
 
@@ -3202,14 +3202,14 @@ size_t CVmObjDate::format_date(VMG_ char *buf, size_t buflen,
             {
                 /* assume we won't find another flag on this pass */
                 found_flag = FALSE;
-                
+
                 /* check for the '#' flag (meaning varies by format code) */
                 if (fmtlen >= 2 && *fmt == '#')
                 {
                     pound = found_flag = TRUE;
                     ++fmt, --fmtlen;
                 }
-                
+
                 /* ' ' and '\ ' (replace leading zeros with spaces) */
                 if (fmtlen >= 2 && (*fmt == ' ' || *fmt == 0x15))
                 {
@@ -3254,10 +3254,10 @@ size_t CVmObjDate::format_date(VMG_ char *buf, size_t buflen,
             case 'j':
                 /* day of year 001-366, three digits with leading zeros */
                 {
-                    /* 
+                    /*
                      *   we can calculate the day of the year by subtracting
                      *   the day number of Jan 1 from the given date (and
-                     *   adding 1 to get into range 1-366) 
+                     *   adding 1 to get into range 1-366)
                      */
                     caldate_t jan1(date->y(), 1, 1);
                     int j = dayno - jan1.dayno() + 1;
@@ -3266,9 +3266,9 @@ size_t CVmObjDate::format_date(VMG_ char *buf, size_t buflen,
                 break;
 
             case 'J':
-                /* 
+                /*
                  *   Julian day number (the 4713 BC kind); '#' suppresses the
-                 *   fractional part 
+                 *   fractional part
                  */
                 {
                     /* get the day and time */
@@ -3278,9 +3278,9 @@ size_t CVmObjDate::format_date(VMG_ char *buf, size_t buflen,
                     if (dt > 12*60*60*1000)
                         dn += 1, dt -= 12*60*60*1000;
 
-                    /* 
+                    /*
                      *   figure the combined date/time value, adjusting the
-                     *   day number to the Julian day Epoch 
+                     *   day number to the Julian day Epoch
                      */
                     bignum_t<32> bdn(dn), bdt(dt);
                     bdn += 1721119L;
@@ -3367,11 +3367,11 @@ size_t CVmObjDate::format_date(VMG_ char *buf, size_t buflen,
 
             case 'e':
             case 'E':
-                /* 
+                /*
                  *   Year with AD/BC era before/after the year number.  For
                  *   'e', the era is always after, or always before on '-'.
                  *   For 'E', the era is AD before/BC after, or reversed on
-                 *   '-'. 
+                 *   '-'.
                  */
                 {
                     /* figure the era: positive years are AD, <=0 are BC */
@@ -3383,7 +3383,7 @@ size_t CVmObjDate::format_date(VMG_ char *buf, size_t buflen,
                         yy = -yy + 1;
                     }
 
-                    /* 
+                    /*
                      *   Figure the display order: "%-e" puts the era first
                      *   in all case; "%E" puts AD first; "%-E" puts BC first
                      */
@@ -3529,7 +3529,7 @@ size_t CVmObjDate::format_date(VMG_ char *buf, size_t buflen,
             case 's':
                 /* Unix Epoch timestamp as an integer */
                 {
-                    /* 
+                    /*
                      *   The Unix timestamp is the number of seconds after
                      *   (or before, if negative) 1/1/1970 00:00 UTC.  First
                      *   calculate the number of days after (before) 1/1/1970
@@ -3539,10 +3539,10 @@ size_t CVmObjDate::format_date(VMG_ char *buf, size_t buflen,
                      *   Unix timestamp of midnight on that day, then add the
                      *   number of seconds into the day ('daytime' stores
                      *   milliseconds, so divide it by 1000).
-                     *   
+                     *
                      *   Note that we need to adjust back to UTC by
                      *   subtracting the time zone offset.
-                     *   
+                     *
                      *   As we've discussed elsewhere in this file, a double
                      *   is big enough for the Unix timestamp value for any
                      *   day number we can store, and represents it exactly
@@ -3571,7 +3571,7 @@ size_t CVmObjDate::format_date(VMG_ char *buf, size_t buflen,
                 break;
 
             default:
-                /* 
+                /*
                  *   anything else is an error; copy the whole %x literally
                  *   to make the unparsed format character apparent
                  */
@@ -3715,7 +3715,7 @@ int CVmObjDate::getp_getJulianDate(VMG_ vm_obj_id_t self,
     int y, m, d;
     cd.julian_date(y, m, d);
 
-    /* 
+    /*
      *   Return [year, month, monthday, weekday].  Note that there's no
      *   separate Julian weekday calculation, since the Julian calendar and
      *   Gregorian agree on the day of the week for every day.
@@ -3896,7 +3896,7 @@ int CVmObjDate::getp_findWeekday(VMG_ vm_obj_id_t self,
     /* figure the difference between the target day and my day, mod 7 */
     int delta = (7 + wday - my_wday) % 7;
 
-    /* 
+    /*
      *   Go forward that many days, or backwards (7 - delta), to get the
      *   first occurrence before/after my date.  Then go forwards or
      *   backwards by additional weeks as needed.
@@ -3925,9 +3925,9 @@ int CVmObjDate::getp_findWeekday(VMG_ vm_obj_id_t self,
  *   object, we'll return that as given.  If it's a string or integer, we'll
  *   construct a TimeZone object using that value per the TimeZone
  *   constructors.
- *   
+ *
  *   'argn' is the argument number to fetch; 'argc' is the actual number of
- *   arguments passed to the method. 
+ *   arguments passed to the method.
  */
 CVmTimeZone *CVmObjDate::get_tz_arg(VMG_ uint argn, uint argc)
 {

@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 2002 by Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -10,7 +10,7 @@ Name
 Function
   Defines some utility functions for command-line parsing.
 Notes
-  
+
 Modified
   04/03/02 MJRoberts  - Creation
 */
@@ -24,24 +24,24 @@ Modified
 #include "tccmdutl.h"
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   Get an option argument.  We take a argument vector, the index of the
  *   vector entry containing the option whose argument we're to fetch, and
  *   the length of the option string.  We'll return a pointer to the option
  *   string, or null if no argument is present.
- *   
+ *
  *   We'll look for the argument's option first in the same vector entry
  *   containing the option, appended directly to the option string; if
  *   there's nothing there, we'll look for the argument in the next vector
  *   entry.  This lets us find option arguments that use syntax like
- *   "-Itest" or "-I test".  
+ *   "-Itest" or "-I test".
  */
 char *CTcCommandUtil::get_opt_arg(int argc, char **argv,
                                   int *curarg, int optlen)
 {
-    /* 
+    /*
      *   if it's jammed up against the option letter, get it from the
-     *   current array entry; otherwise, get it from the next array entry 
+     *   current array entry; otherwise, get it from the next array entry
      */
     if (argv[*curarg][optlen + 1] != '\0')
     {
@@ -69,7 +69,7 @@ char *CTcCommandUtil::get_opt_arg(int argc, char **argv,
  *   passes, the caller doesn't usually care about the contents of the file,
  *   so they don't want to bother performing the full set of operations that
  *   the helper normally defines.  For these cases, callers can pass us a
- *   null helper, in which case we'll use this simple helper by default. 
+ *   null helper, in which case we'll use this simple helper by default.
  */
 class CTcOptFileHelperDefault: public CTcOptFileHelper
 {
@@ -103,9 +103,9 @@ public:
  *   arguments and return the count.  If argv is non-null, it must be
  *   allocated with the proper number of slots for the number of arguments
  *   in the file (as obtained from a call to this function with argv = null).
- *   
+ *
  *   Each string returned in argv[] is separately allocated with a call to
- *   helper->alloc_opt_file_str().  
+ *   helper->alloc_opt_file_str().
  */
 int CTcCommandUtil::parse_opt_file(osfildef *fp, char **argv,
                                    CTcOptFileHelper *helper)
@@ -146,11 +146,11 @@ int CTcCommandUtil::parse_opt_file(osfildef *fp, char **argv,
             /* check for a newline of some kind at the end */
             if (len != 0 && (buf[len - 1] == '\n' || buf[len - 1] == '\r'))
             {
-                /* 
+                /*
                  *   remove consecutive newline/return characters - in case
                  *   we are using a file moved from another system with
                  *   incompatible newline conventions, simply remove all of
-                 *   the newlines we find 
+                 *   the newlines we find
                  */
                 while (len != 0
                        && (buf[len-1] == '\n' || buf[len - 1] == '\r'))
@@ -166,11 +166,11 @@ int CTcCommandUtil::parse_opt_file(osfildef *fp, char **argv,
             {
                 char *new_buf;
                 size_t new_buf_len;
-                
-                /* 
+
+                /*
                  *   The buffer was completely filled, and wasn't
                  *   null-terminated - the line must be too long for the
-                 *   buffer.  Expand the buffer and go back for more.  
+                 *   buffer.  Expand the buffer and go back for more.
                  */
                 new_buf_len = buflen + 512;
                 new_buf = helper->alloc_opt_file_str(new_buf_len);
@@ -191,11 +191,11 @@ int CTcCommandUtil::parse_opt_file(osfildef *fp, char **argv,
             }
             else
             {
-                /* 
+                /*
                  *   The buffer wasn't completely full, and we didn't find a
                  *   newline.  This must mean that we've reached the end of
                  *   the file, so we've read as much as we can for this
-                 *   line.  
+                 *   line.
                  */
                 break;
             }
@@ -207,16 +207,16 @@ int CTcCommandUtil::parse_opt_file(osfildef *fp, char **argv,
         /*
          *   Check to see if we're entering a new configuration section.  If
          *   the line matches the pattern "[Config:xxx]", then we're starting
-         *   a new configuration section with identifier "xxx". 
+         *   a new configuration section with identifier "xxx".
          */
         if (strlen(p) > 8 && memicmp(p, "[config:", 8) == 0)
         {
             char *start;
             size_t copy_len;
-            
-            /* 
+
+            /*
              *   note the part after the colon and up to the closing bracket
-             *   - it's the ID of this configuration section 
+             *   - it's the ID of this configuration section
              */
             for (p += 8, start = p ; *p != ']' && *p != '\0' ; ++p) ;
 
@@ -236,11 +236,11 @@ int CTcCommandUtil::parse_opt_file(osfildef *fp, char **argv,
             continue;
         }
 
-        /* 
+        /*
          *   if we're in a configuration section, simply process the line
          *   through the helper as a configuration line - this doesn't
          *   contain any options we can parse, since configuration sections
-         *   are private to their respective definers 
+         *   are private to their respective definers
          */
         if (config_id[0] != '\0')
         {
@@ -250,14 +250,14 @@ int CTcCommandUtil::parse_opt_file(osfildef *fp, char **argv,
             /* we're done with this line */
             continue;
         }
-        
-        /* 
+
+        /*
          *   If we've reached the end of the line or a command character
          *   ('#'), we're done with this line.  Note that we check for
          *   comments AFTER checking to see if we're in a config section,
          *   because we want to send any comment lines within a config
          *   section to the helper for processing as part of the config -
-         *   even comments are opaque to us within a config section.  
+         *   even comments are opaque to us within a config section.
          */
         if (*p == '\0' || *p == '#')
         {
@@ -284,9 +284,9 @@ int CTcCommandUtil::parse_opt_file(osfildef *fp, char **argv,
             if (*p == '\0')
                 break;
 
-            /* 
+            /*
              *   if the argument is quoted, find the matching quote;
-             *   otherwise, look for the next space 
+             *   otherwise, look for the next space
              */
             if (*p == '"')
             {
@@ -295,20 +295,20 @@ int CTcCommandUtil::parse_opt_file(osfildef *fp, char **argv,
                 /* find the matching quote */
                 for (++p, start = dst = p ; *p != '\0' ; ++p)
                 {
-                    /* 
+                    /*
                      *   if this is a quote, check for stuttering - if it's
                      *   stuttered, treat it as a single quote (and convert
                      *   it to same), otherwise we've reached the end of the
-                     *   argument 
+                     *   argument
                      */
                     if (*p == '"')
                     {
                         /* check for stuttering */
                         if (*(p+1) == '"')
                         {
-                            /* 
+                            /*
                              *   it's stuttered - skip the extra quote, so
-                             *   that we copy only a single quote 
+                             *   that we copy only a single quote
                              */
                             ++p;
                         }

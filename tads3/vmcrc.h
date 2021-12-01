@@ -3,9 +3,9 @@
 Name
   vmcrc.h - compute a CRC-32 checksum of a data stream
 Function
-  
+
 Notes
-  
+
 Modified
   06/21/03 MJRoberts  - Creation
 */

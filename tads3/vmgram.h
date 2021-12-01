@@ -1,18 +1,18 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmgram.h - T3 grammar-production metaclass
 Function
-  
+
 Notes
-  
+
 Modified
   02/15/00 MJRoberts  - Creation
 */
@@ -31,7 +31,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   intrinsic function vector indices 
+ *   intrinsic function vector indices
  */
 enum vmobjgram_meta_fnset
 {
@@ -50,13 +50,13 @@ enum vmgram_match_type
 {
     /* uninitialized */
     VMGRAM_MATCH_UNDEF = 0,
-    
+
     /* production - matches a sub-production */
     VMGRAM_MATCH_PROD = 1,
 
-    /* 
+    /*
      *   part of speech - matches a word that appears in the dictionary
-     *   under a particular part of speech 
+     *   under a particular part of speech
      */
     VMGRAM_MATCH_SPEECH = 2,
 
@@ -69,9 +69,9 @@ enum vmgram_match_type
     /* star - matches all remaining input tokens */
     VMGRAM_MATCH_STAR = 5,
 
-    /* 
+    /*
      *   N parts of speech - matches a word that appears in the dictionary
-     *   under any of a set of N parts of speech 
+     *   under any of a set of N parts of speech
      */
     VMGRAM_MATCH_NSPEECH = 6
 };
@@ -79,14 +79,14 @@ enum vmgram_match_type
 /* ------------------------------------------------------------------------ */
 /*
  *   Grammar production object - image file format
- *   
+ *
  *   UINT2 alt_count
  *.  alternative 1
  *.  alternative 2
  *.  etc
- *   
+ *
  *   Each alternative has the following structure:
- *   
+ *
  *.  INT2 score
  *.  INT2 badness
  *.  UINT4 processor_object_id
@@ -94,28 +94,28 @@ enum vmgram_match_type
  *.  token 1
  *.  token 2
  *.  etc
- *   
+ *
  *   Each token has this structure:
- *   
+ *
  *   UINT2 property_association
  *.  BYTE token_match_type (see below)
  *.  extra data depending on token_match_type (see below)
- *   
+ *
  *   The extra data for the token varies by match type:
- *   
+ *
  *   VMGRAM_MATCH_PROD - a UINT4 giving the production object ID
- *   
+ *
  *   VMGRAM_MATCH_SPEECH - a UINT2 giving the vocabulary property
- *   
+ *
  *   VMGRAM_MATCH_NSPEECH - a UINT2 giving a count, then that many
  *   additional UINT2's giving a list of vocabulary properties
- *   
+ *
  *   VMGRAM_MATCH_LITERAL - a UINT2 byte-length prefix followed by the
  *   UTF8-encoded bytes of the literal string
- *   
+ *
  *   VMGRAM_MATCH_TOKTYPE - a UINT4 giving the token enum's ID
- *   
- *   VMGRAM_MATCH_STAR - no additional data 
+ *
+ *   VMGRAM_MATCH_STAR - no additional data
  */
 
 /* property/match result enumeration entry */
@@ -125,7 +125,7 @@ struct vmgram_match_info
 };
 
 /*
- *   Grammar production object extension 
+ *   Grammar production object extension
  */
 struct vm_gram_ext
 {
@@ -133,12 +133,12 @@ struct vm_gram_ext
     const char *image_data_;
     size_t image_data_size_;
 
-    /* 
+    /*
      *   The last comparator object we used to calculate hash values for
      *   literals.  Each time we need literal hash values, we'll check to see
      *   if we're using the same comparator we were last time; if so, we'll
      *   use the cached hash values, otherwise we'll recalculate them.  We
-     *   reference this object weakly.  
+     *   reference this object weakly.
      */
     vm_obj_id_t comparator_;
 
@@ -148,10 +148,10 @@ struct vm_gram_ext
     /* flag: we've cached hash values for our literals */
     uint hashes_cached_ : 1;
 
-    /* 
+    /*
      *   flag: there's at least one circular rule among my rules (i.e.,
      *   there's a rule whose first element is a self-reference
-     *   subproduction) 
+     *   subproduction)
      */
     uint has_circular_alt : 1;
 
@@ -161,7 +161,7 @@ struct vm_gram_ext
     /*
      *   Property list enumeration space.  We use this to build a list of
      *   properties for which a dictionary word is defined.  We'll expand
-     *   this list as needed when we find we need more space. 
+     *   this list as needed when we find we need more space.
      */
     vmgram_match_info *prop_enum_arr_;
     size_t prop_enum_max_;
@@ -178,7 +178,7 @@ struct vm_gram_ext
 
 /*
  *   Alternative object.  Each of these objects represents one of our rule
- *   alternatives. 
+ *   alternatives.
  */
 struct vmgram_alt_info
 {
@@ -192,9 +192,9 @@ struct vmgram_alt_info
     /* flag: this alternative is marked for deletion */
     int del;
 
-    /* 
+    /*
      *   the "processor object" for this alternative - this is the class we
-     *   instantiate to represent a match to the alternative 
+     *   instantiate to represent a match to the alternative
      */
     vm_obj_id_t proc_obj;
 
@@ -204,7 +204,7 @@ struct vmgram_alt_info
 };
 
 /*
- *   Grammar rule token entry.  This represents a token in a grammar rule. 
+ *   Grammar rule token entry.  This represents a token in a grammar rule.
  */
 struct vmgram_tok_info
 {
@@ -245,10 +245,10 @@ struct vmgram_tok_info
             cnt * sizeof(vm_prop_id_t));
     }
 
-    /* 
+    /*
      *   property association - this is the property of the processor object
      *   that we'll set to point to the match object or input token if we
-     *   match this rule token 
+     *   match this rule token
      */
     vm_prop_id_t prop;
 
@@ -290,7 +290,7 @@ struct vmgram_tok_info
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Grammar-Production object interface 
+ *   Grammar-Production object interface
  */
 class CVmObjGramProd: public CVmObject
 {
@@ -314,9 +314,9 @@ public:
     static vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr,
                                          uint argc);
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -371,9 +371,9 @@ public:
     /* determine if the object has been changed since it was loaded */
     int is_changed_since_load() const { return FALSE; }
 
-    /* 
+    /*
      *   rebuild for image file - we can't change during execution, so our
-     *   image file data never change 
+     *   image file data never change
      */
     virtual ulong rebuild_image(VMG_ char *buf, ulong buflen);
 
@@ -474,7 +474,7 @@ protected:
                           int *need_to_clone,
                           struct CVmGramProdQueue *queues,
                           int circular_alt);
-    
+
     /* create a new state */
     static struct CVmGramProdState *
         create_new_state(class CVmGramProdMem *mem,
@@ -482,7 +482,7 @@ protected:
                          struct CVmGramProdState *enclosing_state,
                          const vmgram_alt_info *altp, vm_obj_id_t self,
                          int *need_to_clone, int circular_alt);
-    
+
     /* enqueue a state */
     static void enqueue_state(struct CVmGramProdState *state,
                               struct CVmGramProdQueue *queues);
@@ -493,7 +493,7 @@ protected:
                                    size_t tok_cnt,
                                    struct CVmGramProdQueue *queues,
                                    class CVmObjDict *dict);
-                                   
+
 
     /* process the first work queue entry */
     static void process_work_queue_head(VMG_ CVmGramProdMem *mem,
@@ -531,7 +531,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Registration table object 
+ *   Registration table object
  */
 class CVmMetaclassGramProd: public CVmMetaclass
 {
@@ -571,7 +571,7 @@ public:
 #endif /* VMGRAM_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjGramProd)
 

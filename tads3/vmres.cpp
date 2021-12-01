@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/vmres.cpp,v 1.3 1999/07/11 00:46:59 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmres.cpp - VM resource class
 Function
-  
+
 Notes
-  
+
 Modified
   04/03/99 MJRoberts  - Creation
 */
@@ -40,7 +40,7 @@ CVmResource::CVmResource(long seek_pos, uint32_t len, size_t name_len)
 }
 
 /*
- *   Delete the resource 
+ *   Delete the resource
  */
 CVmResource::~CVmResource()
 {

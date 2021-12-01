@@ -1,18 +1,18 @@
 /* $Header: d:/cvsroot/tads/tads3/vmop.h,v 1.4 1999/07/11 00:46:59 MJRoberts Exp $ */
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmop.h - T3 VM Opcodes
 Function
-  
+
 Notes
-  
+
 Modified
   11/14/98 MJRoberts  - Creation
 */
@@ -21,7 +21,7 @@ Modified
 #define VMOP_H
 
 /*
- *   T3 VM opcode definitions 
+ *   T3 VM opcode definitions
  */
 class CVmOpcodes
 {
@@ -33,9 +33,9 @@ public:
      */
     static const uchar op_siz[];
 
-    /* 
+    /*
      *   Get the size in bytes of an opcode.  This computes the actual size
-     *   of varying-length instructions. 
+     *   of varying-length instructions.
      */
     static size_t get_op_size(const uchar *op);
 };

@@ -1,8 +1,8 @@
-/* 
+/*
  *   Copyright (c) 2002 by Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -54,32 +54,32 @@ Modified
 /*
  *   Our serialized data stream, in both the image file and a saved file,
  *   consists of:
- *   
+ *
  *   UINT2 truncation_length
  *.  UINT2 flags
  *.  UINT2 equivalence_mapping_count
  *.  UINT2 equivalence_total_value_chars
  *.  equivalence_mappings
- *   
+ *
  *   The 'flags' value consists of the following combination of bit fields:
- *   
+ *
  *   0x0001 - the match is case-sensitive
- *   
+ *
  *   The 'equivalence_total_value_chars' gives the sum total of the value
  *   string characters in ALL of the equivalence mappings.  This value is
  *   stored simply to make it easier to calculate the memory allocation
  *   needs when loading this object.
- *   
+ *
  *   Each 'equivalence_mapping' entry is arranged like this:
- *   
+ *
  *   UINT2 reference_char
  *.  UBYTE value_char_count
  *.  UINT4 uc_result_flags
  *.  UINT4 lc_result_flags
  *.  UINT2 value_char[value_char_count]
- *   
+ *
  *   Each character is given as a 16-bit Unicode value.  These values map
- *   directly to the corresponding vmobj_strcmp_equiv structure entries.  
+ *   directly to the corresponding vmobj_strcmp_equiv structure entries.
  */
 
 /* ------------------------------------------------------------------------ */
@@ -88,19 +88,19 @@ Modified
  */
 struct vmobj_strcmp_ext
 {
-    /* 
+    /*
      *   The truncation length for reference strings, or zero if no
      *   truncation is allowed.  This is the minimum length that we must
-     *   match when the value string is shorter than the reference string.  
+     *   match when the value string is shorter than the reference string.
      */
     size_t trunc_len;
 
-    /* 
+    /*
      *   Case sensitivity.  If this is true, then our matches are sensitive
      *   to case, which means that we must match each character exactly on
      *   case.  If this is false, then our matches are insensitive to case,
      *   so we can match an upper-case letter to the corresponding
-     *   lower-case letter.  
+     *   lower-case letter.
      */
     int case_sensitive;
 
@@ -113,7 +113,7 @@ struct vmobj_strcmp_ext
      *   bits.  The second tier is indexed by the low-order 8 bits, and
      *   gives a pointer to the equivalence mapping structure for the
      *   character, or a null pointer if there is no mapping for the
-     *   character.  
+     *   character.
      */
     struct vmobj_strcmp_equiv **equiv[256];
 };
@@ -123,7 +123,7 @@ struct vmobj_strcmp_ext
  *   character in a mapping structure, because we can only reach these
  *   mapping structures by indexing the mapping array with the reference
  *   character, and thus must always already know the reference character
- *   before we can even reach one of these.  
+ *   before we can even reach one of these.
  */
 struct vmobj_strcmp_equiv
 {
@@ -131,10 +131,10 @@ struct vmobj_strcmp_equiv
     size_t val_ch_cnt;
     wchar_t *val_ch;
 
-    /* 
+    /*
      *   Additive result flags for upper-case input matches: this value is
      *   bitwise-OR'd into the result code when this equivalence mapping is
-     *   used to match the value to an upper-case input letter.  
+     *   used to match the value to an upper-case input letter.
      */
     unsigned long uc_result_flags;
 
@@ -144,7 +144,7 @@ struct vmobj_strcmp_equiv
 
 /* ------------------------------------------------------------------------ */
 /*
- *   String Comparator intrinsic class 
+ *   String Comparator intrinsic class
  */
 class CVmObjStrComp: public CVmObject
 {
@@ -171,9 +171,9 @@ public:
     static vm_obj_id_t create_from_stack(VMG_ const uchar **pc_ptr,
                                          uint argc);
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -198,7 +198,7 @@ public:
     void notify_new_savept() { }
     void apply_undo(VMG_ struct CVmUndoRecord *) { }
     void mark_undo_ref(VMG_ struct CVmUndoRecord *) { }
-    void remove_stale_undo_weak_ref(VMG_ struct CVmUndoRecord *) { }    
+    void remove_stale_undo_weak_ref(VMG_ struct CVmUndoRecord *) { }
 
     /* we reference no other objects */
     void mark_refs(VMG_ uint) { }
@@ -223,7 +223,7 @@ public:
      *   the C++ code of other intrinsic classes (such as Dictionary) to
      *   avoid the overhead of going through the get_prop() mechanism.
      *   These are virtual to allow derived intrinsic classes to override
-     *   the implementation of the public VM-visible interface.  
+     *   the implementation of the public VM-visible interface.
      */
 
     /* calculate a hash value for a constant string */
@@ -233,18 +233,18 @@ public:
     virtual unsigned long match_strings(const char *valstr, size_t vallen,
                                         const char *refstr, size_t reflen);
 
-    /* 
+    /*
      *   Check for an approximation match to a given character.  This checks
      *   the given input string for a match to the approximation for a given
      *   reference character.  Returns the number of characters in the match,
-     *   or zero if there's no match.  
+     *   or zero if there's no match.
      */
     virtual size_t match_chars(const wchar_t *valstr, size_t valcnt,
                                wchar_t refchar);
 
     /* truncation length, in characters; 0 means no truncation length */
     virtual size_t trunc_len() const;
-    
+
 protected:
     /* create with no extension */
     CVmObjStrComp() { ext_ = 0; }
@@ -258,17 +258,17 @@ protected:
     /* load from an abstact stream object */
     void load_from_stream(VMG_ class CVmStream *str);
 
-    /* 
+    /*
      *   Write to an abstract stream object.  Returns the number of bytes
      *   actually needed to store the object.
-     *   
+     *
      *   If 'bytes_avail' is non-null, it indicates the maximum number of
      *   bytes available for writing; if we need more than this amount, we
      *   won't write anything at all, but will simply return the number of
-     *   bytes we actually need.  
+     *   bytes we actually need.
      */
     ulong write_to_stream(VMG_ class CVmStream *str, ulong *bytes_avail);
-    
+
     /* allocate and initialize our extension */
     void alloc_ext(VMG_ size_t trunc_len, int case_sensitive,
                    size_t equiv_cnt, size_t total_chars,
@@ -293,7 +293,7 @@ protected:
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Registration table object 
+ *   Registration table object
  */
 class CVmMetaclassStrComp: public CVmMetaclass
 {
@@ -331,7 +331,7 @@ public:
 #endif /* VMSTRCMP_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjStrComp)
 

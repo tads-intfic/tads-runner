@@ -3,9 +3,9 @@
 Name
   tcjsty.h - tads 3 compiler - javascript code generator - type definitions
 Function
-  
+
 Notes
-  
+
 Modified
   02/17/09 MJRoberts  - Creation
 */

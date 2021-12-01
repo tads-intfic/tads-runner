@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   rcmain.cpp - T3 resource compiler main
 Function
-  
+
 Notes
-  
+
 Modified
   01/03/00 MJRoberts  - Creation
 */
@@ -33,8 +33,8 @@ Modified
 #include "vmimage.h"
 
 
-/* 
- *   copy a block of bytes from the input file to the output file 
+/*
+ *   copy a block of bytes from the input file to the output file
  */
 static int copy_file_bytes(osfildef *fpin, osfildef *fpout, ulong siz)
 {
@@ -61,7 +61,7 @@ static int copy_file_bytes(osfildef *fpin, osfildef *fpout, ulong siz)
 }
 
 /*
- *   Add resources 
+ *   Add resources
  */
 int CResCompMain::add_resources(const char *image_fname,
                                 const class CRcResList *reslist,
@@ -78,9 +78,9 @@ int CResCompMain::add_resources(const char *image_fname,
     long ofs;
     long contents_siz;
 
-    /* 
+    /*
      *   if the file doesn't exist, and we're not creating a new file,
-     *   it's an error 
+     *   it's an error
      */
     if (osfacc(image_fname) && !create_new)
     {
@@ -95,7 +95,7 @@ int CResCompMain::add_resources(const char *image_fname,
     {
         os_time_t timer;
         struct tm *tblock;
-            
+
         /* create a new image file */
         fp = osfopwb(image_fname, file_type);
         if (fp == 0)
@@ -135,10 +135,10 @@ int CResCompMain::add_resources(const char *image_fname,
         fp = 0;
     }
 
-    /* 
+    /*
      *   open the file for reading and writing, since we'll need to read
      *   through the current contents then write our new data after the
-     *   end of the existing file 
+     *   end of the existing file
      */
     fp = osfoprwb(image_fname, file_type);
     if (fp == 0)
@@ -174,7 +174,7 @@ int CResCompMain::add_resources(const char *image_fname,
         /* if it's EOF, we're done */
         if (memcmp(buf, "EOF ", 4) == 0)
             break;
-            
+
         /* read the size of this block */
         block_siz = t3rp4u(buf + 4);
 
@@ -182,9 +182,9 @@ int CResCompMain::add_resources(const char *image_fname,
         osfseek(fp, block_siz, OSFSK_CUR);
     }
 
-    /* 
+    /*
      *   we've found the EOF block - make sure we're at the end of the
-     *   file 
+     *   file
      */
     mres_seek = osfpos(fp);
     osfseek(fp, 0, OSFSK_END);
@@ -195,16 +195,16 @@ int CResCompMain::add_resources(const char *image_fname,
         goto ret_error;
     }
 
-    /* 
+    /*
      *   seek back to the start of the EOF block, so that we can overwrite
-     *   it with a new MRES block 
+     *   it with a new MRES block
      */
     mres_seek -= 10;
     osfseek(fp, mres_seek, OSFSK_SET);
 
-    /* 
+    /*
      *   Prepare and write the MRES block header, plus the resource entry
-     *   count.  If we're in "link mode," write an MREL header instead.  
+     *   count.  If we're in "link mode," write an MREL header instead.
      */
     memcpy(buf, link_mode ? "MREL" : "MRES", 4);
     memset(buf + 4, 0, 6);
@@ -216,20 +216,20 @@ int CResCompMain::add_resources(const char *image_fname,
         goto ret_error;
     }
 
-    /* 
+    /*
      *   First, figure out how much space the table of contents itself
      *   will take up.  We need this information so we will know where the
      *   first resource's binary data stream begins.  Note that the
      *   contents offset starts at 2, since the table entry count (a
-     *   UINT2) comes before the table's first entry.  
+     *   UINT2) comes before the table's first entry.
      */
     for (contents_siz = 2, entry = reslist->get_head() ; entry != 0 ;
          entry = entry->get_next())
     {
-        /* 
+        /*
          *   each entry in the table of contents requires a UINT4 (offset
          *   of the data), UINT4 (size of the data), UBYTE (name length),
-         *   and the bytes for the name itself 
+         *   and the bytes for the name itself
          */
         contents_siz += 4 + 4 + 1 + strlen(entry->get_url());
     }
@@ -256,15 +256,15 @@ int CResCompMain::add_resources(const char *image_fname,
             goto ret_error;
         }
 
-        /* 
+        /*
          *   if we're in "link mode", the table of contents entry consists of
          *   simply the resource name plus the linked filename - we don't
-         *   care about the contents of the local file in this case 
+         *   care about the contents of the local file in this case
          */
         if (link_mode)
         {
             size_t flen;
-            
+
             /* make sure the local filename isn't too long, either */
             flen = strlen(entry->get_fname());
             if (flen > 255)
@@ -278,9 +278,9 @@ int CResCompMain::add_resources(const char *image_fname,
                 goto ret_error;
             }
 
-            /* 
+            /*
              *   build the block: resource name len, resource name, filename
-             *   len, filenam 
+             *   len, filenam
              */
             buf[0] = (uchar)url_len;
             memcpy(buf + 1, entry->get_url(), url_len);
@@ -300,7 +300,7 @@ int CResCompMain::add_resources(const char *image_fname,
             /* that's all for a link mode entry */
             continue;
         }
-        
+
         /* open this resource file */
         resfp = osfoprb(entry->get_fname(), OSFTBIN);
         if (resfp == 0)
@@ -311,9 +311,9 @@ int CResCompMain::add_resources(const char *image_fname,
             goto ret_error;
         }
 
-        /* 
+        /*
          *   seek to the end of the resource file so we can determine its
-         *   size 
+         *   size
          */
         osfseek(resfp, 0, OSFSK_END);
         res_size = osfpos(resfp);
@@ -393,9 +393,9 @@ int CResCompMain::add_resources(const char *image_fname,
         }
     }
 
-    /* 
+    /*
      *   calculate the size of the MRES/MREL data (excluding the 10-byte
-     *   standard block header) 
+     *   standard block header)
      */
     mres_size = osfpos(fp) - mres_seek - 10;
 
@@ -444,14 +444,14 @@ ret_error:
 }
 
 /*
- *   Format and display an error message 
+ *   Format and display an error message
  */
 void CResCompMain::disp_error(class CRcHostIfc *hostifc,
                               const char *msg, ...)
 {
     char buf[1024];
     va_list argp;
-    
+
     /* format the message into our buffer */
     va_start(argp, msg);
     vsprintf(buf, msg, argp);
@@ -463,15 +463,15 @@ void CResCompMain::disp_error(class CRcHostIfc *hostifc,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Add a file or directory to a resource list 
+ *   Add a file or directory to a resource list
  */
 void CRcResList::add_file(const char *fname, const char *alias,
                           int recurse)
 {
-    /* 
+    /*
      *   if no alias was specified, convert the filename to a URL and use
      *   that as the resource name; otherwise, use the alias without
-     *   changes 
+     *   changes
      */
     char url[OSFNMAX];
     if (alias == 0)
@@ -479,13 +479,13 @@ void CRcResList::add_file(const char *fname, const char *alias,
         os_cvt_dir_url(url, sizeof(url), fname);
         alias = url;
     }
-    
+
     /* check to see if this is a regular file or a directory */
     unsigned long fmode;
     unsigned long fattr;
     if (osfmode(fname, TRUE, &fmode, &fattr) && (fmode & OSFMODE_DIR) != 0)
     {
-        /* 
+        /*
          *   It's a directory, so add an entry for each file within the
          *   directory.  Start by getting the first file in the directory.
          */
@@ -500,18 +500,18 @@ void CRcResList::add_file(const char *fname, const char *alias,
                 os_build_full_path(
                     fullname, sizeof(fullname), fname, search_file);
 
-                /* 
+                /*
                  *   build the full alias for this file path -- start with
-                 *   the the alias for the directory itself 
+                 *   the the alias for the directory itself
                  */
                 size_t len = strlen(alias);
                 char full_url[OSFNMAX];
                 memcpy(full_url, alias, len);
-                
-                /* 
+
+                /*
                  *   add a slash to separate the filename from the directory
                  *   prefix, if the directory path alias doesn't already end
-                 *   in a slash 
+                 *   in a slash
                  */
                 if (len != 0 && full_url[len - 1] != '/')
                     full_url[len++] = '/';
@@ -532,8 +532,8 @@ void CRcResList::add_file(const char *fname, const char *alias,
                 {
                     /* it's a directory - check for special link files */
                     os_specfile_t spec_type = os_is_special_file(search_file);
-                    
-                    /* 
+
+                    /*
                      *   It's a directory - if we're meant to recurse, add
                      *   all of the directory's contents; otherwise simply
                      *   ignore it.  Ignore the special self and parent links

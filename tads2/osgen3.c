@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/OSGEN.C,v 1.3 1999/07/11 00:46:30 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1990, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -40,7 +40,7 @@ Function
     USE_TIMERAND  - implement os_rand using localtime() as a seed
     USE_NULLSTAT  - use a do-nothing os_status function
     USE_NULLSCORE - use a do-nothing os_score function
-    RUNTIME       - enable character-mode console implementation  
+    RUNTIME       - enable character-mode console implementation
     USE_STATLINE  - implement os_status and os_score using character-mode
                     status line implementation
     USE_OVWCHK    - implements default saved file overwrite check
@@ -63,7 +63,7 @@ Function
 Notes
 
 Modified
-  01/01/98 MJRoberts     - moved certain osgen.c routines to osnoui.c  
+  01/01/98 MJRoberts     - moved certain osgen.c routines to osnoui.c
   04/24/93 JEras         - add os_locate() for locating tads-related files
   04/12/92 MJRoberts     - add os_strsc (string score) function
   03/26/92 MJRoberts     - add os_setcolor function
@@ -96,14 +96,14 @@ Modified
 
 #if defined(TURBO) || defined(DJGPP)
 #include "io.h"
-#endif    
+#endif
 
 #include "lib.h"
 #include "tio.h"
 
 /*
  *   Flag: use "plain" mode.  If this is set, we'll use plain stdio output
- *   rather than our window-oriented display.  
+ *   rather than our window-oriented display.
  */
 int os_f_plain = 0;
 
@@ -113,7 +113,7 @@ int os_f_plain = 0;
 /*
  *   Screen size variables.  The underlying system-specific "oss" code must
  *   initialize these during startup and must keep them up-to-date if the
- *   screen size ever changes.  
+ *   screen size ever changes.
  */
 int G_oss_screen_width = 80;
 int G_oss_screen_height = 24;
@@ -123,24 +123,24 @@ int G_oss_screen_height = 24;
 #endif /* RUNTIME */
 
 /*
- *   The special character codes for controlling color. 
+ *   The special character codes for controlling color.
  */
 
-/* 
+/*
  *   set text attributes: this is followed by one byte giving the new
- *   attribute codes 
+ *   attribute codes
  */
 #define OSGEN_ATTR            1
 
-/* 
+/*
  *   Set text color: this is followed by two bytes giving the foreground and
  *   background colors as OSGEN_COLOR_xxx codes.
- *   
+ *
  *   Note well that the colors encoded in this escape sequence are
  *   OSGEN_COLOR_xxx values, not os_color_t values.  The latter require 32
  *   bits because they can store 24-bit RGB values plus some special
  *   parameter codes, while our internal OSGEN_COLOR_xxx values are only a
- *   byte each.  
+ *   byte each.
  */
 #define OSGEN_COLOR           2
 
@@ -155,11 +155,11 @@ int G_oss_screen_height = 24;
 int os_chkovw(char *filename)
 {
     FILE *fp;
-    
+
     if ((fp = fopen( filename, "r" )) != 0)
     {
         char buf[128];
-        
+
         fclose(fp);
         os_printz("That file already exists.  Overwrite it? (y/n) >");
         os_gets((uchar *)buf, sizeof(buf));
@@ -170,9 +170,9 @@ int os_chkovw(char *filename)
 }
 #endif /* USE_OVWCHK */
 
-/* 
+/*
  *   non-stop mode does nothing in character-mode implementations, since the
- *   portable console layer handles MORE mode 
+ *   portable console layer handles MORE mode
  */
 void os_nonstop_mode(int flag)
 {
@@ -183,14 +183,14 @@ void os_nonstop_mode(int flag)
  *   Ports can implement os_flush and os_gets as calls to the stdio routines
  *   of the same name, and os_print and os_printz using the fputs() to
  *   stdout, by defining USE_STDIO.  These definitions can be used for any
- *   port for which the standard C run-time library is available.  
+ *   port for which the standard C run-time library is available.
  */
 
 #ifdef USE_STDIO
 
-/* 
+/*
  *   os_printz works just like fputs() to stdout: we write a null-terminated
- *   string to the standard output.  
+ *   string to the standard output.
  */
 void os_printz(const char *str)
 {
@@ -199,7 +199,7 @@ void os_printz(const char *str)
 
 /*
  *   os_puts works like fputs() to stdout, except that we are given a
- *   separate length, and the string might not be null-terminated 
+ *   separate length, and the string might not be null-terminated
  */
 void os_print(const char *str, size_t len)
 {
@@ -209,16 +209,16 @@ void os_print(const char *str, size_t len)
 /*
  *   os_flush forces output of anything buffered for standard output.  It
  *   is generally used prior to waiting for a key (so the normal flushing
- *   may not occur, as it does when asking for a line of input).  
+ *   may not occur, as it does when asking for a line of input).
  */
 void os_flush(void)
 {
     fflush(stdout);
 }
 
-/* 
+/*
  *   update the display - since we're using text mode, there's nothing we
- *   need to do 
+ *   need to do
  */
 void os_update_display(void)
 {
@@ -229,7 +229,7 @@ void os_update_display(void)
  *   string from the keyboard, echoing it and allowing any editing
  *   appropriate to the system, and return the null-terminated string as
  *   the function's value.  The closing newline should NOT be included in
- *   the string.  
+ *   the string.
  */
 uchar *os_gets(uchar *s, size_t bufl)
 {
@@ -242,7 +242,7 @@ uchar *os_gets(uchar *s, size_t bufl)
 
 /*
  *   The default stdio implementation does not support reading a line of
- *   text with timeout.  
+ *   text with timeout.
  */
 int os_gets_timeout(unsigned char *buf, size_t bufl,
                     unsigned long timeout, int resume_editing)
@@ -251,7 +251,7 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
     return OS_EVT_NOTIMEOUT;
 }
 
-/* 
+/*
  *   since we don't support os_gets_timeout(), we don't need to do anything
  *   in the cancel routine
  */
@@ -262,7 +262,7 @@ void os_gets_cancel(int reset)
 
 /*
  *   Get an event - stdio version.  This version does not accept a timeout
- *   value, and can only get a keystroke.  
+ *   value, and can only get a keystroke.
  */
 int os_get_event(unsigned long timeout, int use_timeout,
                  os_event_info_t *info)
@@ -322,16 +322,16 @@ int os_init(int *argc, char *argv[], const char *prompt,
 }
 
 /*
- *   uninitialize 
+ *   uninitialize
  */
 void os_uninit(void)
 {
 }
 
-/* 
+/*
  *   os_term should perform any necessary cleaning up, then terminate the
  *   program.  The int argument is a return code to be passed to the
- *   caller, generally 0 for success and other for failure.  
+ *   caller, generally 0 for success and other for failure.
  */
 void os_term(int rc)
 {
@@ -340,11 +340,11 @@ void os_term(int rc)
 #endif /* USE_NULLINIT */
 
 /* ------------------------------------------------------------------------ */
-/*   
+/*
  *   Ports can define USE_NULLPAUSE if no pause is required on exit.
- *   
+ *
  *   Ports needing an exit pause, and can simply print a message (with
- *   os_print) and wait for a key (with os_getc) can define USE_EXPAUSE.  
+ *   os_print) and wait for a key (with os_getc) can define USE_EXPAUSE.
  */
 
 #ifdef USE_NULLPAUSE
@@ -396,7 +396,7 @@ void os_strsc(const char *p)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Scrollback 
+ *   Scrollback
  */
 
 /* forward-declare the window control structure type */
@@ -405,13 +405,13 @@ typedef struct osgen_win_t osgen_win_t;
 /*
  *   We can be compiled with or without scrollback.  The first version
  *   defines the scrollback implementation; the second just defines some
- *   dummy functions for the non-scrollback implementation.  
+ *   dummy functions for the non-scrollback implementation.
  */
 # ifdef USE_SCROLLBACK
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   Character color structure 
+/*
+ *   Character color structure
  */
 typedef struct osgen_charcolor_t osgen_charcolor_t;
 struct osgen_charcolor_t
@@ -425,7 +425,7 @@ struct osgen_charcolor_t
 
 /*
  *   Window control structure.  Each on-screen window is represented by one
- *   of these structures.  
+ *   of these structures.
  */
 struct osgen_win_t
 {
@@ -438,30 +438,30 @@ struct osgen_win_t
     /* next window in window list */
     osgen_win_t *nxt;
 
-    /* 
+    /*
      *   Parent window.  We take our display area out of the parent window's
-     *   allocated space at the time we lay out this window.  
+     *   allocated space at the time we lay out this window.
      */
     osgen_win_t *parent;
 
     /* head of list of children of this window */
     osgen_win_t *first_child;
 
-    /* 
+    /*
      *   The window's alignment type - this determines where the window goes
      *   relative to the main window.  This is an OS_BANNER_ALIGN_xxx
-     *   alignment type code.  
+     *   alignment type code.
      */
     int alignment;
 
     /* size type (as an OS_BANNER_SIZE_xxx value) */
     int size_type;
 
-    /* 
+    /*
      *   The window's size.  If size_type is OS_BANNER_SIZE_ABS, this is the
      *   size of the window in character cells.  If size_type is
      *   OS_BANNER_SIZE_PCT, this is given as a percentage of the full screen
-     *   size.  
+     *   size.
      */
     int size;
 
@@ -473,26 +473,26 @@ struct osgen_win_t
     size_t wid;
     size_t ht;
 
-    /* 
+    /*
      *   Cursor position (location of next output).  These are given in
      *   "document coordinates", which is to say that they're relative to
      *   the start of the text in the buffer.
-     *   
+     *
      *   To translate to "window coordinates", simply subtract the scrolling
      *   offsets, which give the document coordinates of the first character
      *   displayed at the upper left corner of the window.
-     *   
+     *
      *   To translate to absolute screen coordinates, first subtract the
      *   scrolling offsets to get window coordinates, then add the window's
-     *   screen position (winx,winy).  
+     *   screen position (winx,winy).
      */
     int x;
     int y;
 
-    /* 
+    /*
      *   maximum row and line where we've actually written any text (this
      *   can be used for purposes like setting horizontal scrollbar limits
-     *   and sizing a window horizontally to its contents) 
+     *   and sizing a window horizontally to its contents)
      */
     int xmax;
     int ymax;
@@ -501,9 +501,9 @@ struct osgen_win_t
     int scrollx;
     int scrolly;
 
-    /* 
+    /*
      *   current text foreground and background colors (as OSGEN_COLOR_xxx
-     *   values) 
+     *   values)
      */
     char txtfg;
     char txtbg;
@@ -519,15 +519,15 @@ struct osgen_win_t
 /*
  *   Ordinary text stream window.  This is a subclass of the basic
  *   osgen_win_t window type, used when win_type is OS_BANNER_TYPE_TEXT.
- *   
+ *
  *   Ordinary text windows keep a circular buffer of scrollback text.  We
  *   optimize space by using escape codes embedded in the saved text stream
  *   to select colors and attributes.
- *   
+ *
  *   In the circular text buffer, each line ends with a null byte.  We keep
  *   an array of line-start pointers to make it fast and easy to find the
  *   first byte of a particular line.  The line-start array is also
- *   circular, and is organized in ascending order of row number.  
+ *   circular, and is organized in ascending order of row number.
  */
 typedef struct osgen_txtwin_t osgen_txtwin_t;
 struct osgen_txtwin_t
@@ -539,21 +539,21 @@ struct osgen_txtwin_t
     int solfg;
     int solbg;
     int solattr;
-            
+
     /* window text buffer, and size of the buffer */
     char *txtbuf;
     size_t txtbufsiz;
-    
+
     /* next free byte of window text buffer */
     char *txtfree;
-    
+
     /* circular array of line-start pointers */
     char **line_ptr;
     size_t line_ptr_cnt;
-    
+
     /* index of first line-start pointer in use */
     size_t first_line;
-    
+
     /* number of lines of text stored in the buffer */
     size_t line_count;
 };
@@ -561,34 +561,34 @@ struct osgen_txtwin_t
 /*
  *   Text Grid window.  This is a subclass of the basic window type,
  *   osgen_win_t, used when win_type is OS_BANNER_TYPE_TEXTGRID.
- *   
+ *
  *   A text grid window keeps a simple rectangular array of text, and a
  *   corresponding array of the color of each character.  The size of each
  *   array is at least as large as the window's actual area on the screen;
  *   when we resize the window, we'll reallocate the arrays at a larger size
  *   if the window has expanded beyond the stored size.  We don't keep any
  *   scrollback information in a text grid; we only keep enough to cover
- *   what's actually on the screen.  
+ *   what's actually on the screen.
  */
 typedef struct osgen_gridwin_t osgen_gridwin_t;
 struct osgen_gridwin_t
 {
     /* embed the base class */
     osgen_win_t base;
-    
+
     /* width and height of the text and color arrays */
     size_t grid_wid;
     size_t grid_ht;
 
     /* text array */
     char *grid_txt;
-    
+
     /* color array */
     osgen_charcolor_t *grid_color;
 };
 
 /*
- *   Window flags 
+ *   Window flags
  */
 
 /* keep the cursor visible when adding text to the window */
@@ -600,10 +600,10 @@ struct osgen_gridwin_t
 /* the window is in deferred-redraw mode */
 #define OSGEN_DEFER_REDRAW    0x0004
 
-/* 
+/*
  *   MORE mode in the banner.  Note that we keep track of this only so that
  *   we can indicate it on queries for the banner style; we count on the
- *   caller to handle the actual prompting for us.  
+ *   caller to handle the actual prompting for us.
  */
 #define OSGEN_MOREMODE        0x0008
 
@@ -611,9 +611,9 @@ struct osgen_gridwin_t
 #define OSGEN_VSTRUT          0x0010
 #define OSGEN_HSTRUT          0x0020
 
-/* 
+/*
  *   The main text area window.  This window is special, because it's the
- *   root of the window tree.  
+ *   root of the window tree.
  */
 static osfar_t osgen_txtwin_t *S_main_win = 0;
 
@@ -632,26 +632,26 @@ static osfar_t int S_sbmode_orig_x;
 static osfar_t char **S_sbmode_orig_last_line;
 static osfar_t char *S_sbmode_orig_txtfree;
 
-/* 
+/*
  *   flag: we're using a special cursor position; we use this to override our
- *   normal default cursor position 
+ *   normal default cursor position
  */
 static osfar_t int S_special_cursor_pos = FALSE;
 static osfar_t int S_special_cursor_x = 0;
 static osfar_t int S_special_cursor_y = 0;
 
-/* 
+/*
  *   Flag: deferred redraw required.  This indicates that something happened
  *   that requires redrawing the screen, but we didn't bother actually doing
  *   the redrawing immediately in case other things that would also require
- *   redrawing were to occur shortly. 
+ *   redrawing were to occur shortly.
  */
 static osfar_t int S_deferred_redraw = FALSE;
 
 /*
  *   Input buffer state.  This information is defined statically because
  *   os_gets_timeout() can carry the information from invocation to
- *   invocation when input editing is interrupted by a tmieout.  
+ *   invocation when input editing is interrupted by a tmieout.
  */
 static osfar_t char S_gets_internal_buf[256];       /* internal save buffer */
 static osfar_t char *S_gets_buf = S_gets_internal_buf;  /* current save buf */
@@ -663,7 +663,7 @@ static osfar_t int S_gets_x, S_gets_y;             /* saved cursor position */
 
 # ifdef USE_HISTORY
 /* save buffer for line being edited before history recall began */
-static osfar_t char S_hist_sav_internal[256]; 
+static osfar_t char S_hist_sav_internal[256];
 static osfar_t char *S_hist_sav = S_hist_sav_internal;
 static osfar_t size_t S_hist_sav_siz = sizeof(S_hist_sav_internal);
 # endif /* USE_HISTORY */
@@ -675,12 +675,12 @@ extern void safe_strcpy(char *dst, size_t dstlen, const char *src);
  *   Flag: input is already in progress.  When os_gets_timeout() returns
  *   with OS_EVT_TIMEOUT, it sets this flag to true.  os_gets_cancel() sets
  *   this flag to false.
- *   
+ *
  *   When os_gets_timeout() is called again, it checks this flag to see if
  *   the input session was cancelled; if not, the routine knows that the
  *   partially-edited input line is already displayed where it left off,
  *   because the display has not been modified since the interrupted call to
- *   os_gets_timeout() returned.  
+ *   os_gets_timeout() returned.
  */
 static osfar_t int S_gets_in_progress = FALSE;
 
@@ -692,7 +692,7 @@ static void osgen_scrdisp(osgen_win_t *win, int x, int y, int len);
 static void osgen_gets_redraw_cmdline(void);
 
 /*
- *   Delete a window 
+ *   Delete a window
  */
 static void osgen_delete_win(osgen_win_t *win)
 {
@@ -720,10 +720,10 @@ static void osgen_delete_win(osgen_win_t *win)
         }
     }
 
-    /* 
+    /*
      *   Remove the parent reference from each child of this window.  We're
      *   going to be deleted, so we can't keep references from our children
-     *   to us.  
+     *   to us.
      */
     for (cur = win->first_child ; cur != 0 ; cur = cur->nxt)
         cur->parent = 0;
@@ -761,7 +761,7 @@ static void osgen_delete_win(osgen_win_t *win)
 }
 
 /*
- *   Delete a window and all of its children 
+ *   Delete a window and all of its children
  */
 static void osgen_delete_win_tree(osgen_win_t *win)
 {
@@ -785,7 +785,7 @@ static void osgen_delete_win_tree(osgen_win_t *win)
 /*
  *   Create a window and link it into our list.  We initialize the window
  *   and allocate its display buffer, but we do NOT set the window's size or
- *   position on the screen.  
+ *   position on the screen.
  */
 static osgen_win_t *osgen_create_win(int win_type, int where, void *other,
                                      osgen_win_t *parent)
@@ -838,10 +838,10 @@ static osgen_win_t *osgen_create_win(int win_type, int where, void *other,
     win->scrollx = 0;
     win->scrolly = 0;
 
-    /* 
+    /*
      *   the window's position on screen will eventually be set by
      *   osgen_recalc_layout(), but initialize the position to a reasonable
-     *   value for now in case anyone looks at it before then 
+     *   value for now in case anyone looks at it before then
      */
     win->winx = 0;
     win->winy = 0;
@@ -894,12 +894,12 @@ static osgen_win_t *osgen_create_win(int win_type, int where, void *other,
                  cur != 0 && cur != other ;
                  prv = cur, cur = cur->nxt) ;
 
-            /* 
+            /*
              *   if we didn't find 'other', link the new window at the tail
              *   of the list by default; since 'prv' will be the last item if
              *   we didn't find 'other', we can simply set the link mode to
              *   'before' to link before the placeholder null at the end of
-             *   the list 
+             *   the list
              */
             if (cur == 0)
                 where = OS_BANNER_BEFORE;
@@ -928,7 +928,7 @@ static osgen_win_t *osgen_create_win(int win_type, int where, void *other,
 }
 
 /*
- *   Create a text window 
+ *   Create a text window
  */
 static osgen_txtwin_t *osgen_create_txtwin(int where, void *other,
                                            void *parent,
@@ -936,7 +936,7 @@ static osgen_txtwin_t *osgen_create_txtwin(int where, void *other,
                                            unsigned int buf_lines)
 {
     osgen_txtwin_t *win;
-    
+
     /* create the base window */
     win = (osgen_txtwin_t *)osgen_create_win(OS_BANNER_TYPE_TEXT,
                                              where, other, parent);
@@ -958,7 +958,7 @@ static osgen_txtwin_t *osgen_create_txtwin(int where, void *other,
     {
         /* free anything we allocated */
         osgen_delete_win(&win->base);
-        
+
         /* return failure */
         return 0;
     }
@@ -986,7 +986,7 @@ static osgen_txtwin_t *osgen_create_txtwin(int where, void *other,
 }
 
 /*
- *   Create a text grid window 
+ *   Create a text grid window
  */
 static osgen_gridwin_t *osgen_create_gridwin(int where, void *other,
                                              void *parent,
@@ -1001,7 +1001,7 @@ static osgen_gridwin_t *osgen_create_gridwin(int where, void *other,
     /* if that failed, give up now */
     if (win == 0)
         return 0;
-    
+
     /* allocate the grid to the requested size */
     win->grid_wid = grid_wid;
     win->grid_ht = grid_ht;
@@ -1014,7 +1014,7 @@ static osgen_gridwin_t *osgen_create_gridwin(int where, void *other,
     {
         /* free anything we allocated */
         osgen_delete_win(&win->base);
-        
+
         /* return failure */
         return 0;
     }
@@ -1027,7 +1027,7 @@ static osgen_gridwin_t *osgen_create_gridwin(int where, void *other,
 }
 
 /*
- *   Clear a window 
+ *   Clear a window
  */
 static void osgen_clear_win(osgen_win_t *win)
 {
@@ -1088,14 +1088,14 @@ static void osgen_clear_win(osgen_win_t *win)
      *   window automatically scrolls, then the caller presumably is
      *   displaying more sizable data, and thus would want the user to see
      *   the text output as it occurs.
-     *   
+     *
      *   Note that both approaches (deferred vs immediate redraw) yield the
      *   same results in the end, because we always stop deferring redraws
      *   when we stop to ask for input or simply pause for a time delay; the
      *   only difference is that deferred redrawing reduces flicker by
      *   gathering all the updates into a single operation, while immediate
      *   update might flicker more but shows individual bits of text output
-     *   as they occur.  
+     *   as they occur.
      */
     if (!(win->flags & OSGEN_AUTO_VSCROLL))
     {
@@ -1115,7 +1115,7 @@ static void osgen_clear_win(osgen_win_t *win)
  *   Display text in a window, all in a single color, truncating the display
  *   if we start before the left edge of the window or go past the right
  *   edge of the window.  The x,y coordinates are given in window
- *   coordinates.  
+ *   coordinates.
  */
 static void osgen_disp_trunc(osgen_win_t *win, int y, int x, int oss_color,
                              const char *p)
@@ -1139,22 +1139,22 @@ static void osgen_disp_trunc(osgen_win_t *win, int y, int x, int oss_color,
         || x + (int)chars_rem <= 0 || x >= (int)win->wid)
         return;
 
-    /* 
+    /*
      *   if we're starting to the left of the window, skip characters up to
-     *   the first character visible in the window 
+     *   the first character visible in the window
      */
     if (x < 0)
     {
-        /* 
+        /*
          *   get the number of characters to skip - this is simply the
          *   negative of the x position, since x position zero is the first
-         *   column to display 
+         *   column to display
          */
         x = -x;
 
-        /* 
+        /*
          *   if we don't have enough characters to reach the left edge of
-         *   the window, we have nothing to do 
+         *   the window, we have nothing to do
          */
         if (chars_rem <= (size_t)x)
             return;
@@ -1177,11 +1177,11 @@ static void osgen_disp_trunc(osgen_win_t *win, int y, int x, int oss_color,
         return;
     }
 
-    /* 
+    /*
      *   we have too much to display, so display as much as will fit - keep
      *   going until we run out of space for the display (we know we'll run
      *   out of space before we run out of text, because we know we have too
-     *   much text to fit) 
+     *   much text to fit)
      */
     while (wid_rem != 0)
     {
@@ -1214,11 +1214,11 @@ static void osgen_disp_trunc(osgen_win_t *win, int y, int x, int oss_color,
 /*
  *   Initialize the scrollback buffer.  This initializes the main text area
  *   window.
- *   
+ *
  *   The oss code should call this during initialization to set up the
  *   osgen3-layer display management; note that this routine must be called
  *   from the oss code AFTER the screen size has been determined and stored
- *   in the global variables G_oss_screen_width and G_oss_screen_height.  
+ *   in the global variables G_oss_screen_width and G_oss_screen_height.
  */
 void osssbini(unsigned int size)
 {
@@ -1227,9 +1227,9 @@ void osssbini(unsigned int size)
     /* allocate our main window if we're not in 'plain' mode */
     if (!os_f_plain)
     {
-        /* 
+        /*
          *   Initialize the main window.  The main window has no parent,
-         *   since it's the root of the window tree.  
+         *   since it's the root of the window tree.
          */
         S_main_win = win = osgen_create_txtwin(
             OS_BANNER_FIRST, 0, 0, size, size/40);
@@ -1239,19 +1239,19 @@ void osssbini(unsigned int size)
             printf("There is not enough memory to run this program.\n");
             exit(1);
         }
-        
+
         /* make this the default window */
         S_default_win = win;
-        
+
         /* scroll to keep the cursor visible when writing to this window */
         win->base.flags |= OSGEN_AUTO_VSCROLL;
-        
+
         /* initially give the window the entire screen */
         win->base.winy = 0;
         win->base.winx = 0;
         win->base.wid = G_oss_screen_width;
         win->base.ht = G_oss_screen_height;
-        
+
         /* set the initial page size */
         G_os_linewidth = win->base.wid;
         G_os_pagelength = (win->base.ht > 2
@@ -1276,7 +1276,7 @@ void osssbini(unsigned int size)
 
 /*
  *   Delete the scrollback buffer.  The oss code should call this during
- *   program termination to free memory allocated by the osgen3 layer.  
+ *   program termination to free memory allocated by the osgen3 layer.
  */
 void osssbdel(void)
 {
@@ -1288,11 +1288,11 @@ void osssbdel(void)
 /* ------------------------------------------------------------------------ */
 /*
  *   Scrollback operations.  Scrollback applies only to ordinary text
- *   windows.  
+ *   windows.
  */
 
 /*
- *   advance a pointer in a scrollback buffer 
+ *   advance a pointer in a scrollback buffer
  */
 static char *ossadvsp(osgen_txtwin_t *win, char *p)
 {
@@ -1308,7 +1308,7 @@ static char *ossadvsp(osgen_txtwin_t *win, char *p)
 }
 
 /*
- *   decrement a scrollback buffer pointer 
+ *   decrement a scrollback buffer pointer
  */
 static char *ossdecsp(osgen_txtwin_t *win, char *p)
 {
@@ -1324,7 +1324,7 @@ static char *ossdecsp(osgen_txtwin_t *win, char *p)
 }
 
 /*
- *   Get the line pointer for the given line 
+ *   Get the line pointer for the given line
  */
 static char **osgen_get_line_ptr(osgen_txtwin_t *win, int y)
 {
@@ -1347,7 +1347,7 @@ static char **osgen_get_line_ptr(osgen_txtwin_t *win, int y)
 
 /*
  *   Get a pointer to the text of the line in the given window at the given
- *   document y coordinate.  
+ *   document y coordinate.
  */
 static char *osgen_get_line(osgen_txtwin_t *win, int y)
 {
@@ -1362,7 +1362,7 @@ static char *osgen_get_line(osgen_txtwin_t *win, int y)
 
 /*
  *   Add a byte to the scrollback buffer.  Returns true if the byte was
- *   successfully added, false if not.  
+ *   successfully added, false if not.
  */
 static int osssb_add_byte(osgen_txtwin_t *win, char c)
 {
@@ -1372,20 +1372,20 @@ static int osssb_add_byte(osgen_txtwin_t *win, char c)
     if ((win->base.flags & OSGEN_FULL) != 0)
         return FALSE;
 
-    /* 
+    /*
      *   If there's no room, and we're not in auto-vscroll mode, simply
      *   discard the text.  A window that is not in auto-vscroll mode is
      *   designed to always show the oldest text, so if we overflow the
-     *   buffer, then we want to start discarding the newest test.  
+     *   buffer, then we want to start discarding the newest test.
      */
     nxtfree = ossadvsp(win, win->txtfree);
     if (nxtfree == win->line_ptr[win->first_line]
         && !(win->base.flags & OSGEN_AUTO_VSCROLL))
     {
-        /* 
+        /*
          *   The buffer is full, and we're not in auto-vscroll mode -
          *   discard the new text.  Before we do, set the current last byte
-         *   to null, to terminate the current line at this point.  
+         *   to null, to terminate the current line at this point.
          */
         *win->txtfree = '\0';
 
@@ -1402,9 +1402,9 @@ static int osssb_add_byte(osgen_txtwin_t *win, char c)
     /* advance the free pointer */
     win->txtfree = nxtfree;
 
-    /* 
+    /*
      *   if the free pointer has just collided with the start of the oldest
-     *   line, delete the oldest line 
+     *   line, delete the oldest line
      */
     if (win->txtfree == win->line_ptr[win->first_line])
     {
@@ -1419,12 +1419,12 @@ static int osssb_add_byte(osgen_txtwin_t *win, char c)
         /* adjust our document cooordinates for the loss of a line */
         win->base.y--;
 
-        /* 
+        /*
          *   Adjust the scrolling position for the loss of a line.  If the
          *   window is displaying the line that we just deleted (i.e., the
          *   window's vertical scroll offset is zero), we must redraw the
          *   window; otherwise, the change won't affect the display, so we
-         *   can merely adjust the scrolling offset.  
+         *   can merely adjust the scrolling offset.
          */
         if (win->base.scrolly == 0)
             win->base.flags |= OSGEN_DEFER_REDRAW;
@@ -1438,7 +1438,7 @@ static int osssb_add_byte(osgen_txtwin_t *win, char c)
 
 /*
  *   Add a given number of bytes.  The bytes will be added as a unit - if we
- *   can't add all of the bytes, we won't add any of them.  
+ *   can't add all of the bytes, we won't add any of them.
  */
 static int osssb_add_bytes(osgen_txtwin_t *win, const char *p, size_t len)
 {
@@ -1453,9 +1453,9 @@ static int osssb_add_bytes(osgen_txtwin_t *win, const char *p, size_t len)
         /* try adding this byte */
         if (!osssb_add_byte(win, *p++))
         {
-            /* 
+            /*
              *   failure - forget everything we've added by resetting the
-             *   free pointer to its original value on entry 
+             *   free pointer to its original value on entry
              */
             win->txtfree = orig_free;
 
@@ -1471,16 +1471,16 @@ static int osssb_add_bytes(osgen_txtwin_t *win, const char *p, size_t len)
 /*
  *   Add a "safety" null byte.  This adds a null byte at the end of the
  *   buffer, in case we need to inspect the current line before we add any
- *   more text.  
+ *   more text.
  */
 static void osssb_add_safety_null(osgen_txtwin_t *win)
 {
     /* add the null */
     if (osssb_add_byte(win, '\0'))
     {
-        /* 
+        /*
          *   we added the null - decrement the free pointer so we overwrite
-         *   the null byte if we add any more text to the current line 
+         *   the null byte if we add any more text to the current line
          */
         win->txtfree = ossdecsp(win, win->txtfree);
     }
@@ -1488,7 +1488,7 @@ static void osssb_add_safety_null(osgen_txtwin_t *win)
 
 /*
  *   Add an appropriate color code to the scrollback buffer to yield the
- *   current color setting.  
+ *   current color setting.
  */
 static void osssb_add_color_code(osgen_txtwin_t *win)
 {
@@ -1520,7 +1520,7 @@ static void osssb_add_color_code(osgen_txtwin_t *win)
 
 /*
  *   Start a new line in the scrollback buffer.  Returns true on success,
- *   false if there's no space to add the newline character.  
+ *   false if there's no space to add the newline character.
  */
 static int osssb_new_line(osgen_txtwin_t *win)
 {
@@ -1534,11 +1534,11 @@ static int osssb_new_line(osgen_txtwin_t *win)
     if ((win->base.flags & OSGEN_FULL) != 0)
         return FALSE;
 
-    /* 
+    /*
      *   If the line buffer is full, and this window doesn't automatically
      *   scroll vertically, drop the new text.  When we're not in
      *   auto-vscroll mode, we drop text from the end of the buffer rather
-     *   than from the beginning.  
+     *   than from the beginning.
      */
     if (win->line_count + 1 > win->line_ptr_cnt
         && !(win->base.flags & OSGEN_AUTO_VSCROLL))
@@ -1561,12 +1561,12 @@ static int osssb_new_line(osgen_txtwin_t *win)
         if (win->first_line == win->line_ptr_cnt)
             win->first_line = 0;
 
-        /* 
+        /*
          *   Since we took away one line and we're adding another, the total
          *   line count and the document 'y' position aren't changing - but
          *   the line at the document 'y' position now belongs to the new
          *   last line.
-         *   
+         *
          *   Adjust the scrolling position for the loss of a line at the
          *   start of the buffer.  This doesn't change what we're displaying
          *   on the screen, because we're simply reducing the amount of text
@@ -1576,7 +1576,7 @@ static int osssb_new_line(osgen_txtwin_t *win)
          *   showing in the window, then we do need to redraw the contents,
          *   because the change will be visible; set the deferred redraw
          *   flag for the window in this case so that we eventually redraw
-         *   the whole thing.  
+         *   the whole thing.
          */
         if (win->base.scrolly == 0)
             win->base.flags |= OSGEN_DEFER_REDRAW;
@@ -1599,9 +1599,9 @@ static int osssb_new_line(osgen_txtwin_t *win)
     /* get the line pointer for the new last line */
     line_ptr = osgen_get_line_ptr(win, win->base.y);
 
-    /* 
+    /*
      *   set the new line pointer to point to the first free byte of the
-     *   buffer 
+     *   buffer
      */
     *line_ptr = win->txtfree;
 
@@ -1621,7 +1621,7 @@ static int osssb_new_line(osgen_txtwin_t *win)
 }
 
 /*
- *   Scroll the window forward by the given number of lines 
+ *   Scroll the window forward by the given number of lines
  */
 static void osgen_scroll_win_fwd(osgen_txtwin_t *win, size_t lines)
 {
@@ -1629,11 +1629,11 @@ static void osgen_scroll_win_fwd(osgen_txtwin_t *win, size_t lines)
     if (lines > win->line_count - win->base.scrolly - win->base.ht)
         lines = win->line_count - win->base.scrolly - win->base.ht;
 
-    /* 
+    /*
      *   If we're scrolling more than a few lines, or more than the entire
      *   window's height, just redraw the entire window.  If it's a small
      *   number of lines, scroll the screen one line at a time, so that we
-     *   don't have to redraw as much.  
+     *   don't have to redraw as much.
      */
     if (lines > 3 || (int)lines >= win->base.ht)
     {
@@ -1664,7 +1664,7 @@ static void osgen_scroll_win_fwd(osgen_txtwin_t *win, size_t lines)
 }
 
 /*
- *   Scroll the window back by the given number of lines 
+ *   Scroll the window back by the given number of lines
  */
 static void osgen_scroll_win_back(osgen_txtwin_t *win, int lines)
 {
@@ -1672,10 +1672,10 @@ static void osgen_scroll_win_back(osgen_txtwin_t *win, int lines)
     if (lines > win->base.scrolly)
         lines = win->base.scrolly;
 
-    /* 
+    /*
      *   If we're scrolling more than a few lines, or by the full window
      *   height or more, just redraw the entire window.  Otherwise, scroll a
-     *   line at a time to minimize redrawing.  
+     *   line at a time to minimize redrawing.
      */
     if (lines > 3)
     {
@@ -1707,17 +1707,17 @@ static void osgen_scroll_win_back(osgen_txtwin_t *win, int lines)
 
 /*
  *   If a window is in auto-vscroll mode, bring the cursor into view in the
- *   window. 
+ *   window.
  */
 static void osgen_auto_vscroll(osgen_txtwin_t *win)
 {
     /* if the window isn't in auto-vscroll mode, ignore this */
     if (!(win->base.flags & OSGEN_AUTO_VSCROLL))
         return;
-    
-    /* 
+
+    /*
      *   scroll the window forward if the cursor is outside the visible area
-     *   of the window 
+     *   of the window
      */
     if (win->base.y >= win->base.scrolly + (int)win->base.ht)
         osgen_scroll_win_fwd(win, win->base.y
@@ -1725,7 +1725,7 @@ static void osgen_auto_vscroll(osgen_txtwin_t *win)
 }
 
 /*
- *   Add text to the scrollback buffer. 
+ *   Add text to the scrollback buffer.
  */
 static void ossaddsb(osgen_txtwin_t *win, const char *p, size_t len, int draw)
 {
@@ -1759,10 +1759,10 @@ static void ossaddsb(osgen_txtwin_t *win, const char *p, size_t len, int draw)
             /* switch to the new attributes */
             win->base.txtattr = (unsigned char)*(p+1);
 
-            /* 
+            /*
              *   if we're at the start of the line, this is the start-of-line
              *   attribute - this will ensure that if we back up with '\r',
-             *   we'll re-apply this attribute change 
+             *   we'll re-apply this attribute change
              */
             if (win->base.x == 0)
                 win->solattr = win->base.txtattr;
@@ -1778,9 +1778,9 @@ static void ossaddsb(osgen_txtwin_t *win, const char *p, size_t len, int draw)
             win->base.txtfg = (unsigned char)*(p+1);
             win->base.txtbg = (unsigned char)*(p+2);
 
-            /* 
+            /*
              *   if we're at the start of the line, this is the new
-             *   start-of-line color 
+             *   start-of-line color
              */
             if (win->base.x == 0)
             {
@@ -1793,7 +1793,7 @@ static void ossaddsb(osgen_txtwin_t *win, const char *p, size_t len, int draw)
             p += 3;
             len -= 3;
             break;
-            
+
         case '\n':
             /* add the new line */
             osssb_new_line(win);
@@ -1834,9 +1834,9 @@ static void ossaddsb(osgen_txtwin_t *win, const char *p, size_t len, int draw)
             win->base.txtbg = win->solbg;
             win->base.txtattr = win->solattr;
 
-            /* 
+            /*
              *   since we're back at the start of the line, add a color code
-             *   if necessary 
+             *   if necessary
              */
             osssb_add_color_code(win);
 
@@ -1875,19 +1875,19 @@ static void ossaddsb(osgen_txtwin_t *win, const char *p, size_t len, int draw)
                 /* count the ordinary character in the display length */
                 ++line_len;
             }
-            
+
             /* skip the character */
             ++p;
             --len;
-                
+
             /* done */
             break;
         }
     }
 
-    /* 
+    /*
      *   Add a safety null terminator after each addition, in case we need
-     *   to look at the buffer before this line is finished.  
+     *   to look at the buffer before this line is finished.
      */
     osssb_add_safety_null(win);
 
@@ -1908,19 +1908,19 @@ static void ossaddsb(osgen_txtwin_t *win, const char *p, size_t len, int draw)
 void ossaddsb_input(osgen_txtwin_t *win, char *p, int add_nl)
 {
     size_t chars_rem;
-    
+
     /* get the number of characters in the input to add */
     chars_rem = strlen(p);
 
-    /* 
+    /*
      *   add the input in chunks, wrapping whenever we reach the right edge
-     *   of the window 
+     *   of the window
      */
     while (chars_rem != 0)
     {
         size_t wid_rem;
         size_t cur;
-        
+
         /* if we're already past the edge, add a newline */
         if (win->base.x >= (int)win->base.wid)
             osssb_new_line(win);
@@ -1950,43 +1950,43 @@ void ossaddsb_input(osgen_txtwin_t *win, char *p, int add_nl)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   End scrollback mode. 
+ *   End scrollback mode.
  */
 static void osgen_sb_mode_end()
 {
     osgen_txtwin_t *win = S_sbmode_win;
-    
+
     /* restore our original scroll position */
     if (win->base.scrolly > S_sbmode_orig_scrolly)
         osgen_scroll_win_back(win, win->base.scrolly - S_sbmode_orig_scrolly);
     else if (win->base.scrolly < S_sbmode_orig_scrolly)
         osgen_scroll_win_fwd(win, S_sbmode_orig_scrolly - win->base.scrolly);
 
-    /* 
+    /*
      *   adjust the input editing cursor position if the scrolling position
-     *   doesn't match the original position 
+     *   doesn't match the original position
      */
     S_gets_y += S_sbmode_orig_scrolly - win->base.scrolly;
-    
-    /* 
+
+    /*
      *   restore our full window area, adding back in the top line that we
-     *   removed to make room for the mode line 
+     *   removed to make room for the mode line
      */
     win->base.winy -= 1;
     win->base.ht += 1;
     win->base.scrolly -= 1;
-    
+
     /* redraw the top line, where we drew the mode line */
     ossclr(win->base.winy, win->base.winx,
            win->base.winy, win->base.winx + win->base.wid - 1,
            win->base.oss_fillcolor);
     osgen_scrdisp(&win->base, 0, 0, win->base.wid);
 
-    /* 
+    /*
      *   Delete the temporary copy of the input from the scrollback buffer.
      *   To do this, restore the x,y position and free pointer, then delete
      *   extra lines from the end of the buffer until the last line points
-     *   to the same text it did before we added the command input text.  
+     *   to the same text it did before we added the command input text.
      */
     win->base.x = S_sbmode_orig_x;
     win->txtfree = S_sbmode_orig_txtfree;
@@ -2007,7 +2007,7 @@ static void osgen_sb_mode_end()
  *   of the window to give a visual indication that we're in scrollback mode.
  *   (Actually, we draw this one line above the current top of the window,
  *   because we shrink the window vertically by one line while it's in
- *   scrollback mode specifically to make room for the mode line.)  
+ *   scrollback mode specifically to make room for the mode line.)
  */
 static void osgen_draw_sb_mode_line(void)
 {
@@ -2045,10 +2045,10 @@ static void osgen_draw_sb_mode_line(void)
  *   Process the event in scrollback mode.  If we're not already in
  *   scrollback mode, we'll enter scrollback mode; otherwise, we'll process
  *   the event in the already running scrollback.
- *   
+ *
  *   Returns true if we processed the event, false if we have terminated
  *   scrollback mode and want the caller to process the event as it normally
- *   would outside of scrollback mode.  
+ *   would outside of scrollback mode.
  */
 static int osgen_sb_mode(osgen_txtwin_t *win, int event_type,
                          os_event_info_t *event_info)
@@ -2071,24 +2071,24 @@ static int osgen_sb_mode(osgen_txtwin_t *win, int event_type,
         if (win->txtbuf == 0)
             return FALSE;
 
-        /* 
+        /*
          *   If the number of lines in the scrollback buffer doesn't exceed
          *   the number of lines displayed in the window, then don't bother
          *   entering scrollback mode.  If the window isn't at least two
          *   lines high, don't allow it either, as we need space to draw our
-         *   mode line.  
+         *   mode line.
          */
         if (win->line_count <= win->base.ht || win->base.ht < 2)
             return FALSE;
 
         /* remember the window involved in scrollback */
         S_sbmode_win = win;
-        
-        /* 
+
+        /*
          *   Shrink the window one line at the top, to make room for the mode
          *   line.  Compensate by bumping the scrolling position forward a
          *   line, to keep the lines that will remain visible in the rest of
-         *   the window at the same place on the screen.  
+         *   the window at the same place on the screen.
          */
         win->base.winy += 1;
         win->base.ht -= 1;
@@ -2098,7 +2098,7 @@ static int osgen_sb_mode(osgen_txtwin_t *win, int event_type,
          *   Temporarily add the command buffer to the scrollback buffer, so
          *   that it shows up when we're scrolling.  To facilitate removing
          *   the added text later, remember the current free pointer, last
-         *   line pointer, x document position.  
+         *   line pointer, x document position.
          */
         S_sbmode_orig_x = win->base.x;
         S_sbmode_orig_txtfree = win->txtfree;
@@ -2119,12 +2119,12 @@ static int osgen_sb_mode(osgen_txtwin_t *win, int event_type,
     switch(event_type)
     {
     case OS_EVT_KEY:
-        /* 
+        /*
          *   If it's a regular key, exit scrollback mode immediately, and
          *   let the caller handle the event normally.  This allows the user
          *   to resume typing even while scrollback is active; we'll simply
          *   cancel the scrollback and resume editing with the event that
-         *   canceled the scrollback.  
+         *   canceled the scrollback.
          */
         c = event_info->key[0];
         if ((unsigned char)c >= 32 || c == '\n' || c == '\r' || c == 8)
@@ -2155,7 +2155,7 @@ static int osgen_sb_mode(osgen_txtwin_t *win, int event_type,
             if (!just_started)
                 osgen_sb_mode_end();
             break;
-            
+
         case CMD_KILL:
         case CMD_EOF:
             /* it's a termination key - cancel scrollback mode */
@@ -2171,13 +2171,13 @@ static int osgen_sb_mode(osgen_txtwin_t *win, int event_type,
             /* scroll forward a line */
             osgen_scroll_win_fwd(win, 1);
             break;
-            
+
         case CMD_PGUP:
             /* move back by one window height */
             osgen_scroll_win_back(win, win->base.ht > 1
                                   ? win->base.ht - 1 : 1);
             break;
-            
+
         case CMD_PGDN:
             /* move forward by one window height */
             osgen_scroll_win_fwd(win, win->base.ht > 1
@@ -2189,10 +2189,10 @@ static int osgen_sb_mode(osgen_txtwin_t *win, int event_type,
         break;
 
     default:
-        /* 
+        /*
          *   ignore any other events we receive, but consider them processed
          *   - even though we're ignoring the event, we're deliberately
-         *   ignoring the event as our way of processing it 
+         *   ignoring the event as our way of processing it
          */
         break;
     }
@@ -2202,7 +2202,7 @@ static int osgen_sb_mode(osgen_txtwin_t *win, int event_type,
 }
 
 /*
- *   Display a line of text in the given ordinary text window 
+ *   Display a line of text in the given ordinary text window
  */
 static void osgen_scrdisp_txt(osgen_txtwin_t *win, int x, int y, int len)
 {
@@ -2229,11 +2229,11 @@ static void osgen_scrdisp_txt(osgen_txtwin_t *win, int x, int y, int len)
     /* get the window-relative x coordinate of the start of the line */
     scanx = -win->base.scrollx;
 
-    /* 
+    /*
      *   Scan the line.  We must scan from the start of the line, even if we
      *   don't want to display from the start of the line, to make sure we
      *   take into account any color and attribute settings stored in the
-     *   line.  
+     *   line.
      */
     for (bufp = buf ; *p != '\0' && len != 0 ; p = ossadvsp(win, p))
     {
@@ -2296,11 +2296,11 @@ static void osgen_scrdisp_txt(osgen_txtwin_t *win, int x, int y, int len)
                 bufp = buf;
             }
 
-            /* 
+            /*
              *   if we've reached the starting x coordinate, add this
              *   character to the buffer; if we haven't, we can ignore the
              *   character, since in that case we're just scanning for
-             *   escape codes in the line before the part we want to display 
+             *   escape codes in the line before the part we want to display
              */
             if (scanx >= x)
             {
@@ -2339,7 +2339,7 @@ static void osgen_scrdisp_txt(osgen_txtwin_t *win, int x, int y, int len)
 /*
  *   Clear the text and color arrays for a section of a grid window.  Sets
  *   each cleared character's text to a space, and sets the color to
- *   text/transparent.  
+ *   text/transparent.
  */
 static void osgen_gridwin_clear_ptr(char *txtp, osgen_charcolor_t *colorp,
                                     size_t len)
@@ -2360,7 +2360,7 @@ static void osgen_gridwin_clear_ptr(char *txtp, osgen_charcolor_t *colorp,
  *   Clear the text and color arrays for a section of a grid window.  Starts
  *   at the given character offset in the grid arrays, and clears for the
  *   given number of character positions.  Sets each cleared character's
- *   text to a space, and sets the color to text/transparent.  
+ *   text to a space, and sets the color to text/transparent.
  */
 static void osgen_gridwin_clear(osgen_gridwin_t *win, size_t ofs, size_t len)
 {
@@ -2373,7 +2373,7 @@ static void osgen_gridwin_clear(osgen_gridwin_t *win, size_t ofs, size_t len)
  *   Resize a text grid window.  This must be called whenever the on-screen
  *   size of the window is changed, or we need to write outside the current
  *   bounds of the array, so that we can expand our internal size allocation
- *   if the window is now bigger than our internal text/color arrays.  
+ *   if the window is now bigger than our internal text/color arrays.
  */
 static void osgen_gridwin_resize(osgen_gridwin_t *win,
                                  size_t new_wid, size_t new_ht)
@@ -2387,10 +2387,10 @@ static void osgen_gridwin_resize(osgen_gridwin_t *win,
         osgen_charcolor_t *csrc, *cdst;
         size_t y;
 
-        /*  
+        /*
          *   use the larger of the old size and the new size, so that the
          *   window only expands (this somewhat simplifies copying the old
-         *   to the new) 
+         *   to the new)
          */
         if (win->grid_wid > new_wid)
             new_wid = win->grid_wid;
@@ -2442,7 +2442,7 @@ static void osgen_gridwin_resize(osgen_gridwin_t *win,
 }
 
 /*
- *   Display a line of text in the given grid window 
+ *   Display a line of text in the given grid window
  */
 static void osgen_scrdisp_grid(osgen_gridwin_t *win, int x, int y, int len)
 {
@@ -2454,10 +2454,10 @@ static void osgen_scrdisp_grid(osgen_gridwin_t *win, int x, int y, int len)
     char fg, bg;
     int oss_color;
 
-    /* 
+    /*
      *   calculate the offset into our arrays: get the document coordinates
      *   (by adjusting for the scrolling offset), multiply the document row
-     *   number by the row width, and add the document column number 
+     *   number by the row width, and add the document column number
      */
     ofs = ((y - win->base.scrolly) * win->grid_wid) + (x - win->base.scrollx);
 
@@ -2472,16 +2472,16 @@ static void osgen_scrdisp_grid(osgen_gridwin_t *win, int x, int y, int len)
     /* calculate the starting oss-level color */
     oss_color = ossgetcolor(fg, bg, 0, win->base.fillcolor);
 
-    /* 
+    /*
      *   scan the text, flushing when we fill up the buffer or encounter a
-     *   new text color 
+     *   new text color
      */
     for (dst = buf ; ; --len, ++txtp, ++colorp)
     {
-        /* 
+        /*
          *   if we have a color change, or we've exhausted the requested
          *   length, or the buffer is full, display what we have in the
-         *   buffer so far 
+         *   buffer so far
          */
         if (len == 0
             || dst == buf + sizeof(buf) - 1
@@ -2537,7 +2537,7 @@ static void osgen_gridwin_write(osgen_gridwin_t *win,
     /*
      *   First, scan the text to check for writing beyond the end of the
      *   current text array.  If we write anything beyond the bounds of the
-     *   current array, we'll need to expand the array accordingly. 
+     *   current array, we'll need to expand the array accordingly.
      */
     xmax = x = win->base.x;
     ymax = y = win->base.y;
@@ -2558,9 +2558,9 @@ static void osgen_gridwin_write(osgen_gridwin_t *win,
             break;
 
         default:
-            /* 
+            /*
              *   everything else takes up a character cell; if this is the
-             *   highest x/y position so far, note it 
+             *   highest x/y position so far, note it
              */
             if (y > ymax)
                 ymax = y;
@@ -2599,9 +2599,9 @@ static void osgen_gridwin_write(osgen_gridwin_t *win,
     /* now scan the text again, writing it to the grid and displaying it */
     for (p = txt, rem = len ; ; ++p, --rem)
     {
-        /* 
+        /*
          *   if we're at a newline or the end of the text to display,
-         *   display the section of the current line that we just built 
+         *   display the section of the current line that we just built
          */
         if (rem == 0 || *p == '\n' || *p == '\r')
         {
@@ -2661,20 +2661,20 @@ static void osgen_gridwin_write(osgen_gridwin_t *win,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Generic banner window routines 
+ *   Generic banner window routines
  */
 
 /*
  *   Display a window's text from the given starting position for the given
  *   number of characters (counting only displayed characters; escape
  *   sequences don't count).  The starting position is given in
- *   window-relative coordinates.  
+ *   window-relative coordinates.
  */
 static void osgen_scrdisp(osgen_win_t *win, int x, int y, int len)
 {
-    /* 
+    /*
      *   if the text is entirely outside the window's display area, there's
-     *   nothing to display, so ignore the request 
+     *   nothing to display, so ignore the request
      */
     if (y < 0 || (size_t)y >= win->ht
         || x + len <= 0 || (size_t)x >= win->wid)
@@ -2694,8 +2694,8 @@ static void osgen_scrdisp(osgen_win_t *win, int x, int y, int len)
 }
 
 
-/* 
- *   redraw a window 
+/*
+ *   redraw a window
  */
 static void osgen_redraw_win(osgen_win_t *win)
 {
@@ -2714,15 +2714,15 @@ static void osgen_redraw_win(osgen_win_t *win)
 /* redraw the entire screen */
 void os_redraw(void)
 {
-    /* 
+    /*
      *   force a redraw of the entire screen by setting the global
-     *   pending-redraw flag 
+     *   pending-redraw flag
      */
     S_deferred_redraw = TRUE;
 
     /* go redraw it */
     osssb_redraw_if_needed();
-    
+
 }
 
 /* redraw a window, if it needs redrawing */
@@ -2730,9 +2730,9 @@ static void osgen_redraw_win_if_needed(int global_deferred, osgen_win_t *win)
 {
     osgen_win_t *chi;
 
-    /* 
+    /*
      *   if this window needs redrawing, or we have a global deferred redraw,
-     *   redraw the window 
+     *   redraw the window
      */
     if (global_deferred || (win->flags & OSGEN_DEFER_REDRAW) != 0)
     {
@@ -2793,9 +2793,9 @@ void osssb_cursor_to_default_pos(void)
     }
     else
     {
-        /* 
+        /*
          *   if we have a default window, put the cursor at the last text
-         *   position in the default window 
+         *   position in the default window
          */
         if ((win = &S_default_win->base) != 0)
             ossloc(win->winy + win->y - win->scrolly,
@@ -2804,16 +2804,16 @@ void osssb_cursor_to_default_pos(void)
 }
 
 /*
- *   Lay out the given window 
+ *   Lay out the given window
  */
 static void oss_lay_out_window(osgen_win_t *win)
 {
     osgen_win_t *chi;
 
-    /* 
+    /*
      *   if we have a parent, take space from our parent window; otherwise,
      *   assume that the caller has already laid out our main area, in which
-     *   case we just have to adjust for our children 
+     *   case we just have to adjust for our children
      */
     if (win->parent != 0)
     {
@@ -2821,9 +2821,9 @@ static void oss_lay_out_window(osgen_win_t *win)
         int base_size;
         int x, y, wid, ht;
 
-        /* 
+        /*
          *   our size and area will be taken from our parent's, so get the
-         *   parent window's current area 
+         *   parent window's current area
          */
         x = win->parent->winx;
         y = win->parent->winy;
@@ -2839,9 +2839,9 @@ static void oss_lay_out_window(osgen_win_t *win)
             break;
 
         case OS_BANNER_SIZE_PCT:
-            /* 
+            /*
              *   the size is given as a percentage of the parent's size - get
-             *   the appropriate dimension from the parent's size 
+             *   the appropriate dimension from the parent's size
              */
             base_size = (win->alignment == OS_BANNER_ALIGN_LEFT
                          || win->alignment == OS_BANNER_ALIGN_RIGHT
@@ -2856,9 +2856,9 @@ static void oss_lay_out_window(osgen_win_t *win)
         switch(win->alignment)
         {
         case OS_BANNER_ALIGN_TOP:
-            /* 
+            /*
              *   assign the window the full width of the parent, and give it
-             *   the requested height, up to the available height 
+             *   the requested height, up to the available height
              */
             win->wid = wid;
             win->winx = x;
@@ -2924,7 +2924,7 @@ static void oss_lay_out_window(osgen_win_t *win)
          *   If this is the current active scrollback-mode window, we must
          *   make the same adjustment that we make on entering scrollback
          *   mode: shrink the window one line from the top, to make room for
-         *   the scrollback-mode status line.  
+         *   the scrollback-mode status line.
          */
         if (win == &S_sbmode_win->base)
         {
@@ -2942,7 +2942,7 @@ static void oss_lay_out_window(osgen_win_t *win)
 }
 
 /*
- *   Recalculate the window layout and redraw the screen 
+ *   Recalculate the window layout and redraw the screen
  */
 static void osgen_recalc_layout()
 {
@@ -2972,7 +2972,7 @@ static void osgen_recalc_layout()
 
 /*
  *   Receive notification that the screen was resized.  We'll recalculate
- *   the banner window layout.  
+ *   the banner window layout.
  */
 void osssb_on_resize_screen()
 {
@@ -2988,9 +2988,9 @@ void osssb_on_resize_screen()
 
 # else /* USE_SCROLLBACK */
 
-/* 
+/*
  *   for the non-scrollback version, there's nothing we need to do on
- *   resizing the screen, as we don't do anything fancy with the layout 
+ *   resizing the screen, as we don't do anything fancy with the layout
  */
 void osssb_on_resize_screen()
 {
@@ -3016,15 +3016,15 @@ static void osgen_update_stat_right()
     osgen_txtwin_t *win;
     int wid_rem;
     size_t char_len;
-    
-    /* 
+
+    /*
      *   if there's no statusline window, or no reset point, we can't do
-     *   anything right now 
+     *   anything right now
      */
     if ((win = S_status_win) == 0 || S_stat_reset_free == 0)
         return;
 
-    /* 
+    /*
      *   set the statusline position back to where it was when we finished
      *   with the statusline itself
      */
@@ -3041,9 +3041,9 @@ static void osgen_update_stat_right()
     /* figure out how much we're adding */
     char_len = strlen(S_scorebuf);
 
-    /* 
+    /*
      *   if we're adding more than we have room for, add a space and then
-     *   add the buffer contents 
+     *   add the buffer contents
      */
     if ((int)char_len + 1 >= wid_rem)
     {
@@ -3060,7 +3060,7 @@ static void osgen_update_stat_right()
         {
             char buf[64];
             size_t cur;
-            
+
             /* add the remaining spaces, up to a buffer-full */
             cur = wid_rem - char_len - 1;
             if (cur > sizeof(buf) - 1)
@@ -3085,7 +3085,7 @@ static void osgen_update_stat_right()
  *   Set the status mode.  In status mode 0, text displayed via os_print and
  *   the like will display to the main window; in mode 1, text displayed will
  *   go to the default status line window, until we reach a newline, at which
- *   point we'll switch to status mode 2 and text will go nowhere.  
+ *   point we'll switch to status mode 2 and text will go nowhere.
  */
 void os_status(int stat)
 {
@@ -3161,10 +3161,10 @@ void os_status(int stat)
     /* if we're leaving status mode 1, finish the statusline */
     if (status_mode == 1 && stat != 1 && S_status_win != 0)
     {
-        /* 
+        /*
          *   remember the current statusline window settings as the "reset"
          *   point - this is where we reset the buffer contents whenever we
-         *   want to add the right-half string 
+         *   want to add the right-half string
          */
         S_stat_reset_free = S_status_win->txtfree;
         S_stat_reset_x = S_status_win->base.x;
@@ -3184,9 +3184,9 @@ void os_status(int stat)
     }
     else if (status_mode == 2)
     {
-        /* 
+        /*
          *   entering post-status mode - ignore everything, so set the
-         *   default window to null 
+         *   default window to null
          */
         S_default_win = 0;
     }
@@ -3209,7 +3209,7 @@ void os_strsc(const char *p)
         copy_len = strlen(p);
         if (copy_len > sizeof(S_scorebuf) - 1)
             copy_len = sizeof(S_scorebuf) - 1;
-        
+
         /* copy the text and null-terminate it */
         memcpy(S_scorebuf, p, copy_len);
         S_scorebuf[copy_len] = '\0';
@@ -3224,7 +3224,7 @@ void os_strsc(const char *p)
  *   displayed; this is used to refresh the status line without providing a
  *   new score (for example, after exiting scrollback mode).  Otherwise, the
  *   given current score (cur) and turncount are displayed, and saved in
- *   case cur==-1 on the next call.  
+ *   case cur==-1 on the next call.
  */
 void os_score(int cur, int turncount)
 {
@@ -3257,17 +3257,17 @@ void os_plain(void)
     /* set the 'plain' mode flag */
     os_f_plain = 1;
 
-    /* 
+    /*
      *   if we're running without a stdin, turn off pagination - since the
      *   user won't be able to respond to [more] prompts, there's no reason
-     *   to show them 
+     *   to show them
      */
     if (oss_eof_on_stdin())
         G_os_moremode = FALSE;
 }
 
 /*
- *   display text to the default window 
+ *   display text to the default window
  */
 void os_printz(const char *str)
 {
@@ -3290,8 +3290,8 @@ void os_print(const char *str, size_t len)
     {
     case 2:
         /* we're in the post-status-line mode - suppress all output */
-        break; 
-        
+        break;
+
     case 0:
         /* we're showing the text in the default window */
         if (os_f_plain)
@@ -3308,9 +3308,9 @@ void os_print(const char *str, size_t len)
                 /* write the text to the window buffer */
                 ossaddsb(win, str, len, TRUE);
 
-                /* 
+                /*
                  *   move the cursor to the new location, if we're not hiding
-                 *   updates for the moment 
+                 *   updates for the moment
                  */
                 if (!S_deferred_redraw
                     && !(win->base.flags & OSGEN_DEFER_REDRAW))
@@ -3321,20 +3321,20 @@ void os_print(const char *str, size_t len)
 
         /* done */
         break;
-        
+
     case 1:
-        /* 
+        /*
          *   Status line contents.  Ignore the status line in 'plain' mode
-         *   or if there's no statusline window.  
+         *   or if there's no statusline window.
          */
         if (os_f_plain || (win = S_status_win) == 0)
             break;
 
-        /* 
+        /*
          *   Skip leading newlines at the start of the statusline output.
          *   Only do this if we don't already have anything buffered, since
          *   a newline after some other text indicates the end of the status
-         *   line and thus can't be ignored.  
+         *   line and thus can't be ignored.
          */
         p = str;
         rem = len;
@@ -3347,9 +3347,9 @@ void os_print(const char *str, size_t len)
             if (rem == 0)
                 break;
 
-            /* 
+            /*
              *   add a space before the first character, so that we always
-             *   have a space at the left edge of the status line 
+             *   have a space at the left edge of the status line
              */
             ossaddsb(win, " ", 1, TRUE);
         }
@@ -3365,7 +3365,7 @@ void os_print(const char *str, size_t len)
                 p += 1;
                 rem -= 1;
                 break;
-                
+
             case OSGEN_COLOR:
                 /* skip the extra two bytes */
                 p += 2;
@@ -3387,7 +3387,7 @@ void os_print(const char *str, size_t len)
             /* switch to status mode 2 */
             os_status(2);
         }
-        
+
         /* done */
         break;
     }
@@ -3396,10 +3396,10 @@ void os_print(const char *str, size_t len)
 #ifndef FROBTADS          /* hack - should refactor to avoid need for ifdef */
 void os_flush(void)
 {
-    /* 
+    /*
      *   we don't buffer output ourselves, so there's normally nothing to do
      *   here; but if we're in 'plain' mode, let stdio know about the flush,
-     *   since it might be buffering output on our behalf 
+     *   since it might be buffering output on our behalf
      */
     if (os_f_plain)
         fflush(stdout);
@@ -3518,7 +3518,7 @@ char *ossnxtcmd(char *hst)
  *   Display an input line under construction from the given character
  *   position.  If 'delta_yscroll' is non-null, then we'll scroll the window
  *   vertically if necessary and fill in '*delta_yscroll' with the number of
- *   lines we scrolled by.  
+ *   lines we scrolled by.
  */
 static void ossdsp_str(osgen_win_t *win, int y, int x, int color,
                        char *str, size_t len, int *delta_yscroll)
@@ -3564,7 +3564,7 @@ static void ossdsp_str(osgen_win_t *win, int y, int x, int color,
             /* advance to the next line */
             ++y;
 
-            /* 
+            /*
              *   if this puts us past the bottom of the window, and we're
              *   allowed to scroll the window, do so
              */
@@ -3589,7 +3589,7 @@ static void ossdsp_str(osgen_win_t *win, int y, int x, int color,
 }
 
 /*
- *   Move the cursor left by the number of characters.  
+ *   Move the cursor left by the number of characters.
  */
 static void oss_gets_csrleft(osgen_txtwin_t *win, int *y, int *x, size_t len)
 {
@@ -3608,7 +3608,7 @@ static void oss_gets_csrleft(osgen_txtwin_t *win, int *y, int *x, size_t len)
 }
 
 /*
- *   Move the cursor right by the number of characters.  
+ *   Move the cursor right by the number of characters.
  */
 static void oss_gets_csrright(osgen_txtwin_t *win, int *y, int *x, size_t len)
 {
@@ -3627,7 +3627,7 @@ static void oss_gets_csrright(osgen_txtwin_t *win, int *y, int *x, size_t len)
 }
 
 /*
- *   clear an area of the display formerly occupied by some input text 
+ *   clear an area of the display formerly occupied by some input text
  */
 static void oss_gets_clear(osgen_txtwin_t *win, int y, int x, size_t len)
 {
@@ -3674,13 +3674,13 @@ static void oss_gets_clear(osgen_txtwin_t *win, int y, int x, size_t len)
 }
 
 /*
- *   Delete a character in the buffer, updating the display. 
+ *   Delete a character in the buffer, updating the display.
  */
 static void oss_gets_delchar(osgen_txtwin_t *win,
                              char *buf, char *p, char **eol, int x, int y)
 {
     int color;
-    
+
     /* get the oss color for the current text in the window */
     color = ossgetcolor(win->base.txtfg, win->base.txtbg,
                         win->base.txtattr, win->base.fillcolor);
@@ -3695,7 +3695,7 @@ static void oss_gets_delchar(osgen_txtwin_t *win,
 
         /* null-terminate the shortened buffer */
         **eol = '\0';
-        
+
         /* re-display the changed part of the string */
         ossdsp_str(&win->base, y, x, color, p, *eol - p, 0);
 
@@ -3709,7 +3709,7 @@ static void oss_gets_delchar(osgen_txtwin_t *win,
 
 /*
  *   Backspace in the buffer, updating the display and adjusting the cursor
- *   position. 
+ *   position.
  */
 static void oss_gets_backsp(osgen_txtwin_t *win,
                             char *buf, char **p,
@@ -3729,7 +3729,7 @@ static void oss_gets_backsp(osgen_txtwin_t *win,
 
         /* move our insertion point back one position */
         --*p;
-        
+
         /* the line is now one character shorter */
         --*eol;
 
@@ -3747,9 +3747,9 @@ static void oss_gets_backsp(osgen_txtwin_t *win,
         /* null-terminate the shortened buffer */
         **eol = '\0';
 
-        /* 
+        /*
          *   display the string from the current position, so that we update
-         *   the display for the moved characters 
+         *   the display for the moved characters
          */
         tmpy = *y;
         tmpx = *x;
@@ -3762,7 +3762,7 @@ static void oss_gets_backsp(osgen_txtwin_t *win,
 }
 
 /*
- *   Redraw any command line under construction 
+ *   Redraw any command line under construction
  */
 static void osgen_gets_redraw_cmdline(void)
 {
@@ -3770,9 +3770,9 @@ static void osgen_gets_redraw_cmdline(void)
     int x, y;
     int color;
 
-    /* 
+    /*
      *   get the default window; if we don't have one, or there's no command
-     *   line editing in progress, there's nothing to do 
+     *   line editing in progress, there's nothing to do
      */
     if ((win = S_default_win) == 0 || !S_gets_in_progress)
         return;
@@ -3794,7 +3794,7 @@ static void osgen_gets_redraw_cmdline(void)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   cancel interrupted input 
+ *   cancel interrupted input
  */
 void os_gets_cancel(int reset)
 {
@@ -3807,9 +3807,9 @@ void os_gets_cancel(int reset)
     /* do any deferred redrawing */
     osssb_redraw_if_needed();
 
-    /* 
+    /*
      *   if we interrupted a previous line, apply display effects as though
-     *   the user had pressed return 
+     *   the user had pressed return
      */
     if (S_gets_in_progress)
     {
@@ -3822,17 +3822,17 @@ void os_gets_cancel(int reset)
         x = S_gets_x;
         y = S_gets_y;
         oss_gets_csrright(win, &y, &x, strlen(S_gets_buf + S_gets_ofs));
-        
+
         /* set the cursor to the new position */
         ossloc(y, x);
-        
+
         /* copy the buffer to the screen save buffer, adding a newline */
         ossaddsb_input(win, (char *)S_gets_buf, TRUE);
 
         /* we no longer have an input in progress */
         S_gets_in_progress = FALSE;
     }
-    
+
     /* if we're resetting, clear our saved buffer */
     if (reset)
         S_gets_buf[0] = '\0';
@@ -3841,7 +3841,7 @@ void os_gets_cancel(int reset)
 /* ------------------------------------------------------------------------ */
 /*
  *   Initialize input line editing mode.  Returns true if we can
- *   successfully set up input line editing mode, false if not.  
+ *   successfully set up input line editing mode, false if not.
  */
 int os_gets_begin(size_t max_line_len)
 {
@@ -3881,14 +3881,14 @@ int os_gets_begin(size_t max_line_len)
 
     /*
      *   If we have saved input state from a previous interrupted call,
-     *   restore it now.  Otherwise, initialize everything.  
+     *   restore it now.  Otherwise, initialize everything.
      */
     if (S_gets_buf[0] != '\0' || S_gets_in_progress)
     {
-        /* 
+        /*
          *   if we cancelled the previous input, we must re-display the
          *   buffer under construction, since we have displayed something
-         *   else in between and have re-displayed the prompt 
+         *   else in between and have re-displayed the prompt
          */
         if (!S_gets_in_progress)
         {
@@ -3937,10 +3937,10 @@ int os_gets_begin(size_t max_line_len)
         S_gets_ofs = 0;
     }
 
-    /* 
+    /*
      *   set the buffer end pointer to limit input to the maximum size the
      *   caller has requested, or the maximum size of our internal buffer,
-     *   whichever is smaller 
+     *   whichever is smaller
      */
     if (max_line_len > S_gets_buf_siz)
         S_gets_buf_end = S_gets_buf + S_gets_buf_siz - 1;
@@ -3964,7 +3964,7 @@ int os_gets_begin(size_t max_line_len)
 /*
  *   Process an event in input line editing mode.  Returns true if the user
  *   explicitly ended input line editing by pressing Return or something
- *   similar, false if input line editing mode remains active.  
+ *   similar, false if input line editing mode remains active.
  */
 int os_gets_process(int event_type, os_event_info_t *event_info)
 {
@@ -3986,18 +3986,18 @@ int os_gets_process(int event_type, os_event_info_t *event_info)
     if (event_type == OS_EVT_KEY)
         oss_raw_key_to_cmd(event_info);
 
-    /* 
+    /*
      *   if we're in scrollback mode, run the event through the scrollback
-     *   handler rather than handling it directly 
+     *   handler rather than handling it directly
      */
     if (S_sbmode_win != 0)
     {
         /* run the event through scrollback mode */
         if (osgen_sb_mode(win, event_type, event_info))
         {
-            /* 
+            /*
              *   scrollback mode fully handled the event, so we're done;
-             *   tell the caller we didn't finish command input editing 
+             *   tell the caller we didn't finish command input editing
              */
             return FALSE;
         }
@@ -4024,10 +4024,10 @@ int os_gets_process(int event_type, os_event_info_t *event_info)
     color = ossgetcolor(win->base.txtfg, win->base.txtbg,
                         win->base.txtattr, win->base.fillcolor);
 
-    /* 
+    /*
      *   Check the character we got.  Note that we must interpret certain
      *   control characters explicitly, because os_get_event() returns raw
-     *   keycodes (untranslated into CMD_xxx codes) for control characters.  
+     *   keycodes (untranslated into CMD_xxx codes) for control characters.
      */
     switch(c)
     {
@@ -4035,11 +4035,11 @@ int os_gets_process(int event_type, os_event_info_t *event_info)
         /* backspace one character */
         oss_gets_backsp(win, buf, &p, &eol, &x, &y);
         break;
-        
+
     case 13:
         /* Return/Enter key - we're done.  Null-terminate the input. */
         *eol = '\0';
-        
+
         /* move to the end of the line */
         oss_gets_csrright(win, &y, &x, eol - p);
         p = eol;
@@ -4049,18 +4049,18 @@ int os_gets_process(int event_type, os_event_info_t *event_info)
          *   Save the line in our history buffer.  If we don't have enough
          *   room, lose some old text by advancing the tail pointer far
          *   enough.  Don't save it if it's a blank line, though, or if it
-         *   duplicates the most recent previous command.  
+         *   duplicates the most recent previous command.
          */
         if (strlen(buf) != 0)
         {
             char *q;
             int advtail;
             int saveflag = 1;                /* assume we will be saving it */
-            
+
             if ((q = ossprvcmd(histhead)) != 0)
             {
                 char *p = buf;
-                
+
                 while (*p == *q && *p != '\0' && *q != '\0')
                 {
                     ++p;
@@ -4087,7 +4087,7 @@ int os_gets_process(int event_type, os_event_info_t *event_info)
                  *   If we have encroached on space that was already
                  *   occupied, throw away the entire command we have
                  *   partially trashed; to do so, advance the tail pointer
-                 *   to the next null byte.  
+                 *   to the next null byte.
                  */
                 if (advtail)
                 {
@@ -4105,9 +4105,9 @@ int os_gets_process(int event_type, os_event_info_t *event_info)
         /* done with the special cursor position */
         S_special_cursor_pos = FALSE;
 
-        /* 
+        /*
          *   immediately scroll the window if necessary, and make sure the
-         *   cursor is showing at the right location 
+         *   cursor is showing at the right location
          */
         osgen_auto_vscroll(win);
         osssb_cursor_to_default_pos();
@@ -4150,7 +4150,7 @@ int os_gets_process(int event_type, os_event_info_t *event_info)
              *   Move back one word.  This moves the cursor back a
              *   character, then seeks back until we're on a non-space
              *   character, then seeks back until we're on a character
-             *   preceded by a space character.  
+             *   preceded by a space character.
              */
             if (p > buf)
             {
@@ -4165,9 +4165,9 @@ int os_gets_process(int event_type, os_event_info_t *event_info)
                     oss_gets_csrleft(win, &y, &x, 1);
                 }
 
-                /* 
+                /*
                  *   back up again until we're on a character preceded by a
-                 *   space character 
+                 *   space character
                  */
                 while (p > buf && !t_isspace(*(p-1)))
                 {
@@ -4192,7 +4192,7 @@ int os_gets_process(int event_type, os_event_info_t *event_info)
              *   we're on a space character, then moves the cursor right
              *   again until we're on a non-space character.  First, move
              *   right until we're between words (i.e., until we're on a
-             *   space character).  
+             *   space character).
              */
             while (p < eol && !t_isspace(*p))
             {
@@ -4213,7 +4213,7 @@ int os_gets_process(int event_type, os_event_info_t *event_info)
             oss_gets_delchar(win, buf, p, &eol, x, y);
             break;
 
-#ifdef UNIX               
+#ifdef UNIX
         case CMD_WORDKILL:
             {
                 /* remove spaces preceding word */
@@ -4237,7 +4237,7 @@ int os_gets_process(int event_type, os_event_info_t *event_info)
             /*
              *   Home, Kill (delete entire line), History Up, History Down -
              *   what these all have in common is that we move to the start
-             *   of the line before doing anything else.  
+             *   of the line before doing anything else.
              */
 
             /* if 'up', make sure we have more history to traverse */
@@ -4248,12 +4248,12 @@ int os_gets_process(int event_type, os_event_info_t *event_info)
             if (c == CMD_DOWN && !ossnxtcmd(S_gets_curhist))
                 break;
 
-            /* 
+            /*
              *   if this is the first 'up', save the current buffer, so that
              *   we can reinstate it if we traverse back 'down' until we're
              *   back at the original buffer (the active buffer essentially
              *   becomes a temporary history entry that we can recover by
-             *   history-scrolling back down to it) 
+             *   history-scrolling back down to it)
              */
                 if (c == CMD_UP && !ossnxtcmd(S_gets_curhist))
                     safe_strcpy(S_hist_sav, S_hist_sav_siz, buf);
@@ -4277,7 +4277,7 @@ int os_gets_process(int event_type, os_event_info_t *event_info)
                 /*
                  *   We're at the start of the line now; fall through for
                  *   KILL, UP, and DOWN to the code which deletes to the end
-                 *   of the line.  
+                 *   of the line.
                  */
 
         case CMD_DEOL:
@@ -4384,7 +4384,7 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
 {
     long end_time;
     osgen_txtwin_t *win;
-    
+
     /* if we're in 'plain' mode, simply use stdio input */
     if (os_f_plain)
     {
@@ -4397,10 +4397,10 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
         if (use_timeout)
             return OS_EVT_NOTIMEOUT;
 
-        /* 
+        /*
          *   get input from stdio, and translate the result code - if gets()
          *   returns null, it indicates an error of some kind, so return an
-         *   end-of-file indication 
+         *   end-of-file indication
          */
         if (fgets((char *)buf, bufl, stdin) == 0)
             return OS_EVT_EOF;
@@ -4421,10 +4421,10 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
      *   timeout expires.  This is simply the current system clock time plus
      *   the timeout interval.  Since we might need to process a series of
      *   events, we'll need to know how much time remains at each point we
-     *   get a new event.  
+     *   get a new event.
      */
     end_time = os_get_sys_clock_ms() + timeout;
-    
+
     /* use the default window for input */
     if ((win = S_default_win) == 0)
         return OS_EVT_EOF;
@@ -4434,7 +4434,7 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
     {
         int event_type;
         os_event_info_t event_info;
-        
+
         /* if we're using a timeout, check for expiration */
         if (use_timeout)
         {
@@ -4443,9 +4443,9 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
             /* note the current system clock time */
             cur_clock = os_get_sys_clock_ms();
 
-            /* 
+            /*
              *   if we're past the timeout expiration time already,
-             *   interrupt with timeout now 
+             *   interrupt with timeout now
              */
             if (cur_clock >= end_time)
                 goto timeout_expired;
@@ -4453,7 +4453,7 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
             /* note the interval remaining to the timeout expiration */
             timeout = end_time - cur_clock;
         }
-        
+
         /* move to the proper position on the screen before pausing */
         if (S_sbmode_win != 0)
             ossloc(S_sbmode_win->base.winy, S_sbmode_win->base.winx);
@@ -4475,7 +4475,7 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
             return OS_EVT_TIMEOUT;
 
         case OS_EVT_NOTIMEOUT:
-            /* 
+            /*
              *   we can't handle events with timeouts, so we can't provide
              *   line reading with timeouts, either
              */
@@ -4492,10 +4492,10 @@ int os_gets_timeout(unsigned char *buf, size_t bufl,
             /* process anything else through the input line editor */
             if (os_gets_process(event_type, &event_info))
             {
-                /* 
+                /*
                  *   Copy the result to the caller's buffer.  Note that we
                  *   know the result will fit, because we always limit the
-                 *   editing process to the caller's buffer size.  
+                 *   editing process to the caller's buffer size.
                  */
                 strcpy((char *)buf, S_gets_buf);
 
@@ -4551,14 +4551,14 @@ uchar *os_gets(unsigned char *buf, size_t bufl)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Highlighting and colors 
+ *   Highlighting and colors
  */
 
 #ifdef STD_OS_HILITE
 
 #ifdef RUNTIME
 /*
- *   Set text attributes 
+ *   Set text attributes
  */
 void os_set_text_attr(int attr)
 {
@@ -4568,9 +4568,9 @@ void os_set_text_attr(int attr)
     if ((win = S_default_win) == 0)
         return;
 
-    /* 
+    /*
      *   if the attributes are different from the old attributes, add an
-     *   attribute-change sequence to the display buffer 
+     *   attribute-change sequence to the display buffer
      */
     if (attr != win->base.txtattr)
     {
@@ -4584,7 +4584,7 @@ void os_set_text_attr(int attr)
 }
 
 /*
- *   Translate a color from the os_color_t encoding to an OSGEN_xxx color.  
+ *   Translate a color from the os_color_t encoding to an OSGEN_xxx color.
  */
 static char osgen_xlat_color_t(os_color_t color)
 {
@@ -4621,11 +4621,11 @@ static char osgen_xlat_color_t(os_color_t color)
     unsigned char r, g, b;
     unsigned long best_dist;
 
-    /* 
+    /*
      *   If it's parameterized, map it by shifting the parameter code (in
      *   the high-order 8 bits of the os_color_t) to our single-byte code,
      *   which is defined as exactly the same code as the os_color_t values
-     *   but shifted into the low-order 8 bits.  
+     *   but shifted into the low-order 8 bits.
      */
     if (os_color_is_param(color))
         return (char)((color >> 24) & 0xFF);
@@ -4668,11 +4668,11 @@ static char osgen_xlat_color_t(os_color_t color)
 
 /*
  *   Set the text colors.
- *   
+ *
  *   The foreground and background colors apply to subsequent characters
  *   displayed via os_print().  If the background color is set to zero, it
  *   indicates "transparent" drawing: subsequent text is displayed with the
- *   "screen" color.  
+ *   "screen" color.
  */
 void os_set_text_color(os_color_t fg, os_color_t bg)
 {
@@ -4690,7 +4690,7 @@ void os_set_text_color(os_color_t fg, os_color_t bg)
 }
 
 /*
- *   Set the screen color 
+ *   Set the screen color
  */
 void os_set_screen_color(os_color_t color)
 {
@@ -4711,11 +4711,11 @@ void os_set_screen_color(os_color_t color)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Banners 
+ *   Banners
  */
 
 /*
- *   create a banner window 
+ *   create a banner window
  */
 void *os_banner_create(void *parent, int where, void *other, int wintype,
                        int align, int siz, int siz_units, unsigned long style)
@@ -4734,11 +4734,11 @@ void *os_banner_create(void *parent, int where, void *other, int wintype,
     switch(wintype)
     {
     case OS_BANNER_TYPE_TEXT:
-        /* 
+        /*
          *   Create a text window.  We don't support scrollback in the UI in
          *   banner windows, so we only need enough for what's on the screen
          *   for redrawing.  Overallocate by a bit, though, to be safe in
-         *   case the screen grows later.  
+         *   case the screen grows later.
          */
         win = (osgen_win_t *)osgen_create_txtwin(where, other, parent,
             G_oss_screen_height * G_oss_screen_width * 2,
@@ -4751,7 +4751,7 @@ void *os_banner_create(void *parent, int where, void *other, int wintype,
          *   current screen width; we'll automatically expand this
          *   allocation as needed later, so this size doesn't have to be a
          *   perfect guess; but the closer we get the better, as it's more
-         *   efficient to avoid reallocating if possible.  
+         *   efficient to avoid reallocating if possible.
          */
         win = (osgen_win_t *)osgen_create_gridwin(where, other, parent,
             G_oss_screen_width, 10);
@@ -4761,7 +4761,7 @@ void *os_banner_create(void *parent, int where, void *other, int wintype,
         /* unsupported type - return failure */
         return 0;
     }
-    
+
     /* if that failed, return null */
     if (win == 0)
         return 0;
@@ -4771,7 +4771,7 @@ void *os_banner_create(void *parent, int where, void *other, int wintype,
 
     /*
      *   Start out width a zero size in the settable dimension, and the
-     *   current main text area size in the constrained dimension. 
+     *   current main text area size in the constrained dimension.
      */
     if (align == OS_BANNER_ALIGN_LEFT || align == OS_BANNER_ALIGN_RIGHT)
     {
@@ -4792,9 +4792,9 @@ void *os_banner_create(void *parent, int where, void *other, int wintype,
     if ((style & OS_BANNER_STYLE_AUTO_VSCROLL) != 0)
         win->flags |= OSGEN_AUTO_VSCROLL;
 
-    /* 
+    /*
      *   Note the MORE mode style, if specified.  MORE mode implies
-     *   auto-vscroll, so add that style as well if MORE mode is requested.  
+     *   auto-vscroll, so add that style as well if MORE mode is requested.
      */
     if ((style & OS_BANNER_STYLE_MOREMODE) != 0)
         win->flags |= OSGEN_AUTO_VSCROLL | OSGEN_MOREMODE;
@@ -4809,10 +4809,10 @@ void *os_banner_create(void *parent, int where, void *other, int wintype,
     win->size = siz;
     win->size_type = siz_units;
 
-    /* 
+    /*
      *   if the window has a non-zero size, recalculate the layout; if the
      *   size is zero, we don't have to bother, since the layout won't affect
-     *   anything on the display 
+     *   anything on the display
      */
     if (siz != 0)
         osgen_recalc_layout();
@@ -4822,7 +4822,7 @@ void *os_banner_create(void *parent, int where, void *other, int wintype,
 }
 
 /*
- *   delete a banner 
+ *   delete a banner
  */
 void os_banner_delete(void *banner_handle)
 {
@@ -4836,7 +4836,7 @@ void os_banner_delete(void *banner_handle)
 }
 
 /*
- *   orphan a banner - treat this exactly like delete 
+ *   orphan a banner - treat this exactly like delete
  */
 void os_banner_orphan(void *banner_handle)
 {
@@ -4844,7 +4844,7 @@ void os_banner_orphan(void *banner_handle)
 }
 
 /*
- *   get information on the banner 
+ *   get information on the banner
  */
 int os_banner_getinfo(void *banner_handle, os_banner_info_t *info)
 {
@@ -4872,7 +4872,7 @@ int os_banner_getinfo(void *banner_handle, os_banner_info_t *info)
     info->pix_width = 0;
     info->pix_height = 0;
 
-    /* 
+    /*
      *   We are designed for fixed-pitch character-mode displays only, so we
      *   support <TAB> alignment by virtue of our fixed pitch.
      */
@@ -4886,7 +4886,7 @@ int os_banner_getinfo(void *banner_handle, os_banner_info_t *info)
 }
 
 /*
- *   clear the contents of a banner 
+ *   clear the contents of a banner
  */
 void os_banner_clear(void *banner_handle)
 {
@@ -4897,7 +4897,7 @@ void os_banner_clear(void *banner_handle)
 }
 
 /*
- *   display text in a banner 
+ *   display text in a banner
  */
 void os_banner_disp(void *banner_handle, const char *txt, size_t len)
 {
@@ -4919,7 +4919,7 @@ void os_banner_disp(void *banner_handle, const char *txt, size_t len)
 }
 
 /*
- *   set the text attributes in a banner 
+ *   set the text attributes in a banner
  */
 void os_banner_set_attr(void *banner_handle, int attr)
 {
@@ -4974,7 +4974,7 @@ void os_banner_set_color(void *banner_handle, os_color_t fg, os_color_t bg)
 }
 
 /*
- *   set the window color in a banner 
+ *   set the window color in a banner
  */
 void os_banner_set_screen_color(void *banner_handle, os_color_t color)
 {
@@ -4990,7 +4990,7 @@ void os_banner_set_screen_color(void *banner_handle, os_color_t color)
 }
 
 /*
- *   flush text in a banner 
+ *   flush text in a banner
  */
 void os_banner_flush(void *banner_handle)
 {
@@ -5001,7 +5001,7 @@ void os_banner_flush(void *banner_handle)
 }
 
 /*
- *   set the size 
+ *   set the size
  */
 void os_banner_set_size(void *banner_handle, int siz, int siz_units,
                         int is_advisory)
@@ -5012,9 +5012,9 @@ void os_banner_set_size(void *banner_handle, int siz, int siz_units,
     if (win->size == siz && win->size_type == siz_units)
         return;
 
-    /* 
+    /*
      *   if the size is only advisory, ignore it, since we do implement
-     *   size-to-contents 
+     *   size-to-contents
      */
     if (is_advisory)
         return;
@@ -5034,7 +5034,7 @@ static size_t oss_get_content_height(osgen_win_t *win)
 {
     size_t y;
     osgen_win_t *chi;
-    
+
     /* start with our own maximum 'y' size */
     y = win->ymax + 1;
 
@@ -5047,10 +5047,10 @@ static size_t oss_get_content_height(osgen_win_t *win)
             /* calculate the child height */
             size_t chi_y = oss_get_content_height(chi);
 
-            /* 
+            /*
              *   if the child is horizontal, add its height to the parent's;
              *   otherwise, it shares the same height, so use the larger of
-             *   the parent's natural height or the child's natural height 
+             *   the parent's natural height or the child's natural height
              */
             if (chi->alignment == OS_BANNER_ALIGN_TOP
                 || chi->alignment == OS_BANNER_ALIGN_BOTTOM)
@@ -5072,13 +5072,13 @@ static size_t oss_get_content_height(osgen_win_t *win)
 }
 
 /*
- *   calculate the content width, for os_banner_size_to_contents() 
+ *   calculate the content width, for os_banner_size_to_contents()
  */
 static size_t oss_get_content_width(osgen_win_t *win)
 {
     size_t x;
     osgen_win_t *chi;
-    
+
     /* start with the maximum 'x' size we've seen in the window */
     x = win->xmax + 1;
 
@@ -5091,10 +5091,10 @@ static size_t oss_get_content_width(osgen_win_t *win)
             /* calculate the child width */
             size_t chi_x = oss_get_content_width(chi);
 
-            /* 
+            /*
              *   if the child is vertical, add its width to the parent's;
              *   otherwise, it shares the same width, so use the larger of
-             *   the parent's natural width or the child's natural width 
+             *   the parent's natural width or the child's natural width
              */
             if (chi->alignment == OS_BANNER_ALIGN_LEFT
                 || chi->alignment == OS_BANNER_ALIGN_RIGHT)
@@ -5116,7 +5116,7 @@ static size_t oss_get_content_width(osgen_win_t *win)
 }
 
 /*
- *   size a banner to its contents 
+ *   size a banner to its contents
  */
 void os_banner_size_to_contents(void *banner_handle)
 {
@@ -5131,9 +5131,9 @@ void os_banner_size_to_contents(void *banner_handle)
         /* calculate the new height */
         newy = oss_get_content_height(win);
 
-        /* 
+        /*
          *   if this is the same as the current height, there's no need to
-         *   redraw anything 
+         *   redraw anything
          */
         if (win->ht == newy)
             return;
@@ -5163,7 +5163,7 @@ void os_banner_size_to_contents(void *banner_handle)
 }
 
 /*
- *   get the width, in characters, of the banner window 
+ *   get the width, in characters, of the banner window
  */
 int os_banner_get_charwidth(void *banner_handle)
 {
@@ -5172,7 +5172,7 @@ int os_banner_get_charwidth(void *banner_handle)
 }
 
 /*
- *   get the height, in characters, of the banner window 
+ *   get the height, in characters, of the banner window
  */
 int os_banner_get_charheight(void *banner_handle)
 {
@@ -5181,7 +5181,7 @@ int os_banner_get_charheight(void *banner_handle)
 }
 
 /*
- *   start HTML mode in a banner 
+ *   start HTML mode in a banner
  */
 void os_banner_start_html(void *banner_handle)
 {
@@ -5189,7 +5189,7 @@ void os_banner_start_html(void *banner_handle)
 }
 
 /*
- *   end HTML mode in a banner 
+ *   end HTML mode in a banner
  */
 void os_banner_end_html(void *banner_handle)
 {
@@ -5197,7 +5197,7 @@ void os_banner_end_html(void *banner_handle)
 }
 
 /*
- *   set the output position in a text grid window 
+ *   set the output position in a text grid window
  */
 void os_banner_goto(void *banner_handle, int row, int col)
 {
@@ -5213,9 +5213,9 @@ void os_banner_goto(void *banner_handle, int row, int col)
         break;
 
     default:
-        /* 
+        /*
          *   this operation is meaningless with other window types - simply
-         *   ignore it 
+         *   ignore it
          */
         break;
     }
@@ -5223,7 +5223,7 @@ void os_banner_goto(void *banner_handle, int row, int col)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Non-RUNTIME version 
+ *   Non-RUNTIME version
  */
 #else /* RUNTIME */
 
@@ -5243,7 +5243,7 @@ void os_set_screen_color(os_color_t color)
 }
 
 /*
- *   Banners aren't supported in plain mode 
+ *   Banners aren't supported in plain mode
  */
 
 void *os_banner_create(void *parent, int where, void *other, int wintype,
@@ -5321,7 +5321,7 @@ void os_banner_goto(void *banner_handle, int row, int col)
 #endif /* STD_OS_HILITE */
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   clear the screen, deleting all scrollback information
  */
 #ifdef STD_OSCLS
@@ -5347,7 +5347,7 @@ void oscls(void)
  *   pertain to HTML features.  Note that new sysinfo codes may be added
  *   in the future which may be relevant to non-html versions, so the
  *   sysinfo codes should be checked from time to time to ensure that new
- *   codes relevant to this system version are handled correctly here.  
+ *   codes relevant to this system version are handled correctly here.
  */
 int os_get_sysinfo(int code, void *param, long *result)
 {
@@ -5386,9 +5386,9 @@ int os_get_sysinfo(int code, void *param, long *result)
     case SYSINFO_MNG:
     case SYSINFO_MNG_TRANS:
     case SYSINFO_MNG_ALPHA:
-        /* 
+        /*
          *   we don't support any of these features - set the result to 0
-         *   to indicate this 
+         *   to indicate this
          */
         *result = 0;
 
@@ -5403,9 +5403,9 @@ int os_get_sysinfo(int code, void *param, long *result)
 #ifdef RUNTIME
 
     case SYSINFO_BANNERS:
-        /* 
+        /*
          *   we support the os_banner_xxx() interfaces, as long as we're not
-         *   in "plain" mode 
+         *   in "plain" mode
          */
         *result = !os_f_plain;
         return TRUE;
@@ -5424,13 +5424,13 @@ int os_get_sysinfo(int code, void *param, long *result)
  *   anything with this information, and in fact most platforms won't even
  *   have a way of letting the game author set the saved game extension,
  *   so this trivial implementation is suitable for most systems.
- *   
+ *
  *   The purpose of setting a saved game extension is to support platforms
  *   (such as Windows) where the filename suffix is used to associate
  *   document files with applications.  Each stand-alone executable
  *   generated on such platforms must have a unique saved game extension,
  *   so that the system can associate each game's saved position files
- *   with that game's executable.  
+ *   with that game's executable.
  */
 void os_set_save_ext(const char *ext)
 {
@@ -5447,7 +5447,7 @@ const char *os_get_save_ext()
 /*
  *   Set the game title.  Most platforms have no use for this information,
  *   so they'll just ignore it.  This trivial implementation simply
- *   ignores the title. 
+ *   ignores the title.
  */
 #ifdef USE_NULL_SET_TITLE
 

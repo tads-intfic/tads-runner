@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmanonfn.cpp - anonymous function metaclass
 Function
-  
+
 Notes
-  
+
 Modified
   03/21/00 MJRoberts  - Creation
 */
@@ -32,7 +32,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Statics 
+ *   Statics
  */
 /* metaclass registration object */
 static CVmMetaclassAnonFn metaclass_reg_obj;
@@ -50,7 +50,7 @@ vm_obj_id_t CVmObjAnonFn::create_from_stack(VMG_ const uchar **pc_ptr,
     vm_val_t funcptr;
     CVmObjAnonFn *new_obj;
     uint idx;
-    
+
     /* at least one argument is required (the function pointer) */
     if (argc < 1)
         err_throw(VMERR_WRONG_NUM_OF_ARGS);
@@ -85,7 +85,7 @@ vm_obj_id_t CVmObjAnonFn::create_from_stack(VMG_ const uchar **pc_ptr,
     for (idx = 1 ; idx < argc ; ++idx)
     {
         vm_val_t val;
-        
+
         /* pop this value */
         G_stk->pop(&val);
 
@@ -98,7 +98,7 @@ vm_obj_id_t CVmObjAnonFn::create_from_stack(VMG_ const uchar **pc_ptr,
 }
 
 /*
- *   Invoke 
+ *   Invoke
  */
 int CVmObjAnonFn::get_invoker(VMG_ vm_val_t *val)
 {

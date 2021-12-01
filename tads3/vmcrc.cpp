@@ -3,17 +3,17 @@
 Name
   vmcrc.cpp - CRC-32 calculator
 Function
-  
+
 Notes
-  
+
 Modified
   06/21/03 MJRoberts  - Creation
 */
 
 #include "vmcrc.h"
 
-/* 
- *   add the given buffer into the checksum 
+/*
+ *   add the given buffer into the checksum
  */
 void CVmCRC32::scan_bytes(const void *ptr, size_t len)
 {

@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 2012 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmfilnam.cpp - CVmObjFileName object
 Function
-  
+
 Notes
-  
+
 Modified
   03/03/12 MJRoberts  - Creation
 */
@@ -48,12 +48,12 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Allocate an extension structure 
+ *   Allocate an extension structure
  */
 vm_filnam_ext *vm_filnam_ext::alloc_ext(
     VMG_ CVmObjFileName *self, int32_t sfid, const char *str, size_t len)
 {
-    /* 
+    /*
      *   Calculate how much space we need - we need space for the name string
      *   plus its length prefix; store the name string with a null terminator
      *   for convenience in calling osifc routines.
@@ -85,7 +85,7 @@ vm_filnam_ext *vm_filnam_ext::alloc_ext(
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjFileName object statics 
+ *   CVmObjFileName object statics
  */
 
 /* metaclass registration object */
@@ -161,9 +161,9 @@ static void nf_canonicalize(char *path)
         }
         else if (strcmp(ele[src], "..") == 0)
         {
-            /* 
+            /*
              *   '..' - cancel against the previous element if there is one
-             *   and it's not '..', otherwise keep it 
+             *   and it's not '..', otherwise keep it
              */
             if (dst > 0 && strcmp(ele[dst-1], "..") != 0)
                 --dst, ++src;
@@ -206,7 +206,7 @@ static void fn_build_full_path(
 {
     if (CVmNetFile::is_net_mode(vmg0_))
     {
-        /* 
+        /*
          *   Network storage mode - use Unix rules.  First, if the filename
          *   is in absolute format already, use it unchanged.  If not, append
          *   the filename to the directory, adding a '/' between the two if
@@ -247,10 +247,10 @@ static const char *fn_get_root_name(VMG_ const char *str)
 {
     if (CVmNetFile::is_net_mode(vmg0_))
     {
-        /* 
+        /*
          *   network storage mode - use Unix rules, so simply find the
          *   rightmost '/' and return the portion after it (or the whole
-         *   name, if there's no '/') 
+         *   name, if there's no '/')
          */
         const char *r = strrchr(str, '/');
         return r != 0 ? r + 1 : str;
@@ -267,7 +267,7 @@ static void fn_get_path_name(VMG_ char *buf, size_t buflen, const char *str)
 {
     if (CVmNetFile::is_net_mode(vmg0_))
     {
-        /* 
+        /*
          *   Network storage mode - use Unix rules, so simply find the
          *   rightmost '/' and return the portion before it (or an empty
          *   string, if there's no '/').  If the right most '/' is the first
@@ -325,7 +325,7 @@ static int fn_get_abs_filename(VMG_ char *buf, size_t buflen, const char *str)
 {
     if (CVmNetFile::is_net_mode(vmg0_))
     {
-        /* 
+        /*
          *   network storage mode - the storage server doesn't have such a
          *   thing as an absolute path; all paths are relative to the game's
          *   sandbox folder
@@ -373,7 +373,7 @@ static void fn_cvt_url_dir(VMG_ char *buf, size_t buflen, const char *str)
 {
     if (CVmNetFile::is_net_mode(vmg0_))
     {
-        /* 
+        /*
          *   network storage mode - the universal and local notation are the
          *   same, since the storage server uses unix-style syntax
          */
@@ -406,9 +406,9 @@ static int fn_file_names_equal(VMG_ const char *a, const char *b)
 {
     if (CVmNetFile::is_net_mode(vmg0_))
     {
-        /* 
+        /*
          *   network storage mode - compare using Unix rules; this is a
-         *   simple case-sensitive string comparison 
+         *   simple case-sensitive string comparison
          */
         return strcmp(a, b) == 0;
     }
@@ -422,7 +422,7 @@ static int fn_file_names_equal(VMG_ const char *a, const char *b)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   CVmObjFileName intrinsic class implementation 
+ *   CVmObjFileName intrinsic class implementation
  */
 
 /*
@@ -469,7 +469,7 @@ vm_obj_id_t CVmObjFileName::combine_path(
     VMG_ const char *path, size_t pathl, const char *file, size_t filel,
     int literal)
 {
-    /* 
+    /*
      *   Estimate the space we'll need for the combined result.  This is just
      *   the sum of the two sizes on most systems, plus a path separator.  On
      *   some older systems this might add a bit more overhead, such as VMS
@@ -511,7 +511,7 @@ vm_obj_id_t CVmObjFileName::combine_path(
 
 /*
  *   Convert a string from URL to local filename notation.  Allocates the
- *   result string; the caller must free the string with lib_free_str(). 
+ *   result string; the caller must free the string with lib_free_str().
  */
 char *CVmObjFileName::url_to_local(
     VMG_ const char *str, size_t len, int nullterm)
@@ -519,7 +519,7 @@ char *CVmObjFileName::url_to_local(
     char *strz = 0, *buf = 0;
     err_try
     {
-        /* 
+        /*
          *   Estimate the length of the return string we'll need.  Most
          *   systems these days have Unix-like file naming, where the result
          *   path will be the same length as the source path.  There are
@@ -532,14 +532,14 @@ char *CVmObjFileName::url_to_local(
         size_t buflen = len + 32;
         if (buflen < OSFNMAX)
             buflen = OSFNMAX;
-        
+
         /* make a null-terminated copy of the string if necessary */
         if (!nullterm)
             strz = lib_copy_str(str, len);
-        
+
         /* allocate a conversion buffer */
         buf = lib_alloc_str(buflen);
-        
+
         /* convert the name */
         fn_cvt_url_dir(vmg_ buf, buflen, nullterm ? str : strz);
     }
@@ -555,13 +555,13 @@ char *CVmObjFileName::url_to_local(
         lib_free_str(strz);
     }
     err_end;
-    
+
     /* return the buffer */
     return buf;
 }
 
 /*
- *   create dynamically using stack arguments 
+ *   create dynamically using stack arguments
  */
 vm_obj_id_t CVmObjFileName::create_from_stack(
     VMG_ const uchar **pc_ptr, uint argc)
@@ -618,7 +618,7 @@ vm_obj_id_t CVmObjFileName::create_from_stack(
 }
 
 /*
- *   create from URL notation 
+ *   create from URL notation
  */
 vm_obj_id_t CVmObjFileName::create_from_url(VMG_ const char *str, size_t len)
 {
@@ -644,7 +644,7 @@ vm_obj_id_t CVmObjFileName::create_from_url(VMG_ const char *str, size_t len)
 }
 
 /*
- *   create from a local path string 
+ *   create from a local path string
  */
 vm_obj_id_t CVmObjFileName::create_from_local(VMG_ const char *str, size_t len)
 {
@@ -659,7 +659,7 @@ vm_obj_id_t CVmObjFileName::create_from_local(VMG_ const char *str, size_t len)
 }
 
 /*
- *   create from a special file ID 
+ *   create from a special file ID
  */
 vm_obj_id_t CVmObjFileName::create_from_sfid(VMG_ int32_t sfid,
                                              const char *str, size_t len)
@@ -675,8 +675,8 @@ vm_obj_id_t CVmObjFileName::create_from_sfid(VMG_ int32_t sfid,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   notify of deletion 
+/*
+ *   notify of deletion
  */
 void CVmObjFileName::notify_delete(VMG_ int /*in_root_set*/)
 {
@@ -686,8 +686,8 @@ void CVmObjFileName::notify_delete(VMG_ int /*in_root_set*/)
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   set a property 
+/*
+ *   set a property
  */
 void CVmObjFileName::set_prop(VMG_ class CVmUndo *undo,
                               vm_obj_id_t self, vm_prop_id_t prop,
@@ -698,8 +698,8 @@ void CVmObjFileName::set_prop(VMG_ class CVmUndo *undo,
 }
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   get a property 
+/*
+ *   get a property
  */
 int CVmObjFileName::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
                              vm_obj_id_t self, vm_obj_id_t *source_obj,
@@ -708,20 +708,20 @@ int CVmObjFileName::get_prop(VMG_ vm_prop_id_t prop, vm_val_t *retval,
     /* translate the property into a function vector index */
     uint func_idx = G_meta_table->prop_to_vector_idx(
         metaclass_reg_->get_reg_idx(), prop);
-    
+
     /* call the appropriate function */
     if ((this->*func_table_[func_idx])(vmg_ self, retval, argc))
     {
         *source_obj = metaclass_reg_->get_class_obj(vmg0_);
         return TRUE;
     }
-    
+
     /* inherit default handling from our base class */
     return CVmObject::get_prop(vmg_ prop, retval, self, source_obj, argc);
 }
 
-/* 
- *   call a static property 
+/*
+ *   call a static property
  */
 int CVmObjFileName::call_stat_prop(VMG_ vm_val_t *result,
                                    const uchar **pc_ptr, uint *argc,
@@ -747,8 +747,8 @@ int CVmObjFileName::call_stat_prop(VMG_ vm_val_t *result,
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   load from an image file 
+/*
+ *   load from an image file
  */
 void CVmObjFileName::load_from_image(VMG_ vm_obj_id_t self,
                                      const char *ptr, size_t siz)
@@ -756,15 +756,15 @@ void CVmObjFileName::load_from_image(VMG_ vm_obj_id_t self,
     /* load our image data */
     load_image_data(vmg_ ptr, siz);
 
-    /* 
+    /*
      *   save our image data pointer in the object table, so that we can
-     *   access it (without storing it ourselves) during a reload 
+     *   access it (without storing it ourselves) during a reload
      */
     G_obj_table->save_image_pointer(self, ptr, siz);
 }
 
 /*
- *   reload from the image file 
+ *   reload from the image file
  */
 void CVmObjFileName::reload_from_image(VMG_ vm_obj_id_t self,
                                        const char *ptr, size_t siz)
@@ -774,7 +774,7 @@ void CVmObjFileName::reload_from_image(VMG_ vm_obj_id_t self,
 }
 
 /*
- *   load or reload data from the image 
+ *   load or reload data from the image
  */
 void CVmObjFileName::load_image_data(VMG_ const char *ptr, size_t siz)
 {
@@ -828,8 +828,8 @@ void CVmObjFileName::load_image_data(VMG_ const char *ptr, size_t siz)
 
 
 /* ------------------------------------------------------------------------ */
-/* 
- *   save to a file 
+/*
+ *   save to a file
  */
 void CVmObjFileName::save_to_file(VMG_ class CVmFile *fp)
 {
@@ -857,8 +857,8 @@ void CVmObjFileName::save_to_file(VMG_ class CVmFile *fp)
     }
 }
 
-/* 
- *   restore from a file 
+/*
+ *   restore from a file
  */
 void CVmObjFileName::restore_from_file(VMG_ vm_obj_id_t self,
                                        CVmFile *fp, CVmObjFixup *fixups)
@@ -891,15 +891,15 @@ void CVmObjFileName::restore_from_file(VMG_ vm_obj_id_t self,
         {
             /* read the filename length */
             size_t len = fp->read_uint2();
-            
+
             /* load the saved universal path */
             uni = lib_alloc_str(len + 1);
             fp->read_bytes(uni, len);
             uni[len] = '\0';
-            
+
             /* convert the saved universal path to local notation */
             lcl = url_to_local(vmg_ uni, len, TRUE);
-        
+
             /* allocate the extension structure */
             ext = vm_filnam_ext::alloc_ext(vmg_ this, 0, lcl, strlen(lcl));
         }
@@ -940,7 +940,7 @@ const char *CVmObjFileName::get_path_string() const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Compare filenames by the path strings 
+ *   Compare filenames by the path strings
  */
 int CVmObjFileName::equals(VMG_ vm_obj_id_t self, const vm_val_t *val,
                            int /*depth*/) const
@@ -962,7 +962,7 @@ int CVmObjFileName::equals(VMG_ vm_obj_id_t self, const vm_val_t *val,
         {
             /* make a null-terminated copy of the other name */
             strz = lib_copy_str(str + VMB_LEN, vmb_get_len(str));
-            
+
             /* compare the names */
             eq = fn_file_names_equal(vmg_ get_ext()->get_str(), strz);
         }
@@ -984,14 +984,14 @@ int CVmObjFileName::equals(VMG_ vm_obj_id_t self, const vm_val_t *val,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Add a value - this appends a path element 
+ *   Add a value - this appends a path element
  */
 int CVmObjFileName::add_val(VMG_ vm_val_t *result,
                             vm_obj_id_t self, const vm_val_t *val)
 {
-    /* 
+    /*
      *   get the other value's path - this can come from a FileName object or
-     *   a string 
+     *   a string
      */
     const char *other = get_local_path(vmg_ val);
     if (other == 0)
@@ -1045,7 +1045,7 @@ char *CVmObjFileName::to_universal(VMG0_) const
     const char *fname = get_ext()->get_str();
     size_t fnamel = get_ext()->get_len();
 
-    /* 
+    /*
      *   estimate the result size - the URL string should be about the same
      *   length as the source string, but leave a little extra space just in
      *   case we have to add some path separators that are implied in the
@@ -1057,7 +1057,7 @@ char *CVmObjFileName::to_universal(VMG0_) const
 
     /* allocate buffer */
     char *buf = lib_alloc_str(buflen);
-    
+
     /* do the conversion */
     fn_cvt_dir_url(vmg_ buf, buflen, fname);
 
@@ -1146,7 +1146,7 @@ int CVmObjFileName::getp_getRootName(VMG_ vm_obj_id_t self,
 
     /* extract the root name from our filename string */
     const char *r = fn_get_root_name(vmg_ get_ext()->get_str());
-    
+
     /* if we found a root name, return it as a string */
     if (r != 0 && r[0] != '\0')
         retval->set_obj(CVmObjString::create(vmg_ FALSE, r, strlen(r)));
@@ -1180,7 +1180,7 @@ int CVmObjFileName::getp_getPath(VMG_ vm_obj_id_t self,
     /* get our filename string */
     const char *fname = ext->get_str();
     size_t fnamel = ext->get_len();
-        
+
     /*
      *   Estimate how much space we'll need for the extracted path name.  The
      *   path portion should be shorter than the whole name, but add some
@@ -1190,16 +1190,16 @@ int CVmObjFileName::getp_getPath(VMG_ vm_obj_id_t self,
     size_t buflen = fnamel + 32;
     if (buflen < OSFNMAX)
         buflen = OSFNMAX;
-    
+
     char *buf = 0;
     err_try
     {
         /* allocate a temporary result buffer */
         buf = lib_alloc_str(buflen);
-        
+
         /* extract the path name */
         fn_get_path_name(vmg_ buf, buflen, fname);
-        
+
         /* return the path as a FileName, or nil if there's no path */
         if (buf[0] != '\0')
             retval->set_obj(create_from_local(vmg_ buf, strlen(buf)));
@@ -1210,7 +1210,7 @@ int CVmObjFileName::getp_getPath(VMG_ vm_obj_id_t self,
         lib_free_str(buf);
     }
     err_end;
-    
+
     /* discard arguments */
     G_stk->discard(argc);
 
@@ -1293,7 +1293,7 @@ int CVmObjFileName::getp_getAbsolutePath(VMG_ vm_obj_id_t self,
 
     err_try
     {
-        /* 
+        /*
          *   if it's not absolute already, combine it with our internal
          *   working directory to get the fully qualified path
          */
@@ -1313,10 +1313,10 @@ int CVmObjFileName::getp_getAbsolutePath(VMG_ vm_obj_id_t self,
             src = buf;
         }
 
-        /* 
+        /*
          *   Even though the name should already be absolute, run it through
          *   os_get_abs_filename() anyway, since that will convert the name
-         *   to a more canonical format on many systems. 
+         *   to a more canonical format on many systems.
          */
 
         /* figure how much space we'll need, adding some padding */
@@ -1365,7 +1365,7 @@ int CVmObjFileName::s_getp_getRootDirs(VMG_ vm_val_t *retval, uint *oargc)
     if (get_prop_check_argc(retval, oargc, &desc))
         return TRUE;
 
-    /* 
+    /*
      *   See how much space we need for the root list.  If we're in network
      *   storage mode, there's no concept of a root folder, since everything
      *   is relative to the user+game folder.
@@ -1416,7 +1416,7 @@ int CVmObjFileName::s_getp_getRootDirs(VMG_ vm_val_t *retval, uint *oargc)
                     /* done with the mapped string */
                     t3free(lclstr);
                     lclstr = 0;
-                    
+
                     /* add it to the list */
                     lst->cons_set_element(cnt++, &ele);
                 }
@@ -1508,7 +1508,7 @@ int CVmObjFileName::getp_renameFile(VMG_ vm_obj_id_t self,
         oldfile = CVmObjFile::get_filename_from_obj(
             vmg_ self, &rc, VMOBJFILE_ACCESS_RENAME_FROM,
             OSFTUNK, "application/octet-stream");
-        
+
         /* get the new filename argument; use RENAME TO access mode */
         newfile = CVmObjFile::get_filename_arg(
             vmg_ G_stk->get(0), &rc, VMOBJFILE_ACCESS_RENAME_TO, FALSE,
@@ -1539,13 +1539,13 @@ int CVmObjFileName::getp_renameFile(VMG_ vm_obj_id_t self,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Translate an os_filemode_t value to a FileTypeXxx value 
+ *   Translate an os_filemode_t value to a FileTypeXxx value
  */
 static int32_t filemode_to_filetype(int osmode)
 {
-    /* 
+    /*
      *   mappings from OSFMODE_xxx values to FileTypeXxx values (see
-     *   include/filename.h in the system headers) 
+     *   include/filename.h in the system headers)
      */
     static const struct {
         unsigned long osmode;
@@ -1578,9 +1578,9 @@ static int32_t filemode_to_filetype(int osmode)
  */
 static int32_t map_file_attrs(unsigned long osattrs)
 {
-    /* 
+    /*
      *   mappings from OSFATTR_xxx values to FileAttrXxx values (see
-     *   include/filename.h in the system headers) 
+     *   include/filename.h in the system headers)
      */
     static const struct {
         unsigned long osattr;
@@ -1606,13 +1606,13 @@ static int32_t map_file_attrs(unsigned long osattrs)
 }
 
 /*
- *   Push a file timestamp value 
+ *   Push a file timestamp value
  */
 static void push_file_time(VMG_ os_time_t t)
 {
-    /* 
+    /*
      *   if the time value is zero, it means that the local system doesn't
-     *   support this type of timestamp; push it as nil 
+     *   support this type of timestamp; push it as nil
      */
     if (t == 0)
     {
@@ -1685,9 +1685,9 @@ int CVmObjFileName::getp_getFileType(VMG_ vm_obj_id_t self,
     int follow_links = TRUE;
     if (argc >= 1)
     {
-        /* 
+        /*
          *   note that our 'asLink' parameter has the opposite sense from
-         *   'follow_links', so invert the parameter value 
+         *   'follow_links', so invert the parameter value
          */
         follow_links = !G_stk->get(0)->get_logical();
         if (!G_stk->get(0)->is_logical())
@@ -1753,9 +1753,9 @@ int CVmObjFileName::getp_getFileInfo(VMG_ vm_obj_id_t self,
     int follow_links = TRUE;
     if (argc >= 1)
     {
-        /* 
+        /*
          *   note that our 'asLink' parameter has the opposite sense from
-         *   'follow_links', so invert the parameter value 
+         *   'follow_links', so invert the parameter value
          */
         follow_links = G_stk->get(0)->get_logical();
         if (!G_stk->get(0)->is_logical())
@@ -1779,7 +1779,7 @@ int CVmObjFileName::getp_getFileInfo(VMG_ vm_obj_id_t self,
     /* build the return value */
     if (ok)
     {
-        /* 
+        /*
          *   Success - build a new FileInfo(mode, size, ctime, mtime, atime,
          *   target, attrs).  Start by pushing the constructor arguments
          *   (last to first).
@@ -1808,10 +1808,10 @@ int CVmObjFileName::getp_getFileInfo(VMG_ vm_obj_id_t self,
         push_file_time(vmg_ stat.mod_time);
         push_file_time(vmg_ stat.cre_time);
 
-        /* 
+        /*
          *   Push the file size.  If the high part is non-zero, or the low
          *   part is greater than 0x7fffffff, the value won't fit in an
-         *   int32_t, so we need to push this as a BigNumber value. 
+         *   int32_t, so we need to push this as a BigNumber value.
          */
         if (stat.sizehi != 0 || stat.sizelo > 0x7FFFFFFFU)
         {
@@ -1830,10 +1830,10 @@ int CVmObjFileName::getp_getFileInfo(VMG_ vm_obj_id_t self,
             vmg_ filemode_to_filetype(stat.mode)
             | special_filetype_flags(vmg0_));
 
-        /* 
+        /*
          *   Call the constructor.  If there's a FileInfo object exported,
          *   create one of those.  Otherwise just create a list from the
-         *   values. 
+         *   values.
          */
         const int argc = 7;
         vm_obj_id_t fi = G_predef->file_info;
@@ -1888,7 +1888,7 @@ int CVmObjFileName::getp_listDir(VMG_ vm_obj_id_t self,
     CVmNetFile *netfile = CVmObjFile::get_filename_from_obj(
         vmg_ self, &rc, VMOBJFILE_ACCESS_READDIR,
         OSFTUNK, "application/octet-stream");
-    
+
     err_try
     {
         /* get the directory listing */

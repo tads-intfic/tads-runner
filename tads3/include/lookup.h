@@ -1,14 +1,14 @@
 #charset "us-ascii"
 #pragma once
 
-/* 
+/*
  *   Copyright (c) 2000, 2006 Michael J. Roberts
- *   
+ *
  *   This file is part of TADS 3.
- *   
+ *
  *   The header defines the LookupTable and WeakRefLookupTable intrinsic
  *   classes, as well as LookupTableIterator, the special Iterator type for
- *   these classes.  
+ *   these classes.
  */
 
 
@@ -19,13 +19,13 @@
  *   The LookupTable intrinsic class provides a general-purpose hash table
  *   implementation.  LookupTable can be used syntactically as though it were
  *   a list, but the index values are arbitrary hash key values rather than
- *   being limited to sequential integers.  
+ *   being limited to sequential integers.
  */
 intrinsic class LookupTable 'lookuptable/030003': Collection
 {
-    /* 
+    /*
      *   Determine if a given key is present in the table.  Returns true if
-     *   the key is present, nil if not. 
+     *   the key is present, nil if not.
      */
     isKeyPresent(key);
 
@@ -33,7 +33,7 @@ intrinsic class LookupTable 'lookuptable/030003': Collection
      *   Remove an entry from the table.  Removes the key/value pair
      *   associated with the given key, and returns the value that was
      *   associated with the key.  If the key isn't present in the table,
-     *   the return value is nil, and the method has no other effect. 
+     *   the return value is nil, and the method has no other effect.
      */
     removeElement(key);
 
@@ -49,7 +49,7 @@ intrinsic class LookupTable 'lookuptable/030003': Collection
      *   Invoke the given function with each entry in the table.  The
      *   function is invoked with value of an entry as its argument:
      *   func(value).  Any return value of the function is ignored.  No
-     *   return value.  
+     *   return value.
      */
     forEach(func);
 
@@ -58,7 +58,7 @@ intrinsic class LookupTable 'lookuptable/030003': Collection
      *   The number of buckets doesn't vary over the life of the table, so
      *   this simply returns the number of buckets that was specified in the
      *   constructor when the table was created.  This can be used to create
-     *   a new table with the same parameters as an existing table.  
+     *   a new table with the same parameters as an existing table.
      */
     getBucketCount();
 
@@ -67,7 +67,7 @@ intrinsic class LookupTable 'lookuptable/030003': Collection
      *   pairs stored in the table.  Note that this is not the same as the
      *   initial capacity specified in the constructor when the table was
      *   created; this is the number of entries actually stored in the
-     *   table.  
+     *   table.
      */
     getEntryCount();
 
@@ -75,26 +75,26 @@ intrinsic class LookupTable 'lookuptable/030003': Collection
      *   Invoke the given function with each entry in the table, passing the
      *   key and value to the callback.  The function is invoked with key
      *   and value of an entry as its arguments: func(key, value).  Any
-     *   return value of the function is ignored.  No return value.  
+     *   return value of the function is ignored.  No return value.
      */
     forEachAssoc(func);
 
     /*
      *   Make a list of all of my keys.  The return value is a list, in
-     *   arbitrary order, of all of the keys in the table.  
+     *   arbitrary order, of all of the keys in the table.
      */
     keysToList();
 
     /*
      *   Make a list of all of my values.  The return value is a list, in
-     *   arbitrary order, of all of the values in the table. 
+     *   arbitrary order, of all of the values in the table.
      */
     valsToList();
 
     /*
      *   Get the default value.  This returns the value previously set with
      *   setDefaultValue(), or nil if no explicit default has been set on
-     *   this table.  
+     *   this table.
      */
     getDefaultValue();
 
@@ -102,19 +102,19 @@ intrinsic class LookupTable 'lookuptable/030003': Collection
      *   Set the default value.  This changes the value returned by the index
      *   operator (self[key]) for a key that doesn't exist in the table.  The
      *   default value is initially nil, but you can change this to a
-     *   different value of any type if desired.  
+     *   different value of any type if desired.
      */
     setDefaultValue(val);
 
     /*
      *   Get the nth key.  This returns the key that would appear at the
-     *   given index in the keysToList() result.  
+     *   given index in the keysToList() result.
      */
     nthKey(n);
 
     /*
      *   Get the enth value.  This returns the value that would appear at the
-     *   given index in the valsToList() result. 
+     *   given index in the valsToList() result.
      */
     nthVal(n);
 }
@@ -130,7 +130,7 @@ intrinsic class LookupTable 'lookuptable/030003': Collection
  *   is merely a fast index to a set of values that must be otherwise
  *   reachable to be useful.  When the garbage collector deletes one of our
  *   values, the key/value pair for the value is automatically deleted from
- *   the table.  
+ *   the table.
  */
 intrinsic class WeakRefLookupTable 'weakreflookuptable/030001': LookupTable
 {
@@ -138,7 +138,7 @@ intrinsic class WeakRefLookupTable 'weakreflookuptable/030001': LookupTable
 
 /*
  *   LookupTable iterator - this type of iterator is used for LookupTable and
- *   WeakRefLookupTable instances.  
+ *   WeakRefLookupTable instances.
  */
 intrinsic class LookupTableIterator 'lookuptable-iterator/030000': Iterator
 {

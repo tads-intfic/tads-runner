@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/VMTYPE.CPP,v 1.3 1999/05/17 02:52:29 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmtype.cpp - VM types
 Function
-  
+
 Notes
-  
+
 Modified
   11/18/98 MJRoberts  - Creation
 */
@@ -30,13 +30,13 @@ Modified
 /* ------------------------------------------------------------------------ */
 /*
  *   Compare this value to another value to determine if the two values
- *   are equal. 
+ *   are equal.
  */
 int vm_val_t::equals(VMG_ const vm_val_t *v, int depth) const
 {
-    /* 
+    /*
      *   if the second value is an object and the first isn't, use the object
-     *   comparison of the second 
+     *   comparison of the second
      */
     if (v->typ == VM_OBJ && typ != VM_OBJ)
         return vm_objp(vmg_ v->val.obj)
@@ -52,9 +52,9 @@ int vm_val_t::equals(VMG_ const vm_val_t *v, int depth) const
 
     case VM_STACK:
     case VM_CODEPTR:
-        /* 
+        /*
          *   we match only if the other value has the same type and its
-         *   pointer value matches 
+         *   pointer value matches
          */
         return (v->typ == typ && v->val.ptr == this->val.ptr);
 
@@ -95,7 +95,7 @@ int vm_val_t::equals(VMG_ const vm_val_t *v, int depth) const
     case VM_OBJX:
         /* match if it's the same object */
         return (v->typ == typ && v->val.obj == this->val.obj);
-        
+
     case VM_CODEOFS:
     case VM_FUNCPTR:
         /* we match if the other value is the same code offset */
@@ -117,7 +117,7 @@ int vm_val_t::equals(VMG_ const vm_val_t *v, int depth) const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Calculate a hash value 
+ *   Calculate a hash value
  */
 uint vm_val_t::calc_hash(VMG_ int depth) const
 {
@@ -127,15 +127,15 @@ uint vm_val_t::calc_hash(VMG_ int depth) const
     case VM_NIL:
         /* this is rather arbitrary */
         return 0;
-        
+
     case VM_TRUE:
         /* this is arbitrary, but at least make it different from nil */
         return 1;
-        
+
     case VM_EMPTY:
         /* also arbitrary */
         return 2;
-        
+
     case VM_CODEOFS:
     case VM_FUNCPTR:
         /* use a 16-bit hash of the code address */
@@ -154,9 +154,9 @@ uint vm_val_t::calc_hash(VMG_ int depth) const
     case VM_INT:
     case VM_BIFPTR:
     case VM_BIFPTRX:
-        /* 
+        /*
          *   the set index and function index both tend to be small integers;
-         *   multiply them and keep the low-order 16 bits 
+         *   multiply them and keep the low-order 16 bits
          */
         return (uint)(val.bifptr.set_idx * val.bifptr.func_idx) & 0xffff;
 
@@ -192,7 +192,7 @@ uint vm_val_t::calc_hash(VMG_ int depth) const
  *   Compare this value to the given value.  Returns a positive value if
  *   this value is greater than 'val', a negative value if this value is
  *   less than 'val', and 0 if the two values are equal.  Throws an error
- *   if a magnitude comparison is not meaningful for the involved types.  
+ *   if a magnitude comparison is not meaningful for the involved types.
  */
 int vm_val_t::gen_compare_to(VMG_ const vm_val_t *v) const
 {
@@ -266,7 +266,7 @@ int vm_val_t::nonint_is_numeric(VMG0_) const
 
 
 /*
- *   Convert a numeric type to integer 
+ *   Convert a numeric type to integer
  */
 int32_t vm_val_t::nonint_num_to_int(VMG0_) const
 {
@@ -304,7 +304,7 @@ double vm_val_t::nonint_num_to_double(VMG0_) const
 }
 
 /*
- *   Cast to integer 
+ *   Cast to integer
  */
 int32_t vm_val_t::nonint_cast_to_int(VMG0_) const
 {
@@ -325,7 +325,7 @@ int32_t vm_val_t::nonint_cast_to_int(VMG0_) const
         {
             /* get the string constant */
             const char *p = G_const_pool->get_ptr(val.ofs);
-            
+
             /* parse it as an integer */
             vm_val_t i;
             CVmObjString::parse_num_val(
@@ -361,7 +361,7 @@ void vm_val_t::cast_to_num(VMG_ vm_val_t *retval) const
     case VM_NIL:
         retval->set_int(0);
         break;
-        
+
     case VM_INT:
         /* it's already numeric */
         retval->set_int(val.intval);
@@ -390,7 +390,7 @@ void vm_val_t::cast_to_num(VMG_ vm_val_t *retval) const
 }
 
 /*
- *   Promote an integer to match my type 
+ *   Promote an integer to match my type
  */
 void vm_val_t::promote_int(VMG_ vm_val_t *val) const
 {
@@ -401,7 +401,7 @@ void vm_val_t::promote_int(VMG_ vm_val_t *val) const
     }
     else
     {
-        /* 
+        /*
          *   we can't promote integers to other types; this is a "numeric
          *   value required" error, since we only try to promote integers
          *   when performing arithmetic involving an int and another type
@@ -413,7 +413,7 @@ void vm_val_t::promote_int(VMG_ vm_val_t *val) const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Cast to string 
+ *   Cast to string
  */
 const char *vm_val_t::cast_to_string(VMG_ vm_val_t *new_str) const
 {
@@ -459,7 +459,7 @@ const char *vm_val_t::cast_to_string(VMG_ vm_val_t *new_str) const
         /* join the list into a string, separating items with commas */
         CVmObjList::join(vmg_ new_str, this, ",", 1);
         return new_str->get_as_string(vmg0_);
-        
+
     default:
         err_throw(VMERR_NO_STR_CONV);
         AFTER_ERR_THROW(return 0;)
@@ -467,7 +467,7 @@ const char *vm_val_t::cast_to_string(VMG_ vm_val_t *new_str) const
 }
 
 /*
- *   Get the underlying string constant value. 
+ *   Get the underlying string constant value.
  */
 const char *vm_val_t::get_as_string(VMG0_) const
 {
@@ -491,7 +491,7 @@ const char *vm_val_t::get_as_string(VMG0_) const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Get as a code pointer 
+ *   Get as a code pointer
  */
 const uchar *vm_val_t::get_as_codeptr(VMG0_) const
 {
@@ -500,16 +500,16 @@ const uchar *vm_val_t::get_as_codeptr(VMG0_) const
     {
     case VM_CODEOFS:
     case VM_FUNCPTR:
-        /* 
+        /*
          *   these types contain code pool offsets - translate the offset to
-         *   a physical pointer 
+         *   a physical pointer
          */
         return (const uchar *)G_code_pool->get_ptr(val.ofs);
 
     case VM_CODEPTR:
         /* it's already a physical code pointer */
         return (const uchar *)val.ptr;
-        
+
     default:
         /* other types do not contain code pointers */
         return 0;
@@ -518,7 +518,7 @@ const uchar *vm_val_t::get_as_codeptr(VMG0_) const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Get the underlying list constant value.  
+ *   Get the underlying list constant value.
  */
 const char *vm_val_t::get_as_list(VMG0_) const
 {
@@ -542,7 +542,7 @@ const char *vm_val_t::get_as_list(VMG0_) const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Is this indexable as a list? 
+ *   Is this indexable as a list?
  */
 int vm_val_t::is_listlike(VMG0_) const
 {
@@ -553,7 +553,7 @@ int vm_val_t::is_listlike(VMG0_) const
 }
 
 /*
- *   Get the number of elements in a list-like object 
+ *   Get the number of elements in a list-like object
  */
 int vm_val_t::ll_length(VMG0_) const
 {
@@ -571,7 +571,7 @@ int vm_val_t::ll_length(VMG0_) const
 }
 
 /*
- *   Get an indexed value 
+ *   Get an indexed value
  */
 void vm_val_t::ll_index(VMG_ vm_val_t *ret, const vm_val_t *idx) const
 {
@@ -610,7 +610,7 @@ void vm_val_t::ll_index(VMG_ vm_val_t *ret, const vm_val_t *idx) const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Is this an object of the given class? 
+ *   Is this an object of the given class?
  */
 int vm_val_t::is_instance_of(VMG_ vm_obj_id_t cls) const
 {
@@ -622,7 +622,7 @@ int vm_val_t::is_instance_of(VMG_ vm_obj_id_t cls) const
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Set to an integer giving the datatype code for the given value 
+ *   Set to an integer giving the datatype code for the given value
  */
 void vm_val_t::set_datatype(VMG_ const vm_val_t *v)
 {

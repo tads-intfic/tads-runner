@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/TADS2/LINFDUM.C,v 1.2 1999/05/17 02:52:12 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1992, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -46,12 +46,12 @@ int linfload(osfildef *fp, dbgcxdef *dbgctx, errcxdef *ec, tokpdef *path)
     VARUSED(ec);
     VARUSED(dbgctx);
     VARUSED(path);
-    
+
     /* read the source's description from the file */
     if (osfrb(fp, buf, 6)
         || osfrb(fp, buf + 6, (int)buf[1]))
         return(TRUE);
-    
+
     /* skip the pages of debugging line records */
     reccnt = osrp4(buf + 2);
     if (!reccnt) return(FALSE);                  /* no debug records at all */

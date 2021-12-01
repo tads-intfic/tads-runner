@@ -1,10 +1,10 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -15,7 +15,7 @@ Function
   minimal user interface; more complete implementations should be used
   for most applications that embed the VM.
 Notes
-  
+
 Modified
   07/29/99 MJRoberts  - Creation
 */
@@ -34,7 +34,7 @@ public:
 
     /* delete */
     virtual ~CVmHostIfcStdio();
-    
+
     /* get the I/O safety level */
     virtual int get_io_safety_read() { return io_safety_read_; }
     virtual int get_io_safety_write() { return io_safety_write_; }
@@ -75,10 +75,10 @@ public:
         { os_get_special_path(buf, buflen, argv0_, id); }
 
 protected:
-    /* 
+    /*
      *   the original main program's argv[0] - we need to remember this
      *   because it's sometimes needed to resolve special file system paths
-     *   on the local system 
+     *   on the local system
      */
     char *argv0_;
 

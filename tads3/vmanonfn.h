@@ -1,10 +1,10 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -14,7 +14,7 @@ Function
   that provides encapsulation of an anonymous function and the context it
   shares with its enclosing scope.
 Notes
-  
+
 Modified
   03/21/00 MJRoberts  - Creation
 */
@@ -29,12 +29,12 @@ Modified
 #include "vmglob.h"
 
 /*
- *   Anonymous Function Metaclass 
+ *   Anonymous Function Metaclass
  */
 class CVmObjAnonFn: public CVmObjVector
 {
     friend class CVmMetaclassAnonFn;
-    
+
 public:
     /* metaclass registration object */
     static class CVmMetaclass *metaclass_reg_;
@@ -136,7 +136,7 @@ public:
 #endif /* VMANONFN_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjAnonFn)
 

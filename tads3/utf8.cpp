@@ -3,19 +3,19 @@ static char RCSid[] =
 "$Header: d:/cvsroot/tads/tads3/utf8.cpp,v 1.2 1999/05/17 02:52:29 MJRoberts Exp $";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1998, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   utf8.cpp - UTF-8 implementation
 Function
-  
+
 Notes
-  
+
 Modified
   10/17/98 MJRoberts  - Creation
 */
@@ -24,7 +24,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   encode a string of wide characters into the buffer 
+ *   encode a string of wide characters into the buffer
  */
 size_t utf8_ptr::setwchars(const wchar_t *src, size_t src_count,
                            size_t bufsiz)
@@ -44,17 +44,17 @@ size_t utf8_ptr::setwchars(const wchar_t *src, size_t src_count,
         {
             /* store it */
             setch(*src);
-            
+
             /* deduct this space from the remaining buffer size */
             bufsiz -= curbytes;
         }
         else
         {
-            /* 
+            /*
              *   there's no room for this - make sure we don't store
              *   anything more (since we might have room for a shorter
              *   character later, but that would put a gap in the output
-             *   string - better to just truncate here) 
+             *   string - better to just truncate here)
              */
             bufsiz = 0;
         }
@@ -66,7 +66,7 @@ size_t utf8_ptr::setwchars(const wchar_t *src, size_t src_count,
 
 /* ------------------------------------------------------------------------ */
 /*
- *   encode a null-terminated string of wide characters into the buffer 
+ *   encode a null-terminated string of wide characters into the buffer
  */
 size_t utf8_ptr::setwcharsz(const wchar_t *src, size_t bufsiz)
 {
@@ -91,11 +91,11 @@ size_t utf8_ptr::setwcharsz(const wchar_t *src, size_t bufsiz)
         }
         else
         {
-            /* 
+            /*
              *   there's no room for this - make sure we don't store
              *   anything more (since we might have room for a shorter
              *   character later, but that would put a gap in the output
-             *   string - better to just truncate here) 
+             *   string - better to just truncate here)
              */
             bufsiz = 0;
         }
@@ -107,7 +107,7 @@ size_t utf8_ptr::setwcharsz(const wchar_t *src, size_t bufsiz)
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Compare this string to the given string 
+ *   Compare this string to the given string
  */
 int utf8_ptr::s_compare_to(const char *p1, size_t bytelen1,
                            const char *p2, size_t bytelen2)
@@ -117,7 +117,7 @@ int utf8_ptr::s_compare_to(const char *p1, size_t bytelen1,
     {
         wchar_t c1, c2;
         size_t siz1, siz2;
-        
+
         /* get the current character from each string */
         c1 = s_getch(p1);
         c2 = s_getch(p2);
@@ -141,11 +141,11 @@ int utf8_ptr::s_compare_to(const char *p1, size_t bytelen1,
         p2 += siz2;
     }
 
-    /* 
+    /*
      *   we didn't find any character differences, but one string is
      *   longer than the other -- if they ran out at the same time,
      *   they're identical; otherwise, the one that ran out first is the
-     *   lesser one 
+     *   lesser one
      */
     if (bytelen2 != 0)
     {

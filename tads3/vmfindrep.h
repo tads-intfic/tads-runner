@@ -16,7 +16,7 @@ Function
   and test the conditions statically.  This makes for larger but faster
   code.
 Notes
-  
+
 Modified
   06/17/12 MJRoberts  - Creation
 */
@@ -26,7 +26,7 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   re_replace flags 
+ *   re_replace flags
  */
 
 /* replace all matches (if omitted, replaces only the first match) */
@@ -35,14 +35,14 @@ Modified
 /* ignore case in matching the search string */
 #define VMBIFTADS_REPLACE_NOCASE  0x0002
 
-/* 
+/*
  *   follow case: lower-case characters in the the replacement text are
  *   converted to follow the case pattern of the matched text (all lower,
- *   initial capital, or all capitals) 
+ *   initial capital, or all capitals)
  */
 #define VMBIFTADS_REPLACE_FOLLOW_CASE  0x0004
 
-/* 
+/*
  *   serial replacement: when a list of search patterns is used, we replace
  *   each occurrence of the first pattern over the whole string, then we
  *   start over with the result and scan for occurrences of the second
@@ -51,12 +51,12 @@ Modified
  *   occurrence of any of the patterns and replace it; then we scan the
  *   remainder of the string for the leftmost occurrence of any pattern, and
  *   replace that one; and so on.  The serial case is equivalent to making a
- *   series of calls to this function with the individual search patterns.  
+ *   series of calls to this function with the individual search patterns.
  */
 #define VMBIFTADS_REPLACE_SERIAL  0x0008
 
 /*
- *   Replace only the first occurrence. 
+ *   Replace only the first occurrence.
  */
 #define VMBIFTADS_REPLACE_ONCE    0x0010
 
@@ -138,9 +138,9 @@ struct re_replace_arg
             err_throw(VMERR_BAD_TYPE_BIF);
         }
 
-        /* 
+        /*
          *   Save the replacement value.  This can be a string, nil (which we
-         *   treat like an empty string), or a callback function. 
+         *   treat like an empty string), or a callback function.
          */
         if (rplv->typ == VM_NIL)
         {
@@ -189,9 +189,9 @@ struct re_replace_arg
         /* if we have a pattern, search for it */
         if (pat_str != 0)
         {
-            /* 
+            /*
              *   whether or not we find a match, the search will be valid
-             *   when we return 
+             *   when we return
              */
             match_valid = TRUE;
             match_len = 0;
@@ -291,10 +291,10 @@ struct re_replace_arg
     int match_idx;
     int match_len;
 
-    /* 
+    /*
      *   Is this last match data valid?  This is false if we haven't done the
      *   first search yet, or if the last replacement overlapped our matching
-     *   text at all.  
+     *   text at all.
      */
     int match_valid;
 
@@ -303,7 +303,7 @@ struct re_replace_arg
 };
 
 /* ------------------------------------------------------------------------ */
-/* 
+/*
  *   <mode> values for vm_find_replace<mode>
  */
 #define VMFINDREPLACE_StringFindReplace  0
@@ -313,21 +313,21 @@ struct re_replace_arg
  *   Common find-and-replace handler for String.findReplace() and
  *   rexReplace().  The two functions are essentially the same; the only
  *   differences are:
- *   
+ *
  *   1. The arguments are in a slightly different order.
  *.      rexReplace(pattern, subject, replacement, flags?, index?)
  *.      subject.findReplace(pattern, replacement, flags?, index?)
- *   
+ *
  *   Note the placement of the subject string argument; it moves outside the
  *   argument list to the target object position in the String method call
  *   version, so the subsequent arguments all move down one position.
- *   
+ *
  *   2. In String.findReplace(), the 'pattern' argument is taken as literal
  *   text if a string value is passed.  In rexReplace(), a string value for
  *   'pattern' is taken as an uncompiled regular expression.  For either
  *   function, a RexPattern object can be passed, in which case it's treated
  *   as a regular expression (obviously).
- *   
+ *
  *   3. If 'pattern' is a literal string, 'replacement' is also treated as
  *   literal text; if 'pattern' is a regular expression (either explicitly as
  *   a RexPattern object, or as a string taken to be an uncompiled regular
@@ -367,7 +367,7 @@ template<int mode> inline void vm_find_replace(
      *   Check for old flags.  Before 3.1, there was only one flag bit
      *   defined: ALL=1.  This means there were only two valid values for
      *   'flags': 0 for ONCE mode, 1 for ALL mode.
-     *   
+     *
      *   In 3.1, we added a bunch of new flags.  At the same time, we made
      *   the default ALL mode, because this is the more common case.
      *   Unfortunately, this creates a compatibility issue.  A new program
@@ -375,14 +375,14 @@ template<int mode> inline void vm_find_replace(
      *   bits, since ALL is the default.  However, we can't just take the
      *   absence of the ONCE bit as meaning ALL, because that would hose old
      *   programs that explicitly specify ONCE as 0 (no bits set).
-     *   
+     *
      *   Here's how we deal with this: we prohibit new programs from passing
      *   0 for the flags, requiring them to specify at least one bit.  So if
      *   the flags value is zero, we must have an old program that passed
      *   ONCE.  In this case, explicitly set the ONCE bit.  If we have any
      *   non-zero value, we must have either a new program OR an old program
      *   that included the ALL bit.  In either case, ALL is the default, so
-     *   if the ONCE bit ISN'T set, explicitly set the ALL bit.  
+     *   if the ONCE bit ISN'T set, explicitly set the ALL bit.
      */
     if (flags == 0)
     {
@@ -391,13 +391,13 @@ template<int mode> inline void vm_find_replace(
     }
     else if (!(flags & VMBIFTADS_REPLACE_ONCE))
     {
-        /* 
+        /*
          *   new program without the ONCE flag, OR an old program with the
-         *   ALL flag - explicitly set the ALL flag 
+         *   ALL flag - explicitly set the ALL flag
          */
         flags |= VMBIFTADS_REPLACE_ALL;
     }
-    
+
     /* assume that the limit is one or infinity, per the 'flags' value */
     int limit = ((flags & VMBIFTADS_REPLACE_ONCE) != 0 ? 1 : -1);
 
@@ -417,9 +417,9 @@ template<int mode> inline void vm_find_replace(
             if ((limit = limitp->val.intval) < 0)
                 err_throw(VMERR_BAD_VAL_BIF);
 
-            /* 
+            /*
              *   if the limit is zero, the result string will obviously be
-             *   identical to the source string, so just return it now 
+             *   identical to the source string, so just return it now
              */
             if (limit == 0)
             {
@@ -438,7 +438,7 @@ template<int mode> inline void vm_find_replace(
     int pat_cnt = 1;
     int pat_is_list = FALSE;
 
-    /* 
+    /*
      *   if we're treating strings as literals (rather than uncompiled
      *   regular expressions), assume we won't have any REs to search for
      */
@@ -451,9 +451,9 @@ template<int mode> inline void vm_find_replace(
         /* It's a list.  Check first to see if it's empty. */
         if (pat_cnt == 0)
         {
-            /* 
+            /*
              *   empty list, so there's no work to do - simply return the
-             *   original subject string unchanged 
+             *   original subject string unchanged
              */
             *result = *subj;
             return;
@@ -486,7 +486,7 @@ template<int mode> inline void vm_find_replace(
     {
         /* assume we won't need a recursive callback context */
         int need_rc = FALSE;
-        
+
         /* set up the pattern/replacement array from the arguments */
         for (i = 0 ; i < pat_cnt ; ++i)
         {
@@ -503,22 +503,22 @@ template<int mode> inline void vm_find_replace(
                 patele = *pat;
             }
 
-            /* 
+            /*
              *   Get the next replacement from the list, or the single
              *   replacement.  If we have a single value for the replacement,
              *   every pattern has the same replacement.  If we have a list,
              *   the pattern has the replacement at the corresponding index.
              *   If it's a list and we're past the last replacement index,
-             *   use an empty string.  
+             *   use an empty string.
              */
             vm_val_t rplele;
             if (rpl_is_list)
             {
-                /* 
+                /*
                  *   we have a list - if we have an item at the current
                  *   index, it's the corresponding replacement for the
                  *   current pattern; if we've exhausted the replacement
-                 *   list, use an empty string as the replacement 
+                 *   list, use an empty string as the replacement
                  */
                 if (i < rpl_cnt)
                     rpl->ll_index(vmg_ &rplele, i + 1);
@@ -561,17 +561,17 @@ template<int mode> inline void vm_find_replace(
             /* check the type */
             if (idxp->typ != VM_INT)
                 err_throw(VMERR_INT_VAL_REQD);
-            
+
             /* get the value */
             start_char_idx = idxp->val.intval;
         }
 
-        /* 
+        /*
          *   push a nil placeholder for the result value (we keep it on the
-         *   stack for gc protection) 
+         *   stack for gc protection)
          */
         G_stk->push()->set_nil();
-        
+
         /* if this is a serial search, we'll start at the first pattern */
         int serial_idx = 0;
 
@@ -588,19 +588,19 @@ template<int mode> inline void vm_find_replace(
                            ? (int)strp.len(vmb_get_len(str)) : -1);
 
     restart_search:
-        /* 
+        /*
          *   remember the last search string globally, for group extraction;
          *   and forget any old group registers, since they'd point into the
-         *   old string we're superseding 
+         *   old string we're superseding
          */
         G_bif_tads_globals->last_rex_str->val = *subj;
         if (have_pat)
             G_bif_tads_globals->rex_searcher->clear_group_regs();
 
-        /* 
+        /*
          *   don't allocate anything for the result yet - we'll wait to do
          *   that until we actually find a match, so that we don't allocate
-         *   memory unnecessarily 
+         *   memory unnecessarily
          */
         vm_obj_id_t ret_obj = VM_INVALID_OBJ;
         CVmObjString *ret_str = 0;
@@ -608,10 +608,10 @@ template<int mode> inline void vm_find_replace(
         /* set up a null output string pointer for now */
         utf8_ptr dstp;
         dstp.set((char *)0);
-        
-        /* 
+
+        /*
          *   figure out how many bytes at the start of the string to skip
-         *   before our first replacement 
+         *   before our first replacement
          */
         utf8_ptr p;
         size_t rem;
@@ -620,10 +620,10 @@ template<int mode> inline void vm_find_replace(
 
         /* the current offset in the string is the byte skip offset */
         int skip_bytes = p.getptr() - (str + VMB_LEN);
-        
+
         /*
          *   Start searching from the beginning of the string.  Build the
-         *   result string as we go.  
+         *   result string as we go.
          */
         int start_idx;
         for (start_idx = skip_bytes ; (size_t)start_idx < vmb_get_len(str) ; )
@@ -637,9 +637,9 @@ template<int mode> inline void vm_find_replace(
             /* do the next serial or parallel search */
             if ((flags & VMBIFTADS_REPLACE_SERIAL) != 0)
             {
-                /* 
+                /*
                  *   Serial search: search for one item at a time.  If we're
-                 *   out of items, we're done.  
+                 *   out of items, we're done.
                  */
                 if (serial_idx >= pat_cnt)
                     break;
@@ -656,13 +656,13 @@ template<int mode> inline void vm_find_replace(
             }
             else
             {
-                /* 
+                /*
                  *   Parallel search: search for all of the items, and
                  *   replace the leftmost match.  We might still have valid
                  *   search results for some items on past iterations, but
                  *   others might have overlapped replacement text, in which
                  *   case we'll have to refresh them.  So do a search for
-                 *   each item that's marked as invalid.  
+                 *   each item that's marked as invalid.
                  */
 
                 /* search for each item */
@@ -684,19 +684,19 @@ template<int mode> inline void vm_find_replace(
                     break;
             }
 
-            /* 
+            /*
              *   Keep the leftmost pattern we matched.  Note that we want a
              *   relative offset from last_str, so adjust from the absolute
-             *   offset in the string that the pats[] entry uses. 
+             *   offset in the string that the pats[] entry uses.
              */
             int match_idx = pats[best_pat].match_idx - start_idx;
             int match_len = pats[best_pat].match_len;
             const char *rplstr = pats[best_pat].rpl_str;
             vm_val_t rplfunc = pats[best_pat].rpl_func;
 
-            /* 
+            /*
              *   if we have the 'follow case' flag, note the capitalization
-             *   pattern of the match 
+             *   pattern of the match
              */
             int match_has_upper = FALSE, match_has_lower = FALSE;
             if ((flags & VMBIFTADS_REPLACE_FOLLOW_CASE) != 0)
@@ -729,20 +729,20 @@ template<int mode> inline void vm_find_replace(
             /* if we have a replacement limit, count this against the limit */
             if (limit > 0)
                 --limit;
-            
+
             /*
              *   If we haven't allocated a result string yet, do so now,
-             *   since we finally know we actually need one.  
+             *   since we finally know we actually need one.
              */
             if (ret_obj == VM_INVALID_OBJ)
             {
-                /*   
+                /*
                  *   We don't know yet how much space we'll need for the
                  *   result, so this is only a temporary allocation.  As a
                  *   rough guess, use three times the length of the input
                  *   string.  We'll expand this as needed as we build the
                  *   string, and shrink it down to the real size when we're
-                 *   done.  
+                 *   done.
                  */
                 ret_obj = CVmObjString::create(vmg_ FALSE, vmb_get_len(str)*3);
 
@@ -769,10 +769,10 @@ template<int mode> inline void vm_find_replace(
                 /* ensure space */
                 dstp.set(ret_str->cons_ensure_space(
                     vmg_ dstp.getptr(), match_idx, 512));
-                
+
                 /* copy the part from the last match to this match */
                 memcpy(dstp.getptr(), last_str, match_idx);
-                
+
                 /* advance the output pointer */
                 dstp.set(dstp.getptr() + match_idx);
             }
@@ -789,10 +789,10 @@ template<int mode> inline void vm_find_replace(
                 /* note whether we have a literal search string or a regex */
                 int pat_is_str = (pats[best_pat].pat == 0);
 
-                /* 
+                /*
                  *   if we're replacing a string pattern (not a regex), and
                  *   there's no case following, we can plop in the whole
-                 *   replacement string without examining it 
+                 *   replacement string without examining it
                  */
                 if (pat_is_str
                     && !(flags & VMBIFTADS_REPLACE_FOLLOW_CASE))
@@ -809,7 +809,7 @@ template<int mode> inline void vm_find_replace(
                 }
                 else
                 {
-                    /* 
+                    /*
                      *   copy the replacement string into the output string,
                      *   expanding group substitutions if we have a regex
                      */
@@ -818,33 +818,33 @@ template<int mode> inline void vm_find_replace(
                     {
                         /* fetch the character */
                         wchar_t ch = p.getch();
-                        
+
                         /* if replacing a regex, check for '%' sequences */
                         if (pat_is_str || ch != '%' || rem == 1)
                         {
-                            /* 
+                            /*
                              *   ensure we have space for this character (one
-                             *   UTF8 needs 3 bytes max) 
+                             *   UTF8 needs 3 bytes max)
                              */
                             dstp.set(ret_str->cons_ensure_space(
                                 vmg_ dstp.getptr(), 3, 512));
-                            
-                            /* 
+
+                            /*
                              *   if we're in 'follow case' mode, adjust the
                              *   case of lower-case literal letters in the
-                             *   replacement text 
+                             *   replacement text
                              */
                             const wchar_t *u = 0;
                             if ((flags & VMBIFTADS_REPLACE_FOLLOW_CASE) != 0
                                 && t3_is_lower(ch))
                             {
-                                /* 
+                                /*
                                  *   Check the mode: if we have all
                                  *   upper-case in the match, convert the
                                  *   replacement to all caps; all lower-case
                                  *   in the match -> all lower in the
                                  *   replacement; mixed -> capitalize the
-                                 *   first letter only 
+                                 *   first letter only
                                  */
                                 if (match_has_upper && !match_has_lower)
                                 {
@@ -858,7 +858,7 @@ template<int mode> inline void vm_find_replace(
                                     u = t3_to_title(ch);
                                 }
                             }
-                            
+
                             /* if we found a case conversion, apply it */
                             if (u != 0)
                             {
@@ -866,7 +866,7 @@ template<int mode> inline void vm_find_replace(
                                 size_t need = utf8_ptr::s_wstr_size(u);
                                 dstp.set(ret_str->cons_ensure_space(
                                     vmg_ dstp.getptr(), need, 512));
-                                
+
                                 /* store the converted characters */
                                 dstp.setwcharsz(u, need);
                             }
@@ -895,7 +895,7 @@ template<int mode> inline void vm_find_replace(
                                     /* get the group number */
                                     int groupno =
                                         value_of_digit(p.getch()) - 1;
-                                    
+
                                     /* if the group is valid, add its length */
                                     if (groupno < group_cnt)
                                     {
@@ -903,7 +903,7 @@ template<int mode> inline void vm_find_replace(
                                         const re_group_register *reg =
                                             G_bif_tads_globals->rex_searcher
                                             ->get_group_reg(groupno);
-                                        
+
                                         /* if it's been set, add its text */
                                         if (reg->start_ofs != -1
                                             && reg->end_ofs != -1)
@@ -911,53 +911,53 @@ template<int mode> inline void vm_find_replace(
                                             /* get the group length */
                                             size_t glen =
                                                 reg->end_ofs - reg->start_ofs;
-                                            
+
                                             /* ensure space */
                                             dstp.set(
                                                 ret_str->cons_ensure_space(
                                                     vmg_ dstp.getptr(),
                                                     glen, 512));
-                                            
+
                                             /* copy the data */
                                             memcpy(dstp.getptr(),
                                                 str + VMB_LEN + reg->start_ofs,
                                                 glen);
-                                            
+
                                             /* advance past it */
                                             dstp.set(dstp.getptr() + glen);
                                         }
                                     }
                                 }
                                 break;
-                                
+
                             case '*':
                                 /* ensure space */
                                 dstp.set(ret_str->cons_ensure_space(
                                     vmg_ dstp.getptr(), match_len, 512));
-                                
+
                                 /* add the entire matched string */
                                 memcpy(dstp.getptr(), last_str + match_idx,
                                        match_len);
                                 dstp.set(dstp.getptr() + match_len);
                                 break;
-                                
+
                             case '%':
                                 /* ensure space (the '%' is just one byte) */
                                 dstp.set(ret_str->cons_ensure_space(
                                     vmg_ dstp.getptr(), 1, 512));
-                                
+
                                 /* add a single '%' */
                                 dstp.setch('%');
                                 break;
-                                
+
                             default:
-                                /* 
+                                /*
                                  *   ensure space (we need 1 byte for the
-                                 *   '%', up to 3 for the other character) 
+                                 *   '%', up to 3 for the other character)
                                  */
                                 dstp.set(ret_str->cons_ensure_space(
                                     vmg_ dstp.getptr(), 4, 512));
-                                
+
                                 /* add the entire sequence unchanged */
                                 dstp.setch('%');
                                 dstp.setch(p.getch());
@@ -987,7 +987,7 @@ template<int mode> inline void vm_find_replace(
 
                 /* discard extra arguments */
                 G_stk->discard(pushed_argc - fargc);
-                
+
                 /* if the return value isn't nil, copy it into the result */
                 if (G_interpreter->get_r0()->typ != VM_NIL)
                 {
@@ -996,40 +996,40 @@ template<int mode> inline void vm_find_replace(
                         G_interpreter->get_r0()->get_as_string(vmg0_);
                     if (r == 0)
                         err_throw(VMERR_STRING_VAL_REQD);
-                    
+
                     /* ensure space for it in the result */
                     dstp.set(ret_str->cons_ensure_space(
                         vmg_ dstp.getptr(), vmb_get_len(r), 512));
-                    
+
                     /* store it */
                     memcpy(dstp.getptr(), r + VMB_LEN, vmb_get_len(r));
                     dstp.set(dstp.getptr() + vmb_get_len(r));
                 }
             }
-            
+
             /* advance past this matched string for the next search */
             start_idx += match_idx + match_len;
-            
+
             /* skip to the next character if it was a zero-length match */
             if (match_len == 0 && (size_t)start_idx < vmb_get_len(str))
             {
                 /* ensure space */
                 dstp.set(ret_str->cons_ensure_space(
                     vmg_ dstp.getptr(), 3, 512));
-                
+
                 /* copy the character we're skipping to the output */
                 p.set((char *)str + VMB_LEN + start_idx);
                 dstp.setch(p.getch());
-                
+
                 /* move on to the next character */
                 start_idx += 1;
             }
 
-            /* 
+            /*
              *   In a parallel search, discard any match that started before
              *   the new starting point.  Those are no longer valid because
              *   they matched original text that was wholly or partially
-             *   replaced by the current iteration.  
+             *   replaced by the current iteration.
              */
             for (i = 0 ; i < pat_cnt ; ++i)
             {
@@ -1037,7 +1037,7 @@ template<int mode> inline void vm_find_replace(
                 if (pats[i].match_idx >= 0 && pats[i].match_idx < start_idx)
                     pats[i].match_valid = FALSE;
             }
-            
+
             /* if we've reached the replacement limit, stop now */
             if (limit == 0)
                 break;
@@ -1049,7 +1049,7 @@ template<int mode> inline void vm_find_replace(
             /* ensure space for the remainder after the last match */
             dstp.set(ret_str->cons_ensure_space(
                 vmg_ dstp.getptr(), vmb_get_len(str) - start_idx, 512));
-            
+
             /* add the part after the end of the matched text */
             if ((size_t)start_idx < vmb_get_len(str))
             {
@@ -1057,7 +1057,7 @@ template<int mode> inline void vm_find_replace(
                        vmb_get_len(str) - start_idx);
                 dstp.set(dstp.getptr() + vmb_get_len(str) - start_idx);
             }
-            
+
             /* set the actual length of the string */
             ret_str->cons_shrink_buffer(vmg_ dstp.getptr());
 
@@ -1070,7 +1070,7 @@ template<int mode> inline void vm_find_replace(
             *result = *subj;
         }
 
-        /* 
+        /*
          *   If this is a serial search, and we have another item in the
          *   search list, go back and start over with the current result as
          *   the new search string.  Exception: if we've reached the
@@ -1083,7 +1083,7 @@ template<int mode> inline void vm_find_replace(
             /* use the return value as the new search value */
             subj = result;
             *G_stk->get(2) = *subj;
-            
+
             /* get the string again in case we're doing a serial iteration */
             str = subj->get_as_string(vmg0_);
 

@@ -3,11 +3,11 @@ static char RCSid[] =
 "$Header$";
 #endif
 
-/* 
+/*
  *   Copyright (c) 1999, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
@@ -37,7 +37,7 @@ Modified
 #include "charmap.h"
 
 /*
- *   formatted text-only file prompt 
+ *   formatted text-only file prompt
  */
 int CVmConsole::input_dialog(VMG_ int icon_id, const char *prompt,
                              int standard_button_set,
@@ -52,12 +52,12 @@ int CVmConsole::input_dialog(VMG_ int icon_id, const char *prompt,
     char *dst;
     size_t dstrem;
     int i;
-    
+
     /* flush any pending output */
     flush(vmg_ VM_NL_INPUT);
 
     /* convert the prompt to the local character set */
-    ui_prompt_len = G_cmap_to_ui->map_utf8(ui_prompt, sizeof(ui_prompt) - 1,    
+    ui_prompt_len = G_cmap_to_ui->map_utf8(ui_prompt, sizeof(ui_prompt) - 1,
                                            prompt, strlen(prompt), 0);
 
     /* null-terminate the prompt text */
@@ -70,7 +70,7 @@ int CVmConsole::input_dialog(VMG_ int icon_id, const char *prompt,
          i < button_count ; ++i)
     {
         size_t len;
-        
+
         /* set up this converted button pointer */
         ui_buttons[i] = dst;
 

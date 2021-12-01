@@ -1,18 +1,18 @@
 /* $Header$ */
 
-/* 
+/*
  *   Copyright (c) 2000, 2002 Michael J. Roberts.  All Rights Reserved.
- *   
+ *
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.  
+ *   on using and copying this software.
  */
 /*
 Name
   vmiter.h - Iterator metaclass
 Function
-  
+
 Notes
-  
+
 Modified
   04/22/00 MJRoberts  - Creation
 */
@@ -27,12 +27,12 @@ Modified
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Base Iterator class 
+ *   Base Iterator class
  */
 class CVmObjIter: public CVmObject
 {
     friend class CVmMetaclassIter;
-    
+
 public:
     /* metaclass registration object */
     static class CVmMetaclass *metaclass_reg_;
@@ -46,9 +46,9 @@ public:
                 || CVmObject::is_of_metaclass(meta));
     }
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -62,7 +62,7 @@ public:
         /* cannot set iterator properties */
         err_throw(VMERR_INVALID_SETPROP);
     }
-    
+
     /* get a property */
     int get_prop(VMG_ vm_prop_id_t prop, vm_val_t *val,
                  vm_obj_id_t self, vm_obj_id_t *source_obj, uint *argc);
@@ -83,7 +83,7 @@ protected:
     virtual int getp_reset_iter(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                 uint *argc) = 0;
 
-    
+
     /* property evaluator - get current key */
     virtual int getp_get_cur_key(VMG_ vm_obj_id_t self, vm_val_t *retval,
                                  uint *argc) = 0;
@@ -102,7 +102,7 @@ protected:
 /*
  *   Indexed Iterator subclass.  An indexed iterator works with arrays,
  *   lists, and other collections that can be accessed via an integer
- *   index.  
+ *   index.
  */
 
 /*
@@ -110,15 +110,15 @@ protected:
  *   the associated indexed collection, the index value of the next item
  *   to be retrieved, and the first and last valid index values: Note that
  *   the collection value can be an object ID or a constant VM_LIST value.
- *   
+ *
  *   DATAHOLDER collection_value
  *.  UINT4 cur_index
  *.  UINT4 first_valid
  *.  UINT4 last_valid
  *.  UINT4 flags
- *   
+ *
  *   The flag values are:
- *   
+ *
  *   VMOBJITERIDX_UNDO - we've saved undo for this savepoint.  If this is
  *   set, we won't save additional undo for the same savepoint.
  */
@@ -126,15 +126,15 @@ protected:
 /* total extension size */
 #define VMOBJITERIDX_EXT_SIZE  (VMB_DATAHOLDER + 16)
 
-/* 
- *   flag bits 
+/*
+ *   flag bits
  */
 
 /* we've saved undo for the current savepoint */
 #define VMOBJITERIDX_UNDO   0x0001
 
 /*
- *   indexed iterator class 
+ *   indexed iterator class
  */
 class CVmObjIterIdx: public CVmObjIter
 {
@@ -153,9 +153,9 @@ public:
                 || CVmObjIter::is_of_metaclass(meta));
     }
 
-    /* 
+    /*
      *   call a static property - we don't have any of our own, so simply
-     *   "inherit" the base class handling 
+     *   "inherit" the base class handling
      */
     static int call_stat_prop(VMG_ vm_val_t *result,
                               const uchar **pc_ptr, uint *argc,
@@ -167,7 +167,7 @@ public:
     /*
      *   Create an indexed iterator.  This method is to be called by a
      *   list, array, or other indexed collection object to create an
-     *   iterator for its value.  
+     *   iterator for its value.
      */
     static vm_obj_id_t create_for_coll(VMG_ const vm_val_t *coll,
                                        long first_valid_index,
@@ -176,10 +176,10 @@ public:
     /* notify of deletion */
     void notify_delete(VMG_ int in_root_set);
 
-    /* 
+    /*
      *   notify of a new savepoint - clear the 'undo' flag, since we
      *   cannot have created any undo information yet for the new
-     *   savepoint 
+     *   savepoint
      */
     void notify_new_savept()
         { set_flags(get_flags() & ~VMOBJITERIDX_UNDO); }
@@ -204,7 +204,7 @@ public:
     void reload_from_image(VMG_ vm_obj_id_t self,
                            const char *ptr, size_t siz);
 
-    /* 
+    /*
      *   determine if the object has been changed since it was loaded -
      *   assume we have, since saving and reloading are very cheap
      */
@@ -230,7 +230,7 @@ public:
 protected:
     /* create */
     CVmObjIterIdx() { ext_ = 0; }
-    
+
     /* create */
     CVmObjIterIdx(VMG_ const vm_val_t *coll, long first_valid_index,
                   long last_valid_index);
@@ -366,7 +366,7 @@ public:
 #endif /* VMITER_H */
 
 /*
- *   Register the class 
+ *   Register the class
  */
 VM_REGISTER_METACLASS(CVmObjIter)
 VM_REGISTER_METACLASS(CVmObjIterIdx)
