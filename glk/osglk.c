@@ -27,6 +27,7 @@
 
 #include "os.h"
 #include "glk.h"
+#include "osglk.h"
 
 /* for version strings */
 #include "trd.h"
@@ -43,11 +44,7 @@ static int curattr = 0;
 winid_t mainwin;
 winid_t statuswin;
 
-glui32 mainfg;
 glui32 mainbg;
-
-glui32 statusfg;
-glui32 statusbg;
 
 
 /* ------------------------------------------------------------------------ */
@@ -146,28 +143,9 @@ int os_init(int *argc, char *argv[], const char *prompt,
         glk_exit();
     }
 
-    /* get default colors for main window */
-    if (!glk_style_measure(mainwin, style_Normal, stylehint_TextColor, &mainfg))
-        mainfg = 0;
-
+    /* Get the background colour main window, which we will try to use for invisible text */
     if (!glk_style_measure(mainwin, style_Normal, stylehint_BackColor, &mainbg))
-        mainbg = 0xFFFFFFFF;
-
-    /* get default colors for status window */
-    statuswin = glk_window_open(mainwin,
-            winmethod_Above | winmethod_Fixed, 1,
-            wintype_TextGrid, 0);
-
-    if (!glk_style_measure(statuswin, style_Normal, stylehint_TextColor, &statusfg))
-        statusfg = 0;
-
-    if (!glk_style_measure(statuswin, style_Normal, stylehint_BackColor, &statusbg))
-        statusbg = 0;
-
-    /* close statuswin; reopened on request */
-    glk_window_close(statuswin, 0);
-
-    statuswin = NULL;
+        mainbg = UNMEASURED_COLOUR;
 
     glk_set_window(mainwin);
 
