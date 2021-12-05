@@ -49,7 +49,6 @@ typedef struct os_banner_s
     glui32 method;                  /* glk window method */
     glui32 size;                    /* glk window size */
     glui32 type;                    /* glk window type */
-    glui32 status;                  /* glk status style */
 
     glui32 cheight;                 /* glk char height */
     glui32 cwidth;                  /* glk char width */
@@ -128,7 +127,6 @@ osbanid_t os_banner_init(void)
     instance->method = 0;
     instance->size = 0;
     instance->type = 0;
-    instance->status = 0;
 
     instance->cheight = 0;
     instance->cwidth = 0;
@@ -148,7 +146,7 @@ osbanid_t os_banner_init(void)
 }
 
 osbanid_t os_banner_insert(osbanid_t parent, glui32 operation, osbanid_t other,
-                           glui32 method, glui32 size, glui32 type, glui32 status)
+                           glui32 method, glui32 size, glui32 type)
 {
     if (!parent || !(parent->valid))
         return 0;
@@ -225,7 +223,6 @@ osbanid_t os_banner_insert(osbanid_t parent, glui32 operation, osbanid_t other,
     baby->method = method;
     baby->size = size;
     baby->type = type;
-    baby->status = status;
 
     return baby;
 }
@@ -235,16 +232,7 @@ void os_banner_styles_apply (osbanid_t banner)
     if (!banner || !(banner->valid))
         return;
 
-    glui32 propval = banner->status ? 0 : (banner->type == wintype_TextGrid ? 0 : 1);
     glui32 bgcustom = banner->bgtrans ? banner->bgcolor : banner->bgcustom;
-
-    /* font style: monospace for text grid and tab aligned buffers, else proportional */
-    glk_stylehint_set(banner->type, style_Alert, stylehint_Proportional, propval);
-    glk_stylehint_set(banner->type, style_Subheader, stylehint_Proportional, propval);
-    glk_stylehint_set(banner->type, style_Emphasized, stylehint_Proportional, propval);
-    glk_stylehint_set(banner->type, style_Normal, stylehint_Proportional, propval);
-    glk_stylehint_set(banner->type, style_User1, stylehint_Proportional, propval);
-    glk_stylehint_set(banner->type, style_User2, stylehint_Proportional, propval);
 
     /* foreground color: user1 reverse, user2 custom */
     glk_stylehint_set(banner->type, style_Alert, stylehint_TextColor, banner->fgcolor);
@@ -264,7 +252,6 @@ void os_banner_styles_apply (osbanid_t banner)
 
     // Use blockquote for invisible text - set both to the banner background
     if (mainbg != 0xFFFFFFFF) {
-        glk_stylehint_set(banner->type, style_BlockQuote, stylehint_Proportional, propval);
         glk_stylehint_set(banner->type, style_BlockQuote, stylehint_TextColor, banner->bgcolor);
         glk_stylehint_set(banner->type, style_BlockQuote, stylehint_BackColor, banner->bgcolor);
     }
@@ -272,13 +259,6 @@ void os_banner_styles_apply (osbanid_t banner)
 
 void os_banner_styles_reset (void)
 {
-    glk_stylehint_clear(wintype_AllTypes, style_Alert, stylehint_Proportional);
-    glk_stylehint_clear(wintype_AllTypes, style_Subheader, stylehint_Proportional);
-    glk_stylehint_clear(wintype_AllTypes, style_Emphasized, stylehint_Proportional);
-    glk_stylehint_clear(wintype_AllTypes, style_Normal, stylehint_Proportional);
-    glk_stylehint_clear(wintype_AllTypes, style_User1, stylehint_Proportional);
-    glk_stylehint_clear(wintype_AllTypes, style_User2, stylehint_Proportional);
-
     glk_stylehint_clear(wintype_AllTypes, style_Alert, stylehint_TextColor);
     glk_stylehint_clear(wintype_AllTypes, style_Subheader, stylehint_TextColor);
     glk_stylehint_clear(wintype_AllTypes, style_Emphasized, stylehint_TextColor);
@@ -294,7 +274,6 @@ void os_banner_styles_reset (void)
     glk_stylehint_clear(wintype_AllTypes, style_User2, stylehint_BackColor);
 
     if (mainbg != 0xFFFFFFFF) {
-        glk_stylehint_clear(wintype_AllTypes, style_BlockQuote, stylehint_Proportional);
         glk_stylehint_clear(wintype_AllTypes, style_BlockQuote, stylehint_TextColor);
         glk_stylehint_clear(wintype_AllTypes, style_BlockQuote, stylehint_BackColor);
     }
@@ -478,7 +457,7 @@ void *os_banner_create(void *parent, int where, void *other, int wintype,
 
     switch (wintype)
     {
-        case OS_BANNER_TYPE_TEXT: gwintype = wintype_TextBuffer; break;
+        case OS_BANNER_TYPE_TEXT: gwintype = (gstatus ? wintype_TextGrid : wintype_TextBuffer); break;
         case OS_BANNER_TYPE_TEXTGRID: gwintype = wintype_TextGrid; break;
         default: gwintype = wintype_TextGrid; break;
     }
@@ -499,7 +478,7 @@ void *os_banner_create(void *parent, int where, void *other, int wintype,
         default: gwinmeth |= winmethod_Fixed; break;
     }
 
-    gbanner = os_banner_insert(gparent, where, other, gwinmeth, gwinsize, gwintype, gstatus);
+    gbanner = os_banner_insert(gparent, where, other, gwinmeth, gwinsize, gwintype);
 
     if (gbanner)
     {
@@ -599,7 +578,7 @@ int os_banner_getinfo(void *banner_handle, os_banner_info_t *info)
     winid_t win = banner->win;
     glui32 gwintype = banner->type;
     glui32 gwinmeth = banner->method;
-    glui32 gstyletab = banner->status;
+    glui32 gstyletab = gwintype == wintype_TextGrid;
 
     if (gwinmeth & winmethod_Above)
         info->align = OS_BANNER_ALIGN_TOP;
