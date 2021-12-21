@@ -590,6 +590,25 @@ void os_banner_orphan(void *banner_handle)
     os_banner_delete(banner_handle);
 }
 
+void osglk_window_get_size(void *banner_handle) {
+    osbanid_t banner = banner_handle;
+    if (!banner || !banner->valid || !banner->win) {
+        return;
+    }
+
+    // Measuring a true grid window or non tab aligned buffer window is easy
+    if (banner->type == wintype_TextGrid || !banner->status) {
+        glk_window_get_size(banner->win, &(banner->cwidth), &(banner->cheight));
+        return;
+    }
+
+    // But for a tab aligned window we'll make a temp grid window to measure the width
+    glk_window_get_size(banner->win, NULL, &(banner->cheight));
+    winid_t tempwin = glk_window_open(banner->win, winmethod_Below | winmethod_Fixed, 0, wintype_TextGrid, 0);
+    glk_window_get_size(tempwin, &(banner->cwidth), NULL);
+    glk_window_close(tempwin, NULL);
+}
+
 int os_banner_getinfo(void *banner_handle, os_banner_info_t *info)
 {
     osbanid_t banner = banner_handle;
@@ -612,7 +631,7 @@ int os_banner_getinfo(void *banner_handle, os_banner_info_t *info)
 
     info->style = gstyletab ? OS_BANNER_STYLE_TAB_ALIGN : 0;
 
-    glk_window_get_size(banner->win, &(banner->cwidth), &(banner->cheight));
+    osglk_window_get_size(banner);
 
     info->rows = banner->cheight;
     info->columns = banner->cwidth;
@@ -631,7 +650,7 @@ int os_banner_get_charwidth(void *banner_handle)
     if (!banner || !banner->valid || !banner->win)
         return 0;
 
-    glk_window_get_size(banner->win, &(banner->cwidth), &(banner->cheight));
+    osglk_window_get_size(banner);
 
     return banner->cwidth;
 }
@@ -642,7 +661,7 @@ int os_banner_get_charheight(void *banner_handle)
     if (!banner || !banner->valid || !banner->win)
         return 0;
 
-    glk_window_get_size(banner->win, &(banner->cwidth), &(banner->cheight));
+    osglk_window_get_size(banner);
 
     return banner->cheight;
 }
