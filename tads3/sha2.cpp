@@ -113,8 +113,6 @@
 #  include <stdlib.h>
 #  if !defined (_ENDIAN_H)
 #    include <sys/param.h>
-#  else
-#    include _ENDIAN_H
 #  endif
 #elif defined(GARGOYLE)
 #    include <sys/param.h>
