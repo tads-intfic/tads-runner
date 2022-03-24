@@ -89,17 +89,15 @@ unsigned char *os_fill_buffer (unsigned char *buf, size_t len);
 
 int os_vasprintf(char **bufptr, const char *fmt, va_list ap);
 
-// Patch Remglk's fileref_get_filename function
+// Support both the old garglk_fileref_get_name() and the new
+// glkunix_fileref_get_filename() functions.
 #include "glk.h"
 #include "glkstart.h"
-#ifdef GLKUNIX_FILEREF_GET_FILENAME
 
-#include "remglk.h"
-#define GLK_MODULE_FILEREF_GET_NAME
-extern char *glkunix_fileref_get_filename(frefid_t fref);
-#define garglk_fileref_get_name glkunix_fileref_get_filename
-
-#endif /* GLKUNIX_FILEREF_GET_FILENAME */
+#if defined(GLK_MODULE_FILEREF_GET_NAME) && !defined(GLKUNIX_FILEREF_GET_FILENAME)
+#define glkunix_fileref_get_filename garglk_fileref_get_name
+#define GLKUNIX_FILEREF_GET_FILENAME
+#endif
 
 #ifdef __cplusplus
 }

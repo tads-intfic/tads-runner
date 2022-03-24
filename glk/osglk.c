@@ -517,12 +517,11 @@ void os_more_prompt()
 int os_askfile(const char *prompt, char *fname_buf, int fname_buf_len,
                int prompt_type, os_filetype_t file_type)
 {
+#ifndef GLKUNIX_FILEREF_GET_FILENAME
+    return OS_AFE_FAILURE;
+#else
     frefid_t fileref;
     glui32 gprompt, gusage;
-
-#ifndef GLK_MODULE_FILEREF_GET_NAME
-    return OS_AFE_FAILURE;
-#endif
 
     if (prompt_type == OS_AFP_OPEN)
         gprompt = filemode_Read;
@@ -540,11 +539,12 @@ int os_askfile(const char *prompt, char *fname_buf, int fname_buf_len,
     if (fileref == NULL)
         return OS_AFE_CANCEL;
 
-    strcpy(fname_buf, garglk_fileref_get_name(fileref));
+    strcpy(fname_buf, glkunix_fileref_get_filename(fileref));
 
     glk_fileref_destroy(fileref);
 
     return OS_AFE_SUCCESS;
+#endif
 }
 
 /* 
