@@ -27,6 +27,7 @@
 
 #include "os.h"
 #include "glk.h"
+#include "osglk.h"
 
 #ifdef GARGLK
 #include "garglk.h"                 /* for-size to-contents hack */
@@ -54,8 +55,8 @@ typedef struct os_banner_s
     glui32 cheight;                 /* glk char height */
     glui32 cwidth;                  /* glk char width */
 
-    glui32 fgcolor;                 /* foreground color */
-    glui32 bgcolor;                 /* background color */
+    //glui32 fgcolor;                 /* foreground color */
+    //glui32 bgcolor;                 /* background color */
     glui32 fgcustom;                /* custom colors */
     glui32 bgcustom;
     glui32 bgtrans;
@@ -90,12 +91,6 @@ static glui32 os_banner_count = 999;
 
 extern winid_t mainwin;
 extern winid_t statuswin;
-
-extern glui32 mainfg;
-extern glui32 mainbg;
-
-extern glui32 statusfg;
-extern glui32 statusbg;
 
 void banner_contents_display(contentid_t contents);
 
@@ -235,8 +230,6 @@ void os_banner_styles_apply (osbanid_t banner)
     if (!banner || !(banner->valid))
         return;
 
-    glui32 bgcustom = banner->bgtrans ? banner->bgcolor : banner->bgcustom;
-
     /* font style: monospace for tab aligned buffers */
     if (banner->tab_aligned) {
         for (int i = 0; i < style_NUMSTYLES; i++) {
@@ -244,26 +237,22 @@ void os_banner_styles_apply (osbanid_t banner)
         }
     }
 
-    /* foreground color: user1 reverse, user2 custom */
-    glk_stylehint_set(banner->type, style_Alert, stylehint_TextColor, banner->fgcolor);
-    glk_stylehint_set(banner->type, style_Subheader, stylehint_TextColor, banner->fgcolor);
-    glk_stylehint_set(banner->type, style_Emphasized, stylehint_TextColor, banner->fgcolor);
-    glk_stylehint_set(banner->type, style_Normal, stylehint_TextColor, banner->fgcolor);
-    glk_stylehint_set(banner->type, style_User1, stylehint_TextColor, banner->bgcolor);
-    glk_stylehint_set(banner->type, style_User2, stylehint_TextColor, banner->fgcustom);
+    // Custom styles
+    // User1: reverse mode
+    glk_stylehint_set(banner->type, style_User1, stylehint_ReverseColor, 1);
 
-    /* background color: user1 reverse, user2 custom */
-    glk_stylehint_set(banner->type, style_Alert, stylehint_BackColor, banner->bgcolor);
-    glk_stylehint_set(banner->type, style_Subheader, stylehint_BackColor, banner->bgcolor);
-    glk_stylehint_set(banner->type, style_Emphasized, stylehint_BackColor, banner->bgcolor);
-    glk_stylehint_set(banner->type, style_Normal, stylehint_BackColor, banner->bgcolor);
-    glk_stylehint_set(banner->type, style_User1, stylehint_BackColor, banner->fgcolor);
-    glk_stylehint_set(banner->type, style_User2, stylehint_BackColor, bgcustom);
+    // User 2: custom colours
+    if (banner->fgcustom != UNSET_COLOUR) {
+        glk_stylehint_set(banner->type, style_User2, stylehint_TextColor, banner->fgcustom);
+    }
+    if (!banner->bgtrans && banner->bgcustom != UNSET_COLOUR) {
+        glk_stylehint_set(banner->type, style_User2, stylehint_BackColor, banner->bgcustom);
+    }
 
     // Use blockquote for invisible text - set both to the banner background
-    if (mainbg != 0xFFFFFFFF) {
-        glk_stylehint_set(banner->type, style_BlockQuote, stylehint_TextColor, banner->bgcolor);
-        glk_stylehint_set(banner->type, style_BlockQuote, stylehint_BackColor, banner->bgcolor);
+    if (mainbg != UNMEASURED_COLOUR) {
+        glk_stylehint_set(banner->type, style_BlockQuote, stylehint_TextColor, mainbg);
+        glk_stylehint_set(banner->type, style_BlockQuote, stylehint_BackColor, mainbg);
     }
 }
 
@@ -275,30 +264,14 @@ void os_banner_styles_reset(osbanid_t banner)
         }
     }
 
-    glk_stylehint_clear(wintype_AllTypes, style_Alert, stylehint_TextColor);
-    glk_stylehint_clear(wintype_AllTypes, style_Subheader, stylehint_TextColor);
-    glk_stylehint_clear(wintype_AllTypes, style_Emphasized, stylehint_TextColor);
-    glk_stylehint_clear(wintype_AllTypes, style_Normal, stylehint_TextColor);
-    glk_stylehint_clear(wintype_AllTypes, style_User1, stylehint_TextColor);
+    glk_stylehint_clear(wintype_AllTypes, style_User1, stylehint_ReverseColor);
     glk_stylehint_clear(wintype_AllTypes, style_User2, stylehint_TextColor);
-
-    glk_stylehint_clear(wintype_AllTypes, style_Alert, stylehint_BackColor);
-    glk_stylehint_clear(wintype_AllTypes, style_Subheader, stylehint_BackColor);
-    glk_stylehint_clear(wintype_AllTypes, style_Emphasized, stylehint_BackColor);
-    glk_stylehint_clear(wintype_AllTypes, style_Normal, stylehint_BackColor);
-    glk_stylehint_clear(wintype_AllTypes, style_User1, stylehint_BackColor);
     glk_stylehint_clear(wintype_AllTypes, style_User2, stylehint_BackColor);
 
-    if (mainbg != 0xFFFFFFFF) {
+    if (mainbg != UNMEASURED_COLOUR) {
         glk_stylehint_clear(wintype_AllTypes, style_BlockQuote, stylehint_TextColor);
         glk_stylehint_clear(wintype_AllTypes, style_BlockQuote, stylehint_BackColor);
     }
-
-#ifdef GARGLK
-    /* reset our default colors with a superfluous hint */
-    glk_stylehint_set(wintype_AllTypes, style_Normal, stylehint_TextColor, mainfg);
-    glk_stylehint_set(wintype_AllTypes, style_Normal, stylehint_BackColor, mainbg);
-#endif /* GARGLK */
 }
 
 void os_banners_close(osbanid_t banner)
@@ -501,10 +474,10 @@ void *os_banner_create(void *parent, int where, void *other, int wintype,
 
     if (gbanner)
     {
-        gbanner->fgcolor = tab_aligned ? statusbg : mainfg;
-        gbanner->bgcolor = tab_aligned ? statusfg : mainbg;
-        gbanner->fgcustom = gbanner->fgcolor;
-        gbanner->bgcustom = gbanner->bgcolor;
+        //gbanner->fgcolor = tab_aligned ? statusbg : mainfg;
+        //gbanner->bgcolor = tab_aligned ? statusfg : mainbg;
+        gbanner->fgcustom = UNSET_COLOUR;
+        gbanner->bgcustom = UNSET_COLOUR;
         gbanner->bgtrans = 1;
     }
 
@@ -802,7 +775,7 @@ void os_banner_set_color(void *banner_handle, os_color_t fg, os_color_t bg)
 
     if (invisible) {
         // If we can't measure the background colour, then use the replace-with-spaces method
-        if (mainbg == 0xFFFFFFFF) {
+        if (mainbg == UNMEASURED_COLOUR) {
             banner->style = style_Preformatted;
             banner->invisible = TRUE;
         }
@@ -827,8 +800,8 @@ void os_banner_set_color(void *banner_handle, os_color_t fg, os_color_t bg)
         glui32 oldtr = banner->bgtrans;
 
         /* reset custom color parameters */
-        banner->fgcustom = banner->fgcolor;
-        banner->bgcustom = banner->bgcolor;
+        banner->fgcustom = UNSET_COLOUR;
+        banner->bgcustom = UNSET_COLOUR;
         banner->bgtrans = 1;
 
         if (!normal)
@@ -853,8 +826,9 @@ void os_banner_set_screen_color(void *banner_handle, os_color_t color)
     if (!banner || !banner->valid)
         return;
 
-    if (!(os_color_is_param(color)))
-        banner->bgcolor = color;
+    // TODO: fix
+    //if (!(os_color_is_param(color)))
+    //    banner->bgcolor = color;
 
     os_banners_redraw();
 }
