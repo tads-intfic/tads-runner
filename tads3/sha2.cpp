@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "sha256.h"
+#include "sha2.h"
 
 #define LTC_SHA256
 
