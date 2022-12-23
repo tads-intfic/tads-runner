@@ -1,6 +1,7 @@
 #ifndef SHA2_H
 #define SHA2_H
 
+#include <cstddef>
 #include <cstdint>
 
 #define CRYPT_OK 0
