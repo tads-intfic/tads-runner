@@ -83,6 +83,7 @@ unsigned char *os_fill_buffer (unsigned char *buf, size_t len);
 #define OS_ATTR_HILITE  OS_ATTR_BOLD
 #define OS_ATTR_EM      OS_ATTR_ITALIC
 #define OS_ATTR_STRONG  OS_ATTR_BOLD
+#define OS_ATTR_MONOSP  0x0004
 
 #define OS_DECLARATIVE_TLS
 #define OS_DECL_TLS(t, v) t v

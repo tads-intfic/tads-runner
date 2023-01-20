@@ -408,6 +408,8 @@ void os_set_text_attr(int attr)
         glk_set_style(style_Subheader);
     else if (curattr & OS_ATTR_ITALIC)
         glk_set_style(style_Emphasized);
+    else if (curattr & OS_ATTR_MONOSP)
+        glk_set_style(style_Preformatted);
     else
         glk_set_style(style_Normal);
 }

@@ -1458,7 +1458,8 @@ wchar_t CVmFormatter::parse_html_markup(VMG_ wchar_t c,
         else if (CVmCaseFoldStr::wstreq(tagbuf, L"b")
                  || CVmCaseFoldStr::wstreq(tagbuf, L"i")
                  || CVmCaseFoldStr::wstreq(tagbuf, L"em")
-                 || CVmCaseFoldStr::wstreq(tagbuf, L"strong"))
+                 || CVmCaseFoldStr::wstreq(tagbuf, L"strong")
+                 || CVmCaseFoldStr::wstreq(tagbuf, L"tt"))
         {
             /* suppress in ignore mode */
             if (!html_in_ignore_)
@@ -1492,6 +1493,11 @@ wchar_t CVmFormatter::parse_html_markup(VMG_ wchar_t c,
                     case 's':
                     case 'S':
                         attr = OS_ATTR_STRONG;
+                        break;
+
+                    case 't':
+                    case 'T':
+                        attr = OS_ATTR_MONOSP;
                         break;
                     }
 

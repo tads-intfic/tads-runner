@@ -2932,6 +2932,12 @@ void os_set_text_attr(int attr);
 # define OS_ATTR_STRONG  0
 #endif
 
+/* Monospaced text (HTML <tt> attribute - by default, this has no effect.
+ * (Introduced for the Glk port  -- AW 2023-01-20) */
+#ifndef OS_ATTR_MONOSP
+# define OS_ATTR_MONOSP  0
+#endif
+
 
 /* ------------------------------------------------------------------------ */
 /*

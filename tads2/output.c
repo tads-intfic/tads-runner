@@ -2470,7 +2470,8 @@ static int outformatlen_stream(out_stream_info *stream,
                 else if (!stricmp(tagbuf, "b")
                          || !stricmp(tagbuf, "i")
                          || !stricmp(tagbuf, "em")
-                         || !stricmp(tagbuf, "strong"))
+                         || !stricmp(tagbuf, "strong")
+                         || !stricmp(tagbuf, "tt"))
                 {
                     int attr;
                     
@@ -2495,6 +2496,11 @@ static int outformatlen_stream(out_stream_info *stream,
                     case 's':
                     case 'S':
                         attr = OS_ATTR_STRONG;
+                        break;
+
+                    case 't':
+                    case 'T':
+                        attr = OS_ATTR_MONOSP;
                         break;
                     }
                     
