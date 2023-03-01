@@ -66,7 +66,7 @@ int os_get_sysinfo(int code, void *param, long *result)
             *result = 1;
             return TRUE;
         case SYSINFO_TEXT_COLORS:
-            *result = SYSINFO_TXC_RGB;
+            *result = SYSINFO_TXC_NONE;
             return TRUE;
 
 #ifdef USE_HTML
