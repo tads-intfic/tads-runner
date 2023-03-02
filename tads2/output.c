@@ -2656,16 +2656,20 @@ static int outformatlen_stream(out_stream_info *stream,
                 }
                 else if (!stricmp(tagbuf, "pre"))
                 {
-                    /* count the nesting level if starting PRE mode */
-                    if (!is_end_tag)
+                    if (!is_end_tag) {
+                        /* entering PRE mode: count nesting level, send line break, select monospace font */
                         stream->html_pre_level += 1;
-
-                    /* surround the PRE block with line breaks */
-                    outblank_stream(stream);
-
-                    /* count the nesting level if ending PRE mode */
-                    if (is_end_tag && stream->html_pre_level != 0)
+                        outblank_stream(stream);
+                        stream->cur_attr |= OS_ATTR_MONOSP;
+                    } else if (stream->html_pre_level > 0) {
+                        /* ending PRE mode: reduce nesting level */
                         stream->html_pre_level -= 1;
+                        if (stream->html_pre_level == 0)
+                            /* get rid of monospace font if we're completely out of PRE mode */
+                            stream->cur_attr &= (~OS_ATTR_MONOSP);
+                        /* send line break */
+                        outblank_stream(stream);
+                    }
                 }
 
                 /* suppress everything up to the next '>' */
