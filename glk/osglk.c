@@ -158,6 +158,10 @@ int os_init(int *argc, char *argv[], const char *prompt,
         // Use User2 for monospace+italic
         glk_stylehint_set(wintype_TextBuffer, style_User2, stylehint_Proportional, 0);
         glk_stylehint_set(wintype_TextBuffer, style_User2, stylehint_Oblique, 1);
+        // Use Note for monospace+italic+bold
+        glk_stylehint_set(wintype_TextBuffer, style_Note, stylehint_Proportional, 0);
+        glk_stylehint_set(wintype_TextBuffer, style_Note, stylehint_Weight, 1);
+        glk_stylehint_set(wintype_TextBuffer, style_Note, stylehint_Oblique, 1);
     }
 
     mainwin = glk_window_open(0, 0, 0, wintype_TextBuffer, 0);
@@ -413,6 +417,28 @@ void oscls(void)
     glk_window_clear(mainwin);
 }
 
+// mapping of text attributes to Glk styles
+static const glui32 attr_to_style[] = {
+        style_Normal,  // nothing
+        style_Subheader,  // bold
+        style_Emphasized,  // italic
+        style_Alert,  // italic + bold
+        style_Preformatted,  // everything with monospace bit set maps to monospace
+        style_Preformatted,
+        style_Preformatted,
+        style_Preformatted
+};
+static const glui32 attr_to_style_ext[] = {
+        style_Normal,  // nothing
+        style_Subheader,  // bold
+        style_Emphasized,  // italic
+        style_Alert,  // italic + bold
+        style_Preformatted,  // monospace
+        style_User1,  // monospace + bold
+        style_User2,  // monospace + italic
+        style_Note  // monospace + bold + italic
+};
+
 /* ------------------------------------------------------------------------ */
 /*
  *   Set text attributes.  Text subsequently displayed through os_print() and
@@ -423,21 +449,14 @@ void oscls(void)
  */
 void os_set_text_attr(int attr)
 {
+    // If anyone adds more style attributes in the future, our array lookup
+    // will blow up, so...
+    assert(attr < 8);
     curattr = attr;
-    if (use_more_text_styling && (curattr & OS_ATTR_MONOSP) && (curattr & OS_ATTR_BOLD))
-        glk_set_style(style_User1);
-    else if (use_more_text_styling && (curattr & OS_ATTR_MONOSP) && (curattr & OS_ATTR_ITALIC))
-        glk_set_style(style_User2);
-    else if (curattr & OS_ATTR_MONOSP)
-        glk_set_style(style_Preformatted);
-    else if (curattr & OS_ATTR_BOLD && curattr & OS_ATTR_ITALIC)
-        glk_set_style(style_Alert);
-    else if (curattr & OS_ATTR_BOLD)
-        glk_set_style(style_Subheader);
-    else if (curattr & OS_ATTR_ITALIC)
-        glk_set_style(style_Emphasized);
+    if (use_more_text_styling)
+        glk_set_style(attr_to_style_ext[curattr]);
     else
-        glk_set_style(style_Normal);
+        glk_set_style(attr_to_style[curattr]);
 }
 
 /*
