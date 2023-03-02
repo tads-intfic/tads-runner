@@ -38,6 +38,11 @@
 # define gestalt_GarglkText 0x1100
 #endif
 
+#ifndef gestalt_Stylehints
+// preliminary, likely to change later.
+# define gestalt_Stylehints 0x1101
+#endif
+
 static void redraw_windows(void);
 static void os_status_redraw(void);
 extern void os_banners_redraw(void);
@@ -145,7 +150,7 @@ int os_get_sysinfo(int code, void *param, long *result)
 int os_init(int *argc, char *argv[], const char *prompt,
             char *buf, int bufsiz)
 {
-    if (glk_gestalt(gestalt_GarglkText, 0)) {
+    if (glk_gestalt(gestalt_GarglkText, 0) || glk_gestalt(gestalt_Stylehints, 0)) {
         use_more_text_styling = 1;
         // Use User1 for monospace+bold
         glk_stylehint_set(wintype_TextBuffer, style_User1, stylehint_Proportional, 0);
