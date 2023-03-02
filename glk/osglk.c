@@ -32,6 +32,12 @@
 #include "trd.h"
 #include "vmvsn.h"
 
+#ifndef gestalt_GarglkText
+// If this isn't defined by the Glk header, then it's very unlikely to be
+// supported, but defining it here makes the code below a bit nicer.
+# define gestalt_GarglkText 0x1100
+#endif
+
 static void redraw_windows(void);
 static void os_status_redraw(void);
 extern void os_banners_redraw(void);
@@ -49,6 +55,7 @@ glui32 mainbg;
 glui32 statusfg;
 glui32 statusbg;
 
+static int use_more_text_styling = 0;
 
 /* ------------------------------------------------------------------------ */
 /*
@@ -138,6 +145,16 @@ int os_get_sysinfo(int code, void *param, long *result)
 int os_init(int *argc, char *argv[], const char *prompt,
             char *buf, int bufsiz)
 {
+    if (glk_gestalt(gestalt_GarglkText, 0)) {
+        use_more_text_styling = 1;
+        // Use User1 for monospace+bold
+        glk_stylehint_set(wintype_TextBuffer, style_User1, stylehint_Proportional, 0);
+        glk_stylehint_set(wintype_TextBuffer, style_User1, stylehint_Weight, 1);
+        // Use User2 for monospace+italic
+        glk_stylehint_set(wintype_TextBuffer, style_User2, stylehint_Proportional, 0);
+        glk_stylehint_set(wintype_TextBuffer, style_User2, stylehint_Oblique, 1);
+    }
+
     mainwin = glk_window_open(0, 0, 0, wintype_TextBuffer, 0);
 
     if (!mainwin)
@@ -402,14 +419,18 @@ void oscls(void)
 void os_set_text_attr(int attr)
 {
     curattr = attr;
-    if (curattr & OS_ATTR_BOLD && curattr & OS_ATTR_ITALIC)
+    if (use_more_text_styling && (curattr & OS_ATTR_MONOSP) && (curattr & OS_ATTR_BOLD))
+        glk_set_style(style_User1);
+    else if (use_more_text_styling && (curattr & OS_ATTR_MONOSP) && (curattr & OS_ATTR_ITALIC))
+        glk_set_style(style_User2);
+    else if (curattr & OS_ATTR_MONOSP)
+        glk_set_style(style_Preformatted);
+    else if (curattr & OS_ATTR_BOLD && curattr & OS_ATTR_ITALIC)
         glk_set_style(style_Alert);
     else if (curattr & OS_ATTR_BOLD)
         glk_set_style(style_Subheader);
     else if (curattr & OS_ATTR_ITALIC)
         glk_set_style(style_Emphasized);
-    else if (curattr & OS_ATTR_MONOSP)
-        glk_set_style(style_Preformatted);
     else
         glk_set_style(style_Normal);
 }
