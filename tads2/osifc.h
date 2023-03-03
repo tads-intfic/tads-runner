@@ -2899,6 +2899,10 @@ void os_set_text_attr(int attr);
 /* attribute code: italic */
 #define OS_ATTR_ITALIC   0x0002
 
+/* attribute code: monospace
+ * (Introduced for the Glk port  -- AW 2023-01-20) */
+#define OS_ATTR_MONOSP   0x0004
+
 /*
  *   Abstract attribute codes.  Each platform can choose a custom rendering
  *   for these by #defining them before this point, in the OS-specific header
