@@ -150,18 +150,42 @@ int os_get_sysinfo(int code, void *param, long *result)
 int os_init(int *argc, char *argv[], const char *prompt,
             char *buf, int bufsiz)
 {
+    // If stylehints are supported, set styles to enable us to have all combinations of bold, italic, and monospaced
+    // Some of these might be redundant, but set them just to be safe
     if (glk_gestalt(gestalt_GarglkText, 0) || glk_gestalt(gestalt_Stylehints, 0)) {
         use_more_text_styling = 1;
+        // Use Normal for no formatting
+        glk_stylehint_set(wintype_TextBuffer, style_Normal, stylehint_Weight, 0);
+        glk_stylehint_set(wintype_TextBuffer, style_Normal, stylehint_Oblique, 0);
+        glk_stylehint_set(wintype_TextBuffer, style_Normal, stylehint_Proportional, 1);
+        // Use Subheader for bold
+        glk_stylehint_set(wintype_TextBuffer, style_Subheader, stylehint_Weight, 1);
+        glk_stylehint_set(wintype_TextBuffer, style_Subheader, stylehint_Oblique, 0);
+        glk_stylehint_set(wintype_TextBuffer, style_Subheader, stylehint_Proportional, 1);
+        // Use Emphasized for italic
+        glk_stylehint_set(wintype_TextBuffer, style_Emphasized, stylehint_Weight, 0);
+        glk_stylehint_set(wintype_TextBuffer, style_Emphasized, stylehint_Oblique, 1);
+        glk_stylehint_set(wintype_TextBuffer, style_Emphasized, stylehint_Proportional, 1);
+        // Use Alert for bold+italic
+        glk_stylehint_set(wintype_TextBuffer, style_Alert, stylehint_Weight, 1);
+        glk_stylehint_set(wintype_TextBuffer, style_Alert, stylehint_Oblique, 1);
+        glk_stylehint_set(wintype_TextBuffer, style_Alert, stylehint_Proportional, 1);
+        // Use Preformatted for monospace
+        glk_stylehint_set(wintype_TextBuffer, style_Preformatted, stylehint_Weight, 0);
+        glk_stylehint_set(wintype_TextBuffer, style_Preformatted, stylehint_Oblique, 0);
+        glk_stylehint_set(wintype_TextBuffer, style_Preformatted, stylehint_Proportional, 0);
         // Use User1 for monospace+bold
-        glk_stylehint_set(wintype_TextBuffer, style_User1, stylehint_Proportional, 0);
         glk_stylehint_set(wintype_TextBuffer, style_User1, stylehint_Weight, 1);
+        glk_stylehint_set(wintype_TextBuffer, style_User1, stylehint_Oblique, 0);
+        glk_stylehint_set(wintype_TextBuffer, style_User1, stylehint_Proportional, 0);
         // Use User2 for monospace+italic
-        glk_stylehint_set(wintype_TextBuffer, style_User2, stylehint_Proportional, 0);
+        glk_stylehint_set(wintype_TextBuffer, style_User2, stylehint_Weight, 0);
         glk_stylehint_set(wintype_TextBuffer, style_User2, stylehint_Oblique, 1);
+        glk_stylehint_set(wintype_TextBuffer, style_User2, stylehint_Proportional, 0);
         // Use Note for monospace+italic+bold
-        glk_stylehint_set(wintype_TextBuffer, style_Note, stylehint_Proportional, 0);
         glk_stylehint_set(wintype_TextBuffer, style_Note, stylehint_Weight, 1);
         glk_stylehint_set(wintype_TextBuffer, style_Note, stylehint_Oblique, 1);
+        glk_stylehint_set(wintype_TextBuffer, style_Note, stylehint_Proportional, 0);
     }
 
     mainwin = glk_window_open(0, 0, 0, wintype_TextBuffer, 0);
