@@ -974,12 +974,6 @@ void bifask(bifcxdef *ctx, int argc)
             "write",
             0
         };
-        static const char *game_strs[] =
-        {
-            "restore",
-            "game",
-            0
-        };
         const char **sp;
 
         /* 
@@ -996,13 +990,14 @@ void bifask(bifcxdef *ctx, int argc)
          *   we're opening an existing file for reading.
          *   
          *   If the prompt contains the substrings "restore" AND "game",
-         *   assume that we're opening a game file; otherwise, don't make
-         *   any assumptions, and use the "unknown" file type.  
+         *   or "save" AND "game", assume that we're opening a game file;
+         *   otherwise, don't make any assumptions, and use the "unknown"
+         *   file type.
          */
 
-        /* presume we're going to open a saved-game file */
+        /* presume we're going to open an existing file of unknown type */
         prompt_type = OS_AFP_OPEN;
-        file_type = OSFTSAVE;
+        file_type = OSFTUNK;
 
         /* look for any one of the "save" substrings */
         for (sp = save_strs ; *sp != 0 ; ++sp)
@@ -1018,24 +1013,14 @@ void bifask(bifcxdef *ctx, int argc)
             }
         }
 
-        /* 
-         *   look for *all* of the "restore game" strings - if we fail to
-         *   find any of them, be conservative and make no assumptions
-         *   about the file type 
+        /*
+         *   look for the substring "game" and either the substring
+         *   "restore" or "save".
          */
-        for (sp = game_strs ; *sp != 0 ; ++sp)
+        if (bif_stristr(pbuf, "game")
+            && (bif_stristr(pbuf, "restore") || bif_stristr(pbuf, "save")))
         {
-            if (bif_stristr(pbuf, *sp) == 0)
-            {
-                /* 
-                 *   this one doesn't match - don't make assumptions about
-                 *   the file type 
-                 */
-                file_type = OSFTUNK;
-
-                /* no need to look any further */
-                break;
-            }
+            file_type = OSFTSAVE;
         }
 
         /* check for a transcript */
