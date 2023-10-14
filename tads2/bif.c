@@ -989,10 +989,9 @@ void bifask(bifcxdef *ctx, int argc)
          *   "write", specify that we're saving; otherwise, assume that
          *   we're opening an existing file for reading.
          *   
-         *   If the prompt contains the substrings "restore" AND "game",
-         *   or "save" AND "game", assume that we're opening a game file;
-         *   otherwise, don't make any assumptions, and use the "unknown"
-         *   file type.
+         *   If the prompt contains the substrings "restore" or "save",
+         *   assume that we're opening a save file; otherwise, don't make
+         *   any assumptions, and use the "unknown" file type.
          */
 
         /* presume we're going to open an existing file of unknown type */
@@ -1013,12 +1012,8 @@ void bifask(bifcxdef *ctx, int argc)
             }
         }
 
-        /*
-         *   look for the substring "game" and either the substring
-         *   "restore" or "save".
-         */
-        if (bif_stristr(pbuf, "game")
-            && (bif_stristr(pbuf, "restore") || bif_stristr(pbuf, "save")))
+         /* look for either the substring "restore" or "save". */
+        if (bif_stristr(pbuf, "restore") || bif_stristr(pbuf, "save"))
         {
             file_type = OSFTSAVE;
         }
