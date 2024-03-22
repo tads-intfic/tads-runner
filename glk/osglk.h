@@ -21,8 +21,8 @@
  *                                                                            *
  *****************************************************************************/
 
-#ifndef OSGARGLK_H
-#define OSGARGLK_H
+#ifndef OSGLK_H
+#define OSGLK_H
 
 #define USE_OS_LINEWRAP	/* tell tads not to let os do paging */
 
@@ -54,7 +54,7 @@ extern "C" {
 
 int os_memicmp(const char *a, const char *b, int n);
 
-#define OS_SYSTEM_NAME "Gargoyle"
+#define OS_SYSTEM_NAME "GlkTADS"
 
 #define OSFNMAX 1024
 
@@ -103,4 +103,4 @@ int os_vasprintf(char **bufptr, const char *fmt, va_list ap);
 }
 #endif
 
-#endif /* OSGARGLK_H */
+#endif /* OSGLK_H */

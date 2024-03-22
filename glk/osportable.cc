@@ -44,7 +44,7 @@
 #endif // RUNTIME
 #endif
 
-#ifdef GARGOYLE
+#ifdef GLK
 #include "osextra.h"
 #include "charmap.h"
 #include <time.h>
@@ -66,7 +66,7 @@
 #define T3_INC_DIR 0
 #define T3_LIB_DIR 0
 #define T3_LOG_FILE 0
-#endif /* GARGOYLE */
+#endif /* GLK */
 
 
 /* Safe strcpy.
