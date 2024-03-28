@@ -98,9 +98,6 @@ extern "C" {
  * an exact value. */
 #define OSMALMAX 0xffffffffL
 
-/* File handle structure for osfxxx functions. */
-typedef FILE osfildef;
-
 /* Directory handle for searches via os_open_dir() et al. */
 typedef DIR* osdirhdl_t;
 
@@ -150,27 +147,22 @@ int osfmode( const char* fname, int follow_links, unsigned long* mode,
 
 /* ============= Functions follow ================ */
 
-/* Allocate a block of memory of the given size in bytes. */
-#define osmalloc malloc
+/* Emglken needs its own implementation as it doesn't have full file system support */
+#ifdef EMGLKEN
 
-/* Free memory previously allocated with osmalloc(). */
-#define osfree free
+#include "emglken.h"
+#include "osemglken.h"
 
-/* Reallocate memory previously allocated with osmalloc() or osrealloc(),
- * changing the block's size to the given number of bytes. */
-#define osrealloc realloc
+#else /* EMGLKEN */
+
+/* File handle structure for osfxxx functions. */
+typedef FILE osfildef;
 
 /* Open text file for reading. */
 #define osfoprt(fname,typ) (fopen((fname),"r"))
 
 /* Open text file for writing. */
 #define osfopwt(fname,typ) (fopen((fname),"w"))
-
-/* Open text file for reading and writing, keeping the file's existing
- * contents if the file already exists or creating a new file if no
- * such file exists. */
-osfildef*
-osfoprwt( const char* fname, os_filetype_t typ );
 
 /* Open text file for reading/writing.  If the file already exists,
  * truncate the existing contents.  Create a new file if it doesn't
@@ -186,12 +178,6 @@ osfoprwt( const char* fname, os_filetype_t typ );
 
 /* Open binary file for reading. */
 #define osfoprb(fname,typ) (fopen((fname),"rb"))
-
-/* Open binary file for reading/writing.  If the file already exists,
- * keep the existing contents.  Create a new file if it doesn't already
- * exist. */
-osfildef*
-osfoprwb( const char* fname, os_filetype_t typ );
 
 /* Open binary file for reading/writing.  If the file already exists,
  * truncate the existing contents.  Create a new file if it doesn't
@@ -245,6 +231,30 @@ int os_file_stat( const char* fname, int follow_links,
 
 /* Get a character from a file. */
 #define osfgetc fgetc
+
+#endif /* EMGLKEN */
+
+/* Open text file for reading and writing, keeping the file's existing
+ * contents if the file already exists or creating a new file if no
+ * such file exists. */
+osfildef*
+osfoprwt( const char* fname, os_filetype_t typ );
+
+/* Open binary file for reading/writing.  If the file already exists,
+ * keep the existing contents.  Create a new file if it doesn't already
+ * exist. */
+osfildef*
+osfoprwb( const char* fname, os_filetype_t typ );
+
+/* Allocate a block of memory of the given size in bytes. */
+#define osmalloc malloc
+
+/* Free memory previously allocated with osmalloc(). */
+#define osfree free
+
+/* Reallocate memory previously allocated with osmalloc() or osrealloc(),
+ * changing the block's size to the given number of bytes. */
+#define osrealloc realloc
 
 /* Set busy cursor.
  *

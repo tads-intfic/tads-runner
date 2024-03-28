@@ -1141,7 +1141,7 @@ osfildef *oserrop(const char *arg0);
 /* 
  *   Write a line of text to a text file.  Uses fputs semantics.  
  */
-/* void osfputs(const char *buf, osfildef *fp); */
+/* int osfputs(const char *buf, osfildef *fp); */
 
 /*
  *   Write to a text file.  os_fprintz() takes a null-terminated string,
