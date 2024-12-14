@@ -50,7 +50,7 @@ add_sources(tadsr "../tads3/"
     vmtmpfil.cpp vmtobj.cpp vmtype.cpp vmtypedh.cpp vmtz.cpp vmtzobj.cpp
     vmundo.cpp vmvec.cpp vmconnom.cpp)
 set_property(TARGET tadsr PROPERTY CXX_STANDARD 11)
-target_compile_definitions(tadsr PRIVATE GARGOYLE VMGLOB_STRUCT GLK_UNICODE GLK_TIMERS TC_TARGET_T3 RUNTIME)
+target_compile_definitions(tadsr PRIVATE GLK GLK_TIMERS GLK_UNICODE TC_TARGET_T3 RUNTIME VMGLOB_STRUCT)
 if(MINGW32)
     target_compile_definitions(tadsr PRIVATE DMSDOS DT_WIN32)
 endif()
