@@ -496,11 +496,6 @@ struct date_parse_result
         tz = 0;
     }
 
-    date_parse_result(date_parse_result &src)
-    {
-        memcpy(this, &src, sizeof(*this));
-    }
-
     /* translate a time from local to UTC using our parsed timezone info */
     void local_to_utc(int32_t &dayno, int32_t &daytime)
     {
@@ -2143,7 +2138,7 @@ int CVmObjDate::parse_date_string(
 
     /* copy back the results if the caller's interested */
     if (resultp != 0)
-        memcpy(resultp, &result, sizeof(result));
+        *resultp = result;
 
     /* tell the caller how many format strings we matched, if desired */
     if (nfmtlist != 0)
