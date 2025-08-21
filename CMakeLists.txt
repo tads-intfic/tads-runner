@@ -1,0 +1,205 @@
+cmake_minimum_required(VERSION 3.29)
+project(Tads)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 11)
+
+set(tads2_dir tads2)
+set(tads3_dir tads3)
+
+add_library(tads_settings INTERFACE)
+
+target_include_directories(tads_settings 
+	INTERFACE 
+	tads2
+	tads3
+)
+
+if (WIN32)
+	target_include_directories(tads_settings INTERFACE
+		tads2/msdos
+		tads3/win32
+	)
+	
+	target_compile_definitions(tads_settings INTERFACE
+		MICROSOFT
+		MSDOS
+		T_WIN32
+	)
+	
+	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+		target_compile_definitions(tads_settings INTERFACE
+		__x86_64__
+	)
+	endif()
+endif()
+
+target_compile_definitions(tads_settings
+    INTERFACE
+	TC_TARGET_T3
+)
+
+target_compile_definitions(tads_settings
+    INTERFACE
+      $<$<CONFIG:Debug>:VMGLOB_PARAM>
+      $<$<CONFIG:RelWithDebInfo>:VMGLOB_VARS>
+      $<$<CONFIG:Release>:VMGLOB_VARS>
+      $<$<CONFIG:MinSizeRel>:VMGLOB_VARS>
+)
+
+if (WITH_NETWORK)
+set(builtin_char vmbifregn.cpp)
+#REG_BUILTIN_HTML = vmbifregxn
+else()
+#REG_BUILTIN_HTML = vmbifregx
+set(builtin_char vmbifreg.cpp)
+endif()
+
+#t3res
+
+add_executable(t3res
+        ${tads3_dir}/rcmaincl.cpp
+        ${tads3_dir}/rcmain.cpp
+        ${tads3_dir}/std.cpp
+        ${tads3_dir}/derived/vmuni_cs.cpp		
+        ${tads2_dir}/osnoui.c
+)
+
+if (WIN32)
+	target_sources(t3res
+		PRIVATE
+		${tads2_dir}/msdos/osdosex.c
+		${tads2_dir}/msdos/osdos.c
+        ${tads2_dir}/msdos/osdosnui.c
+        ${tads2_dir}/msdos/oswinmem.c
+		${tads2_dir}/msdos/osnogen.c
+	)
+endif()
+
+target_link_libraries(t3res PRIVATE tads_settings)
+
+#t3run
+
+set(tads3src
+	${tads3_dir}/vmmaincl.cpp
+	${tads3_dir}/std.cpp
+	${tads3_dir}/std_dbg.cpp
+	${tads3_dir}/charmap.cpp
+	${tads3_dir}/resload.cpp
+	${tads3_dir}/resldexe.cpp
+	${tads3_dir}/vminit.cpp
+	${tads3_dir}/vmini_nd.cpp
+	${tads3_dir}/vmconsol.cpp
+	${tads3_dir}/vmconmor.cpp
+	${tads3_dir}/vmconhmp.cpp
+	${tads3_dir}/vminitim.cpp
+	${tads3_dir}/vmcfgmem.cpp
+	${tads3_dir}/vmobj.cpp
+	${tads3_dir}/vmundo.cpp
+	${tads3_dir}/vmtobj.cpp
+	${tads3_dir}/vmpat.cpp
+	${tads3_dir}/vmstrcmp.cpp
+	${tads3_dir}/vmdict.cpp
+	${tads3_dir}/vmgram.cpp
+	${tads3_dir}/vmstr.cpp
+	${tads3_dir}/vmcoll.cpp
+	${tads3_dir}/vmiter.cpp
+	${tads3_dir}/vmfref.cpp
+	${tads3_dir}/vmlst.cpp
+	${tads3_dir}/vmsort.cpp
+	${tads3_dir}/vmsortv.cpp
+	${tads3_dir}/vmbignum.cpp
+	${tads3_dir}/vmbignumlib.cpp
+	${tads3_dir}/vmvec.cpp
+	${tads3_dir}/vmintcls.cpp
+	${tads3_dir}/vmanonfn.cpp
+	${tads3_dir}/vmlookup.cpp
+	${tads3_dir}/vmstrbuf.cpp
+	${tads3_dir}/vmdynfunc.cpp
+	${tads3_dir}/vmbytarr.cpp
+	${tads3_dir}/vmdate.cpp
+	${tads3_dir}/vmtzobj.cpp
+	${tads3_dir}/vmtz.cpp
+	${tads3_dir}/vmcset.cpp
+	${tads3_dir}/vmfilobj.cpp
+	${tads3_dir}/vmfilnam.cpp
+	${tads3_dir}/vmtmpfil.cpp
+	${tads3_dir}/vmpack.cpp
+	${tads3_dir}/sha2.cpp
+	${tads3_dir}/md5.cpp
+	${tads3_dir}/vmstack.cpp
+	${tads3_dir}/vmerr.cpp
+	${tads3_dir}/vmerrmsg.cpp
+	${tads3_dir}/vmpool.cpp
+	${tads3_dir}/vmpoolim.cpp
+	${tads3_dir}/vmtype.cpp
+	${tads3_dir}/vmtypedh.cpp
+	${tads3_dir}/utf8.cpp
+	${tads3_dir}/vmglob.cpp
+	${tads3_dir}/vmrun.cpp
+	${tads3_dir}/vmop.cpp
+	${tads3_dir}/vmfunc.cpp
+	${tads3_dir}/vmmeta.cpp
+	${tads3_dir}/vmsa.cpp
+	${tads3_dir}/vmbif.cpp
+	${tads3_dir}/vmbifl.cpp
+	${tads3_dir}/vmimage.cpp
+	${tads3_dir}/vmimg_nd.cpp
+	${tads3_dir}/vmsrcf.cpp
+	${tads3_dir}/vmfile.cpp
+	${tads3_dir}/vmbiftad.cpp
+	${tads3_dir}/vmisaac.cpp
+	${tads3_dir}/vmbiftio.cpp
+	${tads3_dir}/askf_os3.cpp
+	${tads3_dir}/indlg_tx3.cpp
+	${tads3_dir}/vmsave.cpp
+	${tads3_dir}/vmcrc.cpp
+	${tads3_dir}/vmbift3.cpp
+	${tads3_dir}/vmbt3_nd.cpp
+	${tads3_dir}/vmregex.cpp
+	${tads3_dir}/vmhosttx.cpp
+	${tads3_dir}/vmhostsi.cpp
+	${tads3_dir}/vmhash.cpp
+	${tads3_dir}/vmlog.cpp
+	${tads3_dir}/vmmcreg.cpp
+	${tads3_dir}/${builtin_char}
+	${tads3_dir}/derived/vmuni_cs.cpp
+	#$(DYN_COMP_OBJS) \
+	#$(NET_OBJS) \
+	#\
+	${tads2_dir}/osifc.c
+	${tads2_dir}/osnoui.c
+	${tads2_dir}/osstzprs.c
+	${tads2_dir}/osrestad.c
+	
+	#$(TADS2OBJDIR)\osr.obj \
+	#$(TADS2OBJDIR)\ostzw32.obj \
+	${tads2_dir}/osgen3.c
+	#\
+	#$(RESDIR)\t3run.res
+)
+
+add_executable(t3run
+	${tads3src}
+)
+
+if (WIN32)
+	target_sources(t3run
+		PRIVATE
+		${tads2_dir}/msdos/osdos.c
+		${tads2_dir}/msdos/osdosnui.c	
+		${tads2_dir}/msdos/osscolor.c
+		${tads2_dir}/msdos/ossdos32.c
+		${tads2_dir}/msdos/osdoscon.c
+		${tads2_dir}/msdos/osdosex.c
+		${tads2_dir}/msdos/oswinmem.c
+		#${tads2_dir}/msdos/ostzw32.c
+	)
+endif()
+
+target_link_libraries(t3run PRIVATE tads_settings)
+
+target_compile_definitions(t3run
+    PRIVATE
+	RUNTIME
+)
+
