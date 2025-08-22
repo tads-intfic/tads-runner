@@ -14,6 +14,9 @@ target_include_directories(tads_settings
 	tads3
 )
 
+option(VM_TARGET_T3 "Comple with T3 VM" ON)
+option(VM_TARGET_JS "Comple with JS VM" OFF)
+
 if (WIN32)
 	target_include_directories(tads_settings INTERFACE
 		tads2/msdos
@@ -33,10 +36,12 @@ if (WIN32)
 	endif()
 endif()
 
-target_compile_definitions(tads_settings
-    INTERFACE
-	TC_TARGET_T3
-)
+if (VM_TARGET_T3)
+	target_compile_definitions(tads_settings
+		INTERFACE
+		TC_TARGET_T3
+	)
+endif()
 
 target_compile_definitions(tads_settings
     INTERFACE
@@ -52,6 +57,54 @@ set(builtin_char vmbifregn.cpp)
 else()
 #REG_BUILTIN_HTML = vmbifregx
 set(builtin_char vmbifreg.cpp)
+endif()
+
+if (VM_TARGET_T3)
+	set(target_src_no_link
+		${tads3_dir}/tct3.cpp
+		${tads3_dir}/tct3stm.cpp
+		${tads3_dir}/tct3unas.cpp
+		${tads3_dir}/tct3nl.cpp
+		${tads3_dir}/tct3_d.cpp
+	)
+	set(target_src
+		${tads3_dir}/tct3.cpp
+		${tads3_dir}/tct3stm.cpp
+		${tads3_dir}/tct3unas.cpp
+		${tads3_dir}/tct3img.cpp
+		${tads3_dir}/tct3prg.cpp
+	)
+elseif (VM_TARGET_JS)
+	set(target_src
+		${tads3_dir}/tcjs.cpp
+	)
+endif()
+
+set(dyn_comp_src
+	${tads3_dir}/vmrunsym.cpp
+    ${tads3_dir}/tcprs.cpp
+    ${tads3_dir}/tcprs_rt.cpp
+    ${tads3_dir}/tcprsnf.cpp
+    ${tads3_dir}/tcprsstm.cpp
+    ${tads3_dir}/tcprsnl.cpp
+    ${tads3_dir}/tcgen.cpp
+    ${tads3_dir}/tcglob.cpp
+    ${tads3_dir}/tcerr.cpp
+    ${tads3_dir}/tcerrmsg.cpp
+    ${tads3_dir}/tctok.cpp
+    ${tads3_dir}/tcmain.cpp
+    ${tads3_dir}/tcsrc.cpp
+    ${tads3_dir}/tchostsi.cpp
+    ${tads3_dir}/tclibprs.cpp
+    ${tads3_dir}/tccmdutl.cpp
+    ${target_src_no_link}
+)
+
+if (WITH_NETWORK)
+else()
+	set(net_src
+		${tads3_dir}/vmnetfillcl.cpp
+	)
 endif()
 
 #t3res
@@ -81,6 +134,7 @@ target_link_libraries(t3res PRIVATE tads_settings)
 
 set(tads3src
 	${tads3_dir}/vmmaincl.cpp
+	${tads3_dir}/vmmain.cpp
 	${tads3_dir}/std.cpp
 	${tads3_dir}/std_dbg.cpp
 	${tads3_dir}/charmap.cpp
@@ -161,20 +215,18 @@ set(tads3src
 	${tads3_dir}/vmhash.cpp
 	${tads3_dir}/vmlog.cpp
 	${tads3_dir}/vmmcreg.cpp
+	
 	${tads3_dir}/${builtin_char}
 	${tads3_dir}/derived/vmuni_cs.cpp
-	#$(DYN_COMP_OBJS) \
-	#$(NET_OBJS) \
-	#\
+	
+	${dyn_comp_src}
+	${net_src}
+	
 	${tads2_dir}/osifc.c
 	${tads2_dir}/osnoui.c
 	${tads2_dir}/osstzprs.c
 	${tads2_dir}/osrestad.c
-	
-	#$(TADS2OBJDIR)\osr.obj \
-	#$(TADS2OBJDIR)\ostzw32.obj \
 	${tads2_dir}/osgen3.c
-	#\
 	#$(RESDIR)\t3run.res
 )
 
@@ -192,7 +244,7 @@ if (WIN32)
 		${tads2_dir}/msdos/osdoscon.c
 		${tads2_dir}/msdos/osdosex.c
 		${tads2_dir}/msdos/oswinmem.c
-		#${tads2_dir}/msdos/ostzw32.c
+		${tads2_dir}/msdos/ostzw32.c
 	)
 endif()
 
