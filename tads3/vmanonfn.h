@@ -133,6 +133,7 @@ public:
         { return CVmObjVector::metaclass_reg_; }
 };
 
+#else /* workaround for vs2022 include guard bug */
 #endif /* VMANONFN_H */
 
 /*

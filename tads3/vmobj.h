@@ -3040,6 +3040,7 @@ inline CVmObject *vm_objp(VMG_ vm_obj_id_t id)
 #define vm_classobj_for(cls) \
     vm_objid_cast(CVmObjClass, cls::metaclass_reg_->get_class_obj(vmg0_))
 
+#else /* workaround for vs2022 include guard bug */
 #endif /* VMOBJ_H */
 
 /*
