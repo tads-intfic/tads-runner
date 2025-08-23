@@ -54,6 +54,7 @@ endif()
 target_compile_definitions(tads_settings
     INTERFACE
       $<$<CONFIG:Debug>:VMGLOB_PARAM>
+	  $<$<CONFIG:Debug>:T3_DEBUG>
       $<$<CONFIG:RelWithDebInfo>:VMGLOB_VARS>
       $<$<CONFIG:Release>:VMGLOB_VARS>
       $<$<CONFIG:MinSizeRel>:VMGLOB_VARS>
@@ -162,6 +163,25 @@ if (WIN32)
 endif()
 
 target_link_libraries(t3res PRIVATE tads_settings)
+
+#mkchrtab
+add_executable(mkchrtab
+        ${tads3_dir}/mkchrtab.cpp
+        ${tads3_dir}/std.cpp
+        ${tads3_dir}/std_dbg.cpp
+        ${tads3_dir}/derived/vmuni_cs.cpp		
+        ${tads2_dir}/osnoui.c
+)
+
+if (WIN32)
+	target_sources(mkchrtab
+		PRIVATE
+        ${tads2_dir}/msdos/osdosnui.c
+        ${tads2_dir}/msdos/oswinmem.c
+	)
+endif()
+
+target_link_libraries(mkchrtab PRIVATE tads_settings)
 
 #t3run
 
@@ -292,4 +312,9 @@ target_compile_definitions(t3run
     PRIVATE
 	RUNTIME
 )
+
+add_custom_command(
+        TARGET t3run POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:t3run>/charmap
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/charmap/cmaplib.t3r $<TARGET_FILE_DIR:t3run>/charmap/)
 
