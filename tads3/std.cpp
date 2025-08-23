@@ -1330,6 +1330,7 @@ void t3_list_memory_blocks(void (*cb)(const char *))
 
 void os_mem_prefix_set(mem_prefix_t *mem)
 {
+#ifndef __x86_64__
     /* 
      *   Trace back the call stack.  In the standard Intel stack arrangement,
      *   BP is the base pointer for the frame, and points to the enclosing
@@ -1345,6 +1346,9 @@ void os_mem_prefix_set(mem_prefix_t *mem)
              && bp_ < *(DWORD *)bp_ ;
          ++i, bp_ = *(DWORD *)bp_)
         mem->stk[i].return_addr = ((DWORD *)bp_)[1];
+#else
+    //TODO
+#endif
 }
 
 #endif /* T_WIN32 */
