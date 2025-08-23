@@ -1,16 +1,16 @@
-/*
+/* 
  *   Copyright (c) 1987, 2002 by Michael J. Roberts.  All Rights Reserved.
- *
+ *   
  *   Please see the accompanying license file, LICENSE.TXT, for information
- *   on using and copying this software.
+ *   on using and copying this software.  
  */
 /*
 Name
   ostzw32.c - osifc timezone routines for Win32
 Function
-
+  
 Notes
-
+  
 Modified
   08/05/12 MJRoberts  - Creation
 */
@@ -39,7 +39,7 @@ struct win_zone_map_t
     const char *dst_abbr;             /* daylight time abbreviation ("PDT") */
 };
 static const win_zone_map_t S_win_zone_map[] = {
-/*
+/* 
  *   include the mapping file we generate from the Unicode CLDR file
  *   windowsZones.xml - this contains a list of { "win name", "olson name" }
  *   constant data definitions that will populate this array for us
@@ -62,7 +62,7 @@ static const win_zone_map_t *win_to_zoneinfo(const wchar_t *win_name)
     return 0;
 }
 
-/*
+/* 
  *   Generate a timezone abbreviation from a windows zone name.  This is an
  *   approximation at best; we use this as a last resort when we can't find
  *   the zone in our zone list.  We'll simply pull out the initials of the
@@ -119,7 +119,7 @@ int os_get_zoneinfo_key(char *name, size_t namelen)
 }
 
 /*
- *   Get the current settings for the local time zone
+ *   Get the current settings for the local time zone 
  */
 int os_get_timezone_info(struct os_tzinfo_t *info)
 {
@@ -137,7 +137,7 @@ int os_get_timezone_info(struct os_tzinfo_t *info)
         /* check to see if standard/daylight change rules are present */
         if (mode != TIME_ZONE_ID_UNKNOWN && tz.StandardDate.wMonth != 0)
         {
-            /*
+            /* 
              *   We have both daylight and standard time.  Set the GMT offset
              *   for each; Windows gives us to this as minutes west of GMT,
              *   and we want seconds east, so negate it and multiply by 60
@@ -156,7 +156,7 @@ int os_get_timezone_info(struct os_tzinfo_t *info)
             info->is_dst = FALSE;
         }
 
-        /*
+        /* 
          *   If we have recurring standard/daylight rules, set the rules.
          *   Recurring rules are indicated by wYear == 0; a non-zero wYear
          *   means that the rule occurs on that exact date only.  We have no
@@ -192,7 +192,7 @@ int os_get_timezone_info(struct os_tzinfo_t *info)
         }
         else
         {
-            /*
+            /* 
              *   we couldn't find a mapping; generate the abbreviation from
              *   the windows zone name by pulling out the initials (for
              *   example, "Pacific Standard Time" -> "PST")
