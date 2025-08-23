@@ -237,6 +237,7 @@ public:
     }
 };
 
+#else /* workaround for vs2022 include guard bug */
 #endif /* VMHTTPSRV_H */
 
 /*
