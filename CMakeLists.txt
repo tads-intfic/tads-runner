@@ -14,8 +14,9 @@ target_include_directories(tads_settings
 	tads3
 )
 
-option(VM_TARGET_T3 "Comple with T3 VM" ON)
-option(VM_TARGET_JS "Comple with JS VM" OFF)
+option(VM_TARGET_T3 "Compile with T3 VM" ON)
+option(VM_TARGET_JS "Compile with JS VM" OFF)
+option(VM_WITH_NETWORK "Compile with network module" ON)
 
 if (WIN32)
 	target_include_directories(tads_settings INTERFACE
@@ -43,6 +44,13 @@ if (VM_TARGET_T3)
 	)
 endif()
 
+if (VM_WITH_NETWORK)
+	target_compile_definitions(tads_settings
+		INTERFACE
+		TADSNET
+	)
+endif()
+
 target_compile_definitions(tads_settings
     INTERFACE
       $<$<CONFIG:Debug>:VMGLOB_PARAM>
@@ -51,7 +59,7 @@ target_compile_definitions(tads_settings
       $<$<CONFIG:MinSizeRel>:VMGLOB_VARS>
 )
 
-if (WITH_NETWORK)
+if (VM_WITH_NETWORK)
 set(builtin_char vmbifregn.cpp)
 #REG_BUILTIN_HTML = vmbifregxn
 else()
@@ -100,7 +108,32 @@ set(dyn_comp_src
     ${target_src_no_link}
 )
 
-if (WITH_NETWORK)
+if (VM_WITH_NETWORK)
+	set(net_src_base
+		${tads3_dir}/vmhttpsrv.cpp
+		${tads3_dir}/vmhttpreq.cpp
+		${tads3_dir}/vmbifnet.cpp
+		${tads3_dir}/vmnetui.cpp
+		${tads3_dir}/vmnetcfg.cpp
+		${tads3_dir}/vmnetfil.cpp
+		${tads3_dir}/vmnetfillcl.cpp
+		${tads3_dir}/osifcnet.cpp
+		${tads3_dir}/vmrefcnt.cpp
+	)
+	if (WIN32)
+		set(net_src_base
+			${net_src_base}
+			${tads3_dir}/win32/osnetdos.cpp
+			${tads3_dir}/win32/osnetwin.cpp
+			${tads3_dir}/win32/osnetcli.cpp
+			${tads3_dir}/win32/osnet-connect.cpp
+			${tads3_dir}/win32/osnet-fgwin.cpp
+		)
+	endif()
+	set(net_src
+		${net_src_base}
+		${tads3_dir}/vmnet.cpp
+	)
 else()
 	set(net_src
 		${tads3_dir}/vmnetfillcl.cpp
@@ -227,7 +260,6 @@ set(tads3src
 	${tads2_dir}/osstzprs.c
 	${tads2_dir}/osrestad.c
 	${tads2_dir}/osgen3.c
-	#$(RESDIR)\t3run.res
 )
 
 add_executable(t3run
@@ -245,7 +277,13 @@ if (WIN32)
 		${tads2_dir}/msdos/osdosex.c
 		${tads2_dir}/msdos/oswinmem.c
 		${tads2_dir}/msdos/ostzw32.c
+		
+		${tads3_dir}/win32/t3run.rc
 	)
+	
+	if (VM_WITH_NETWORK)
+		target_link_libraries(t3run PRIVATE Ws2_32.lib Wininet.lib)
+	endif()
 endif()
 
 target_link_libraries(t3run PRIVATE tads_settings)
