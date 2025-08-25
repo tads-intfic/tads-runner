@@ -1,7 +1,11 @@
-cmake_minimum_required(VERSION 3.29)
+cmake_minimum_required(VERSION 3.28)
 project(Tads)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_STANDARD 11)
+
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Default build type: Debug" FORCE)
+endif()
 
 set(tads2_dir tads2)
 set(tads3_dir tads3)
@@ -35,6 +39,21 @@ if (WIN32)
 		__x86_64__
 	)
 	endif()
+else()
+
+	include (FindCURL)
+	find_package(CURL)
+	
+	target_include_directories(tads_settings INTERFACE
+		tads2/unix
+		tads3/unix
+	)
+	
+	target_compile_definitions(tads_settings INTERFACE
+		UNIX
+		LINUX_386
+		USE_STDIO
+	)
 endif()
 
 if (VM_TARGET_T3)
@@ -160,6 +179,11 @@ if (WIN32)
         ${tads2_dir}/msdos/oswinmem.c
 		${tads2_dir}/msdos/osnogen.c
 	)
+else()
+	target_sources(t3res
+		PRIVATE
+		${tads2_dir}/unix/osunixt.c
+	)
 endif()
 
 target_link_libraries(t3res PRIVATE tads_settings)
@@ -178,6 +202,11 @@ if (WIN32)
 		PRIVATE
         ${tads2_dir}/msdos/osdosnui.c
         ${tads2_dir}/msdos/oswinmem.c
+	)
+else()
+	target_sources(mkchrtab
+		PRIVATE
+		${tads2_dir}/unix/osunixt.c
 	)
 endif()
 
