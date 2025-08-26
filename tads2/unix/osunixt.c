@@ -3231,6 +3231,19 @@ memicmp(const char *s1, const char *s2, int len)
     return result;
 }
 
+int stricmp(const char* s1, const char* s2)
+{
+    return strcasecmp(s1, s2);
+    /*const auto x1 = std::make_unique<char[]>(strlen(s1));
+    const auto x2 = std::make_unique<char[]>(strlen(s2));
+
+    for (size_t i = 0; s1[i] != '\0' and s2[i] != '\0'; ++i) {
+        x1[i] = tolower(s1[i]);
+        x2[i] = tolower(s2[i]);
+    }
+    return strcmp(x1.get(), x2.get());*/
+}
+
 /*
  * memcpy - copy bytes (handles overlap, so we can equivalence memmove() to it.
  */
@@ -3720,4 +3733,501 @@ void os_gen_rand_bytes( unsigned char* buf, size_t len )
     int f = open("/dev/urandom", O_RDONLY);
     read(f, (void*)buf, len);
     close(f);
+}
+
+void os_instbrk(int install)
+{
+}
+
+int
+os_get_exe_filename(char*, size_t, const char*)
+{
+    return 0;
+}
+
+static void
+canonicalize_path(char* path)
+{
+    char* p;
+    char* start;
+
+    /* keep going until we're done */
+    for (start = p = path; ; ++p)
+    {
+        /* if it's a separator, note it and process the path element */
+        if (*p == '\\' || *p == '/' || *p == '\0')
+        {
+            /*
+             *   check the path element that's ending here to see if it's a
+             *   relative item - either "." or ".."
+             */
+            if (p - start == 1 && *start == '.')
+            {
+                /*
+                 *   we have a '.' element - simply remove it along with the
+                 *   path separator that follows
+                 */
+                if (*p == '\\' || *p == '/')
+                    memmove(start, p + 1, strlen(p + 1) + 1);
+                else if (start > path)
+                    *(start - 1) = '\0';
+                else
+                    *start = '\0';
+            }
+            else if (p - start == 2 && *start == '.' && *(start + 1) == '.')
+            {
+                char* prv;
+
+                /*
+                 *   we have a '..' element - find the previous path element,
+                 *   if any, and remove it, along with the '..' and the
+                 *   subsequent separator
+                 */
+                for (prv = start;
+                    prv > path && (*(prv - 1) != '\\' || *(prv - 1) == '/');
+                    --prv);
+
+                /* if we found a separator, remove the previous element */
+                if (prv > start)
+                {
+                    if (*p == '\\' || *p == '/')
+                        memmove(prv, p + 1, strlen(p + 1) + 1);
+                    else if (start > path)
+                        *(start - 1) = '\0';
+                    else
+                        *start = '\0';
+                }
+            }
+
+            /* note the start of the next element */
+            start = p + 1;
+        }
+
+        /* stop at the end of the string */
+        if (*p == '\0')
+            break;
+    }
+}
+
+int
+os_get_abs_filename(char* buf, size_t buflen, const char* filename)
+{
+    // If the filename is already absolute, copy it; otherwise combine
+    // it with the working directory.
+    if (os_is_file_absolute(filename))
+    {
+        // absolute - copy it as-is
+        safe_strcpy(buf, buflen, filename);
+    }
+    else
+    {
+        // combine it with the working directory to get the path
+        char pwd[OSFNMAX];
+        if (getcwd(pwd, sizeof(pwd)) != 0)
+            os_build_full_path(buf, buflen, pwd, filename);
+        else
+            safe_strcpy(buf, buflen, filename);
+    }
+
+    // canonicalize the result
+    canonicalize_path(buf);
+
+    // Try getting the canonical path from the OS (allocating the
+    // result buffer).
+    const char* newpath = realpath(filename, NULL);
+    if (newpath) {
+        // Copy the output (truncating if it's too long).
+        safe_strcpy(buf, buflen, newpath);
+    }
+
+    // realpath() might have failed, but that's okay - realpath() only works
+    // if the path refers to an existing file, but it's valid for callers to
+    // pass non-existent filenames, such as names of files they're about to
+    // create, or hypothetical paths being used for comparison purposes or
+    // for future use.  Simply return the canonical path name we generated
+    // above.
+    free(newpath);
+    return 1;
+}
+
+int
+os_rmdir(const char* dir)
+{
+    return rmdir(dir) == 0;
+}
+
+int
+os_mkdir(const char* dir, int create_parents)
+{
+    //assert(dir != 0);
+
+    if (dir[0] == '\0')
+        return 1;
+
+    // Copy the directory name to a new string so we can strip any trailing
+    // path seperators.
+    size_t len = strlen(dir);
+    char* tmp = malloc(len + 1);
+    strncpy(tmp, dir, len);
+    while (tmp[len - 1] == OSPATHCHAR)
+        --len;
+    tmp[len] = '\0';
+
+    // If we're creating intermediate diretories, and the path contains
+    // multiple elements, recursively create the parent directories first.
+    if (create_parents && strchr(tmp, OSPATHCHAR) != 0) {
+        char par[OSFNMAX];
+
+        // Extract the parent path.
+        os_get_path_name(par, sizeof(par), tmp);
+        free(tmp);
+
+        // If the parent doesn't already exist, create it recursively.
+        if (osfacc(par) != 0 && !os_mkdir(par, 1)) {
+            return 0;
+        }
+    }
+
+    // Create the directory.
+    int ret = mkdir(tmp, S_IRWXU | S_IRWXG | S_IRWXO) == 0;
+    free(tmp);
+    return ret;
+}
+
+osfildef*
+osfdup(osfildef* orig, const char* mode)
+{
+    char realmode[5];
+    char* p = realmode;
+    const char* m;
+
+    /* verify that there aren't any unrecognized mode flags */
+    for (m = mode; *m != '\0'; ++m)
+    {
+        if (strchr("rw+bst", *m) == 0)
+            return 0;
+    }
+
+    /* figure the read/write mode - translate r+ and w+ to r+ */
+    if ((mode[0] == 'r' || mode[0] == 'w') && mode[1] == '+')
+        *p++ = 'r', *p++ = '+';
+    else if (mode[0] == 'r')
+        *p++ = 'r';
+    else if (mode[0] == 'w')
+        *p++ = 'w';
+    else
+        return 0;
+
+    /* end the mode string */
+    *p = '\0';
+
+    /* duplicate the handle in the given mode */
+    return fdopen(dup(fileno(orig)), mode);
+}
+
+#define T3_RES_DIR "res"
+#define T3_INC_DIR "include"
+#define T3_LIB_DIR "lib"
+#define T3_LOG_FILE "t3.log"
+
+void
+os_get_special_path(char* buf, size_t buflen, const char* argv0, int id)
+{
+    const char* res;
+
+    switch (id) {
+    case OS_GSP_T3_RES:
+        res = getenv("T3_RESDIR");
+        if (res == 0 || res[0] == '\0') {
+            res = T3_RES_DIR;
+        }
+        break;
+
+    case OS_GSP_T3_INC:
+        res = getenv("T3_INCDIR");
+        if (res == 0 || res[0] == '\0') {
+            res = T3_INC_DIR;
+        }
+        break;
+
+    case OS_GSP_T3_LIB:
+        res = getenv("T3_LIBDIR");
+        if (res == 0 || res[0] == '\0') {
+            res = T3_LIB_DIR;
+        }
+        break;
+
+    case OS_GSP_T3_USER_LIBS:
+        // There's no compile-time default for user libs.
+        res = getenv("T3_USERLIBDIR");
+        break;
+
+    case OS_GSP_T3_SYSCONFIG:
+        res = getenv("T3_CONFIG");
+        if (res == 0 && argv0 != 0) {
+            os_get_path_name(buf, buflen, argv0);
+            return;
+        }
+        break;
+
+    case OS_GSP_LOGFILE:
+        res = getenv("T3_LOGDIR");
+        if (res == 0 || res[0] == '\0') {
+            res = T3_LOG_FILE;
+        }
+        break;
+
+    default:
+        // TODO: We could print a warning here to inform the
+        // user that we're outdated.
+        res = 0;
+    }
+
+    if (res != 0) {
+        // Only use the detected path if it exists and is a
+        // directory.
+        struct stat inf;
+        int statRet = stat(res, &inf);
+        if (statRet == 0 && (inf.st_mode & S_IFMT) == S_IFDIR) {
+            strncpy(buf, res, buflen - 1);
+            return;
+        }
+    }
+    // Indicate failure.
+    buf[0] = '\0';
+}
+
+static void
+resolve_path(char* buf, size_t buflen, const char* path)
+{
+    // Starting with the full path string, try resolving the path with
+    // realpath().  The tricky bit is that realpath() will fail if any
+    // component of the path doesn't exist, but we need to resolve paths
+    // for prospective filenames, such as files or directories we're
+    // about to create.  So if realpath() fails, remove the last path
+    // component and try again with the remainder.  Repeat until we
+    // can resolve a real path, or run out of components to remove.
+    // The point of this algorithm is that it will resolve as much of
+    // the path as actually exists in the file system, ensuring that
+    // we resolve any links that affect the path.  Any portion of the
+    // path that doesn't exist obviously can't refer to a link, so it
+    // will be taken literally.  Once we've resolved the longest prefix,
+    // tack the stripped portion back on to form the fully resolved
+    // path.
+
+    // make a writable copy of the path to work with
+    size_t pathl = strlen(path);
+    char* mypath = malloc(pathl + 1);
+    memcpy(mypath, path, pathl + 1);
+
+    // start at the very end of the path, with no stripped suffix yet
+    char* suffix = mypath + pathl;
+    char sl = '\0';
+
+    // keep going until we resolve something or run out of path
+    for (;;)
+    {
+        // resolve the current prefix, allocating the result
+        char* rpath = realpath(mypath, 0);
+
+        // un-split the path
+        *suffix = sl;
+
+        // if we resolved the prefix, return the result
+        if (rpath != 0)
+        {
+            // success - if we separated a suffix, reattach it
+            if (*suffix != '\0')
+            {
+                // reattach the suffix (the part after the '/')
+                for (; *suffix == '/'; ++suffix);
+                os_build_full_path(buf, buflen, rpath, suffix);
+            }
+            else
+            {
+                // no suffix, so we resolved the entire path
+                safe_strcpy(buf, buflen, rpath);
+            }
+
+            // done with the resolved path
+            free(rpath);
+
+            // ...and done searching
+            break;
+        }
+
+        // no luck with realpath(); search for the '/' at the end of the
+        // previous component in the path 
+        for (; suffix > mypath && *(suffix - 1) != '/'; --suffix);
+
+        // skip any redundant slashes
+        for (; suffix > mypath && *(suffix - 1) == '/'; --suffix);
+
+        // if we're at the root element, we're out of path elements
+        if (suffix == mypath)
+        {
+            // we can't resolve any part of the path, so just return the
+            // original path unchanged
+            safe_strcpy(buf, buflen, mypath);
+            break;
+        }
+
+        // split the path here into prefix and suffix, and try again
+        sl = *suffix;
+        *suffix = '\0';
+    }
+
+    // done with our writable copy of the path
+    free(mypath);
+}
+
+int
+os_is_file_in_dir(const char* filename, const char* path,
+    int allow_subdirs, int match_self)
+{
+    char filename_buf[OSFNMAX], path_buf[OSFNMAX];
+    size_t flen, plen;
+
+    // Absolute-ize the filename, if necessary.
+    if (!os_is_file_absolute(filename)) {
+        os_get_abs_filename(filename_buf, sizeof(filename_buf), filename);
+        filename = filename_buf;
+    }
+
+    // Absolute-ize the path, if necessary.
+    if (!os_is_file_absolute(path)) {
+        os_get_abs_filename(path_buf, sizeof(path_buf), path);
+        path = path_buf;
+    }
+
+    // Canonicalize the paths, to remove .. and . elements - this will make
+    // it possible to directly compare the path strings.  Also resolve it
+    // to the extent possible, to make sure we're not fooled by symbolic
+    // links.
+    safe_strcpy(filename_buf, sizeof(filename_buf), filename);
+    canonicalize_path(filename_buf);
+    resolve_path(filename_buf, sizeof(filename_buf), filename_buf);
+    filename = filename_buf;
+
+    safe_strcpy(path_buf, sizeof(path_buf), path);
+    canonicalize_path(path_buf);
+    resolve_path(path_buf, sizeof(path_buf), path_buf);
+    path = path_buf;
+
+    // Get the length of the filename and the length of the path.
+    flen = strlen(filename);
+    plen = strlen(path);
+
+    // If the path ends in a separator character, ignore that.
+    if (plen > 0 && path[plen - 1] == OSPATHCHAR)
+        --plen;
+
+    // if the names match, return true if and only if we're matching the
+    // directory to itself
+    if (plen == flen && memcmp(filename, path, flen) == 0)
+        return match_self;
+
+    // Check that the filename has 'path' as its path prefix.  First, check
+    // that the leading substring of the filename matches 'path', ignoring
+    // case.  Note that we need the filename to be at least two characters
+    // longer than the path: it must have a path separator after the path
+    // name, and at least one character for a filename past that.
+    if (flen < plen + 2 || memcmp(filename, path, plen) != 0)
+        return 0;
+
+    // Okay, 'path' is the leading substring of 'filename'; next make sure
+    // that this prefix actually ends at a path separator character in the
+    // filename.  (This is necessary so that we don't confuse "c:\a\b.txt"
+    // as matching "c:\abc\d.txt" - if we only matched the "c:\a" prefix,
+    // we'd miss the fact that the file is actually in directory "c:\abc",
+    // not "c:\a".)
+    if (filename[plen] != OSPATHCHAR)
+        return 0;
+
+    // We're good on the path prefix - we definitely have a file that's
+    // within the 'path' directory or one of its subdirectories.  If we're
+    // allowed to match on subdirectories, we already have our answer
+    // (true).  If we're not allowed to match subdirectories, we still have
+    // one more check, which is that the rest of the filename is free of
+    // path separator charactres.  If it is, we have a file that's directly
+    // in the 'path' directory; otherwise it's in a subdirectory of 'path'
+    // and thus isn't a match.
+    if (allow_subdirs) {
+        // Filename is in the 'path' directory or one of its
+        // subdirectories, and we're allowed to match on subdirectories, so
+        // we have a match.
+        return 1;
+    }
+
+    // We're not allowed to match subdirectories, so scan the rest of
+    // the filename for path separators.  If we find any, the file is
+    // in a subdirectory of 'path' rather than directly in 'path'
+    // itself, so it's not a match.  If we don't find any separators,
+    // we have a file directly in 'path', so it's a match.
+    const char* p;
+    for (p = filename; *p != '\0' && *p != OSPATHCHAR; ++p)
+        ;
+
+    // If we reached the end of the string without finding a path
+    // separator character, it's a match .
+    return *p == '\0';
+}
+
+int
+os_resolve_symlink(const char* fname, char* target, size_t target_size)
+{
+    // get the stat() information for the *undereferenced* link; if
+    // it's not actually a link, there's nothing to resolve
+    struct stat buf;
+    if (lstat(fname, &buf) != 0 || (buf.st_mode & S_IFLNK) == 0)
+        return 0;
+
+    // read the link contents (maxing out at the buffer size)
+    size_t copylen = (size_t)buf.st_size;
+    if (copylen > target_size - 1)
+        copylen = target_size - 1;
+    if (readlink(fname, target, copylen) < 0)
+        return 0;
+
+    // null-terminate the result and return success
+    target[copylen] = '\0';
+    return 1;
+}
+
+size_t os_get_root_dirs(char* buf, size_t buflen)
+{
+    // TODO: Emglken
+    static const char ret[] = { '/', 0, 0 };
+
+    // if there's room, copy the root string "/" and an extra null
+    // terminator for the overall list
+    if (buflen >= sizeof(ret))
+        memcpy(buf, ret, sizeof(ret));
+
+    // return the required size
+    return sizeof(ret);
+}
+
+void os_combine_paths(char* fullpathbuf, size_t fullpathbuflen,
+    const char* path, const char* filename)
+{
+    snprintf(fullpathbuf, fullpathbuflen, "%s/%s", path, filename);
+}
+
+void
+os_time_ns(os_time_t* seconds, long* nanoseconds)
+{
+    // Get the current time.
+    static const clockid_t clockType = CLOCK_REALTIME;
+    struct timespec currTime;
+    clock_gettime(clockType, &currTime);
+
+    // return the data
+    *seconds = currTime.tv_sec;
+    *nanoseconds = currTime.tv_nsec;
+}
+
+void os_set_save_ext(const char* ext)
+{
+    /* ignore the setting */
 }

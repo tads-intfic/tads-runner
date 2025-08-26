@@ -125,7 +125,7 @@ Tue Nov 22 15:16:10 EST 1994    Dave Baggett    Updated for TADS 2.2.0.5
 #  define osfar_t
 
 /* maximum theoretical size of malloc argument */
-#  define OSMALMAX ((size_t)0xffffffff)
+#  define OSMALMAX (0xffffffffzU)
 
 /* cast an expression to void */
 #  define DISCARD (void)
@@ -136,6 +136,7 @@ Tue Nov 22 15:16:10 EST 1994    Dave Baggett    Updated for TADS 2.2.0.5
 #include <stdio.h>
 #if !defined(NEXT) && !defined(IBM_RT)
 #include <unistd.h>
+#include <sys/stat.h>
 #endif
 #if !defined(IBM_RT)
 #include <memory.h>
@@ -268,8 +269,21 @@ void *osrealloc(void *buf, size_t len);
 /* character to separate paths from one another */
 #define OSPATHSEP ':'
 
-/* character to separate paths from one another */
+#define OSPATHPWD "."
+
+#define OS_NEWLINE_SEQ  "\n"
+
+#define OS_SYSTEM_NAME "POSIX_UNIX"
+
 #define OS_DECL_TLS(typ, varname)  thread_local typ varname
+
+#define os_tls_create(varname)
+
+#define os_tls_delete(varname)
+
+#define os_tls_get(typ, varname) varname
+
+#define os_tls_set(varname, val) varname = (val)
 
 /* os file structure */
 typedef FILE osfildef;
@@ -278,7 +292,13 @@ typedef FILE osfildef;
 typedef DIR* osdirhdl_t;
 
 /* file type/mode bits */
+#define OSFMODE_FILE    S_IFREG
 #define OSFMODE_DIR     S_IFDIR
+#define OSFMODE_CHAR    S_IFCHR
+#define OSFMODE_BLK     S_IFBLK
+#define OSFMODE_PIPE    S_IFIFO
+#define OSFMODE_LINK    S_IFLNK
+#define OSFMODE_SOCKET  S_IFSOCK
 
 /* File attribute bits. */
 #define OSFATTR_HIDDEN  0x0001
@@ -419,8 +439,10 @@ osfildef *osfoprwb(const char *fname, os_filetype_t typ);
 # define USE_TIMERAND
 # define USE_NULLSTYPE
 # define USE_PATHSEARCH
+#ifndef USE_STDIO
 # define STD_OS_HILITE
 # define STD_OSCLS
+#endif
 
 
 /*
@@ -478,6 +500,16 @@ E void (*os_dspptr)() I(ossdsp);
 #  undef E
 #  undef I
 
-int memicmp(char const* s1, char const *s2, int len);
+#define os_rename_file(from, to) (rename(from, to) == 0)
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+int memicmp(char const* s1, char const* s2, int len);
+
+int stricmp(const char* s1, const char* s2);
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OSUNIXT_INCLUDED */
