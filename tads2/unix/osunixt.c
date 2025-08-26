@@ -3735,16 +3735,6 @@ void os_gen_rand_bytes( unsigned char* buf, size_t len )
     close(f);
 }
 
-void os_instbrk(int install)
-{
-}
-
-int
-os_get_exe_filename(char*, size_t, const char*)
-{
-    return 0;
-}
-
 static void
 canonicalize_path(char* path)
 {
@@ -3923,78 +3913,6 @@ osfdup(osfildef* orig, const char* mode)
 
     /* duplicate the handle in the given mode */
     return fdopen(dup(fileno(orig)), mode);
-}
-
-#define T3_RES_DIR "res"
-#define T3_INC_DIR "include"
-#define T3_LIB_DIR "lib"
-#define T3_LOG_FILE "t3.log"
-
-void
-os_get_special_path(char* buf, size_t buflen, const char* argv0, int id)
-{
-    const char* res;
-
-    switch (id) {
-    case OS_GSP_T3_RES:
-        res = getenv("T3_RESDIR");
-        if (res == 0 || res[0] == '\0') {
-            res = T3_RES_DIR;
-        }
-        break;
-
-    case OS_GSP_T3_INC:
-        res = getenv("T3_INCDIR");
-        if (res == 0 || res[0] == '\0') {
-            res = T3_INC_DIR;
-        }
-        break;
-
-    case OS_GSP_T3_LIB:
-        res = getenv("T3_LIBDIR");
-        if (res == 0 || res[0] == '\0') {
-            res = T3_LIB_DIR;
-        }
-        break;
-
-    case OS_GSP_T3_USER_LIBS:
-        // There's no compile-time default for user libs.
-        res = getenv("T3_USERLIBDIR");
-        break;
-
-    case OS_GSP_T3_SYSCONFIG:
-        res = getenv("T3_CONFIG");
-        if (res == 0 && argv0 != 0) {
-            os_get_path_name(buf, buflen, argv0);
-            return;
-        }
-        break;
-
-    case OS_GSP_LOGFILE:
-        res = getenv("T3_LOGDIR");
-        if (res == 0 || res[0] == '\0') {
-            res = T3_LOG_FILE;
-        }
-        break;
-
-    default:
-        // TODO: We could print a warning here to inform the
-        // user that we're outdated.
-        res = 0;
-    }
-
-    if (res != 0) {
-        // Only use the detected path if it exists and is a
-        // directory.
-        struct stat inf;
-        int statRet = stat(res, &inf);
-        if (statRet == 0 && (inf.st_mode & S_IFMT) == S_IFDIR) {
-            strncpy(buf, res, buflen - 1);
-            return;
-        }
-    }
-    // Indicate failure.
-    buf[0] = '\0';
 }
 
 static void
@@ -4227,7 +4145,46 @@ os_time_ns(os_time_t* seconds, long* nanoseconds)
     *nanoseconds = currTime.tv_nsec;
 }
 
+int
+oss_eof_on_stdin()
+{
+    fd_set rfds;
+    struct timeval tv;
+
+    // Zero time: non-blocking operation.
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+
+    FD_ZERO(&rfds);
+    // stdin always has a file descriptor of 0.
+    FD_SET(0, &rfds);
+
+    return select(1, &rfds, 0, 0, &tv) == -1;
+}
+
+#ifndef USE_STDIO
+
+int os_askfile(const char* prompt, char* reply, int replen,
+    int /*dialog_type*/, os_filetype_t /*file_type*/)
+{
+    /* show the prompt */
+    os_printz(prompt);
+    os_printz(" >");
+
+    /* ask for the filename */
+    os_gets((unsigned char*)reply, replen);
+
+    /*
+     *   if they entered an empty line, return "cancel"; otherwise, return
+     *   success
+     */
+    return (reply[0] == '\0' ? OS_AFE_CANCEL : OS_AFE_SUCCESS);
+}
+#else
+
 void os_set_save_ext(const char* ext)
 {
     /* ignore the setting */
 }
+
+#endif
