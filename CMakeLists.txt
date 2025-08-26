@@ -20,7 +20,12 @@ target_include_directories(tads_settings
 
 option(VM_TARGET_T3 "Compile with T3 VM" ON)
 option(VM_TARGET_JS "Compile with JS VM" OFF)
-option(VM_WITH_NETWORK "Compile with network module" ON)
+if (WIN32)
+set(NETWORK_DEFAULT ON)
+else()
+set(NETWORK_DEFAULT OFF)
+endif()
+option(VM_WITH_NETWORK "Compile with network module" ${NETWORK_DEFAULT})
 
 if (WIN32)
 	target_include_directories(tads_settings INTERFACE
@@ -48,6 +53,8 @@ else()
 		tads2/unix
 		tads3/unix
 	)
+	
+	set(USE_STDIO ON)
 	
 	target_compile_definitions(tads_settings INTERFACE
 		UNIX
@@ -308,8 +315,20 @@ set(tads3src
 	${tads2_dir}/osnoui.c
 	${tads2_dir}/osstzprs.c
 	${tads2_dir}/osrestad.c
+	#${tads2_dir}/osgen3.c
+)
+
+if (USE_STDIO)
+set(tads3src
+	${tads3src}
+	${tads3_dir}/os_stdio.cpp
+)
+else()
+set(tads3src
+	${tads3src}
 	${tads2_dir}/osgen3.c
 )
+endif()
 
 add_executable(t3run
 	${tads3src}
@@ -333,6 +352,12 @@ if (WIN32)
 	if (VM_WITH_NETWORK)
 		target_link_libraries(t3run PRIVATE Ws2_32.lib Wininet.lib)
 	endif()
+else()
+	target_sources(t3run
+		PRIVATE
+		${tads2_dir}/unix/osunixt.c
+		${tads2_dir}/ostzposix.c
+	)
 endif()
 
 target_link_libraries(t3run PRIVATE tads_settings)
