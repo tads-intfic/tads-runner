@@ -55,12 +55,7 @@ else()
 		tads3/unix
 	)
 	
-	if (Curses_FOUND)
-		target_compile_definitions(tads_settings INTERFACE
-			HAVE_TPARM
-		)
-		target_link_libraries(tads_settings INTERFACE ${CURSES_LIBRARIES})
-	else()
+	if (NOT Curses_FOUND)
 		set(USE_STDIO ON)
 		target_compile_definitions(tads_settings INTERFACE
 			USE_STDIO
@@ -202,6 +197,9 @@ else()
 		PRIVATE
 		${tads2_dir}/unix/osunixt.c
 	)
+	target_compile_definitions(t3res PRIVATE
+		USE_STDIO
+	)
 endif()
 
 target_link_libraries(t3res PRIVATE tads_settings)
@@ -225,6 +223,9 @@ else()
 	target_sources(mkchrtab
 		PRIVATE
 		${tads2_dir}/unix/osunixt.c
+	)
+	target_compile_definitions(mkchrtab PRIVATE
+		USE_STDIO
 	)
 endif()
 
@@ -363,20 +364,38 @@ if (WIN32)
 	if (VM_WITH_NETWORK)
 		target_link_libraries(t3run PRIVATE Ws2_32.lib Wininet.lib)
 	endif()
+	
+	target_compile_definitions(t3run
+		PRIVATE
+		RUNTIME
+	)
 else()
+	
+	target_compile_definitions(t3run PRIVATE
+		BINDIR="bin"
+		RESDIR="res"
+		LIBDIR="lib"
+		INCDIR="include"
+	)
+	
+	if (Curses_FOUND)
+		target_compile_definitions(t3run PRIVATE
+			HAVE_TPARM
+		)
+		target_link_libraries(t3run PRIVATE ${CURSES_LIBRARIES})
+	endif()
 	target_sources(t3run
 		PRIVATE
 		${tads2_dir}/unix/osunixt.c
 		${tads2_dir}/ostzposix.c
+		${tads2_dir}/unix/tputs.c
+		${tads2_dir}/unix/tparm.c
+		${tads3_dir}/unix/osunix.c
+		${tads3_dir}/unix/osunix3.c
 	)
 endif()
 
 target_link_libraries(t3run PRIVATE tads_settings)
-
-target_compile_definitions(t3run
-    PRIVATE
-	RUNTIME
-)
 
 add_custom_command(
         TARGET t3run POST_BUILD
