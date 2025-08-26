@@ -45,21 +45,32 @@ if (WIN32)
 	)
 	endif()
 else()
-
-	include (FindCURL)
-	find_package(CURL)
+	find_package(CURL REQUIRED)
+	find_package(Curses)
+	#for now, deactivate it
+	set(Curses_FOUND FALSE)
 	
 	target_include_directories(tads_settings INTERFACE
 		tads2/unix
 		tads3/unix
 	)
 	
-	set(USE_STDIO ON)
+	if (Curses_FOUND)
+		target_compile_definitions(tads_settings INTERFACE
+			HAVE_TPARM
+		)
+		target_link_libraries(tads_settings INTERFACE ${CURSES_LIBRARIES})
+	else()
+		set(USE_STDIO ON)
+		target_compile_definitions(tads_settings INTERFACE
+			USE_STDIO
+		)
+	endif()
 	
 	target_compile_definitions(tads_settings INTERFACE
 		UNIX
 		LINUX_386
-		USE_STDIO
+		OS_ANSI
 	)
 endif()
 
