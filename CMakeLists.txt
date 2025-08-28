@@ -167,11 +167,165 @@ if (VM_WITH_NETWORK)
 		${net_src_base}
 		${tads3_dir}/vmnet.cpp
 	)
+	set(nonet_src
+		${tads3_dir}/vmhttpdum.cpp
+	)
 else()
 	set(net_src
 		${tads3_dir}/vmnetfillcl.cpp
 	)
 endif()
+
+#t3make
+
+add_executable(t3make
+		${tads3_dir}/tcmakecl.cpp
+        ${tads3_dir}/tccmdutl.cpp
+        ${tads3_dir}/tcmake.cpp
+        ${tads3_dir}/tclibprs.cpp
+        ${tads3_dir}/std.cpp
+        ${tads3_dir}/std_dbg.cpp
+        ${tads3_dir}/tcglob.cpp
+        ${tads3_dir}/vmerr.cpp
+        ${tads3_dir}/vmerrmsg.cpp
+        ${tads3_dir}/utf8.cpp
+        ${tads3_dir}/charmap.cpp
+        ${tads3_dir}/resload.cpp
+        ${tads3_dir}/resldexe.cpp
+        ${tads3_dir}/tcmain.cpp
+        ${tads3_dir}/rcmain.cpp
+        ${tads3_dir}/tcerr.cpp
+        ${tads3_dir}/tcerrmsg.cpp
+        ${tads3_dir}/tchostsi.cpp
+        ${tads3_dir}/tcsrc.cpp
+        ${tads3_dir}/tctok.cpp
+        ${tads3_dir}/tcprs.cpp
+        ${tads3_dir}/tcprsfil.cpp
+        ${tads3_dir}/tcprsstm.cpp
+        ${tads3_dir}/tcprsprg.cpp
+        ${tads3_dir}/tcprsimg.cpp
+        ${tads3_dir}/tcgen.cpp
+        ${tads3_dir}/tcgenfil.cpp
+        ${target_src}
+        ${tads3_dir}/vmhash.cpp
+        ${tads3_dir}/vmwrtimg.cpp
+        ${tads3_dir}/vmtypedh.cpp
+        ${tads3_dir}/vmfile.cpp
+        ${tads3_dir}/vminit.cpp
+        ${tads3_dir}/vmini_nd.cpp
+        ${tads3_dir}/vminitim.cpp
+        ${tads3_dir}/vmcfgmem.cpp
+        ${tads3_dir}/vmobj.cpp
+        ${tads3_dir}/vmundo.cpp
+        ${tads3_dir}/vmtobj.cpp
+        ${tads3_dir}/vmpat.cpp
+        ${tads3_dir}/vmstrcmp.cpp
+        ${tads3_dir}/vmdict.cpp
+        ${tads3_dir}/vmgram.cpp
+        ${tads3_dir}/vmstr.cpp
+        ${tads3_dir}/vmcoll.cpp
+        ${tads3_dir}/vmiter.cpp
+        ${tads3_dir}/vmfref.cpp
+        ${tads3_dir}/vmlst.cpp
+        ${tads3_dir}/vmsort.cpp
+        ${tads3_dir}/vmsortv.cpp
+        ${tads3_dir}/vmbignum.cpp
+        ${tads3_dir}/vmbignumlib.cpp
+        ${tads3_dir}/vmvec.cpp
+        ${tads3_dir}/vmintcls.cpp
+        ${tads3_dir}/vmanonfn.cpp
+        ${tads3_dir}/vmlookup.cpp
+        ${tads3_dir}/vmstrbuf.cpp
+        ${tads3_dir}/vmdynfunc.cpp
+        ${tads3_dir}/vmbytarr.cpp
+        ${tads3_dir}/vmdate.cpp
+        ${tads3_dir}/vmtzobj.cpp
+        ${tads3_dir}/vmtz.cpp
+        ${tads3_dir}/vmcset.cpp
+        ${tads3_dir}/vmfilobj.cpp
+        ${tads3_dir}/vmfilnam.cpp
+        ${tads3_dir}/vmtmpfil.cpp
+        ${tads3_dir}/vmpack.cpp
+        ${tads3_dir}/vmnetfillcl.cpp
+        ${tads3_dir}/vmstack.cpp
+        ${tads3_dir}/vmpool.cpp
+        ${tads3_dir}/vmpoolim.cpp
+        ${tads3_dir}/vmtype.cpp
+        ${tads3_dir}/vmglob.cpp
+        ${tads3_dir}/vmrun.cpp
+        ${tads3_dir}/vmop.cpp
+        ${tads3_dir}/vmfunc.cpp
+        ${tads3_dir}/vmmeta.cpp
+        ${tads3_dir}/vmpreini.cpp
+        ${tads3_dir}/vmimgrb.cpp
+        ${tads3_dir}/vmbif.cpp
+        ${tads3_dir}/vmbifc.cpp
+        ${tads3_dir}/vmimage.cpp
+        ${tads3_dir}/vmrunsym.cpp
+        ${tads3_dir}/vmimg_nd.cpp
+        ${tads3_dir}/vmsrcf.cpp
+        ${tads3_dir}/vmbiftad.cpp
+        ${tads3_dir}/vmisaac.cpp
+        ${tads3_dir}/vmbiftio.cpp
+        ${tads3_dir}/askf_tx3.cpp
+        ${tads3_dir}/indlg_tx3.cpp
+        ${tads3_dir}/vmsave.cpp
+        ${tads3_dir}/vmcrc.cpp
+        ${tads3_dir}/vmbift3.cpp
+        ${tads3_dir}/vmbt3_nd.cpp
+        ${tads3_dir}/vmregex.cpp
+        ${tads3_dir}/vmconsol.cpp
+        ${tads3_dir}/vmconmor.cpp
+        ${tads3_dir}/vmconhmp.cpp
+        ${tads3_dir}/os_stdio.cpp
+        ${tads3_dir}/vmhosttx.cpp
+        ${tads3_dir}/vmhostsi.cpp
+        ${tads3_dir}/vmlog.cpp
+        ${tads3_dir}/sha2.cpp
+        ${tads3_dir}/md5.cpp
+		${tads3_dir}/vmmcreg.cpp
+        ${tads3_dir}/vmbifreg.cpp
+		${tads3_dir}/derived/vmuni_cs.cpp
+        ${tads2_dir}/osifc.c
+        ${tads2_dir}/osnoui.c
+        ${tads2_dir}/osstzprs.c
+        ${tads2_dir}/osrestad.c
+        ${nonet_src}
+)
+
+target_include_directories(t3make PRIVATE
+		tads3/test
+	)
+
+if (WIN32)
+	target_sources(t3make
+		PRIVATE
+		${tads2_dir}/msdos/osdosex.c
+		${tads2_dir}/msdos/osdos.c
+        ${tads2_dir}/msdos/osdosnui.c
+        ${tads2_dir}/msdos/oswinmem.c
+		${tads2_dir}/msdos/osnogen.c
+		${tads2_dir}/msdos/ostzw32.c
+	)
+else()
+	target_sources(t3make
+		PRIVATE
+		${tads2_dir}/unix/osunixt.c
+		${tads2_dir}/ostzposix.c
+		${tads3_dir}/unix/osunix.c
+		${tads3_dir}/unix/osunix3.c
+	)
+	target_compile_definitions(t3make PRIVATE
+		USE_STDIO
+		BINDIR="bin"
+		RESDIR="res"
+		LIBDIR="lib"
+		INCDIR="include"
+	)
+endif()
+
+target_link_libraries(t3make PRIVATE tads_settings)
+
 
 #t3res
 
@@ -231,10 +385,9 @@ endif()
 
 target_link_libraries(mkchrtab PRIVATE tads_settings)
 
-#t3run
+#t3core
 
-set(tads3src
-	${tads3_dir}/vmmaincl.cpp
+add_library(t3core STATIC
 	${tads3_dir}/vmmain.cpp
 	${tads3_dir}/std.cpp
 	${tads3_dir}/std_dbg.cpp
@@ -243,9 +396,6 @@ set(tads3src
 	${tads3_dir}/resldexe.cpp
 	${tads3_dir}/vminit.cpp
 	${tads3_dir}/vmini_nd.cpp
-	${tads3_dir}/vmconsol.cpp
-	${tads3_dir}/vmconmor.cpp
-	${tads3_dir}/vmconhmp.cpp
 	${tads3_dir}/vminitim.cpp
 	${tads3_dir}/vmcfgmem.cpp
 	${tads3_dir}/vmobj.cpp
@@ -301,28 +451,40 @@ set(tads3src
 	${tads3_dir}/vmimg_nd.cpp
 	${tads3_dir}/vmsrcf.cpp
 	${tads3_dir}/vmfile.cpp
-	${tads3_dir}/vmbiftad.cpp
-	${tads3_dir}/vmisaac.cpp
-	${tads3_dir}/vmbiftio.cpp
-	${tads3_dir}/askf_os3.cpp
-	${tads3_dir}/indlg_tx3.cpp
 	${tads3_dir}/vmsave.cpp
 	${tads3_dir}/vmcrc.cpp
+	${tads3_dir}/vmbiftad.cpp
+	${tads3_dir}/vmisaac.cpp
 	${tads3_dir}/vmbift3.cpp
 	${tads3_dir}/vmbt3_nd.cpp
 	${tads3_dir}/vmregex.cpp
-	${tads3_dir}/vmhosttx.cpp
-	${tads3_dir}/vmhostsi.cpp
 	${tads3_dir}/vmhash.cpp
 	${tads3_dir}/vmlog.cpp
+	${tads3_dir}/derived/vmuni_cs.cpp
+	${dyn_comp_src}
+	${net_src}
+)
+
+target_link_libraries(t3core PRIVATE
+	tads_settings
+)
+
+#t3run
+
+set(tads3src
+	${tads3_dir}/vmmaincl.cpp	
+	${tads3_dir}/vmconsol.cpp
+	${tads3_dir}/vmconmor.cpp
+	${tads3_dir}/vmconhmp.cpp
+	${tads3_dir}/vmbiftio.cpp
+	${tads3_dir}/askf_os3.cpp
+	${tads3_dir}/indlg_tx3.cpp
+	${tads3_dir}/vmhosttx.cpp
+	${tads3_dir}/vmhostsi.cpp
 	${tads3_dir}/vmmcreg.cpp
 	
 	${tads3_dir}/${builtin_char}
-	${tads3_dir}/derived/vmuni_cs.cpp
-	
-	${dyn_comp_src}
-	${net_src}
-	
+		
 	${tads2_dir}/osifc.c
 	${tads2_dir}/osnoui.c
 	${tads2_dir}/osstzprs.c
@@ -344,6 +506,11 @@ endif()
 
 add_executable(t3run
 	${tads3src}
+)
+
+target_link_libraries(t3run PRIVATE
+	t3core
+	tads_settings
 )
 
 if (WIN32)
@@ -394,8 +561,6 @@ else()
 		${tads3_dir}/unix/osunix3.c
 	)
 endif()
-
-target_link_libraries(t3run PRIVATE tads_settings)
 
 add_custom_command(
         TARGET t3run POST_BUILD
