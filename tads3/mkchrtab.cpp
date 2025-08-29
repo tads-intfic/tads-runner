@@ -685,7 +685,7 @@ static entity_map_t *read_translation(char *p, char *infile, int linenum)
                 if (dstp >= buf + sizeof(buf))
                 {
                     printf("%s: line %d: entity mapping is too long "
-                           "(maximum of %d characters are allowed\n",
+                           "(maximum of %zd characters are allowed\n",
                            infile, linenum, sizeof(buf));
                     return 0;
                 }
@@ -719,7 +719,7 @@ static entity_map_t *read_translation(char *p, char *infile, int linenum)
             if (dstp + 1 > buf + sizeof(buf))
             {
                 printf("%s: line %d: entity mapping is too long "
-                       "(maximum of %d characters are allowed\n",
+                       "(maximum of %lld characters are allowed\n",
                        infile, linenum, sizeof(buf)/sizeof(buf[0]));
                 return 0;
             }
@@ -773,7 +773,7 @@ static entity_map_t *parse_entity(char *p, char *infile, int linenum,
     if (entp->ename == 0)
     {
         printf("%s: line %d: unknown entity name \"%.*s\"\n",
-               infile, linenum, p - start, start);
+               infile, linenum, (int)(p - start), start);
         return 0;
     }
 

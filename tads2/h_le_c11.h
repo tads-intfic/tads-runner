@@ -43,6 +43,13 @@ Modified
 #include <stdalign.h>
 #endif
 
+#ifdef _MSC_VER
+#if _MSC_VER <= 1929
+#define _ALLOW_KEYWORD_MACROS
+#define alignof __alignof
+#endif
+#endif
+
 /* Round a size up to worst-case alignment boundary. */
 static inline size_t osrndsz(const size_t siz)
 {
