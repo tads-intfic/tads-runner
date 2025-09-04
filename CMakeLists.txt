@@ -10,6 +10,10 @@ endif()
 
 add_subdirectory(tads3)
 
+if (EXISTS ../htmltads)
+	add_subdirectory(../htmltads htmltads)
+endif()
+
 install(EXPORT TadsTargets
 	FILE TadsTargets.cmake
 	DESTINATION cmake/Tads
