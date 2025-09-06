@@ -1109,3 +1109,7 @@ OS_Thread::~OS_Thread()
     IF_LEAK_CHECK(thread_cnt.dec());
 }
 
+void osnet_disconnect_webui(int)
+{
+}
+

@@ -43,9 +43,6 @@ Modified
 /* infinite timeout value */
 #define OS_FOREVER  ((ulong)-1)
 
-/* libcurl headers */
-#include <curl/curl.h>
-
 /* OS X spinlocks */
 #ifdef __APPLE__
 #include <libkern/OSAtomic.h>
