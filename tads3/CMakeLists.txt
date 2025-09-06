@@ -14,7 +14,8 @@ option(VM_TARGET_JS "Compile with JS VM" OFF)
 if (WIN32)
 set(NETWORK_DEFAULT ON)
 else()
-set(NETWORK_DEFAULT OFF)
+find_package(CURL)
+set(NETWORK_DEFAULT ${CURL_FOUND})
 endif()
 option(VM_WITH_NETWORK "Compile with network module" ${NETWORK_DEFAULT})
 
@@ -36,7 +37,6 @@ if (WIN32)
 	)
 	endif()
 else()
-	find_package(CURL REQUIRED)
 	find_package(Curses)
 	#for now, deactivate it
 	set(Curses_FOUND FALSE)
@@ -152,6 +152,11 @@ if (VM_WITH_NETWORK)
 			${tads3_dir}/win32/osnetcli.cpp
 			${tads3_dir}/win32/osnet-connect.cpp
 			${tads3_dir}/win32/osnet-fgwin.cpp
+		)
+	else()
+		set(net_src_base
+			${net_src_base}
+			${tads3_dir}/unix/osnetunix.cpp
 		)
 	endif()
 	set(net_src
@@ -643,6 +648,7 @@ else()
 		)
 		target_link_libraries(t3run PRIVATE ${CURSES_LIBRARIES})
 	endif()
+	
 	target_sources(t3run
 		PRIVATE
 		${tads2_dir}/unix/osunixt.c
@@ -652,6 +658,13 @@ else()
 		${tads3_dir}/unix/osunix.c
 		${tads3_dir}/unix/osunix3.c
 	)
+	
+	if (VM_WITH_NETWORK)
+		if (NOT CURL_FOUND)
+			message(FATAL_ERROR "Curl required for network support")
+		endif()
+		target_link_libraries(t3run PRIVATE CURL::libcurl)
+	endif()
 endif()
 
 add_custom_command(
