@@ -465,106 +465,117 @@ target_link_libraries(t3core PRIVATE
 	tads_settings
 )
 
-#t3htm
-set(html_base
-	${tads3_dir}/vminit.cpp
-	${tads3_dir}/vmmain.cpp
-	${tads3_dir}/std.cpp
-	${tads3_dir}/std_dbg.cpp
-	${tads3_dir}/charmap.cpp
-	${tads3_dir}/resload.cpp
-	${tads3_dir}/resldexe.cpp
-	${tads3_dir}/vmconsol.cpp
-	${tads3_dir}/vmconhtm.cpp
-	${tads3_dir}/vmconhmp.cpp
-	${tads3_dir}/vminitim.cpp
-	${tads3_dir}/vmcfgmem.cpp
-	${tads3_dir}/vmobj.cpp
-	${tads3_dir}/vmundo.cpp
-	${tads3_dir}/vmtobj.cpp
-	${tads3_dir}/vmpat.cpp
-	${tads3_dir}/vmstrcmp.cpp
-	${tads3_dir}/vmdict.cpp
-	${tads3_dir}/vmgram.cpp
-	${tads3_dir}/vmhash.cpp
-	${tads3_dir}/vmstr.cpp
-	${tads3_dir}/vmcoll.cpp
-	${tads3_dir}/vmiter.cpp
-	${tads3_dir}/vmfref.cpp
-	${tads3_dir}/vmlst.cpp
-	${tads3_dir}/vmsort.cpp
-	${tads3_dir}/vmsortv.cpp
-	${tads3_dir}/vmbignum.cpp
-	${tads3_dir}/vmbignumlib.cpp
-	${tads3_dir}/vmvec.cpp
-	${tads3_dir}/vmintcls.cpp
-	${tads3_dir}/vmanonfn.cpp
-	${tads3_dir}/vmlookup.cpp
-	${tads3_dir}/vmstrbuf.cpp
-	${tads3_dir}/vmdynfunc.cpp
-	${tads3_dir}/vmbytarr.cpp
-	${tads3_dir}/vmdate.cpp
-	${tads3_dir}/vmtzobj.cpp
-	${tads3_dir}/vmtz.cpp
-	${tads3_dir}/vmcset.cpp
-	${tads3_dir}/vmfilobj.cpp
-	${tads3_dir}/vmfilnam.cpp
-	${tads3_dir}/vmtmpfil.cpp
-	${tads3_dir}/vmpack.cpp
-	${tads3_dir}/vmstack.cpp
-	${tads3_dir}/vmfunc.cpp
-	${tads3_dir}/vmerr.cpp
-	${tads3_dir}/vmerrmsg.cpp
-	${tads3_dir}/vmpool.cpp
-	${tads3_dir}/vmpoolim.cpp
-	${tads3_dir}/vmtype.cpp
-	${tads3_dir}/vmtypedh.cpp
-	${tads3_dir}/utf8.cpp
-	${tads3_dir}/vmglob.cpp
-	${tads3_dir}/vmmeta.cpp
-	${tads3_dir}/vmsa.cpp
-	${tads3_dir}/vmop.cpp
-	${tads3_dir}/vmbif.cpp
-	${tads3_dir}/vmbifl.cpp
-	${tads3_dir}/vmimage.cpp
-	${tads3_dir}/vmsrcf.cpp
-	${tads3_dir}/vmfile.cpp
-	${tads3_dir}/vmbiftad.cpp
-	${tads3_dir}/vmisaac.cpp
-	${tads3_dir}/vmbiftio.cpp
-	${tads3_dir}/vmbiftix.cpp
-	${tads3_dir}/askf_os3.cpp
-	${tads3_dir}/indlg_os3.cpp
-	${tads3_dir}/vmsave.cpp
-	${tads3_dir}/vmcrc.cpp
-	${tads3_dir}/vmbift3.cpp
-	${tads3_dir}/vmregex.cpp
-	${tads3_dir}/vmhosttx.cpp
-	${tads3_dir}/vmhostsi.cpp
-	${tads3_dir}/vmlog.cpp
-	${tads3_dir}/vmmcreg.cpp
-	${tads3_dir}/${builtin_html}
-	${tads3_dir}/sha2.cpp
-	${tads3_dir}/md5.cpp
-	${tads3_dir}/derived/vmuni_cs.cpp
-	${tads3_dir}/resfind.cpp
-	${tads3_dir}/gameinfo.cpp
-	${tads3_dir}/gameinfl.cpp
-)
+if (WITH_HTMLTADS)
+	#t3htm
+	set(html_base
+		${tads3_dir}/vminit.cpp
+		${tads3_dir}/vmmain.cpp
+		${tads3_dir}/std.cpp
+		${tads3_dir}/std_dbg.cpp
+		${tads3_dir}/charmap.cpp
+		${tads3_dir}/resload.cpp
+		${tads3_dir}/resldexe.cpp
+		${tads3_dir}/vmconsol.cpp
+		${tads3_dir}/vmconhtm.cpp
+		${tads3_dir}/vmconhmp.cpp
+		${tads3_dir}/vminitim.cpp
+		${tads3_dir}/vmcfgmem.cpp
+		${tads3_dir}/vmobj.cpp
+		${tads3_dir}/vmundo.cpp
+		${tads3_dir}/vmtobj.cpp
+		${tads3_dir}/vmpat.cpp
+		${tads3_dir}/vmstrcmp.cpp
+		${tads3_dir}/vmdict.cpp
+		${tads3_dir}/vmgram.cpp
+		${tads3_dir}/vmhash.cpp
+		${tads3_dir}/vmstr.cpp
+		${tads3_dir}/vmcoll.cpp
+		${tads3_dir}/vmiter.cpp
+		${tads3_dir}/vmfref.cpp
+		${tads3_dir}/vmlst.cpp
+		${tads3_dir}/vmsort.cpp
+		${tads3_dir}/vmsortv.cpp
+		${tads3_dir}/vmbignum.cpp
+		${tads3_dir}/vmbignumlib.cpp
+		${tads3_dir}/vmvec.cpp
+		${tads3_dir}/vmintcls.cpp
+		${tads3_dir}/vmanonfn.cpp
+		${tads3_dir}/vmlookup.cpp
+		${tads3_dir}/vmstrbuf.cpp
+		${tads3_dir}/vmdynfunc.cpp
+		${tads3_dir}/vmbytarr.cpp
+		${tads3_dir}/vmdate.cpp
+		${tads3_dir}/vmtzobj.cpp
+		${tads3_dir}/vmtz.cpp
+		${tads3_dir}/vmcset.cpp
+		${tads3_dir}/vmfilobj.cpp
+		${tads3_dir}/vmfilnam.cpp
+		${tads3_dir}/vmtmpfil.cpp
+		${tads3_dir}/vmpack.cpp
+		${tads3_dir}/vmstack.cpp
+		${tads3_dir}/vmfunc.cpp
+		${tads3_dir}/vmerr.cpp
+		${tads3_dir}/vmerrmsg.cpp
+		${tads3_dir}/vmpool.cpp
+		${tads3_dir}/vmpoolim.cpp
+		${tads3_dir}/vmtype.cpp
+		${tads3_dir}/vmtypedh.cpp
+		${tads3_dir}/utf8.cpp
+		${tads3_dir}/vmglob.cpp
+		${tads3_dir}/vmmeta.cpp
+		${tads3_dir}/vmsa.cpp
+		${tads3_dir}/vmop.cpp
+		${tads3_dir}/vmbif.cpp
+		${tads3_dir}/vmbifl.cpp
+		${tads3_dir}/vmimage.cpp
+		${tads3_dir}/vmsrcf.cpp
+		${tads3_dir}/vmfile.cpp
+		${tads3_dir}/vmbiftad.cpp
+		${tads3_dir}/vmisaac.cpp
+		${tads3_dir}/vmbiftio.cpp
+		${tads3_dir}/vmbiftix.cpp
+		${tads3_dir}/askf_os3.cpp
+		${tads3_dir}/indlg_os3.cpp
+		${tads3_dir}/vmsave.cpp
+		${tads3_dir}/vmcrc.cpp
+		${tads3_dir}/vmbift3.cpp
+		${tads3_dir}/vmregex.cpp
+		${tads3_dir}/vmhosttx.cpp
+		${tads3_dir}/vmhostsi.cpp
+		${tads3_dir}/vmlog.cpp
+		${tads3_dir}/vmmcreg.cpp
+		${tads3_dir}/${builtin_html}
+		${tads3_dir}/sha2.cpp
+		${tads3_dir}/md5.cpp
+		${tads3_dir}/derived/vmuni_cs.cpp
+		${tads3_dir}/resfind.cpp
+		${tads3_dir}/gameinfo.cpp
+		${tads3_dir}/gameinfl.cpp
+	)
 
-add_library(t3htm STATIC
-	${html_base}
-	${tads3_dir}/vmrun.cpp
-	${tads3_dir}/vmimg_nd.cpp
-	${tads3_dir}/vmbt3_nd.cpp
-	${tads3_dir}/vmini_nd.cpp
-	${dyn_comp_src}
-	${net_src}
-)
+	add_library(t3htm STATIC
+		${html_base}
+		${tads3_dir}/vmrun.cpp
+		${tads3_dir}/vmimg_nd.cpp
+		${tads3_dir}/vmbt3_nd.cpp
+		${tads3_dir}/vmini_nd.cpp
+		${dyn_comp_src}
+		${net_src}
+	)
 
-target_link_libraries(t3htm PUBLIC
-	tads_settings
-)
+	target_link_libraries(t3htm PUBLIC
+		tads_settings
+	)
+	
+	target_include_directories(t3htm PRIVATE
+		${HTMLTADS_DIR}/htmltads
+		${HTMLTADS_DIR}/htmltads/win32
+	)
+
+	target_compile_definitions(t3htm PUBLIC
+		T3_COMPILING_FOR_HTML
+	)
+endif()
 
 #t3run
 

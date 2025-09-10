@@ -8,9 +8,14 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Default build type: Debug" FORCE)
 endif()
 
+if (EXISTS ../htmltads)
+	set(WITH_HTMLTADS ON)
+	set(HTMLTADS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../htmltads)
+endif()
+
 add_subdirectory(tads3)
 
-if (EXISTS ../htmltads)
+if (WITH_HTMLTADS)
 	add_subdirectory(../htmltads htmltads)
 endif()
 
