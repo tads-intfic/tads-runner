@@ -125,7 +125,7 @@ Tue Nov 22 15:16:10 EST 1994    Dave Baggett    Updated for TADS 2.2.0.5
 #  define osfar_t
 
 /* maximum theoretical size of malloc argument */
-#  define OSMALMAX (0xffffffffzU)
+#  define OSMALMAX (0xffffffffU)
 
 /* cast an expression to void */
 #  define DISCARD (void)
