@@ -9,10 +9,15 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 if (EXISTS ../htmltads)
-	set(WITH_HTMLTADS ON)
+	if (WIN32) #htmltads is currently only ported to windows
+		set(WITH_HTMLTADS ON)
+	else()
+		set(WITH_HTMLTADS OFF)
+	endif()
 	set(HTMLTADS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../htmltads)
 endif()
 
+add_subdirectory(tads2)
 add_subdirectory(tads3)
 
 if (WITH_HTMLTADS)

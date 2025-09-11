@@ -575,6 +575,8 @@ if (WITH_HTMLTADS)
 	target_compile_definitions(t3htm PUBLIC
 		T3_COMPILING_FOR_HTML
 	)
+
+	add_library(Tads::t3htm ALIAS t3htm)
 endif()
 
 #t3run
