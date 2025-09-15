@@ -354,6 +354,8 @@ endif()
 
 target_link_libraries(t3res PRIVATE tads_settings)
 
+add_executable(Tads::t3res ALIAS t3res)
+
 #mkchrtab
 add_executable(mkchrtab
         ${tads3_dir}/mkchrtab.cpp

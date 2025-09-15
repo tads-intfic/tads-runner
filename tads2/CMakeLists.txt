@@ -123,3 +123,21 @@ else()
 endif()
 
 add_library(Tads::tr32h ALIAS tr32h)
+
+if (WIN32)
+	add_executable(maketrx32
+		msdos/dosmktrx.c
+	)
+
+	target_compile_definitions(maketrx32 PRIVATE
+		MKTRX_SETICON
+	)
+
+	add_executable(Tads::maketrx32 ALIAS maketrx32)
+endif()
+
+install(TARGETS 
+	maketrx32
+	EXPORT TadsTargets
+	DESTINATION .
+)
