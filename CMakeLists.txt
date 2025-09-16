@@ -4,6 +4,9 @@ project(Tads VERSION 3.1.3)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_STANDARD 11)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/.")
+include(TadsFunctions)
+
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Default build type: Debug" FORCE)
 endif()
@@ -47,6 +50,7 @@ write_basic_package_version_file(
 install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/TadsConfig.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/TadsConfigVersion.cmake
+  ${CMAKE_CURRENT_SOURCE_DIR}/TadsFunctions.cmake
   DESTINATION cmake/Tads
 )
 
