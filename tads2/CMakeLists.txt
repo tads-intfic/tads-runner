@@ -134,10 +134,10 @@ if (WIN32)
 	)
 
 	add_executable(Tads::maketrx32 ALIAS maketrx32)
+	
+	install(TARGETS 
+		maketrx32
+		EXPORT TadsTargets
+		DESTINATION .
+	)
 endif()
-
-install(TARGETS 
-	maketrx32
-	EXPORT TadsTargets
-	DESTINATION .
-)
