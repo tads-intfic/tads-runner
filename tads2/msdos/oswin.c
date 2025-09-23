@@ -67,7 +67,7 @@ void oss_set_open_file_dir(const char *dir)
 /* 
  *   dialog hook for standard file dialog - centers it on the screen 
  */
-static UINT APIENTRY filedlg_hook(HWND dlg, UINT msg,
+static UINT_PTR APIENTRY filedlg_hook(HWND dlg, UINT msg,
                                   WPARAM wpar, LPARAM lpar)
 {
     /* if this is the post-initialization message, center the dialog */
