@@ -579,6 +579,36 @@ if (WITH_HTMLTADS)
 	)
 
 	add_library(Tads::t3htm ALIAS t3htm)
+	
+	#htmd
+	
+	add_library(t3htm_d STATIC
+		${html_base}
+		${tads3_dir}/vmrun.cpp
+		${tads3_dir}/vmini_d.cpp
+        ${tads3_dir}/vmdbg.cpp
+		${tads3_dir}/vmimg_d.cpp
+		${tads3_dir}/vmbt3_d.cpp	
+		${dyn_comp_src}
+		${net_src}
+	)
+
+	target_link_libraries(t3htm_d PUBLIC
+		tads_settings
+	)
+	
+	target_include_directories(t3htm_d PRIVATE
+		${HTMLTADS_DIR}/htmltads
+		${HTMLTADS_DIR}/htmltads/win32
+	)
+
+	target_compile_definitions(t3htm_d PUBLIC
+		T3_COMPILING_FOR_HTML
+		VM_DEBUGGER
+		VM_PROFILER
+	)
+
+	add_library(Tads::t3htm_d ALIAS t3htm_d)
 endif()
 
 #t3run
