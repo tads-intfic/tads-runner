@@ -730,3 +730,23 @@ install(FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/charmap/cmaplib.t3r
 	DESTINATION charmap
 )
+
+install(DIRECTORY
+	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/charmap/source
+	DESTINATION charmap
+)
+
+install(DIRECTORY
+	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/samples
+	DESTINATION .
+)
+
+install(DIRECTORY
+	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/lib
+	DESTINATION .
+)
+
+install(DIRECTORY
+	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/include
+	DESTINATION .
+)
