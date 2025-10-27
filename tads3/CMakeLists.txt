@@ -728,12 +728,19 @@ install(TARGETS
 	
 install(FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/charmap/cmaplib.t3r
+	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/charmap/README.txt
+	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/charmap/us-ascii.txt
 	DESTINATION charmap
 )
 
 install(DIRECTORY
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/charmap/source
 	DESTINATION charmap
+)
+
+install(DIRECTORY
+	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/doc
+	DESTINATION .
 )
 
 install(DIRECTORY
