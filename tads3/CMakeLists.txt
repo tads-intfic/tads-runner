@@ -748,6 +748,17 @@ install(DIRECTORY
 	DESTINATION .
 )
 
+install(FILES
+	${tads3_dir}/samples/starta3.t
+	${tads3_dir}/samples/starti3.t
+	DESTINATION lib/adv3/samples
+)
+
+install(FILES
+	${tads3_dir}/samples/startB3.t
+	DESTINATION lib/samples
+)
+
 install(DIRECTORY
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/lib
 	DESTINATION .
@@ -756,4 +767,13 @@ install(DIRECTORY
 install(DIRECTORY
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/include
 	DESTINATION .
+)
+
+install(FILES
+	${tads3_dir}/test/data/anonobj.t
+	${tads3_dir}/test/data/calc.t
+	${tads3_dir}/test/data/gram.t
+	${tads3_dir}/test/data/noun_ph.t
+	${tads3_dir}/test/data/template.t
+	DESTINATION samples
 )
