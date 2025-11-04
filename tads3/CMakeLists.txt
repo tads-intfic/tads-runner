@@ -727,6 +727,11 @@ install(TARGETS
 	DESTINATION .)
 	
 install(FILES
+	${tads3_dir}/tz/timezones.t3tz
+	DESTINATION .
+)
+	
+install(FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/charmap/cmaplib.t3r
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/charmap/README.txt
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/charmap/us-ascii.txt
