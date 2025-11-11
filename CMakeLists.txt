@@ -57,3 +57,6 @@ install(FILES
 export(EXPORT TadsTargets
   FILE "${CMAKE_CURRENT_BINARY_DIR}/TadsTargets.cmake"
 )
+
+set(CPACK_GENERATOR ZIP)
+include(CPack)
