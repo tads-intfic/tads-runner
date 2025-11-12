@@ -991,6 +991,8 @@ public:
      */
     void *operator new(size_t siz, VMG_ vm_obj_id_t obj_id);
 
+    void operator delete(void* ptr, size_t siz, VMG_ vm_obj_id_t obj_id);
+
 protected:
     /*
      *   Find a modifier property.  This is an internal service routine that
