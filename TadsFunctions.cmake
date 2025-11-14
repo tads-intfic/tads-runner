@@ -18,5 +18,5 @@ function(make_trx output input)
 		COMMAND Tads::maketrx32 -type EXRS $<TARGET_FILE:${input}> ${ARGN} ${trx_target}
 		DEPENDS Tads::maketrx32 ${input} ${ARGN}
 	)
-	add_custom_target(${output} DEPENDS ${trx_target})
+	add_custom_target(${output} ALL DEPENDS ${trx_target})
 endfunction()
