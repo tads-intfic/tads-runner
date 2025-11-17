@@ -1179,7 +1179,7 @@ void t3free(void *ptr, int alloc_type)
     static int check = 0;
     static int double_check = 0;
     static int check_heap = 0;
-    static long ckblk[] = { 0xD9D9D9D9, 0xD9D9D9D9, 0xD9D9D9D9 };
+    static unsigned long ckblk[] = { 0xD9D9D9D9, 0xD9D9D9D9, 0xD9D9D9D9 };
 
     /* ignore freeing null */
     if (ptr == 0)
