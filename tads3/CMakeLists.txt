@@ -55,9 +55,13 @@ else()
 	
 	target_compile_definitions(tads_settings INTERFACE
 		UNIX
-		LINUX_386
 		OS_ANSI
 	)
+	if (NOT EMSCRIPTEN)
+		target_compile_definitions(tads_settings INTERFACE
+		LINUX_386
+	)
+	endif()
 endif()
 
 if (VM_TARGET_T3)

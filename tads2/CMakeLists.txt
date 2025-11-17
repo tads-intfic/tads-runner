@@ -117,9 +117,17 @@ else()
 	)
 	target_compile_definitions(tr32h PRIVATE
 		UNIX
-		LINUX_386
 		OSANSI
 	)
+	if (EMSCRIPTEN)
+		target_compile_definitions(tr32h PRIVATE
+			HAVE_STRCASECMP
+		)
+	else()
+		target_compile_definitions(tr32h PRIVATE
+			LINUX_386
+		)
+	endif()
 endif()
 
 add_library(Tads::tr32h ALIAS tr32h)
@@ -210,9 +218,17 @@ else()
 	)
 	target_compile_definitions(trd32h PRIVATE
 		UNIX
-		LINUX_386
 		OSANSI
 	)
+	if (EMSCRIPTEN)
+		target_compile_definitions(trd32h PRIVATE
+			HAVE_STRCASECMP
+		)
+	else()
+		target_compile_definitions(trd32h PRIVATE
+			LINUX_386
+		)
+	endif()
 endif()
 
 add_library(Tads::trd32h ALIAS trd32h)
