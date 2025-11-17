@@ -42,6 +42,10 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #endif
+#if defined(__EMSCRIPTEN__)
+#include <limits.h>
+#include <sys/select.h>
+#endif
 
 #ifdef  DJGCC_386
 #include <pc.h>
@@ -55,6 +59,8 @@
 #include "osdbg.h"
 #endif
 #include "voc.h"
+
+extern void safe_strcpy(char *dst, size_t dstlen, const char *src);
 
 /*
  * ^C pressed?
@@ -3199,7 +3205,7 @@ void os_set_title(const char *title)
 /*
  * Provide memicmp since it's not a standard libc routine.
  */
-memicmp(const char *s1, const char *s2, int len)
+int memicmp(const char *s1, const char *s2, int len)
 {
     char    *x1, *x2;   
     int result;
