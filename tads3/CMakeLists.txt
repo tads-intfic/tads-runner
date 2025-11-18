@@ -720,6 +720,16 @@ add_custom_command(
         TARGET t3run POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:t3run>/charmap
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/charmap/cmaplib.t3r $<TARGET_FILE_DIR:t3run>/charmap/)
+		
+if (EMSCRIPTEN)
+	set_target_properties(t3run PROPERTIES SUFFIX ".html")
+	#embed the test game
+    set_target_properties(t3run PROPERTIES LINK_FLAGS "--preload-file ${CMAKE_CURRENT_SOURCE_DIR}/../tests/ditch3.t3@ditch3.t3")
+	add_custom_command(
+        TARGET t3run POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/emscripten/t3run.html $<TARGET_FILE_DIR:t3run>)
+else ()
+endif()
 
 #############
 ###Install###
