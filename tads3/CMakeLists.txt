@@ -722,7 +722,8 @@ add_custom_command(
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/charmap/cmaplib.t3r $<TARGET_FILE_DIR:t3run>/charmap/)
 		
 if (EMSCRIPTEN)
-	set_target_properties(t3run PROPERTIES SUFFIX ".html")
+	#we customize the html, so need to output it.
+	#set_target_properties(t3run PROPERTIES SUFFIX ".html")
 	#embed the test game
     set_target_properties(t3run PROPERTIES LINK_FLAGS "--preload-file ${CMAKE_CURRENT_SOURCE_DIR}/../tests/ditch3.t3@ditch3.t3")
 	add_custom_command(
@@ -739,6 +740,17 @@ install(TARGETS
 	mkchrtab t3make t3res t3run
 	EXPORT TadsTargets
 	DESTINATION .)
+	
+if (EMSCRIPTEN)
+install (FILES
+	"$<TARGET_FILE_DIR:mkchrtab>/mkchrtab.wasm"
+	"$<TARGET_FILE_DIR:t3make>/t3make.wasm"
+	"$<TARGET_FILE_DIR:t3res>/t3res.wasm"
+	"$<TARGET_FILE_DIR:t3run>/t3run.wasm"
+	"$<TARGET_FILE_DIR:t3run>/t3run.data"
+	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/emscripten/t3run.html
+	DESTINATION .)
+endif()
 	
 install(FILES
 	${tads3_dir}/tz/timezones.t3tz
