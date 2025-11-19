@@ -100,6 +100,21 @@ canvas.emscripten { border: 0px none; background-color: black; }
   font-family: 'Lucida Console', Monaco, monospace;
   outline: none;
 }
+
+#input {
+  width: 100%;
+  margin: 0 auto;
+  margin-top: 10px;
+  border-left: 0px;
+  border-right: 0px;
+  padding-left: 0px;
+  padding-right: 0px;
+  display: block;
+  background-color: black;
+  color: white;
+  font-family: 'Lucida Console', Monaco, monospace;
+  outline: none;
+}
 </style>
   </head>
   <body>
@@ -124,12 +139,17 @@ canvas.emscripten { border: 0px none; background-color: black; }
       <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
     </div>
     <textarea id="output" rows="8"></textarea>
+	<textarea id="input" cols="80" rows="1"></textarea>
 
     <script type='text/javascript'>
 	  const queryString = window.location.search;
 	  console.log(queryString);
 	  const urlParams = new URLSearchParams(queryString);
 	  const file = urlParams.get('file')
+	  var cmdline_args = [];
+	  if (file){
+		cmdline_args = [file];
+	  }
 	  
       var statusElement = document.getElementById('status');
       var progressElement = document.getElementById('progress');
@@ -146,8 +166,19 @@ canvas.emscripten { border: 0px none; background-color: black; }
         e.preventDefault();
       }, false);
 
+	  var input = "\nThis is from the standard input\n";
+      var i = 0;
       var Module = {
-		arguments: [file],
+		arguments: cmdline_args,
+		stdin() {
+		  if (i < input.length) {
+			var code = input.charCodeAt(i);
+			++i;
+			return code;
+		  } else {
+			return null;
+		  }
+		},
         print(...args) {
           console.log(...args);
           // These replacements are necessary if you render to raw HTML
