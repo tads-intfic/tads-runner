@@ -6,7 +6,6 @@ extern "C"{
 
 extern char *__real_fgets(char *str, int num, FILE *stream);
 extern int __real_fflush(FILE *stream);
-extern ssize_t __real_read(int fd, void *buf, size_t count);
 extern int __real_getchar();
 
 EM_JS(void, _flushstdout, (), {
@@ -21,11 +20,6 @@ EM_ASYNC_JS(void, _wait_for_stdin, (), {
     await window._STDIO._flushstdin();
 });
 
-char *__wrap_fgets(char * str, int num, FILE * stream) {
-    _wait_for_stdin();
-    return __real_fgets(str, num, stream);
-}
-
 int __wrap_fflush(FILE *stream) {
     int ret = __real_fflush(stream);
     if (stream == stdout) {
@@ -36,14 +30,14 @@ int __wrap_fflush(FILE *stream) {
     return ret;
 }
 
-ssize_t __wrap_read(int fd, void *buf, size_t count){
-	if (fd == 0){
-		_wait_for_stdin();
-	}
-    return __real_read(fd, buf, count);
+char *__wrap_fgets(char * str, int num, FILE * stream) {
+	__wrap_fflush(stdout);
+    _wait_for_stdin();
+    return __real_fgets(str, num, stream);
 }
 
 int __wrap_getchar(){
+	__wrap_fflush(stdout);
 	_wait_for_stdin();
 	return __real_getchar();
 }
