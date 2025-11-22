@@ -577,6 +577,16 @@ if (WITH_HTMLTADS)
 		${HTMLTADS_DIR}/htmltads
 		${HTMLTADS_DIR}/htmltads/win32
 	)
+	
+	if (WIN32)
+		target_include_directories(t3htm PRIVATE
+			${HTMLTADS_DIR}/htmltads/win32
+		)
+	elseif(EMSCRIPTEN)
+		target_include_directories(t3htm PRIVATE
+			${HTMLTADS_DIR}/htmltads/emscripten
+		)
+	endif()
 
 	target_compile_definitions(t3htm PUBLIC
 		T3_COMPILING_FOR_HTML
@@ -603,8 +613,17 @@ if (WITH_HTMLTADS)
 	
 	target_include_directories(t3htm_d PRIVATE
 		${HTMLTADS_DIR}/htmltads
-		${HTMLTADS_DIR}/htmltads/win32
 	)
+	
+	if (WIN32)
+		target_include_directories(t3htm_d PRIVATE
+			${HTMLTADS_DIR}/htmltads/win32
+		)
+	elseif(EMSCRIPTEN)
+		target_include_directories(t3htm_d PRIVATE
+			${HTMLTADS_DIR}/htmltads/emscripten
+		)
+	endif()
 
 	target_compile_definitions(t3htm_d PUBLIC
 		T3_COMPILING_FOR_HTML

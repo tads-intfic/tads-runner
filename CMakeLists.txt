@@ -12,7 +12,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 if (EXISTS ../htmltads)
-	if (WIN32) #htmltads is currently only ported to windows
+	if (WIN32 OR EMSCRIPTEN) #htmltads is currently only ported to windows and javascript
 		set(WITH_HTMLTADS ON)
 	else()
 		set(WITH_HTMLTADS OFF)
