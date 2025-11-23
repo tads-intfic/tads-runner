@@ -5,7 +5,7 @@ function(make_t3r output)
 		DEPENDS Tads::t3res
 		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	)
-	add_custom_target(${output}.t3r DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${output}.t3r)
+	add_custom_target(build_${output}.t3r DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${output}.t3r)
 endfunction()
 
 function(trx_target_file name output)
