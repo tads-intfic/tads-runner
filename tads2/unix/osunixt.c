@@ -55,7 +55,7 @@
 
 #include "os.h"
 #include "osgen.h"
-#ifndef USE_STDIO
+#if !defined(USE_STDIO) && !defined(USE_HTML)
 #include "osdbg.h"
 #endif
 #include "voc.h"
@@ -99,7 +99,7 @@ static long timeZero = 0;
 #define cBLINK      (1 << 4)
 #define cUNDERSCORE (1 << 5)
 
-#ifndef USE_STDIO
+#if !defined(USE_STDIO) && !defined(USE_HTML)
 
 #ifndef DJGCC_386
 #include <signal.h>
@@ -2756,6 +2756,7 @@ os_term(int rc)
     exit(rc);
 }
 
+#ifndef USE_HTML
 int
 os_break(void)
 {
@@ -2783,6 +2784,7 @@ os_getc_raw(void)
 {
     return os_getc();
 }
+#endif
 
 #endif  /* USE_STDIO */
 
@@ -2951,7 +2953,7 @@ char *os_get_root_name(const char *buf)
     return p;
 }
 
-
+#ifndef USE_HTML
 /*
  * This is an extremely unsophisticated version of os_xlat_html4, which translates
  * everything it can into its near-ASCII equivalent. Added by SRG, after code from
@@ -3161,6 +3163,7 @@ void os_xlat_html4(unsigned int html4_char, char *result, size_t result_len)
     /* look up the character in our table and return the translation */
     strcpy(result, xlat_tbl[html4_char - 128]);
 }
+#endif
 
 /*
  * Simple versions of os_advise_load_charmap and os_gen_charmap_filename. At
@@ -3195,12 +3198,14 @@ void os_sleep_ms(long delay_in_milliseconds)
     usleep(delay_in_milliseconds);
 }
 
+#ifndef USE_HTML
 /*
  * An empty implementation of os_set_title. Added by SRG.
  */
 void os_set_title(const char *title)
 {
 }
+#endif
 
 /*
  * Provide memicmp since it's not a standard libc routine.
@@ -4186,8 +4191,9 @@ int os_askfile(const char* prompt, char* reply, int replen,
      */
     return (reply[0] == '\0' ? OS_AFE_CANCEL : OS_AFE_SUCCESS);
 }
-#else
+#endif
 
+#if defined(USE_STDIO) || defined(USE_HTML)
 void os_set_save_ext(const char* ext)
 {
     /* ignore the setting */
