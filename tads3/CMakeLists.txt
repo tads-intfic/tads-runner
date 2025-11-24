@@ -586,6 +586,12 @@ if (WITH_HTMLTADS)
 		target_include_directories(t3htm PRIVATE
 			${HTMLTADS_DIR}/htmltads/emscripten
 		)
+		target_compile_definitions(t3htm PUBLIC
+			HAVE_STRCASECMP
+		)
+		target_sources(t3htm PRIVATE
+			emscripten/osemscripten.cpp
+		)
 	endif()
 
 	target_compile_definitions(t3htm PUBLIC

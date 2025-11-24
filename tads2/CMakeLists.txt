@@ -114,6 +114,8 @@ if (WIN32)
 else()
 	target_sources(tr32h PRIVATE
 		unix/osunixt.c
+		unix/osunixh.c
+		ostzposix.c
 	)
 	target_include_directories(tr32h PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/unix
@@ -123,9 +125,11 @@ else()
 		OSANSI
 	)
 	if (EMSCRIPTEN)
-		target_compile_definitions(tr32h PRIVATE
-			HAVE_STRCASECMP
+		target_compile_definitions(tr32h
+			PRIVATE
 			TERMIOS_IS_NOT_IN_SYS
+			PUBLIC
+			HAVE_STRCASECMP
 		)
 	else()
 		target_compile_definitions(tr32h PRIVATE
