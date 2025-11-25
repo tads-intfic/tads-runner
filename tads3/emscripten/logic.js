@@ -153,7 +153,7 @@ const urlParams = new URLSearchParams(queryString);
 const file = urlParams.get('file')
 var cmdline_args = [];
 if (file){
-	cmdline_args = [file];
+	cmdline_args = [file+".t3"];
 }
 
 
@@ -164,3 +164,6 @@ var Module = {
     }
 	]
 };
+
+document.write("<script src='./" + file + ".js'></script>");
+
