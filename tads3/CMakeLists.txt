@@ -754,7 +754,7 @@ if (EMSCRIPTEN)
 	#we customize the html, so need to output it.
 	#set_target_properties(t3run PROPERTIES SUFFIX ".html")
 	#embed the test game
-    set_target_properties(t3run PROPERTIES LINK_FLAGS "-s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY -s FORCE_FILESYSTEM --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/../tests/ditch3.t3@ditch3.t3 -Wl,--wrap=fgets,--wrap=fflush,--wrap=getchar")
+    set_target_properties(t3run PROPERTIES LINK_FLAGS "-s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY -s FORCE_FILESYSTEM -Wl,--wrap=fgets,--wrap=fflush,--wrap=getchar")
 	add_custom_command(
         TARGET t3run POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/emscripten/t3run.html $<TARGET_FILE_DIR:t3run>)
@@ -776,8 +776,6 @@ install (FILES
 	"$<TARGET_FILE_DIR:t3make>/t3make.wasm"
 	"$<TARGET_FILE_DIR:t3res>/t3res.wasm"
 	"$<TARGET_FILE_DIR:t3run>/t3run.wasm"
-	"$<TARGET_FILE_DIR:t3run>/t3run.data"
-	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/emscripten/t3run_ems.html
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/emscripten/t3run.html
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/emscripten/logic.js
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/emscripten/xterm.css

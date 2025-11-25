@@ -22,6 +22,7 @@ endif()
 
 add_subdirectory(tads2)
 add_subdirectory(tads3)
+add_subdirectory(tests)
 
 if (WITH_HTMLTADS)
 	add_subdirectory(../htmltads htmltads)
