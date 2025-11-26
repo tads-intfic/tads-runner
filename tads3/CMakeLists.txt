@@ -588,9 +588,16 @@ if (WITH_HTMLTADS)
 		)
 		target_compile_definitions(t3htm PUBLIC
 			HAVE_STRCASECMP
+			PRIVATE
+			BINDIR="bin"
+			RESDIR="res"
+			LIBDIR="lib"
+			INCDIR="include"
 		)
 		target_sources(t3htm PRIVATE
-			emscripten/osemscripten.cpp
+			${tads3_dir}/emscripten/osemscripten.cpp
+			${tads3_dir}/emscripten/emscripten.cpp
+			${tads3_dir}/unix/osunix.c
 		)
 	endif()
 

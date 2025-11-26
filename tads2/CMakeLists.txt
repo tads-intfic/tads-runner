@@ -114,7 +114,6 @@ if (WIN32)
 else()
 	target_sources(tr32h PRIVATE
 		unix/osunixt.c
-		unix/osunixh.c
 		ostzposix.c
 	)
 	target_include_directories(tr32h PRIVATE

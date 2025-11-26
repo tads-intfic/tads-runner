@@ -23,7 +23,7 @@ endfunction()
 
 function(em_package output)
 	add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${output}.data
-		COMMAND ${EMSCRIPTEN_ROOT_PATH}/tools/file_packager.bat ${output}.data --preload ${ARGN} --js-output=${output}.js
+		COMMAND ${EMSCRIPTEN_ROOT_PATH}/tools/file_packager${EMCC_SUFFIX} ${output}.data --preload ${ARGN} --js-output=${output}.js
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 	)
 	add_custom_target(build_${output}.data ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${output}.data)
