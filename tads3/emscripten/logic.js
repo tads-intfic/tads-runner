@@ -165,5 +165,7 @@ var Module = {
 	]
 };
 
-document.write("<script src='./" + file + ".js'></script>");
+if (file){
+	document.write("<script src='./" + file + ".js'></script>");
+}
 
