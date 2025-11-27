@@ -3242,19 +3242,6 @@ int memicmp(const char *s1, const char *s2, int len)
     return result;
 }
 
-int stricmp(const char* s1, const char* s2)
-{
-    return strcasecmp(s1, s2);
-    /*const auto x1 = std::make_unique<char[]>(strlen(s1));
-    const auto x2 = std::make_unique<char[]>(strlen(s2));
-
-    for (size_t i = 0; s1[i] != '\0' and s2[i] != '\0'; ++i) {
-        x1[i] = tolower(s1[i]);
-        x2[i] = tolower(s2[i]);
-    }
-    return strcmp(x1.get(), x2.get());*/
-}
-
 /*
  * memcpy - copy bytes (handles overlap, so we can equivalence memmove() to it.
  */
