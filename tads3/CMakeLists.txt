@@ -56,6 +56,7 @@ else()
 	target_compile_definitions(tads_settings INTERFACE
 		UNIX
 		OS_ANSI
+		HAVE_STRCASECMP
 	)
 	if (NOT EMSCRIPTEN)
 		target_compile_definitions(tads_settings INTERFACE
