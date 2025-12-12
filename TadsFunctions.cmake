@@ -33,3 +33,13 @@ function(em_package output)
 		DESTINATION .
 	)
 endfunction()
+
+function(build_game game)
+	#todo get independent of build version
+	get_target_property(t3make Tads::t3make IMPORTED_LOCATION_RELWITHDEBINFO)
+	add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${game}.t3
+		COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} ${t3make} -FI ${Tads_ROOT_DIR}/include -FL ${Tads_ROOT_DIR}/lib -f ${CMAKE_CURRENT_SOURCE_DIR}/${game}.t3m
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	)
+	add_custom_target(build_${game}.t3 ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${game}.t3)
+endfunction()

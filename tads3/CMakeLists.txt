@@ -327,6 +327,10 @@ endif()
 
 target_link_libraries(t3make PRIVATE tads_settings)
 
+if (EMSCRIPTEN)
+    set_target_properties(t3make PROPERTIES LINK_FLAGS "-s NODERAWFS=1")
+endif()
+
 
 #t3res
 

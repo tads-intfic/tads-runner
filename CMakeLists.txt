@@ -30,6 +30,7 @@ endif()
 
 install(EXPORT TadsTargets
 	FILE TadsTargets.cmake
+	NAMESPACE Tads::
 	DESTINATION cmake/Tads
 )
 
@@ -57,6 +58,7 @@ install(FILES
 
 export(EXPORT TadsTargets
   FILE "${CMAKE_CURRENT_BINARY_DIR}/TadsTargets.cmake"
+  NAMESPACE Tads::
 )
 
 set(CPACK_GENERATOR ZIP)
