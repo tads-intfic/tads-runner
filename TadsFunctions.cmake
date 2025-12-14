@@ -35,11 +35,22 @@ function(em_package output)
 endfunction()
 
 function(build_game game)
-	#todo get independent of build version
-	get_target_property(t3make Tads::t3make IMPORTED_LOCATION_RELWITHDEBINFO)
+	get_target_property(t3make Tads::t3make IMPORTED_LOCATION_RELEASE)
+	if (NOT t3make)
+		get_target_property(t3make Tads::t3make IMPORTED_LOCATION_RELWITHDEBINFO)
+	endif()
+	if (NOT t3make)
+		get_target_property(t3make Tads::t3make IMPORTED_LOCATION_DEBUG)
+	endif()
+	if (NOT t3make)
+		get_target_property(t3make Tads::t3make IMPORTED_LOCATION_MINSIZEREL)
+	endif()
 	add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${game}.t3
-		COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} ${t3make} -FI ${Tads_ROOT_DIR}/include -FL ${Tads_ROOT_DIR}/lib -f ${CMAKE_CURRENT_SOURCE_DIR}/${game}.t3m
+		COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} ${t3make} -FI ${Tads_ROOT_DIR}/include -FL ${Tads_ROOT_DIR}/lib -f ${CMAKE_CURRENT_SOURCE_DIR}/${game}.t3m -o ${CMAKE_CURRENT_BINARY_DIR}/${game}.t3
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 	)
 	add_custom_target(build_${game}.t3 ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${game}.t3)
+	if (EMSCRIPTEN)
+		em_package(${game} ${CMAKE_CURRENT_BINARY_DIR}/${game}.t3@${game}.t3)
+	endif()
 endfunction()
