@@ -601,10 +601,15 @@ if (WITH_HTMLTADS)
 			LIBDIR="lib"
 			INCDIR="include"
 		)
+		target_compile_options(
+			t3htm PRIVATE
+			-pthread
+		)
 		target_sources(t3htm PRIVATE
 			${tads3_dir}/emscripten/osemscripten.cpp
 			${tads3_dir}/emscripten/emscripten.cpp
 			${tads3_dir}/unix/osunix.c
+			${tads3_dir}/emscripten/osnetemscipten.cpp
 		)
 	endif()
 
