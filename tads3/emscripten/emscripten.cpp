@@ -12,13 +12,31 @@ EM_JS(void, _flushstdout, (), {
     window._STDIO._flushstdout();
 });
 
-EM_JS(void, _flushstderr, (), {
+void _flushstdout(){
+MAIN_THREAD_EM_ASM
+({
+    window._STDIO._flushstdout();
+});
+}
+
+void _flushstderr(){
+MAIN_THREAD_EM_ASM
+({
     window._STDIO._flushstderr();
 });
+}
 
-EM_ASYNC_JS(void, _wait_for_stdin, (), {
-    await window._STDIO._flushstdin();
+//EM_ASYNC_JS(void, _wait_for_stdin, (), {
+//    await window._STDIO._flushstdin();
+//});
+
+void _wait_for_stdin(){
+MAIN_THREAD_EM_ASM({
+    return Asyncify.handleAsync(async () => {
+        await window._STDIO._flushstdin();
+    });
 });
+}
 
 int __wrap_fflush(FILE *stream) {
     int ret = __real_fflush(stream);

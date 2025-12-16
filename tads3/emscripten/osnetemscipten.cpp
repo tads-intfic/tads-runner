@@ -19,7 +19,6 @@ struct hostent *gethostbyname(const char *name){
 	//why do we need this? without it, it will segfault
 	const char *a =
             inet_ntoa(*(struct in_addr *)ent.h_addr_list[0]);
-	printf("a%s\n", a);
 	return &ent;
 }
 
