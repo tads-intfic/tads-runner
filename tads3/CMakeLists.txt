@@ -479,10 +479,15 @@ target_link_libraries(t3core PRIVATE
 )
 
 if (EMSCRIPTEN)
+target_sources(t3core PRIVATE
+${tads3_dir}/emscripten/osnetemscipten.cpp
+)
+
 target_compile_options(
 		t3core PRIVATE
 		-pthread
 	)
+set_target_properties(t3core PROPERTIES LINK_FLAGS "-s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY -s ASYNCIFY_IMPORTS=_emscripten_receive_on_main_thread_js -s PROXY_TO_PTHREAD -s FORCE_FILESYSTEM -s INITIAL_MEMORY=256MB -s SAFE_HEAP=1 -lwebsocket.js -gsource-map -pthread -sPROXY_POSIX_SOCKETS -Wl,--wrap=fgets,--wrap=fflush,--wrap=getchar")
 endif()
 
 if (WITH_HTMLTADS)
@@ -787,7 +792,7 @@ if (EMSCRIPTEN)
 	#we customize the html, so need to output it.
 	#set_target_properties(t3run PROPERTIES SUFFIX ".html")
 	#embed the test game
-    set_target_properties(t3run PROPERTIES LINK_FLAGS "-s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY -s ASYNCIFY_IMPORTS=_emscripten_receive_on_main_thread_js -pthread -s PROXY_TO_PTHREAD -s FORCE_FILESYSTEM -Wl,--wrap=fgets,--wrap=fflush,--wrap=getchar")
+	set_target_properties(t3run PROPERTIES LINK_FLAGS "-s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY -s ASYNCIFY_IMPORTS=_emscripten_receive_on_main_thread_js -s PROXY_TO_PTHREAD -s FORCE_FILESYSTEM -s INITIAL_MEMORY=256MB -s SAFE_HEAP=1 -lwebsocket.js -gsource-map -pthread -sPROXY_POSIX_SOCKETS -Wl,--wrap=fgets,--wrap=fflush,--wrap=getchar")
 	add_custom_command(
         TARGET t3run POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/emscripten/t3run.html $<TARGET_FILE_DIR:t3run>)
