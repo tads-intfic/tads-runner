@@ -45,21 +45,42 @@ static bool ws_init = false;
 
 int __wrap_socket(int domain, int type, int protocol){
 	if (!ws_init){
-		printf("Hallo\n");
 		bridgeSocket = emscripten_init_websocket_to_posix_socket_bridge("ws://localhost:8888");
 		// Synchronously wait until connection has been established.
 		uint16_t readyState = 0;
 		do {
 			emscripten_websocket_get_ready_state(bridgeSocket, &readyState);
 			emscripten_thread_sleep(100);
-			printf("Connecting\n");
 		} while (readyState == 0);
-		printf("Connected\n");
 		ws_init = true;
 	}
 	//net_work = emscripten_malloc_wasm_worker(1024);
   	//emscripten_wasm_worker_post_function_i(worker, __real_socket);
 	return __real_socket(domain, type, protocol);
+}
+
+extern int __real_getsockname(int sockfd, struct sockaddr *addr,
+                       socklen_t *addrlen);
+
+int __wrap_getsockname(int sockfd, struct sockaddr *addr,
+                       socklen_t *addrlen){
+	socklen_t len = *addrlen;
+	len += 256; //workaround a bug in emscripten
+	int ret = __real_getsockname(sockfd, addr, &len);
+	*addrlen = len;
+	return ret;
+}
+
+extern int __real_getpeername(int sockfd, struct sockaddr *addr,
+                       socklen_t *addrlen);
+
+int __wrap_getpeername(int sockfd, struct sockaddr *addr,
+                       socklen_t *addrlen){
+	socklen_t len = *addrlen;
+	len += 256; //workaround a bug in emscripten
+	int ret = __real_getpeername(sockfd, addr, &len);
+	*addrlen = len;
+	return ret;
 }
 
 }
