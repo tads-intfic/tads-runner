@@ -32,6 +32,10 @@ Modified
 #include "vmfile.h"
 #include "vmdatasrc.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
+
 /*
  *   To enable extra code for libcurl debugging, define this macro 
  */
@@ -204,6 +208,15 @@ int osnet_connect_webui(VMG_ const char *addr, int port, const char *path,
      */
     printf("\nconnectWebUI:http://%s:%d%s\n", addr, port, path);
     fflush(stdout);
+	
+#ifdef __EMSCRIPTEN__
+	/*char tmp[256];
+	sprintf(tmp, "http://%s:%d%s", addr, port, path);
+	MAIN_THREAD_EM_ASM
+	({
+		document.getElementById('webuiframe').src = UTF8ToString($0);
+	}, tmp);*/
+#endif
 
     /* success */
     *errmsg = 0;
