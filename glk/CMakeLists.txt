@@ -58,3 +58,14 @@ if("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
     # This is a style choice in the code.
     target_compile_options(tadsr PRIVATE -Wno-deprecated-register -Wno-logical-not-parentheses -Wno-pointer-sign -Wno-string-concatenation)
 endif()
+
+# Mirrors the on-disk directory layout in the IDE's Solution Explorer instead
+# of CMake's default flat Source/Header filters. Inlined (rather than using
+# TadsFunctions.cmake's tads_source_group) since this file is also configured
+# standalone, without the top-level project. The TREE root is the repo root
+# (parent of this directory) since sources are pulled in from ../tads2 and
+# ../tads3 too, and CMAKE_SOURCE_DIR isn't reliable here: it's the repo root
+# in the combined build but this directory itself when configured standalone
+# (as tests/runtests.sh does).
+get_target_property(tadsr_sources tadsr SOURCES)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/.. FILES ${tadsr_sources})

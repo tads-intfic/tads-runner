@@ -1,4 +1,17 @@
 
+# Mirrors the on-disk directory layout in the IDE (e.g. Visual Studio's
+# Solution Explorer) instead of CMake's default flat Source/Header filters.
+# root defaults to CMAKE_SOURCE_DIR; pass it explicitly for targets whose
+# sources live outside the main project tree (e.g. the sibling htmltads repo).
+function(tads_source_group target)
+	set(root ${ARGV1})
+	if (NOT root)
+		set(root ${CMAKE_SOURCE_DIR})
+	endif()
+	get_target_property(target_sources ${target} SOURCES)
+	source_group(TREE ${root} FILES ${target_sources})
+endfunction()
+
 function(make_t3r output)
 	add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${output}.t3r
 		COMMAND Tads::t3res ARGS -create ${CMAKE_CURRENT_BINARY_DIR}/${output}.t3r -add ${ARGN}

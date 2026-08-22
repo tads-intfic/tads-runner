@@ -7,6 +7,9 @@ set(CMAKE_C_STANDARD 11)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/.")
 include(TadsFunctions)
 
+# Group targets into solution folders in IDEs like Visual Studio.
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Default build type: Debug" FORCE)
 endif()

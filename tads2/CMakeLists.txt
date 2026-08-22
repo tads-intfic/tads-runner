@@ -251,10 +251,15 @@ if (WIN32)
 	)
 
 	add_executable(Tads::maketrx32 ALIAS maketrx32)
-	
-	install(TARGETS 
+
+	install(TARGETS
 		maketrx32
 		EXPORT TadsTargets
 		DESTINATION .
 	)
+
+	tads_source_group(maketrx32)
 endif()
+
+tads_source_group(tr32h)
+tads_source_group(trd32h)

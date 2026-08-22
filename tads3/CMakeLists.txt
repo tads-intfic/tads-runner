@@ -799,6 +799,16 @@ if (EMSCRIPTEN)
 else ()
 endif()
 
+tads_source_group(t3make)
+tads_source_group(t3res)
+tads_source_group(mkchrtab)
+tads_source_group(t3core)
+tads_source_group(t3run)
+if (WITH_HTMLTADS)
+	tads_source_group(t3htm)
+	tads_source_group(t3htm_d)
+endif()
+
 #############
 ###Install###
 #############
