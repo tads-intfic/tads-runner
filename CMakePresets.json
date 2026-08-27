@@ -18,6 +18,7 @@
       "description": "Default build using Ninja generator",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/default",
+      "installDir": "${sourceDir}/build/install/default",
       "cacheVariables": {
       },
       "environment": {
@@ -35,6 +36,23 @@
       "inherits": "default",
       "displayName": "Windows-only configuration",
       "description": "This build is only available on Windows",
+	  "cacheVariables": {
+		  "CMAKE_TOOLCHAIN_FILE": "toolchain/Windows.MSVC.toolchain.cmake"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+	{
+      "name": "windows-vs",
+      "inherits": "default",
+      "displayName": "Windows Visual Studio configuration",
+      "description": "This build is only available on Windows",
+	  "generator": "Visual Studio 18 2026",
+	  "binaryDir": "${sourceDir}/build/vs",
+	  "installDir": "${sourceDir}/build/install/vs",
 	  "cacheVariables": {
 		  "CMAKE_TOOLCHAIN_FILE": "toolchain/Windows.MSVC.toolchain.cmake"
       },

@@ -291,3 +291,47 @@ set(CMAKE_C_COMPILER_PREDEFINES_COMMAND
         /Fonul.
         ${CMAKE_ROOT}/Modules/CMakeCCompilerABI.c
 )
+
+# MSVC library-naming rules.
+#
+# With this toolchain CMake does not always pick up the MSVC platform's
+# library conventions, so a plain library item such as "Advapi32.lib" in
+# target_link_libraries() is emitted GNU-style as "-lAdvapi32.lib" and then
+# discarded by link.exe (LNK4044).  Pin the conventions here so that bare
+# names ("Advapi32") and "*.lib" names are both passed through to the linker
+# as-is.
+foreach(LANG C CXX RC)
+    set(CMAKE_${LANG}_LINK_LIBRARY_FLAG "")
+    set(CMAKE_${LANG}_LINK_LIBRARY_SUFFIX ".lib")
+    set(CMAKE_${LANG}_LINK_LIBRARY_FILE_FLAG "")
+endforeach()
+set(CMAKE_LINK_LIBRARY_FLAG "")
+set(CMAKE_LINK_LIBRARY_SUFFIX ".lib")
+set(CMAKE_LINK_LIBRARY_FILE_FLAG "")
+set(CMAKE_STATIC_LIBRARY_PREFIX "")
+set(CMAKE_STATIC_LIBRARY_SUFFIX ".lib")
+set(CMAKE_IMPORT_LIBRARY_PREFIX "")
+set(CMAKE_IMPORT_LIBRARY_SUFFIX ".lib")
+set(CMAKE_SHARED_LIBRARY_PREFIX "")
+set(CMAKE_SHARED_LIBRARY_SUFFIX ".dll")
+
+# Default Win32 system libraries.
+#
+# A normal MSVC platform links a baseline set of system import libraries into
+# every target (see CMake's Windows-MSVC module).  This toolchain does not,
+# so anything using the classic Win32 / GDI / shell / OLE APIs fails to link
+# (e.g. CreatePen/DeleteObject from gdi32, CharToOemA from user32).  Restore
+# the standard set here; individual targets still add their own extras
+# (Comctl32, Ws2_32, Wininet, ...).
+foreach(LANG C CXX)
+    set(_toolchain_std_libs
+        "kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib"
+    )
+    # _INIT feeds a fresh configure; also set the plain var so it still
+    # applies if the platform module never populates _INIT on this toolchain.
+    set(CMAKE_${LANG}_STANDARD_LIBRARIES_INIT "${_toolchain_std_libs}")
+    if(NOT CMAKE_${LANG}_STANDARD_LIBRARIES)
+        set(CMAKE_${LANG}_STANDARD_LIBRARIES "${_toolchain_std_libs}")
+    endif()
+endforeach()
+unset(_toolchain_std_libs)
