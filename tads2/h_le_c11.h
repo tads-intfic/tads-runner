@@ -44,10 +44,17 @@ Modified
 #endif
 
 #ifdef _MSC_VER
-#if _MSC_VER <= 1929
+/*
+ *   MSVC's <stdalign.h> maps alignof to _Alignof, which is only recognized
+ *   when the compiler is invoked in an explicit C11/C17 mode (/std:c11 or
+ *   /std:c17).  In the default C mode _Alignof is not accepted, so
+ *   alignof(intmax_t) is parsed as a bare type name and rejected with
+ *   error C2275.  Use the __alignof intrinsic instead: it accepts a type
+ *   operand in both C and C++ on every supported MSVC version.
+ */
 #define _ALLOW_KEYWORD_MACROS
+#undef alignof
 #define alignof __alignof
-#endif
 #endif
 
 /* Round a size up to worst-case alignment boundary. */
