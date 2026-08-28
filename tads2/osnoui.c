@@ -2416,8 +2416,8 @@ int os_resolve_symlink(const char *fname, char *target, size_t target_size)
 
 struct oss_find_ctx_t
 {
-    /* _findfirst/_findnext search handle */
-    void* handle;
+    /* _findfirst/_findnext search handle (the CRT uses intptr_t, not void*) */
+    intptr_t handle;
 
     /* return data from _findfirst/_findnext */
     struct _finddata_t data;

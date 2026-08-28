@@ -215,7 +215,7 @@ void *CVmObject::operator new(size_t siz, VMG_ vm_obj_id_t obj_id)
     return G_obj_table->get_obj(obj_id);
 }
 
-void CVmObject::operator delete(void* ptr, size_t siz, VMG_ vm_obj_id_t obj_id) {
+void CVmObject::operator delete(void* ptr, VMG_ vm_obj_id_t obj_id) {
     //nothing to do here as these objects are not heap-allocated
 }
 

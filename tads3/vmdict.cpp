@@ -1398,6 +1398,8 @@ struct corr_word
         return t3mallocnew(siz + (strl-1)*sizeof(wchar_t));
     }
     void operator delete(void *ptr) { t3free(ptr); }
+    /* matching placement delete (used only if the constructor throws) */
+    void operator delete(void *ptr, size_t) { t3free(ptr); }
 
     corr_word(wchar_t *str, size_t strl, int dist, int repl, corr_word *nxt)
     {
@@ -1442,6 +1444,8 @@ struct corr_state
         return t3mallocnew(siz + strl*sizeof(wchar_t));
     }
     void operator delete(void *ptr) { t3free(ptr); }
+    /* matching placement delete (used only if the constructor throws) */
+    void operator delete(void *ptr, size_t) { t3free(ptr); }
 
     corr_state(vmdict_TrieNode *root)
     {

@@ -2807,12 +2807,27 @@ inline void *operator new(size_t siz, CTcPrsMem *pool)
     return pool->alloc(siz);
 }
 
-/* 
- *   provide an array operator new as well 
+/*
+ *   provide an array operator new as well
  */
 inline void *operator new[](size_t siz, CTcPrsMem *pool)
 {
     return pool->alloc(siz);
+}
+
+/*
+ *   Matching placement deletes.  Memory allocated from a CTcPrsMem pool is
+ *   released in bulk when the pool is deleted, never individually, so these do
+ *   nothing.  They exist only so the compiler has a placement delete to pair
+ *   with the placement news above (otherwise MSVC warns C4291 at every
+ *   'new (pool) T(...)' call site).
+ */
+inline void operator delete(void *, CTcPrsMem *)
+{
+}
+
+inline void operator delete[](void *, CTcPrsMem *)
+{
 }
 
 

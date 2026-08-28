@@ -755,6 +755,14 @@ struct CTcCSPrsAllocObj
 {
     /* allocate via the parser allocator */
     void *operator new(size_t siz, class CTcPrsMem *allocator);
+
+    /*
+     *   Matching placement delete - invoked only if a constructor throws.
+     *   Parser-pool memory is freed in bulk with the pool, so there's nothing
+     *   to do; this just gives MSVC a delete to pair with the placement 'new'
+     *   above (otherwise it warns C4291 at each allocation site).
+     */
+    void operator delete(void *, class CTcPrsMem *) { }
 };
 
 /* ------------------------------------------------------------------------ */

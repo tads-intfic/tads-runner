@@ -6207,7 +6207,7 @@ void CVmRun::prof_enum_cb(void *ctx0, CVmHashEntry *entry0)
         if (p != 0)
             strcpy(namebuf, p);
         else
-            sprintf(namebuf, "func#%lx", (long)entry->rec_.func);
+            sprintf(namebuf, "func#%p", (const void *)entry->rec_.func);
     }
     else
     {

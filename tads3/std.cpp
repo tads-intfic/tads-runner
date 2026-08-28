@@ -1046,14 +1046,14 @@ static void mem_check_guard(const mem_prefix_t *blk)
     char b[sizeof(mem_prefix_t *)];
     mem_make_guard(b, blk);
     if (memcmp(blk->guard, b, sizeof(b)) != 0)
-        fprintf(stderr, "pre guard bytes corrupted: addr=%lx, id=%ld, siz=%lu "
+        fprintf(stderr, "pre guard bytes corrupted: addr=%p, id=%ld, siz=%lu "
                 OS_MEM_PREFIX_FMT "\n",
-                (long)(blk + 1), blk->id, (unsigned long)blk->siz
+                (void *)(blk + 1), blk->id, (unsigned long)blk->siz
                 OS_MEM_PREFIX_FMT_VARS(blk));
     if (memcmp((char *)(blk + 1) + blk->siz, b, sizeof(b)) != 0)
-        fprintf(stderr, "post guard bytes corrupted: addr=%lx, id=%ld, siz=%lu "
+        fprintf(stderr, "post guard bytes corrupted: addr=%p, id=%ld, siz=%lu "
                 OS_MEM_PREFIX_FMT "\n",
-                (long)(blk + 1), blk->id, (unsigned long)blk->siz
+                (void *)(blk + 1), blk->id, (unsigned long)blk->siz
                 OS_MEM_PREFIX_FMT_VARS(blk));
 }
 #endif /* T3_DEBUG_MEMGUARD */
@@ -1199,16 +1199,16 @@ void t3free(void *ptr, int alloc_type)
      */
     if (mem->alloc_type != alloc_type)
         fprintf(stderr, "\n--- memory block freed with wrong call type: "
-                "block=%lx, size=%lu, id=%lu, alloc type=%d, free type=%d "
+                "block=%p, size=%lu, id=%lu, alloc type=%d, free type=%d "
                 "---\n",
-                (unsigned long)ptr, (unsigned long)mem->siz, mem->id,
+                ptr, (unsigned long)mem->siz, mem->id,
                 mem->alloc_type, alloc_type);
 
     /* check for a pre-freed block */
     if (memcmp(mem, ckblk, sizeof(ckblk)) == 0)
     {
-        fprintf(stderr, "\n--- memory block freed twice: %lx ---\n",
-                (unsigned long)ptr);
+        fprintf(stderr, "\n--- memory block freed twice: %p ---\n",
+                ptr);
         return;
     }
 
@@ -1229,8 +1229,8 @@ void t3free(void *ptr, int alloc_type)
         }
         if (p == 0)
             fprintf(stderr,
-                    "\n--- memory block not found in t3free: %lx ---\n",
-                    (unsigned long)ptr);
+                    "\n--- memory block not found in t3free: %p ---\n",
+                    ptr);
     }
 
     /* unlink the block from the list */
@@ -1306,8 +1306,8 @@ void t3_list_memory_blocks(void (*cb)(const char *))
     /* display the list of undeleted memory blocks */
     for (mem = mem_head, cnt = 0 ; mem ; mem = mem->nxt, ++cnt)
     {
-        sprintf(buf, "  addr=%lx, id=%ld, siz=%lu" OS_MEM_PREFIX_FMT "\n",
-                (long)(mem + 1), mem->id, (unsigned long)mem->siz
+        sprintf(buf, "  addr=%p, id=%ld, siz=%lu" OS_MEM_PREFIX_FMT "\n",
+                (void *)(mem + 1), mem->id, (unsigned long)mem->siz
                 OS_MEM_PREFIX_FMT_VARS(mem));
         (*cb)(buf);
     }

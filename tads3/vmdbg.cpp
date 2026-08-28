@@ -919,7 +919,7 @@ void CVmDebug::build_stack_listing(VMG_
                     if (rem > 15)
                     {
                         if (prop_sym != 0)
-                            sprintf(p, "%.*s", rem - 1, prop_sym);
+                            sprintf(p, "%.*s", (int)(rem - 1), prop_sym);
                         else if (me != 0)
                             sprintf(p, "prop#%x",
                                     (int)me->xlat_func(rc->method_idx));
@@ -1018,7 +1018,7 @@ void CVmDebug::build_stack_listing(VMG_
             if ((func_sym = funchdr_to_sym(vmg_ entry, fbuf)) != 0)
                 sprintf(buf, "%.255s", func_sym);
             else
-                sprintf(buf, "bytecode#%08lx", (unsigned long)entry);
+                sprintf(buf, "bytecode#%p", (const void *)entry);
         }
 
         /* get the remainder of the buffer */

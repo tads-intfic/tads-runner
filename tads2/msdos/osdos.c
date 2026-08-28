@@ -189,8 +189,8 @@ Modified
 # define SCRBASE_COLOR_PTR  ((char *)MK_FP(__SegB800, 0))
 # define SCRBASE_MONO_PTR  ((char *)MK_FP(__SegB000, 0))
 #else
-# define SCRBASE_COLOR_PTR  ((char *)0xb8000000L)
-# define SCRBASE_MONO_PTR ((char *)0xb0000000L)
+# define SCRBASE_COLOR_PTR  ((char *)(size_t)0xb8000000L)
+# define SCRBASE_MONO_PTR ((char *)(size_t)0xb0000000L)
 #endif /* __DPMI16__ */
 #endif /* !DJGPP */
 
@@ -324,7 +324,7 @@ int os_init(int *argc, char *argv[], const char *prompt,
             /* use BIOS for display operations */
             usebios = 1;
 #if !defined(MSOS2) && !defined(DJGPP)
-            scrbase = (char *)0xf0000000L;
+            scrbase = (char *)(size_t)0xf0000000L;
 #endif /* !MSOS2 && !DJGPP */
             break;
 

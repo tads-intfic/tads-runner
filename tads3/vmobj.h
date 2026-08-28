@@ -991,7 +991,13 @@ public:
      */
     void *operator new(size_t siz, VMG_ vm_obj_id_t obj_id);
 
-    void operator delete(void* ptr, size_t siz, VMG_ vm_obj_id_t obj_id);
+    /*
+     *   Matching placement delete.  The compiler invokes this only if the
+     *   constructor throws after the placement 'new' above; its parameter list
+     *   must mirror the placement 'new' (minus the leading size_t) or MSVC
+     *   emits warning C4291 at every 'new (vmg_ id) CVmObjXxx(...)' call site.
+     */
+    void operator delete(void* ptr, VMG_ vm_obj_id_t obj_id);
 
 protected:
     /*
