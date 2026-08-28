@@ -20,6 +20,7 @@
       "binaryDir": "${sourceDir}/build/default",
       "installDir": "${sourceDir}/build/install/default",
       "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
       },
       "environment": {
       }

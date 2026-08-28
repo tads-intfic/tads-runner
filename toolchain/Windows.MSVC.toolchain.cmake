@@ -335,3 +335,13 @@ foreach(LANG C CXX)
     endif()
 endforeach()
 unset(_toolchain_std_libs)
+
+# Enable the RC language after the top-level project() call.
+#
+# A toolchain file cannot call enable_language() itself, so this is deferred
+# to a CMAKE_PROJECT_INCLUDE helper.  Without it the Visual Studio generator
+# does not compile/link .rc resource scripts under this toolchain.  See
+# toolchain/ProjectInclude.cmake for the full explanation.
+if(NOT DEFINED CMAKE_PROJECT_INCLUDE)
+    set(CMAKE_PROJECT_INCLUDE "${CMAKE_CURRENT_LIST_DIR}/ProjectInclude.cmake")
+endif()
