@@ -25,6 +25,10 @@
 # This CMake toolchain file configures a CMake, non-'Visual Studio Generator' build to use
 # the MSVC compilers and tools.
 #
+# When a 'Visual Studio Generator' *is* in use it instead just locates Visual Studio (via vswhere, with no
+# Developer Command Prompt required) and hands the generator the instance / platform / toolset to build with -
+# see the "Visual Studio generator support" block below.
+#
 # The following variables can be used to configure the behavior of this toolchain file:
 #
 # | CMake Variable                              | Description                                                                                                              |
@@ -75,6 +79,101 @@ include_guard()
 
 # If `CMAKE_HOST_SYSTEM_NAME` is not 'Windows', there's nothing to do.
 if(NOT (CMAKE_HOST_SYSTEM_NAME STREQUAL Windows))
+    return()
+endif()
+
+#----------------------------------------------------------------------------------------------------------------------
+# Visual Studio generator support.
+#
+# Most of this file drives a *non*-'Visual Studio Generator' build: it points `CMAKE_<LANG>_COMPILER` at an explicit
+# `cl.exe`, adds `/X` so `%INCLUDE%` is ignored, and sets up the header / library search paths by hand - i.e. it does
+# the job that running from a Developer Command Prompt would otherwise do.
+#
+# The Visual Studio generators already do all of that themselves, via MSBuild and the selected platform toolset, and
+# they deliberately *ignore* an explicit `CMAKE_<LANG>_COMPILER` path.  Forcing one makes compiler identification
+# fail ("The C compiler identification is unknown"), which in turn leaves the RC language only half-enabled and
+# breaks compiler-ABI detection:
+#
+#   The test project needs language RC which is not enabled.
+#
+# So, for a Visual Studio generator, this toolchain's whole contribution is to *locate* Visual Studio - with vswhere,
+# no Developer Command Prompt / `vcvarsall.bat` required - and tell the generator which instance, target
+# architecture and toolset to use.  Everything after this block is for the non-VS generators only.
+#----------------------------------------------------------------------------------------------------------------------
+if(CMAKE_GENERATOR MATCHES "^Visual Studio ")
+    include("${CMAKE_CURRENT_LIST_DIR}/VSWhere.cmake")
+
+    if(NOT CMAKE_VS_PRODUCTS)
+        set(CMAKE_VS_PRODUCTS "*")
+    endif()
+    if(NOT CMAKE_VS_VERSION_PRERELEASE)
+        set(CMAKE_VS_VERSION_PRERELEASE OFF)
+    endif()
+    if(NOT CMAKE_VS_VERSION_RANGE)
+        set(CMAKE_VS_VERSION_RANGE "[16.0,)")
+    endif()
+    if(NOT CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE)
+        if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL ARM64)
+            set(CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE arm64)
+        else()
+            set(CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE x64)
+        endif()
+    endif()
+
+    if(NOT VS_INSTALLATION_PATH)
+        findVisualStudio(
+            VERSION ${CMAKE_VS_VERSION_RANGE}
+            PRERELEASE ${CMAKE_VS_VERSION_PRERELEASE}
+            PRODUCTS ${CMAKE_VS_PRODUCTS}
+            PROPERTIES
+                installationVersion VS_INSTALLATION_VERSION
+                installationPath VS_INSTALLATION_PATH
+        )
+    endif()
+
+    if(NOT VS_INSTALLATION_PATH)
+        message(FATAL_ERROR "Unable to find Visual Studio")
+    endif()
+
+    cmake_path(NORMAL_PATH VS_INSTALLATION_PATH)
+    message(STATUS "Windows.MSVC.toolchain: using Visual Studio ${VS_INSTALLATION_VERSION} at '${VS_INSTALLATION_PATH}'")
+
+    # Point the generator at that installation - the equivalent of launching its Developer Command Prompt.
+    if(NOT CMAKE_GENERATOR_INSTANCE)
+        set(CMAKE_GENERATOR_INSTANCE "${VS_INSTALLATION_PATH}")
+    endif()
+
+    # Target architecture: honour a caller-supplied `CMAKE_GENERATOR_PLATFORM` / `CMAKE_SYSTEM_PROCESSOR`, otherwise
+    # leave the generator's default (the host architecture) in place.
+    if(NOT CMAKE_GENERATOR_PLATFORM)
+        if((CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64") OR (CMAKE_SYSTEM_PROCESSOR STREQUAL "x64"))
+            set(CMAKE_GENERATOR_PLATFORM "x64")
+        elseif((CMAKE_SYSTEM_PROCESSOR STREQUAL "X86") OR (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86"))
+            set(CMAKE_GENERATOR_PLATFORM "Win32")
+        elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM64")
+            set(CMAKE_GENERATOR_PLATFORM "ARM64")
+        elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM")
+            set(CMAKE_GENERATOR_PLATFORM "ARM")
+        endif()
+    endif()
+
+    # Toolset: use the host-architecture tools, and pin the MSVC toolset version / Spectre runtime when the caller
+    # asked for them.  Without a `version=` the generator picks the installation's default (latest) toolset.
+    if(NOT CMAKE_GENERATOR_TOOLSET)
+        set(_vs_toolset "host=${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE}")
+        if(VS_PLATFORM_TOOLSET_VERSION)
+            string(APPEND _vs_toolset ",version=${VS_PLATFORM_TOOLSET_VERSION}")
+        endif()
+        if(VS_USE_SPECTRE_MITIGATION_RUNTIME OR VS_USE_SPECTRE_MITIGATION_ATLMFC_RUNTIME)
+            string(APPEND _vs_toolset ",spectre=true")
+        endif()
+        set(CMAKE_GENERATOR_TOOLSET "${_vs_toolset}")
+        unset(_vs_toolset)
+    endif()
+
+    set(WIN32 1)
+    set(MSVC 1)
+
     return()
 endif()
 
