@@ -7,6 +7,13 @@ set(CMAKE_C_STANDARD 11)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/.")
 include(TadsFunctions)
 
+# The vendored libpng under ../htmltads enables the ASM language unconditionally
+# in its project() call.  On Windows the only candidate assembler is MSVC cl, and
+# CMake >= 4.1 emits a CMP0194 developer warning about that.  libpng leaves the
+# policy unset, so hook its project() and set the policy in its own scope - see
+# cmake/libpng-policy-fixup.cmake for the details.
+set(CMAKE_PROJECT_libpng_INCLUDE_BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/libpng-policy-fixup.cmake")
+
 # Group targets into solution folders in IDEs like Visual Studio.
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 

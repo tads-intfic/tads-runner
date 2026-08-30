@@ -52,6 +52,7 @@
       "displayName": "Windows Visual Studio configuration",
       "description": "This build is only available on Windows",
 	  "generator": "Visual Studio 18 2026",
+	  "architecture": "x64",
 	  "binaryDir": "${sourceDir}/build/vs",
 	  "installDir": "${sourceDir}/build/install/vs",
 	  "cacheVariables": {
@@ -68,6 +69,11 @@
     {
       "name": "default",
       "configurePreset": "default"
+    },
+    {
+      "name": "windows-vs",
+      "configurePreset": "windows-vs",
+      "configuration": "Release"
     }
   ],
   "workflowPresets": [
