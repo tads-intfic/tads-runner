@@ -23,6 +23,19 @@ Tue Nov 22 15:16:10 EST 1994    Dave Baggett    Updated for TADS 2.2.0.5
 #include <time.h>
 #include <dirent.h>
 
+/*
+ *   osc2u()/osc2l() (below) need "uchar" - glibc's <sys/types.h> already
+ *   supplies "uint"/"ulong" as BSD compatibility types, but not "uchar", so
+ *   any translation unit that pulls in this header for osrp2()/osrp4() and
+ *   doesn't separately include tads2/lib.h (which has its own "uchar"
+ *   typedef) fails to build. A duplicate, identical typedef is harmless if
+ *   lib.h is included first or later in the same translation unit.
+ */
+#ifndef __TADS_OSUNIXT_UCHAR_DEFINED
+#define __TADS_OSUNIXT_UCHAR_DEFINED
+typedef unsigned char uchar;
+#endif
+
 
 /* Use UNIXPATCHLEVEL, as defined in the makefile, for the port patch level */
 #define TADS_OEM_VERSION  UNIXPATCHLEVEL
@@ -110,7 +123,11 @@ Tue Nov 22 15:16:10 EST 1994    Dave Baggett    Updated for TADS 2.2.0.5
 #define TERMIOS_IS_NOT_IN_SYS
 #endif
 
-#define remove(filename) unlink(filename)
+/* Note: remove() is NOT redefined to unlink() here. glibc's own remove()
+   (<stdio.h>, ISO C) already does exactly that for regular files, and
+   shadowing the name with a macro poisons <cstdio>'s "using ::remove;"
+   in any C++ translation unit that includes this header before <string> or
+   <cstdio> - see htmltads/imgui/migration.md M4. */
 
 /*
  * Some systems have stricmp; some have strcasecmp

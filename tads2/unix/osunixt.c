@@ -2750,11 +2750,20 @@ os_uninit()
 {
 }
 
+/*
+ *   guit3 (htmltads/htmltads/imgui) supplies its own os_term(), since it
+ *   needs to run ImGui/GLFW shutdown before exiting rather than just
+ *   calling exit() - see hos_gui.cpp. IMGUI is defined for this TU only
+ *   when guit3 is the sole consumer of this build of tr32h (see
+ *   tads2/CMakeLists.txt and migration.md M4).
+ */
+#ifndef IMGUI
 void
 os_term(int rc)
 {
     exit(rc);
 }
+#endif
 
 #ifndef USE_HTML
 int
@@ -2943,14 +2952,14 @@ void os_addext(char *fn, const char *ext)
  */
 char *os_get_root_name(const char *buf)
 {
-    char *p = buf;
+    const char *p = buf;
 
     p += strlen(buf) - 1;
     while (*p != '/' && p > buf)
     p--;
     if (p != buf) p++;
 
-    return p;
+    return (char *)p;
 }
 
 #ifndef USE_HTML
@@ -3169,9 +3178,12 @@ void os_xlat_html4(unsigned int html4_char, char *result, size_t result_len)
  * Simple versions of os_advise_load_charmap and os_gen_charmap_filename. At
  * some point I'll get around to making these do something real. Added by SRG.
  */
+#ifndef IMGUI
+/* guit3 supplies its own (hos_gui.cpp) - see the os_term() note above */
 void os_advise_load_charmap(char *id, char *ldesc, char *sysinfo)
 {
 }
+#endif
 
 void os_gen_charmap_filename(char *filename, char *internal_id, char *argv0)
 {
@@ -3822,7 +3834,7 @@ os_get_abs_filename(char* buf, size_t buflen, const char* filename)
 
     // Try getting the canonical path from the OS (allocating the
     // result buffer).
-    const char* newpath = realpath(filename, NULL);
+    char* newpath = realpath(filename, NULL);
     if (newpath) {
         // Copy the output (truncating if it's too long).
         safe_strcpy(buf, buflen, newpath);

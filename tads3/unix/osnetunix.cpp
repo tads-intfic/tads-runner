@@ -159,11 +159,16 @@ void os_net_cleanup()
      */
     usleep(10000);
 
-    /* wait for threads to exit */
-    G_thread_list->wait_all(500);
+    /* if we have a master thread list, wait for threads to exit */
+    if (G_thread_list != 0)
+    {
+        /* wait for threads to exit */
+        G_thread_list->wait_all(500);
 
-    /* done with the master thread list */
-    G_thread_list->release_ref();
+        /* done with the master thread list */
+        G_thread_list->release_ref();
+        G_thread_list = 0;
+    }
 
     /* check for system resource leaks */
     IF_LEAK_CHECK(printf("os_net_cleanup: mutexes=%ld, events=%ld, "
@@ -738,7 +743,7 @@ static size_t http_get_recv(void *ptr, size_t siz, size_t nmemb, void *stream)
 }
 
 /* send callback */
-static size_t http_get_send(void *ptr, size_t siz, size_t nmemb, void *stream)
+static size_t http_get_send(char *ptr, size_t siz, size_t nmemb, void *stream)
 {
     /* copy the data from the stream to the buffer */
     if (stream != 0)
@@ -801,8 +806,7 @@ int OS_HttpClient::request(int opts,
     char *formbuf = 0;          /* application/x-www-form-urlencoded buffer */
     size_t formlen = 0;                           /* length of formbuf data */
     int ret = ErrOther;                                      /* result code */
-    curl_httppost *formhead = 0;          /* multipart form field list head */
-    curl_httppost *formtail = 0;          /* multipart form field list tail */
+    curl_mime *form_mime = 0;                     /* multipart form data set */
     CVmMemorySource *hstream = 0;    /* memory stream for capturing headers */
     curl_slist *hdr_slist = 0;    /* caller's headers, in curl slist format */
     
@@ -881,44 +885,55 @@ int OS_HttpClient::request(int opts,
         }
         else if (payload->is_multipart())
         {
-            /* we have file attachments - build a curl_httppost list */
+            /*
+             *   We have file attachments - build a curl_mime list.  (This
+             *   uses the curl_mime_* API rather than the older
+             *   curl_formadd()/CURLFORM_* API, which libcurl deprecated as
+             *   of 7.56.0 in favor of curl_mime_init().)
+             */
+            form_mime = curl_mime_init(h);
+            if (form_mime == 0)
+                goto done;
+
             int cnt = payload->count_items();
             for (int i = 0 ; i < cnt ; ++i)
             {
                 /* get this item */
                 OS_HttpPayloadItem *item = payload->get(i);
 
+                /* add a new part for this item */
+                curl_mimepart *part = curl_mime_addpart(form_mime);
+                if (part == 0)
+                    goto done;
+
                 /* check the item type */
                 if (item->stream != 0)
                 {
-                    /* this is a file upload field */
-                    if (curl_formadd(
-                        &formhead, &formtail,
-                        CURLFORM_COPYNAME, item->name,
-                        CURLFORM_FILENAME, item->val,
-                        CURLFORM_CONTENTTYPE, item->mime_type,
-                        CURLFORM_CONTENTSLENGTH, item->stream->get_size(),
-                        CURLFORM_STREAM, item->stream,
-                        CURLFORM_END))
-                        goto done;
-
-                    /* make sure we've set the read callback */
-                    curl_easy_setopt(h, CURLOPT_READFUNCTION, http_get_send);
+                    /*
+                     *   This is a file upload field - stream its contents
+                     *   from the payload item's data source via a per-part
+                     *   read callback (the old form API's CURLFORM_STREAM
+                     *   relied on the easy handle's CURLOPT_READFUNCTION
+                     *   for this instead, since it had no per-part callback
+                     *   of its own).
+                     */
+                    curl_mime_name(part, item->name);
+                    curl_mime_filename(part, item->val);
+                    curl_mime_type(part, item->mime_type);
+                    curl_mime_data_cb(part, item->stream->get_size(),
+                                      http_get_send, 0, 0, item->stream);
                 }
                 else
                 {
                     /* this is a simple name/value pair */
-                    if (curl_formadd(&formhead, &formtail,
-                                     CURLFORM_COPYNAME, item->name,
-                                     CURLFORM_COPYCONTENTS, item->val,
-                                     CURLFORM_END))
-                        goto done;
+                    curl_mime_name(part, item->name);
+                    curl_mime_data(part, item->val, CURL_ZERO_TERMINATED);
                 }
             }
 
-            /* set up the post with the field list */
+            /* set up the post with the mime data */
             curl_easy_setopt(h, CURLOPT_POST, (long)1);
-            curl_easy_setopt(h, CURLOPT_HTTPPOST, formhead);
+            curl_easy_setopt(h, CURLOPT_MIMEPOST, form_mime);
         }
         else
         {
@@ -1063,9 +1078,9 @@ done:
     if (formbuf != 0)
         t3free(formbuf);
 
-    /* delete the multipart form field list */
-    if (formhead != 0)
-        curl_formfree(formhead);
+    /* delete the multipart form data set */
+    if (form_mime != 0)
+        curl_mime_free(form_mime);
 
     /* delete the header capture stream */
     if (hstream != 0)
