@@ -102,8 +102,13 @@ osfildef *CResLoader::open_res_file(const char *respath,
         /* convert from URL notation to local path conventions */
         os_cvt_url_dir(fname, sizeof(fname), deflib);
 
-        /* build the full path, starting in the root resource directory */
-        os_build_full_path(filepath, sizeof(filepath), root_dir_, fname);
+        /* build the full path, starting in the root resource directory -
+           if we have no root directory (a bare CResLoader), just use the
+           name as-is, exactly as the primary lookup above does */
+        if (root_dir_ != 0)
+            os_build_full_path(filepath, sizeof(filepath), root_dir_, fname);
+        else
+            strcpy(filepath, fname);
 
         /* add the default resource library extension */
         os_defext(filepath, "t3r");

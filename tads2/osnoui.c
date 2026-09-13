@@ -726,9 +726,25 @@ int os_is_file_absolute(const char *fname)
 #endif
 
 
-/* 
+#endif /* USE_DOSEXT */
+
+/*
+ *   os_get_rel_path() (below), unlike the rest of this file's USE_DOSEXT
+ *   section, has no platform ports that provide their own replacement (the
+ *   ports that skip USE_DOSEXT - Unix, BeOS, Atari - do so specifically to
+ *   keep their own os_defext/os_remext/os_addext/os_get_root_name/
+ *   os_build_full_path/os_combine_paths/os_is_file_absolute/
+ *   os_get_path_name, not because os_get_rel_path is DOS-specific: its own
+ *   body already handles the DOS/non-DOS distinction internally via
+ *   #if defined(MSDOS)). So it - and the small helpers it needs - are
+ *   compiled unconditionally rather than only under USE_DOSEXT; guit3's
+ *   recent-games menu (migration.md M4) needs it and Unix had no
+ *   implementation of it at all otherwise.
+ */
+
+/*
  *   path letter/substring comparison; define this according to whether the
- *   local file system is case-sensitive (e.g., Unix) or not (DOS, Windows) 
+ *   local file system is case-sensitive (e.g., Unix) or not (DOS, Windows)
  */
 #if defined(MSDOS)
 # define pathmemcmp(a, b, len) memicmp(a, b, len)
@@ -914,13 +930,11 @@ int os_get_rel_path(char *result, size_t result_len,
 #endif
 
 
-#endif /* USE_DOSEXT */
-
 /* ------------------------------------------------------------------------ */
 
 /*
  *   A port can define USE_TIMERAND if it wishes to randomize from the
- *   system clock.  This should be usable by most ports.  
+ *   system clock.  This should be usable by most ports.
  */
 #ifdef USE_TIMERAND
 # include <time.h>
