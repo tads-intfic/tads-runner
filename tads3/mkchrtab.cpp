@@ -719,7 +719,7 @@ static entity_map_t *read_translation(char *p, char *infile, int linenum)
             if (dstp + 1 > buf + sizeof(buf))
             {
                 printf("%s: line %d: entity mapping is too long "
-                       "(maximum of %lld characters are allowed\n",
+                       "(maximum of %zu characters are allowed\n",
                        infile, linenum, sizeof(buf)/sizeof(buf[0]));
                 return 0;
             }
