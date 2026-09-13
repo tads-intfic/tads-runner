@@ -23,11 +23,7 @@ endif()
 
 if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../htmltads)
 	message(STATUS "htmltads directory found")
-	if (WIN32 OR EMSCRIPTEN) #htmltads is currently only ported to windows and javascript
-		set(WITH_HTMLTADS ON)
-	else()
-		set(WITH_HTMLTADS OFF)
-	endif()
+	set(WITH_HTMLTADS ON)
 	set(HTMLTADS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../htmltads)
 else()
 	message(STATUS "no htmltads directory in ${CMAKE_CURRENT_SOURCE_DIR}/..")

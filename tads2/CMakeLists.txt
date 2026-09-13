@@ -115,6 +115,10 @@ else()
 	target_sources(tr32h PRIVATE
 		unix/osunixt.c
 		ostzposix.c
+		# os_get_str_rsc() - msdos/oswin.c provides the Windows version;
+		# osrestad.c is the portable "compiled-in English strings" default
+		# every other non-Windows port already relies on for this.
+		osrestad.c
 	)
 	target_include_directories(tr32h PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/unix
@@ -133,6 +137,14 @@ else()
 	else()
 		target_compile_definitions(tr32h PRIVATE
 			LINUX_386
+			# The only non-Windows, non-Emscripten consumer of tr32h is
+			# guit3, which supplies its own os_term()/os_advise_load_
+			# charmap() (hos_gui.cpp) - see the matching guard in
+			# unix/osunixt.c and migration.md M4.
+			IMGUI
+			# glibc has strcasecmp()/strncasecmp() (<strings.h>) same as
+			# Emscripten's libc - see osunixt.h's strnicmp/stricmp macros.
+			HAVE_STRCASECMP
 		)
 	endif()
 endif()
@@ -234,6 +246,9 @@ else()
 	else()
 		target_compile_definitions(trd32h PRIVATE
 			LINUX_386
+			# glibc has strcasecmp()/strncasecmp() (<strings.h>) same as
+			# Emscripten's libc - see osunixt.h's strnicmp/stricmp macros.
+			HAVE_STRCASECMP
 		)
 	endif()
 endif()

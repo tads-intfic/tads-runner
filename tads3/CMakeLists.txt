@@ -14,7 +14,7 @@ option(VM_TARGET_JS "Compile with JS VM" OFF)
 if (WIN32)
 set(NETWORK_DEFAULT ON)
 else()
-	if (NOT ${CURL_FOUND})
+	if (NOT CURL_FOUND)
 		find_package(CURL)
 	endif()
 	set(NETWORK_DEFAULT ${CURL_FOUND})
@@ -623,6 +623,29 @@ if (WITH_HTMLTADS)
 			${tads3_dir}/unix/osunix.c
 			${tads3_dir}/emscripten/osnetemscipten.cpp
 		)
+	else()
+		# The only non-Windows, non-Emscripten consumer of t3htm is guit3
+		# (htmltads/htmltads/imgui), so html_os.h's switchboard can route
+		# straight to hos_gui.h here - see migration.md M4.
+		target_include_directories(t3htm PRIVATE
+			${HTMLTADS_DIR}/htmltads/imgui
+		)
+		target_compile_definitions(t3htm PUBLIC
+			IMGUI
+		)
+		# os_get_exe_filename()/os_get_special_path() (used by t3main.cpp,
+		# vmmain.cpp, gameinfl.cpp) have no Unix implementation outside this
+		# file - t3run's own non-Windows build compiles the same file with
+		# the same BINDIR/RESDIR/LIBDIR/INCDIR defaults for the same reason.
+		target_compile_definitions(t3htm PRIVATE
+			BINDIR="bin"
+			RESDIR="res"
+			LIBDIR="lib"
+			INCDIR="include"
+		)
+		target_sources(t3htm PRIVATE
+			${tads3_dir}/unix/osunix.c
+		)
 	endif()
 
 	target_compile_definitions(t3htm PUBLIC
@@ -659,6 +682,13 @@ if (WITH_HTMLTADS)
 	elseif(EMSCRIPTEN)
 		target_include_directories(t3htm_d PRIVATE
 			${HTMLTADS_DIR}/htmltads/emscripten
+		)
+	else()
+		target_include_directories(t3htm_d PRIVATE
+			${HTMLTADS_DIR}/htmltads/imgui
+		)
+		target_compile_definitions(t3htm_d PUBLIC
+			IMGUI
 		)
 	endif()
 
