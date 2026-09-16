@@ -271,6 +271,7 @@ if (WIN32)
 		maketrx32
 		EXPORT TadsTargets
 		DESTINATION .
+		COMPONENT Classic
 	)
 
 	tads_source_group(maketrx32)

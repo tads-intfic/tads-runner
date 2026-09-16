@@ -843,11 +843,12 @@ endif()
 ###Install###
 #############
 
-install(TARGETS 
+install(TARGETS
 	mkchrtab t3make t3res t3run
 	EXPORT TadsTargets
-	DESTINATION .)
-	
+	DESTINATION .
+	COMPONENT Classic)
+
 if (EMSCRIPTEN)
 install (FILES
 	"$<TARGET_FILE_DIR:mkchrtab>/mkchrtab.wasm"
@@ -861,55 +862,65 @@ install (FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/emscripten/xterm.js.map
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/emscripten/xterm-addon-fit.js
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/emscripten/xterm-addon-fit.js.map
-	DESTINATION .)
+	DESTINATION .
+	COMPONENT Classic)
 endif()
-	
+
 install(FILES
 	${tads3_dir}/tz/timezones.t3tz
 	DESTINATION .
+	COMPONENT Classic
 )
-	
+
 install(FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/charmap/cmaplib.t3r
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/charmap/README.txt
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/charmap/us-ascii.txt
 	DESTINATION charmap
+	COMPONENT Classic
 )
 
 install(DIRECTORY
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/charmap/source
 	DESTINATION charmap
+	COMPONENT Classic
 )
 
 install(DIRECTORY
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/doc
 	DESTINATION .
+	COMPONENT Classic
 )
 
 install(DIRECTORY
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/samples
 	DESTINATION .
+	COMPONENT Classic
 )
 
 install(FILES
 	${tads3_dir}/samples/starta3.t
 	${tads3_dir}/samples/starti3.t
 	DESTINATION lib/adv3/samples
+	COMPONENT Classic
 )
 
 install(FILES
 	${tads3_dir}/samples/startB3.t
 	DESTINATION lib/samples
+	COMPONENT Classic
 )
 
 install(DIRECTORY
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/lib
 	DESTINATION .
+	COMPONENT Classic
 )
 
 install(DIRECTORY
 	${CMAKE_CURRENT_SOURCE_DIR}/${tads3_dir}/include
 	DESTINATION .
+	COMPONENT Classic
 )
 
 install(FILES
@@ -919,4 +930,5 @@ install(FILES
 	${tads3_dir}/test/data/noun_ph.t
 	${tads3_dir}/test/data/template.t
 	DESTINATION samples
+	COMPONENT Classic
 )
