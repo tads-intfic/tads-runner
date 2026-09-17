@@ -365,6 +365,17 @@ endif()
 
 target_link_libraries(t3res PRIVATE tads_settings)
 
+if (EMSCRIPTEN)
+	# make_t3r() (TadsFunctions.cmake) runs t3res.js through node as a build
+	# step (guit3, htmltads/htmltads/imgui/CMakeLists.txt) to generate
+	# guit3.t3r. Without NODERAWFS, Emscripten's Node entry point writes to
+	# an in-memory virtual filesystem instead of the real one, so t3res's
+	# -create ... .t3r output silently never reaches disk ("can't create
+	# file"). Same flag t3make already uses for the analogous build_game()
+	# step below.
+	set_target_properties(t3res PROPERTIES LINK_FLAGS "-s NODERAWFS=1")
+endif()
+
 add_executable(Tads::t3res ALIAS t3res)
 
 #mkchrtab
@@ -602,9 +613,16 @@ if (WITH_HTMLTADS)
 			${HTMLTADS_DIR}/htmltads/win32
 		)
 	elseif(EMSCRIPTEN)
-		target_include_directories(t3htm PRIVATE
-			${HTMLTADS_DIR}/htmltads/emscripten
-		)
+		# One t3htm build serves both htmlt3 (the classic web port) and
+		# guit3 under Emscripten - they need the same hos_gui.h declarations
+		# (see that file's header comment) and the same tads3-level OS glue
+		# (osemscripten.cpp/emscripten.cpp, needed by htmlt3 and by the
+		# --wrap= link flags both executables' LINK_FLAGS set; osunix.c/
+		# osnetemscipten.cpp, needed by guit3, same as the Linux build below
+		# uses). None of these four files define overlapping symbols, so
+		# compiling the union into one static lib and letting each
+		# executable pull what it needs from it is safe - verified by
+		# inspection, not yet by a full two-executable link.
 		target_compile_definitions(t3htm PUBLIC
 			HAVE_STRCASECMP
 			PRIVATE

@@ -63,6 +63,17 @@
         "lhs": "${hostSystemName}",
         "rhs": "Windows"
       }
+    },
+    {
+      "name": "emscripten",
+      "inherits": "default",
+      "displayName": "Emscripten (WASM) configuration",
+      "description": "Builds for the web via Emscripten - both the classic htmlt3 web port and guit3 (Dear ImGui/GLFW) build from this one configure, see migration.md 5.6 in the htmltads repo. Requires a sibling ../htmltads checkout and an activated emsdk (run emsdk_env/emsdk_env.ps1 first so $env{EMSDK} is set) - equivalent to `emcmake cmake --preset emscripten`. guit3 has not yet been fully ported to build/run under Emscripten (no GLFW/GL/font/audio backends for it yet), so expect compile/link errors on that target specifically to iterate on.",
+      "binaryDir": "${sourceDir}/build/emscripten",
+      "installDir": "${sourceDir}/build/install/emscripten",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+      }
     }
   ],
   "buildPresets": [
@@ -74,6 +85,10 @@
       "name": "windows-vs",
       "configurePreset": "windows-vs",
       "configuration": "Release"
+    },
+    {
+      "name": "emscripten",
+      "configurePreset": "emscripten"
     }
   ],
   "workflowPresets": [

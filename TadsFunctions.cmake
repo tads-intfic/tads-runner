@@ -13,8 +13,13 @@ function(tads_source_group target)
 endfunction()
 
 function(make_t3r output)
+	# CMAKE_CROSSCOMPILING_EMULATOR (empty when not cross-compiling) runs
+	# t3res through node when t3res.js is itself an Emscripten build - same
+	# pattern build_game() below uses for t3make. $<TARGET_FILE:...> is used
+	# instead of the plain target-name COMMAND form so the emulator prefix
+	# has a real path to run.
 	add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${output}.t3r
-		COMMAND Tads::t3res ARGS -create ${CMAKE_CURRENT_BINARY_DIR}/${output}.t3r -add ${ARGN}
+		COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:Tads::t3res> -create ${CMAKE_CURRENT_BINARY_DIR}/${output}.t3r -add ${ARGN}
 		DEPENDS Tads::t3res
 		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	)

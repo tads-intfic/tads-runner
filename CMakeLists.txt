@@ -33,6 +33,7 @@ if (EMSCRIPTEN)
 	add_subdirectory(curl)
 	set(CURL_FOUND TRUE CACHE BOOL "CURL_FOUND" FORCE)
 endif()
+
 add_subdirectory(tads2)
 add_subdirectory(tads3)
 add_subdirectory(tests)
