@@ -174,8 +174,15 @@ if (VM_WITH_NETWORK)
 		${tads3_dir}/vmhttpdum.cpp
 	)
 else()
+	# osnetdum.cpp supplies the dummy os_net_init()/os_net_cleanup()/
+	# osnet_disconnect_webui() that vmmaincl.cpp/vmcl23.cpp call
+	# unconditionally (not gated on TADSNET) - without it, any target
+	# built with VM_WITH_NETWORK off fails to link on those undefined
+	# references. Previously only wired into the legacy DOS makefile
+	# (msdos/makefile.dj), never into this CMake build.
 	set(net_src
 		${tads3_dir}/vmnetfillcl.cpp
+		${tads3_dir}/osnetdum.cpp
 	)
 endif()
 
