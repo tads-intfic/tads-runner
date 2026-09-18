@@ -107,15 +107,33 @@ typedef unsigned char uchar;
 #define HAVE_TPARM      /* define if this system has the tparm routine */
 #endif
 
-#if defined(SUN_SPARC_SUNOS) || defined(SUN_SPARC_SOLARIS) || defined(SUN3) || defined(SGI_IRIX) || defined(LINUX_386) || defined(IBM_RT) || defined(FREEBSD_386) || defined(IBM_AIX) || defined(NETBSD) || defined(OPENBSD) || defined(DARWIN)
+/*
+ * Emscripten's libc doesn't expose the bare BSD-style uint/ulong/ushort
+ * typedefs glibc does, even though osunixt.h is included (via os.h's
+ * "#ifdef UNIX" branch) for every Emscripten target, not just ones that
+ * define LINUX_386 - so provide them directly here rather than relying on
+ * the LINUX_386-gated "the system already has these" assumption below,
+ * which never fires for e.g. guit3's own translation units (they define
+ * UNIX but not LINUX_386).
+ */
+#if defined(__EMSCRIPTEN__)
+typedef unsigned short ushort;
+typedef unsigned int   uint;
+typedef unsigned long  ulong;
+#define OS_USHORT_DEFINED
+#define OS_UINT_DEFINED
+#define OS_ULONG_DEFINED
+#endif
+
+#if (defined(SUN_SPARC_SUNOS) || defined(SUN_SPARC_SOLARIS) || defined(SUN3) || defined(SGI_IRIX) || defined(LINUX_386) || defined(IBM_RT) || defined(FREEBSD_386) || defined(IBM_AIX) || defined(NETBSD) || defined(OPENBSD) || defined(DARWIN))
 #define OS_USHORT_DEFINED
 #endif
 
-#if defined(SUN_SPARC_SUNOS) || defined(SUN_SPARC_SOLARIS) || defined(SUN3) || defined(SGI_IRIX) || defined(LINUX_386) || defined(FREEBSD_386) || defined(IBM_AIX) || defined(NETBSD) || defined(OPENBSD) || defined(DARWIN)
+#if (defined(SUN_SPARC_SUNOS) || defined(SUN_SPARC_SOLARIS) || defined(SUN3) || defined(SGI_IRIX) || defined(LINUX_386) || defined(FREEBSD_386) || defined(IBM_AIX) || defined(NETBSD) || defined(OPENBSD) || defined(DARWIN))
 #define OS_UINT_DEFINED
 #endif
 
-#if defined(SGI_IRIX) || defined(LINUX_386) || defined(SUN_SPARC_SOLARIS) || defined(IBM_AIX) || defined(NETBSD) || defined(OPENBSD)
+#if (defined(SGI_IRIX) || defined(LINUX_386) || defined(SUN_SPARC_SOLARIS) || defined(IBM_AIX) || defined(NETBSD) || defined(OPENBSD))
 #define OS_ULONG_DEFINED
 #endif
 
@@ -176,12 +194,18 @@ FILE* our_fopen(char *filename, char *flags);
 #endif
 
 /*
- * Some machines are missing memmove, so we use our own memcpy/memmove 
- * routine instead.
+ * Some machines are missing memmove, so we use our own memcpy/memmove
+ * routine instead.  Emscripten's libc always has a real memmove, and
+ * redefining the bare identifiers here leaks into libc++ system headers
+ * pulled in later by C++ translation units (e.g. <locale> calling
+ * std::memmove internally, which the preprocessor rewrites into the
+ * nonexistent std::our_memcpy) - so skip the override there.
  */
-void *our_memcpy(void *dst, const void *src, size_t size); 
+#if !defined(__EMSCRIPTEN__)
+void *our_memcpy(void *dst, const void *src, size_t size);
 #define memcpy our_memcpy
 #define memmove our_memcpy
+#endif
 
 /* display lines on which errors occur */
 /* #  define OS_ERRLINE 1 */
