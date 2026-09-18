@@ -134,6 +134,12 @@ else()
 			PUBLIC
 			HAVE_STRCASECMP
 		)
+		# guit3/htmlt3 link with -pthread (PROXY_TO_PTHREAD), which
+		# requires --shared-memory; every linked object needs matching
+		# atomics/bulk-memory features or wasm-ld refuses to link.
+		target_compile_options(tr32h PRIVATE
+			-pthread
+		)
 	else()
 		target_compile_definitions(tr32h PRIVATE
 			LINUX_386
