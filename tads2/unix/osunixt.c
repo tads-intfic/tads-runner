@@ -4174,10 +4174,191 @@ oss_eof_on_stdin()
 
 #ifndef USE_STDIO
 
-int os_askfile(const char* prompt, char* reply, int replen,
-    int /*dialog_type*/, os_filetype_t /*file_type*/)
+/* optional hook to override os_askfile()'s text prompt - see osunixt.h */
+static os_askfile_hook_t S_askfile_hook = 0;
+
+void oss_set_askfile_hook(os_askfile_hook_t hook)
 {
-    /* show the prompt */
+    S_askfile_hook = hook;
+}
+
+/* custom saved-game extension set via os_set_save_ext(), if any */
+static char S_default_saved_game_ext[OSFNMAX] = "";
+
+/*
+ *   Append one "Description\0*.pattern\0" group to a Win32-style
+ *   multi-string filter buffer being built up at *pos (bumping *pos past
+ *   it), stopping short if it wouldn't fit.
+ */
+static void add_filter_group(char *filter, size_t filter_size, size_t *pos,
+                              const char *desc, const char *pat)
+{
+    size_t len;
+
+    len = strlen(desc) + 1;
+    if (*pos + len > filter_size)
+        return;
+    memcpy(filter + *pos, desc, len);
+    *pos += len;
+
+    len = strlen(pat) + 1;
+    if (*pos + len > filter_size)
+        return;
+    memcpy(filter + *pos, pat, len);
+    *pos += len;
+}
+
+/*
+ *   Build the Win32-style multi-string filter for a given file type, and
+ *   figure the default extension to apply to a new (save) filename - the
+ *   same job msdos/oswin.c's os_askfile() does inline for the native
+ *   GetOpenFileName()/GetSaveFileName() dialog, needed here because
+ *   S_askfile_hook (guit3's CTadsFileDialog) uses the identical filter
+ *   format.
+ */
+static void build_askfile_filter(char *filter, size_t filter_size,
+                                  int prompt_type, os_filetype_t file_type,
+                                  const char **def_ext)
+{
+    size_t pos = 0;
+
+    *def_ext = 0;
+
+    if (file_type == OSFTSAVE || file_type == OSFTT3SAV
+        || file_type == OSFTUNK)
+    {
+        const char *save_filter;
+        const char *save_def_ext;
+        char pat[64];
+
+        if (S_default_saved_game_ext[0] != '\0')
+        {
+            save_filter = S_default_saved_game_ext;
+            save_def_ext = S_default_saved_game_ext;
+        }
+        else if (file_type == OSFTSAVE)
+        {
+            save_filter = "sav";
+            save_def_ext = "sav";
+        }
+        else if (file_type == OSFTT3SAV)
+        {
+            save_filter = "t3v";
+            save_def_ext = "t3v";
+        }
+        else
+        {
+            save_filter = "sav;*.t3v";
+            save_def_ext = 0;
+        }
+
+        snprintf(pat, sizeof(pat), "*.%s", save_filter);
+        add_filter_group(filter, filter_size, &pos,
+                          "Saved Game Positions", pat);
+
+        if (file_type == OSFTSAVE || file_type == OSFTT3SAV)
+        {
+            if (prompt_type == OS_AFP_SAVE)
+                *def_ext = save_def_ext;
+        }
+        else
+        {
+            add_filter_group(filter, filter_size, &pos,
+                              "TADS Games", "*.gam");
+            add_filter_group(filter, filter_size, &pos,
+                              "Text Files", "*.txt");
+            add_filter_group(filter, filter_size, &pos,
+                              "Log Files", "*.log");
+        }
+        add_filter_group(filter, filter_size, &pos, "All Files", "*.*");
+    }
+    else
+    {
+        static const struct
+        {
+            const char *disp;
+            const char *pat;
+            const char *def_ext;
+        }
+        filters[] =
+        {
+            { "TADS Games",      "*.gam", "gam" },              /* OSFTGAME */
+            { 0, 0, 0 },                                /* unused - OSFTSAVE */
+            { "Transcripts",     "*.log", "log" },               /* OSFTLOG */
+            { "Swap Files",      "*.dat", "dat" },              /* OSFTSWAP */
+            { "Data Files",      "*.dat", "dat" },              /* OSFTDATA */
+            { "Command Scripts", "*.cmd", "cmd" },               /* OSFTCMD */
+            { "Message Files",   "*.msg", "msg" },              /* OSFTERRS */
+            { "Text Files",      "*.txt", "txt" },              /* OSFTTEXT */
+            { "Binary Files",    "*.dat", "dat" },               /* OSFTBIN */
+            { "Character Maps",  "*.tcp", "tcp" },              /* OSFTCMAP */
+            { "Preference Files","*.dat", "dat" },              /* OSFTPREF */
+            { 0, 0, 0 },                                /* unused - OSFTUNK */
+            { "T3 Applications", "*.t3", "t3" },              /* OSFTT3IMG */
+            { "T3 Object Files", "*.t3o", "t3o" },             /* OSFTT3OBJ */
+            { "T3 Symbol Files", "*.t3s", "t3s" }              /* OSFTT3SYM */
+        };
+
+        if (file_type >= 0
+            && (size_t)file_type < sizeof(filters)/sizeof(filters[0])
+            && filters[file_type].disp != 0)
+        {
+            add_filter_group(filter, filter_size, &pos,
+                              filters[file_type].disp, filters[file_type].pat);
+            *def_ext = filters[file_type].def_ext;
+        }
+        add_filter_group(filter, filter_size, &pos, "All Files", "*.*");
+    }
+
+    /* a multi-string list ends with an extra null after the last string */
+    if (pos < filter_size)
+        filter[pos++] = '\0';
+    else if (filter_size > 0)
+        filter[filter_size - 1] = '\0';
+}
+
+int os_askfile(const char* prompt, char* reply, int replen,
+    int dialog_type, os_filetype_t file_type)
+{
+    if (S_askfile_hook != 0)
+    {
+        char filter[256];
+        const char *def_ext;
+        static char lastsave[OSFNMAX] = "";
+        int ret;
+
+        build_askfile_filter(filter, sizeof(filter), dialog_type, file_type,
+                              &def_ext);
+
+        /* figure a default filename, same as the Windows native dialog */
+        reply[0] = '\0';
+        if (file_type == OSFTSAVE || file_type == OSFTT3SAV)
+        {
+            safe_strcpy(reply, replen, lastsave);
+            if (reply[0] == '\0' && G_os_gamename[0] != '\0')
+            {
+                safe_strcpy(reply, replen, G_os_gamename);
+                os_remext(reply);
+                if (def_ext != 0
+                    && strlen(reply) + strlen(def_ext) + 1 < (size_t)replen)
+                    os_defext(reply, def_ext);
+            }
+
+            /* don't offer a default that doesn't exist for an Open prompt */
+            if (dialog_type == OS_AFP_OPEN && osfacc(reply))
+                reply[0] = '\0';
+        }
+
+        ret = (*S_askfile_hook)(prompt, filter, 0, reply, replen,
+                                 dialog_type == OS_AFP_SAVE);
+
+        if (ret != 0 && (file_type == OSFTSAVE || file_type == OSFTT3SAV))
+            safe_strcpy(lastsave, sizeof(lastsave), reply);
+
+        return (ret != 0 ? OS_AFE_SUCCESS : OS_AFE_CANCEL);
+    }
+
+    /* no hook registered - fall back to the plain text prompt */
     os_printz(prompt);
     os_printz(" >");
 
@@ -4190,9 +4371,15 @@ int os_askfile(const char* prompt, char* reply, int replen,
      */
     return (reply[0] == '\0' ? OS_AFE_CANCEL : OS_AFE_SUCCESS);
 }
+
+void os_set_save_ext(const char* ext)
+{
+    safe_strcpy(S_default_saved_game_ext, sizeof(S_default_saved_game_ext),
+                ext);
+}
 #endif
 
-#if defined(USE_STDIO) || defined(USE_HTML)
+#if defined(USE_STDIO)
 void os_set_save_ext(const char* ext)
 {
     /* ignore the setting */
