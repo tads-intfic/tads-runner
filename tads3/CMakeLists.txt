@@ -101,8 +101,10 @@ endif()
 if (VM_TARGET_T3)
 	set(target_src_no_link
 		${tads3_dir}/tct3.cpp
+		${tads3_dir}/tct3.h
 		${tads3_dir}/tct3stm.cpp
 		${tads3_dir}/tct3unas.cpp
+		${tads3_dir}/tct3unas.h
 		${tads3_dir}/tct3nl.cpp
 		${tads3_dir}/tct3_d.cpp
 	)
@@ -121,41 +123,59 @@ endif()
 
 set(dyn_comp_src
 	${tads3_dir}/vmrunsym.cpp
+	${tads3_dir}/vmrunsym.h
     ${tads3_dir}/tcprs.cpp
+    ${tads3_dir}/tcprs.h
     ${tads3_dir}/tcprs_rt.cpp
     ${tads3_dir}/tcprsnf.cpp
     ${tads3_dir}/tcprsstm.cpp
     ${tads3_dir}/tcprsnl.cpp
     ${tads3_dir}/tcgen.cpp
+    ${tads3_dir}/tcgen.h
     ${tads3_dir}/tcglob.cpp
+    ${tads3_dir}/tcglob.h
     ${tads3_dir}/tcerr.cpp
+    ${tads3_dir}/tcerr.h
     ${tads3_dir}/tcerrmsg.cpp
     ${tads3_dir}/tctok.cpp
+    ${tads3_dir}/tctok.h
     ${tads3_dir}/tcmain.cpp
+    ${tads3_dir}/tcmain.h
     ${tads3_dir}/tcsrc.cpp
+    ${tads3_dir}/tcsrc.h
     ${tads3_dir}/tchostsi.cpp
+    ${tads3_dir}/tchostsi.h
     ${tads3_dir}/tclibprs.cpp
+    ${tads3_dir}/tclibprs.h
     ${tads3_dir}/tccmdutl.cpp
+    ${tads3_dir}/tccmdutl.h
     ${target_src_no_link}
 )
 
 if (VM_WITH_NETWORK)
 	set(net_src_base
 		${tads3_dir}/vmhttpsrv.cpp
+		${tads3_dir}/vmhttpsrv.h
 		${tads3_dir}/vmhttpreq.cpp
+		${tads3_dir}/vmhttpreq.h
 		${tads3_dir}/vmbifnet.cpp
+		${tads3_dir}/vmbifnet.h
 		${tads3_dir}/vmnetui.cpp
 		${tads3_dir}/vmnetcfg.cpp
 		${tads3_dir}/vmnetfil.cpp
+		${tads3_dir}/vmnetfil.h
 		${tads3_dir}/vmnetfillcl.cpp
 		${tads3_dir}/osifcnet.cpp
+		${tads3_dir}/osifcnet.h
 		${tads3_dir}/vmrefcnt.cpp
+		${tads3_dir}/vmrefcnt.h
 	)
 	if (WIN32)
 		set(net_src_base
 			${net_src_base}
 			${tads3_dir}/win32/osnetdos.cpp
 			${tads3_dir}/win32/osnetwin.cpp
+			${tads3_dir}/win32/osnetwin.h
 			${tads3_dir}/win32/osnetcli.cpp
 			${tads3_dir}/win32/osnet-connect.cpp
 			${tads3_dir}/win32/osnet-fgwin.cpp
@@ -164,11 +184,13 @@ if (VM_WITH_NETWORK)
 		set(net_src_base
 			${net_src_base}
 			${tads3_dir}/unix/osnetunix.cpp
+			${tads3_dir}/unix/osnetunix.h
 		)
 	endif()
 	set(net_src
 		${net_src_base}
 		${tads3_dir}/vmnet.cpp
+		${tads3_dir}/vmnet.h
 	)
 	set(nonet_src
 		${tads3_dir}/vmhttpdum.cpp
@@ -183,6 +205,7 @@ else()
 	set(net_src
 		${tads3_dir}/vmnetfillcl.cpp
 		${tads3_dir}/osnetdum.cpp
+		${tads3_dir}/osnetdum.h
 	)
 endif()
 
@@ -512,93 +535,158 @@ if (WITH_HTMLTADS)
 	#t3htm
 	set(html_base
 		${tads3_dir}/vminit.cpp
+		${tads3_dir}/vminit.h
 		${tads3_dir}/vmmain.cpp
+		${tads3_dir}/vmmain.h
 		${tads3_dir}/std.cpp
 		${tads3_dir}/std_dbg.cpp
 		${tads3_dir}/charmap.cpp
+		${tads3_dir}/charmap.h
 		${tads3_dir}/resload.cpp
+		${tads3_dir}/resload.h
 		${tads3_dir}/resldexe.cpp
 		${tads3_dir}/vmconsol.cpp
+		${tads3_dir}/vmconsol.h
 		${tads3_dir}/vmconhtm.cpp
 		${tads3_dir}/vmconhmp.cpp
 		${tads3_dir}/vminitim.cpp
 		${tads3_dir}/vmcfgmem.cpp
 		${tads3_dir}/vmobj.cpp
+		${tads3_dir}/vmobj.h
 		${tads3_dir}/vmundo.cpp
+		${tads3_dir}/vmundo.h
 		${tads3_dir}/vmtobj.cpp
+		${tads3_dir}/vmtobj.h
 		${tads3_dir}/vmpat.cpp
+		${tads3_dir}/vmpat.h
 		${tads3_dir}/vmstrcmp.cpp
+		${tads3_dir}/vmstrcmp.h
 		${tads3_dir}/vmdict.cpp
+		${tads3_dir}/vmdict.h
 		${tads3_dir}/vmgram.cpp
+		${tads3_dir}/vmgram.h
 		${tads3_dir}/vmhash.cpp
+		${tads3_dir}/vmhash.h
 		${tads3_dir}/vmstr.cpp
+		${tads3_dir}/vmstr.h
 		${tads3_dir}/vmcoll.cpp
+		${tads3_dir}/vmcoll.h
 		${tads3_dir}/vmiter.cpp
+		${tads3_dir}/vmiter.h
 		${tads3_dir}/vmfref.cpp
+		${tads3_dir}/vmfref.h
 		${tads3_dir}/vmlst.cpp
+		${tads3_dir}/vmlst.h
 		${tads3_dir}/vmsort.cpp
+		${tads3_dir}/vmsort.h
 		${tads3_dir}/vmsortv.cpp
 		${tads3_dir}/vmbignum.cpp
+		${tads3_dir}/vmbignum.h
 		${tads3_dir}/vmbignumlib.cpp
 		${tads3_dir}/vmvec.cpp
+		${tads3_dir}/vmvec.h
 		${tads3_dir}/vmintcls.cpp
+		${tads3_dir}/vmintcls.h
 		${tads3_dir}/vmanonfn.cpp
+		${tads3_dir}/vmanonfn.h
 		${tads3_dir}/vmlookup.cpp
+		${tads3_dir}/vmlookup.h
 		${tads3_dir}/vmstrbuf.cpp
+		${tads3_dir}/vmstrbuf.h
 		${tads3_dir}/vmdynfunc.cpp
+		${tads3_dir}/vmdynfunc.h
 		${tads3_dir}/vmbytarr.cpp
+		${tads3_dir}/vmbytarr.h
 		${tads3_dir}/vmdate.cpp
+		${tads3_dir}/vmdate.h
 		${tads3_dir}/vmtzobj.cpp
+		${tads3_dir}/vmtzobj.h
 		${tads3_dir}/vmtz.cpp
+		${tads3_dir}/vmtz.h
 		${tads3_dir}/vmcset.cpp
+		${tads3_dir}/vmcset.h
 		${tads3_dir}/vmfilobj.cpp
+		${tads3_dir}/vmfilobj.h
 		${tads3_dir}/vmfilnam.cpp
+		${tads3_dir}/vmfilnam.h
 		${tads3_dir}/vmtmpfil.cpp
+		${tads3_dir}/vmtmpfil.h
 		${tads3_dir}/vmpack.cpp
+		${tads3_dir}/vmpack.h
 		${tads3_dir}/vmstack.cpp
+		${tads3_dir}/vmstack.h
 		${tads3_dir}/vmfunc.cpp
+		${tads3_dir}/vmfunc.h
 		${tads3_dir}/vmerr.cpp
+		${tads3_dir}/vmerr.h
 		${tads3_dir}/vmerrmsg.cpp
 		${tads3_dir}/vmpool.cpp
+		${tads3_dir}/vmpool.h
 		${tads3_dir}/vmpoolim.cpp
 		${tads3_dir}/vmtype.cpp
+		${tads3_dir}/vmtype.h
 		${tads3_dir}/vmtypedh.cpp
 		${tads3_dir}/utf8.cpp
+		${tads3_dir}/utf8.h
 		${tads3_dir}/vmglob.cpp
+		${tads3_dir}/vmglob.h
 		${tads3_dir}/vmmeta.cpp
+		${tads3_dir}/vmmeta.h
 		${tads3_dir}/vmsa.cpp
 		${tads3_dir}/vmop.cpp
+		${tads3_dir}/vmop.h
 		${tads3_dir}/vmbif.cpp
+		${tads3_dir}/vmbif.h
 		${tads3_dir}/vmbifl.cpp
 		${tads3_dir}/vmimage.cpp
+		${tads3_dir}/vmimage.h
 		${tads3_dir}/vmsrcf.cpp
+		${tads3_dir}/vmsrcf.h
 		${tads3_dir}/vmfile.cpp
+		${tads3_dir}/vmfile.h
 		${tads3_dir}/vmbiftad.cpp
+		${tads3_dir}/vmbiftad.h
 		${tads3_dir}/vmisaac.cpp
+		${tads3_dir}/vmisaac.h
 		${tads3_dir}/vmbiftio.cpp
+		${tads3_dir}/vmbiftio.h
 		${tads3_dir}/vmbiftix.cpp
+		${tads3_dir}/vmbiftix.h
 		${tads3_dir}/askf_os3.cpp
 		${tads3_dir}/indlg_os3.cpp
 		${tads3_dir}/vmsave.cpp
+		${tads3_dir}/vmsave.h
 		${tads3_dir}/vmcrc.cpp
+		${tads3_dir}/vmcrc.h
 		${tads3_dir}/vmbift3.cpp
+		${tads3_dir}/vmbift3.h
 		${tads3_dir}/vmregex.cpp
+		${tads3_dir}/vmregex.h
 		${tads3_dir}/vmhosttx.cpp
+		${tads3_dir}/vmhosttx.h
 		${tads3_dir}/vmhostsi.cpp
+		${tads3_dir}/vmhostsi.h
 		${tads3_dir}/vmlog.cpp
+		${tads3_dir}/vmlog.h
 		${tads3_dir}/vmmcreg.cpp
+		${tads3_dir}/vmmcreg.h
 		${tads3_dir}/${builtin_html}
 		${tads3_dir}/sha2.cpp
+		${tads3_dir}/sha2.h
 		${tads3_dir}/md5.cpp
+		${tads3_dir}/md5.h
 		${tads3_dir}/derived/vmuni_cs.cpp
 		${tads3_dir}/resfind.cpp
+		${tads3_dir}/resfind.h
 		${tads3_dir}/gameinfo.cpp
+		${tads3_dir}/gameinfo.h
 		${tads3_dir}/gameinfl.cpp
 	)
 
 	add_library(t3htm STATIC
 		${html_base}
 		${tads3_dir}/vmrun.cpp
+		${tads3_dir}/vmrun.h
 		${tads3_dir}/vmimg_nd.cpp
 		${tads3_dir}/vmbt3_nd.cpp
 		${tads3_dir}/vmini_nd.cpp
@@ -684,10 +772,12 @@ if (WITH_HTMLTADS)
 	add_library(t3htm_d STATIC
 		${html_base}
 		${tads3_dir}/vmrun.cpp
+		${tads3_dir}/vmrun.h
 		${tads3_dir}/vmini_d.cpp
         ${tads3_dir}/vmdbg.cpp
+        ${tads3_dir}/vmdbg.h
 		${tads3_dir}/vmimg_d.cpp
-		${tads3_dir}/vmbt3_d.cpp	
+		${tads3_dir}/vmbt3_d.cpp
 		${dyn_comp_src}
 		${net_src}
 	)

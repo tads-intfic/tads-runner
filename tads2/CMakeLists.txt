@@ -1,18 +1,28 @@
 set(commonsrc
 	ler.c
+	ler.h
 	mcm.c
+	mcm.h
 	mcs.c
+	mcs.h
     mch.c
+    mch.h
 	obj.c
+	obj.h
 	cmd.c
+	cmd.h
 	errmsg.c
 	fioxor.c
 	os0.c
 	argize.c
+	argize.h
 	oserr.c
 	cmap.c
+	cmap.h
 	regex.c
+	regex.h
 	osifc.c
+	osifc.h
 )
 
 if (WIN32)
@@ -25,10 +35,14 @@ endif()
 set(cmnrunsrc_nohtml
 	${commonsrc}
 	dat.c
+	dat.h
 	lst.c
+	lst.h
     out.c
 	voc.c
+	voc.h
 	bif.c
+	bif.h
     suprun.c
 )
 
@@ -50,8 +64,10 @@ set(runsrc_extra
 	execmd.c
 	runstat.c
     ply.c
+    ply.h
     linfdum.c
 	fio.c
+	fio.h
 	getstr.c
     qas.c
 	dbgtr.c
@@ -71,11 +87,14 @@ add_library(tr32h STATIC
 	${cmnrunsrc}
 	${runsrc_extra}
 	run.c
+	run.h
     trd.c
-	
+    trd.h
+
 	bifgdum.c
 	osnoui.c
 	osstzprs.c
+	osstzprs.h
 )
 
 
@@ -98,6 +117,7 @@ target_include_directories(tr32h PRIVATE
 if (WIN32)
 	target_sources(tr32h PRIVATE
 		msdos/oswin.c
+		msdos/oswin.h
         msdos/osdosnui.c
 		msdos/ostzw32.c
 	)
@@ -114,6 +134,7 @@ if (WIN32)
 else()
 	target_sources(tr32h PRIVATE
 		unix/osunixt.c
+		unix/osunixt.h
 		ostzposix.c
 		# os_get_str_rsc() - msdos/oswin.c provides the Windows version;
 		# osrestad.c is the portable "compiled-in English strings" default
