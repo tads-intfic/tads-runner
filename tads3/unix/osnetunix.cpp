@@ -196,24 +196,60 @@ int osnet_askfile(const char *prompt, char *fname_buf, int fname_buf_len,
 
 
 /*
+ *   optional override for the local stand-alone UI launcher - see
+ *   oss_set_webui_launch_hook() and its doc comment in osifcnet.h.  This
+ *   mirrors win32/osnet-connect.cpp's own S_webui_launch_hook; there's no
+ *   shared, cross-platform home for this bit of state since each os_*
+ *   implementation file is only ever linked into one platform's build.
+ */
+static os_webui_launch_hook_t S_webui_launch_hook = 0;
+
+void oss_set_webui_launch_hook(os_webui_launch_hook_t hook)
+{
+    S_webui_launch_hook = hook;
+}
+
+/*
  *   Connect to the client UI.  A Web-based game calls this after starting
  *   its internal HTTP server, to send instructions back to the client on how
  *   the client UI can connect to the game.
- *   
- *   This Unix implementation currently only supports client/server mode.
+ *
+ *   As on Windows (see win32/osnet-connect.cpp's own osnet_connect_webui()
+ *   for the full explanation), we can be running in one of two
+ *   configurations, distinguished by whether the net config has a
+ *   "hostname" setting: local stand-alone mode (no hostname - the user ran
+ *   the interpreter directly), or client/server mode (a hostname is set -
+ *   we were launched by a local Web server relaying a remote client's
+ *   request, e.g. via t3launch.php).
+ *
+ *   In stand-alone mode, if a launch hook is registered (e.g. guit3's
+ *   xdg-open hook - see guit3.cpp), use it to open the game's start page in
+ *   a real browser.  Otherwise - no hook registered, e.g. plain t3run, or
+ *   client/server mode - fall back to the original behavior: print the
+ *   start page URL to stdout for a launcher script to relay back to the
+ *   remote client.
  */
 int osnet_connect_webui(VMG_ const char *addr, int port, const char *path,
                         char **errmsg)
 {
-    /* 
-     *   Web server mode: our parent process is the conventional Web server
-     *   running the php launch page.  The php launch page has a pipe
-     *   connection to our stdout.  Send the start page information back to
-     *   the php page simply by writing the information to stdout.  
+    /* get the host name from the network configuration, if any */
+    const char *hostname = (G_net_config != 0
+                            ? G_net_config->get("hostname") : 0);
+
+    /* in stand-alone mode, prefer a registered launch hook, if any */
+    if (hostname == 0 && S_webui_launch_hook != 0)
+        return (*S_webui_launch_hook)(addr, port, path, errmsg);
+
+    /*
+     *   Web server mode (or stand-alone with no launch hook): our parent
+     *   process is the conventional Web server running the php launch
+     *   page.  The php launch page has a pipe connection to our stdout.
+     *   Send the start page information back to the php page simply by
+     *   writing the information to stdout.
      */
     printf("\nconnectWebUI:http://%s:%d%s\n", addr, port, path);
     fflush(stdout);
-	
+
 #ifdef __EMSCRIPTEN__
 	/*char tmp[256];
 	sprintf(tmp, "http://%s:%d%s", addr, port, path);
