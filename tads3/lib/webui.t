@@ -350,6 +350,18 @@ transient webSession: object
 
     /* have we ever had a client connection? */
     everHadClient = nil
+
+    /*
+     *   Has a client asked us to quit immediately?  Set by
+     *   ClientSession.reportClosed() when the primary client's browser tab
+     *   reports (via a beforeunload/pagehide beacon - see webuires/main.js
+     *   and clientClosePage below) that it has closed, in the local
+     *   stand-alone configuration.  processNetRequests() checks this after
+     *   handling each request and throws a QuittingException if it's set,
+     *   rather than waiting out the SessionTimeout grace period that exists
+     *   to tolerate ordinary network hiccups for remote clients.
+     */
+    quitRequested = nil
 ;
 
 /*
@@ -702,6 +714,38 @@ class ClientSession: object
             /* the session is now dead */
             isAlive = nil;
         }
+    }
+
+    /*
+     *   Report that this client's browser tab has explicitly closed (or
+     *   navigated away), per a beforeunload/pagehide beacon sent to
+     *   clientClosePage below.  This is a much more immediate and reliable
+     *   signal than checkDisconnect()'s activity timeout, which exists to
+     *   tolerate ordinary network hiccups (a browser's socket going idle
+     *   for a while doesn't mean the tab closed) and so can't react quickly
+     *   without false positives.  A beacon, in contrast, only fires when
+     *   the page is actually being torn down.
+     */
+    reportClosed()
+    {
+        /* this session is done - remove it immediately, don't wait it out */
+        webSession.removeClient(self);
+        isAlive = nil;
+
+        /*
+         *   In the local stand-alone configuration (no remote launch
+         *   address - see getLaunchHostAddr()), the primary session is the
+         *   one game window the user opened to play locally, exactly like
+         *   the old integrated tadsweb.exe browser window used to be.
+         *   Closing that window has always meant "quit the whole program,"
+         *   matching every other desktop application's convention (this
+         *   used to be handled by NetEvUIClose below, which could only ever
+         *   fire in this same local configuration). We only do this for the
+         *   primary session: a collaborative guest's tab closing shouldn't
+         *   end a local multi-user session out from under the host.
+         */
+        if (isPrimary && getLaunchHostAddr() == nil)
+            webSession.quitRequested = true;
     }
 
     /*
@@ -1455,6 +1499,35 @@ flushEventsPage: WebResource
 ;
 
 /*
+ *   clientClose request.  The client's page sends this as a best-effort
+ *   beacon (navigator.sendBeacon(), if available) from a beforeunload/
+ *   pagehide handler, right as the browser tab is being closed or
+ *   navigated away from - see webuires/main.js.  This lets us react to the
+ *   tab actually closing immediately, rather than only inferring it later
+ *   from the client simply going quiet (which checkDisconnect()'s
+ *   ClientSessionTimeout and webSession.housekeeping()'s SessionTimeout
+ *   still handle as a fallback, for browsers or shutdown paths where the
+ *   beacon doesn't arrive).
+ *
+ *   Beacons are fire-and-forget: the browser doesn't wait for or care
+ *   about the reply, and may already be gone by the time we'd send one, so
+ *   there's nothing to gain from an elaborate response here.
+ */
+clientClosePage: WebResource
+    vpath = '/webui/clientClose'
+    processRequest(req, query)
+    {
+        /* find the client, and tell it that it's closed */
+        local c = ClientSession.find(req);
+        if (c != nil)
+            c.reportClosed();
+
+        /* acknowledge the request (the client isn't listening, but be tidy) */
+        sendAck(req);
+    }
+;
+
+/*
  *   getState request.  The web page can send this to get a full accounting
  *   of the current state of the UI.  It does this automatically when first
  *   loaded, and again when the user manually refreshes the page.
@@ -1578,6 +1651,21 @@ processNetRequests(doneFunc, timeout?)
                         req.sendReply(404);
                     }
                 }
+
+                /*
+                 *   If handling that request asked us to quit (see
+                 *   ClientSession.reportClosed()), do so now.  This has to
+                 *   happen out here, rather than as part of request
+                 *   processing above, because a QuittingException thrown
+                 *   from within group.processRequest() would just be caught
+                 *   by the generic "unhandled exception" handler above and
+                 *   turned into a 500 reply instead of ending the program -
+                 *   same reason the NetEvUIClose case below throws at this
+                 *   level rather than from deeper in the call stack.
+                 */
+                if (webSession.quitRequested)
+                    throw new QuittingException();
+
                 break;
 
             case NetEvTimeout:

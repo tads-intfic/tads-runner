@@ -1073,6 +1073,42 @@ int osnet_connect_webui(VMG_ const char *addr, int port, const char *path,
                         char **errmsg);
 
 /*
+ *   Optional hook to override the stand-alone configuration's default local
+ *   UI launcher with a custom implementation - used by the ImGui port
+ *   (guit3) to open the game's start page in the system's default Web
+ *   browser instead of the classic bundled "tadsweb" child-process browser
+ *   shell (win32/osnet-connect.cpp's launch_tadsweb()).
+ *
+ *   The default tadsweb.exe launcher gives up a few things a generic
+ *   browser tab can't provide: an instant notification when the UI window
+ *   closes (osnet_connect_webui()'s caller instead has to fall back to the
+ *   Web UI library's own idle-session timeout to notice the browser is
+ *   gone - see SessionTimeout in lib/webui.t), the ability to navigate an
+ *   already-open window to a new URL on a repeat connect call rather than
+ *   opening a new one, and the proxied native Save/Open file dialog
+ *   (osnet_askfile()). Standard Web UI games built on lib/webui.t's
+ *   getInputFile() never rely on that last one, since it already falls
+ *   back to a plain browser upload/download dialog whenever there's no
+ *   native dialog available (e.g., in client/server mode, or on platforms
+ *   that never implemented osnet_askfile() at all).
+ *
+ *   If a hook is registered, osnet_connect_webui() calls it in place of the
+ *   built-in tadsweb.exe launcher in the local stand-alone configuration,
+ *   passing through the same arguments and expecting the same result
+ *   protocol (return TRUE on success; on failure, return FALSE and set
+ *   *errmsg to an os_alloc()'d error message the caller will free). If no
+ *   hook is registered (the default), behavior is unchanged.
+ *
+ *   Currently only implemented on Windows (win32/osnet-connect.cpp); this
+ *   is declared here rather than in that file alone so the hook type is
+ *   available to platform-independent callers like guit3's own startup
+ *   code without an #ifdef _WIN32 around the declaration itself.
+ */
+typedef int (*os_webui_launch_hook_t)(const char *addr, int port,
+                                      const char *path, char **errmsg);
+void oss_set_webui_launch_hook(os_webui_launch_hook_t hook);
+
+/*
  *   Disconnect from the Web UI.  This is used at program termination to
  *   notify the Web UI that the server program is no longer running, to allow
  *   it to update or remove its UI, and to release system resources.
