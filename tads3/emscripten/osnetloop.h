@@ -99,22 +99,27 @@ void osu_loop_listener_close(int listener_id);
 void osu_loop_conn_bind_event(int conn_id, class OS_Event *ready_evt);
 
 /* VM -> browser direction: buffer bytes for JS to pull out later via
- * osu_loop_pending_len()/osu_loop_pull() below. Always "succeeds"
- * immediately (see this file's Scope note) - returns len (matching
- * OS_Socket::send()'s successful-full-write contract), or -1 if conn_id is
- * invalid/already closed. */
+ * osu_loop_pending_len()/osu_loop_pull() below. Never blocks (see this
+ * file's Scope note) - returns len (matching OS_Socket::send()'s
+ * successful-full-write contract), or -1 if conn_id is invalid or either
+ * end has already closed it. */
 int osu_loop_send(int conn_id, const char *buf, size_t len);
 
 /* browser -> VM direction: copy up to buflen buffered bytes into buf,
  * consuming them. Returns the number of bytes copied (> 0); 0 if conn_id
- * is invalid or has been closed with nothing left buffered (the "socket
- * closed" case real recv() signals by returning 0); or -1 with
- * *out_wouldblock = true if the connection is open but has no data
- * buffered yet. */
+ * is invalid or the browser end has closed with nothing left buffered
+ * (the "socket closed" case real recv() signals by returning 0); or -1
+ * with *out_wouldblock = true if the connection is open but has no data
+ * buffered yet - in which case the bound ready event has already been
+ * reset, under the transport lock, so the caller must not reset it
+ * again itself (that would race with a concurrent osu_loop_push()). */
 int osu_loop_recv(int conn_id, char *buf, size_t buflen, bool *out_wouldblock);
 
-/* Close a connection and free its buffers. Safe to call more than once or
- * on an id that was never opened. */
+/* Close the VM end of a connection. Like a real TCP close, this is a
+ * half-close: reply bytes already sent but not yet pulled by JS stay
+ * available to osu_loop_pull(), and the slot is only freed once JS has
+ * closed its end too (osu_loop_end_conn()). Safe to call more than once
+ * or on an id that was never opened. */
 void osu_loop_close(int conn_id);
 
 /* ------------------------------------------------------------------------ */
@@ -157,9 +162,17 @@ extern "C"
      * returns the number of bytes actually copied */
     int osu_loop_pull(int conn_id, unsigned char *dest, int destLen);
 
-    /* tell the transport a connection is done (the browser side closed or
-     * aborted it); just an alias for osu_loop_close(), exposed under a
-     * JS-facing name for clarity at the call site */
+    /* has the VM closed its end of this connection (or is conn_id not a
+     * live connection at all)? Once this returns 1 and
+     * osu_loop_pending_len() returns 0, the reply is complete - this is
+     * the end-of-stream signal for a reply with no Content-Length */
+    int osu_loop_is_closed(int conn_id);
+
+    /* close the browser end of a connection (the request finished, or was
+     * aborted). The VM can still read anything already pushed, then sees
+     * end-of-stream. JS must call this exactly once for every connection
+     * osu_loop_new_conn() handed out: the slot is only freed when both
+     * ends have closed (see osu_loop_close()) */
     void osu_loop_end_conn(int conn_id);
 }
 

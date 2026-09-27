@@ -185,12 +185,27 @@ struct osu_loop_conn
 
     OS_Event *ready_evt;
 
+    /*
+     *   Half-close state, one flag per end, mirroring TCP: a VM-side close
+     *   (OS_Socket::close() -> osu_loop_close()) must not discard reply
+     *   bytes JS hasn't pulled yet - a "Connection: close" reply is written
+     *   in full and then immediately closed, so freeing the slot right there
+     *   would throw the whole reply away. The slot is only freed once both
+     *   ends have closed.
+     */
+    bool vm_closed;
+    bool js_closed;
+
+    /* free the buffers and mark the slot unused (the table is static,
+     * hence zero-initialized, so this is safe on a never-used slot) */
     void reset()
     {
         in_use = false;
-        recv_q.init();
-        send_q.init();
+        recv_q.clear();
+        send_q.clear();
         ready_evt = 0;
+        vm_closed = false;
+        js_closed = false;
     }
 };
 
@@ -382,7 +397,16 @@ int osu_loop_accept(int listener_id, bool *out_wouldblock)
 
     if (l.pending_count == 0)
     {
+        /*
+         *   Reset the ready event here, under our lock, rather than leaving
+         *   it to the caller after we return: osu_loop_new_conn() signals it
+         *   under this same lock, so a connection arriving between our
+         *   "nothing pending" check and the reset can't have its signal
+         *   wiped out - it's either seen here, or signals after the reset.
+         */
         *out_wouldblock = true;
+        if (l.ready_evt != 0)
+            l.ready_evt->reset();
         pthread_mutex_unlock(&g_loop_mutex);
         return -1;
     }
@@ -406,14 +430,20 @@ void osu_loop_listener_close(int listener_id)
     osu_loop_listener &l = g_listeners[listener_id];
     if (l.in_use)
     {
-        /* drop any connections that arrived but were never accepted -
-         * there's no OS_Socket wrapping them yet, so nothing else owns
-         * their resources */
+        /* close the VM side of any connections that arrived but were
+         * never accepted - there's no OS_Socket wrapping them yet, so
+         * nothing else will. JS still owns its end until it calls
+         * osu_loop_end_conn(); it just sees them close with no reply. */
         for (int i = 0 ; i < l.pending_count ; ++i)
         {
             int cid = l.pending[i];
             if (cid >= 0 && cid < OSU_LOOP_MAX_CONNS && g_conns[cid].in_use)
-                g_conns[cid].reset();
+            {
+                if (g_conns[cid].js_closed)
+                    g_conns[cid].reset();
+                else
+                    g_conns[cid].vm_closed = true;
+            }
         }
         l.reset();
     }
@@ -430,7 +460,7 @@ void osu_loop_conn_bind_event(int conn_id, OS_Event *ready_evt)
         return;
 
     pthread_mutex_lock(&g_loop_mutex);
-    if (g_conns[conn_id].in_use)
+    if (g_conns[conn_id].in_use && !g_conns[conn_id].vm_closed)
         g_conns[conn_id].ready_evt = ready_evt;
     pthread_mutex_unlock(&g_loop_mutex);
 }
@@ -442,8 +472,10 @@ int osu_loop_send(int conn_id, const char *buf, size_t len)
 
     pthread_mutex_lock(&g_loop_mutex);
     osu_loop_conn &c = g_conns[conn_id];
-    if (!c.in_use)
+    if (!c.in_use || c.vm_closed || c.js_closed)
     {
+        /* writing to a connection the browser has already abandoned -
+         * the loopback equivalent of EPIPE */
         pthread_mutex_unlock(&g_loop_mutex);
         return -1;
     }
@@ -468,7 +500,7 @@ int osu_loop_recv(int conn_id, char *buf, size_t buflen, bool *out_wouldblock)
 
     pthread_mutex_lock(&g_loop_mutex);
     osu_loop_conn &c = g_conns[conn_id];
-    if (!c.in_use)
+    if (!c.in_use || c.vm_closed)
     {
         pthread_mutex_unlock(&g_loop_mutex);
         return 0;
@@ -476,7 +508,19 @@ int osu_loop_recv(int conn_id, char *buf, size_t buflen, bool *out_wouldblock)
 
     if (c.recv_q.available() == 0)
     {
+        /* the browser end has closed and everything it sent has been
+         * read - end of stream, same as a real recv() returning 0 */
+        if (c.js_closed)
+        {
+            pthread_mutex_unlock(&g_loop_mutex);
+            return 0;
+        }
+
+        /* nothing yet - reset the ready event under our lock, for the
+         * same lost-wakeup reason as in osu_loop_accept() */
         *out_wouldblock = true;
+        if (c.ready_evt != 0)
+            c.ready_evt->reset();
         pthread_mutex_unlock(&g_loop_mutex);
         return -1;
     }
@@ -492,7 +536,27 @@ void osu_loop_close(int conn_id)
         return;
 
     pthread_mutex_lock(&g_loop_mutex);
-    g_conns[conn_id].reset();
+    osu_loop_conn &c = g_conns[conn_id];
+    if (c.in_use && !c.vm_closed)
+    {
+        if (c.js_closed)
+        {
+            /* both ends are done - free the slot */
+            c.reset();
+        }
+        else
+        {
+            /*
+             *   Half-close: keep send_q so JS can still pull the rest of
+             *   the reply, but drop anything the VM will never read, and
+             *   forget the ready event - the OS_Socket that owns it may be
+             *   destroyed as soon as we return.
+             */
+            c.vm_closed = true;
+            c.recv_q.clear();
+            c.ready_evt = 0;
+        }
+    }
     pthread_mutex_unlock(&g_loop_mutex);
 }
 
@@ -553,15 +617,14 @@ int osu_loop_new_conn(int port)
     g_conns[cidx].in_use = true;
 
     l.pending[l.pending_count++] = cidx;
-    OS_Event *evt = l.ready_evt;
+
+    /* signal under the lock - see osu_loop_accept() for why. Lock order is
+     * always g_loop_mutex first, then the event's own mutex; nothing takes
+     * them the other way around. */
+    if (l.ready_evt != 0)
+        l.ready_evt->signal();
 
     pthread_mutex_unlock(&g_loop_mutex);
-
-    /* signal outside the lock - OS_Event::signal() takes its own mutex,
-     * and there's no reason to hold ours while it does */
-    if (evt != 0)
-        evt->signal();
-
     return cidx;
 }
 
@@ -573,27 +636,26 @@ int osu_loop_push(int conn_id, const unsigned char *data, int len)
 
     pthread_mutex_lock(&g_loop_mutex);
     osu_loop_conn &c = g_conns[conn_id];
-    if (!c.in_use)
+    if (!c.in_use || c.vm_closed || c.js_closed)
     {
         pthread_mutex_unlock(&g_loop_mutex);
         return -1;
     }
 
-    bool was_empty = (c.recv_q.available() == 0);
-    bool ok = c.recv_q.append(data, (size_t)len);
-    OS_Event *evt = c.ready_evt;
-    pthread_mutex_unlock(&g_loop_mutex);
-
-    if (!ok)
+    if (!c.recv_q.append(data, (size_t)len))
+    {
+        pthread_mutex_unlock(&g_loop_mutex);
         return -1;
+    }
 
     /* wake up a thread that might be blocked in OS_Event::wait() on this
-     * connection's ready_evt waiting for exactly this - if it was already
-     * signaled (more data arriving while some was already buffered), this
-     * is a harmless redundant signal on a manual-reset event */
-    if (was_empty && evt != 0)
-        evt->signal();
+     * connection's ready_evt waiting for exactly this. Signaled under the
+     * lock (see osu_loop_accept()), and unconditionally - on a
+     * manual-reset event a redundant signal is harmless. */
+    if (c.ready_evt != 0)
+        c.ready_evt->signal();
 
+    pthread_mutex_unlock(&g_loop_mutex);
     return 0;
 }
 
@@ -624,9 +686,44 @@ int osu_loop_pull(int conn_id, unsigned char *dest, int destLen)
 }
 
 EMSCRIPTEN_KEEPALIVE
+int osu_loop_is_closed(int conn_id)
+{
+    if (conn_id < 0 || conn_id >= OSU_LOOP_MAX_CONNS)
+        return 1;
+
+    pthread_mutex_lock(&g_loop_mutex);
+    int closed = !g_conns[conn_id].in_use || g_conns[conn_id].vm_closed;
+    pthread_mutex_unlock(&g_loop_mutex);
+    return closed;
+}
+
+EMSCRIPTEN_KEEPALIVE
 void osu_loop_end_conn(int conn_id)
 {
-    osu_loop_close(conn_id);
+    if (conn_id < 0 || conn_id >= OSU_LOOP_MAX_CONNS)
+        return;
+
+    pthread_mutex_lock(&g_loop_mutex);
+    osu_loop_conn &c = g_conns[conn_id];
+    if (c.in_use && !c.js_closed)
+    {
+        if (c.vm_closed)
+        {
+            /* both ends are done - free the slot */
+            c.reset();
+        }
+        else
+        {
+            /* half-close from the browser side: the VM can still read
+             * whatever is already buffered, then sees end-of-stream -
+             * wake it in case it's blocked waiting for more */
+            c.js_closed = true;
+            c.send_q.clear();
+            if (c.ready_evt != 0)
+                c.ready_evt->signal();
+        }
+    }
+    pthread_mutex_unlock(&g_loop_mutex);
 }
 
 #endif /* __EMSCRIPTEN__ */

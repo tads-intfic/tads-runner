@@ -1012,6 +1012,7 @@ protected:
         err = 0;
         ready_evt = 0;
         blocked_evt = 0;
+        mon_thread = 0;
         wouldblock_sending = FALSE;
     }
 
@@ -1115,11 +1116,13 @@ public:
 #ifdef __EMSCRIPTEN__
         if (OSU_LOOP_IS_ID(s))
         {
-            /* always "succeeds" immediately - see osnetloop.cpp's file
-             * comment on why this transport buffers unboundedly rather
-             * than ever reporting EWOULDBLOCK here */
-            err = 0;
-            return osu_loop_send(OSU_LOOP_DECODE(s), buf, len);
+            /* never blocks - see osnetloop.cpp's file comment on why this
+             * transport buffers unboundedly rather than ever reporting
+             * EWOULDBLOCK here. It only fails once the browser end has
+             * closed the connection, the loopback equivalent of EPIPE. */
+            int ret = osu_loop_send(OSU_LOOP_DECODE(s), buf, len);
+            err = (ret < 0 ? EPIPE : 0);
+            return ret;
         }
 #endif
         /* send the bytes and note the result */
@@ -1161,12 +1164,13 @@ public:
 
             /* mirror the real path's event bookkeeping so callers that
              * wait on our ready_evt (via OS_Waitable::wait()/multi_wait())
-             * see the same protocol - osu_loop_push() (called from JS when
-             * new data arrives) is what signals ready_evt again */
+             * see the same protocol. osu_loop_recv() has already reset
+             * ready_evt itself, under its own lock, so a concurrent
+             * osu_loop_push() (called from JS when new data arrives, and
+             * what signals ready_evt again) can't be lost in between. */
             if (wouldblock)
             {
                 wouldblock_sending = FALSE;
-                ready_evt->reset();
             }
             else if (ret > 0)
             {
@@ -1469,13 +1473,14 @@ public:
             }
 
             /* mirror the real path's EWOULDBLOCK event bookkeeping -
-             * osu_loop_new_conn() (called from JS when a new connection
-             * arrives) is what signals ready_evt again */
+             * osu_loop_accept() has already reset ready_evt under its own
+             * lock, so a concurrent osu_loop_new_conn() (called from JS
+             * when a new connection arrives, and what signals ready_evt
+             * again) can't be lost in between */
             err = wouldblock ? EWOULDBLOCK : EIO;
             if (wouldblock)
             {
                 wouldblock_sending = FALSE;
-                ready_evt->reset();
             }
             return 0;
         }
