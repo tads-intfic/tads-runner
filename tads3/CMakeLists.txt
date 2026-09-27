@@ -522,6 +522,8 @@ target_link_libraries(t3core PRIVATE
 if (EMSCRIPTEN)
 target_sources(t3core PRIVATE
 ${tads3_dir}/emscripten/osnetemscipten.cpp
+${tads3_dir}/emscripten/osnetloop.cpp
+${tads3_dir}/emscripten/osnetloop.h
 )
 
 target_compile_options(
@@ -735,6 +737,8 @@ if (WITH_HTMLTADS)
 			${tads3_dir}/emscripten/emscripten.cpp
 			${tads3_dir}/unix/osunix.c
 			${tads3_dir}/emscripten/osnetemscipten.cpp
+			${tads3_dir}/emscripten/osnetloop.cpp
+			${tads3_dir}/emscripten/osnetloop.h
 		)
 	else()
 		# The only non-Windows, non-Emscripten consumer of t3htm is guit3
