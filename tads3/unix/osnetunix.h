@@ -32,6 +32,12 @@ Modified
 #include <signal.h>
 #include <stdarg.h>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#include <emscripten/threading.h>
+#include "emscripten/osnetloop.h"
+#endif
+
 /* true/false */
 #ifndef TRUE
 #define TRUE 1
@@ -42,6 +48,32 @@ Modified
 
 /* infinite timeout value */
 #define OS_FOREVER  ((ulong)-1)
+
+#ifdef __EMSCRIPTEN__
+/*
+ *   Poll interval (in milliseconds) for OS_Event::evt_wait()'s Emscripten
+ *   main-browser-thread fallback - see that function's doc comment. Short
+ *   enough not to add perceptible latency to a WebUI request/reply
+ *   round-trip; long enough not to busy-spin the CPU while waiting out
+ *   something that can legitimately take seconds (a long-poll timeout, a
+ *   SessionTimeout housekeeping wait).
+ */
+#define OSU_EMS_POLL_MS 5
+
+/*
+ *   Loopback socket id encoding, shared by OS_Listener and OS_Socket (see
+ *   osnetloop.h). Both classes inherit their 'int s' field from
+ *   OS_CoreSocket, which real fds/listener sockets use to hold a genuine
+ *   OS file descriptor (always >= 0) or -1 to mean "not open". Rather than
+ *   add a whole new member field just to distinguish a loopback id from a
+ *   real fd, a loopback id is stored in that same field, offset down to
+ *   -2 and below, where it can never collide with either of those two
+ *   existing meanings.
+ */
+#define OSU_LOOP_ENCODE(id)   (-((id) + 2))
+#define OSU_LOOP_DECODE(s)    (-(s) - 2)
+#define OSU_LOOP_IS_ID(s)     ((s) <= -2)
+#endif
 
 /* OS X spinlocks */
 #ifdef __APPLE__
@@ -445,11 +477,74 @@ protected:
     virtual class OS_Event *get_event() { return this; }
 
 private:
+#ifdef __EMSCRIPTEN__
+    /*
+     *   Emscripten main-browser-thread substitute for pthread_cond_wait()/
+     *   pthread_cond_timedwait(), used only when evt_wait() finds itself
+     *   running on the actual browser UI thread - never for a real pthread
+     *   Worker (a listener/server thread, or t3run/t3core's PROXY_TO_PTHREAD
+     *   main), where a genuine blocking wait is fine and unchanged.
+     *
+     *   On the browser thread, a real blocking pthread_cond_*wait() never
+     *   returns control to the browser's own event loop, so nothing that
+     *   runs as a browser callback - a Service Worker postMessage, a
+     *   completed fetch, anything - can ever fire while we're stuck in it:
+     *   the wait, and the whole page, hangs forever. This is the same
+     *   problem guit3's event_loop() (htmltads/imgui/htmlgui.cpp) already
+     *   solved for nested input waits, and the fix is the same primitive:
+     *   emscripten_sleep(), Asyncify's genuine suspend/resume operation,
+     *   which actually yields this call stack back to the browser and
+     *   resumes right here once it's called again - see that function's own
+     *   doc comment for why a plain spin or emscripten_set_main_loop() don't
+     *   work for a nested wait like this one.
+     *
+     *   The mutex must NOT be held across emscripten_sleep(): the sleep
+     *   really does hand control to the browser for a while, so anything
+     *   else that runs in the meantime and needs this same mutex - a
+     *   pthread_create()'d server thread calling signal(), say - would
+     *   deadlock against a mutex we're still holding while "asleep". So
+     *   this unlocks before sleeping and re-locks after, mirroring
+     *   pthread_cond_wait()'s own unlock/wait/relock contract, just not
+     *   atomically: there's a small window after unlocking and before the
+     *   sleep where a signal could be missed. That's harmless here, since
+     *   both callers below re-check their own condition (cnt <= 0) in a
+     *   loop after every call, exactly as they already have to for
+     *   ordinary spurious wakeups from the real pthread_cond_*wait() path.
+     */
+    static void emsu_poll_wait(pthread_mutex_t *mutex)
+    {
+        pthread_mutex_unlock(mutex);
+        emscripten_sleep(OSU_EMS_POLL_MS);
+        pthread_mutex_lock(mutex);
+    }
+
+    /* same, but for evt_wait(tm)'s timed variant - returns 0 if the caller
+     * should keep waiting, ETIMEDOUT if the deadline has now passed */
+    static int emsu_poll_timedwait(pthread_mutex_t *mutex,
+                                   const struct timespec *tm)
+    {
+        emsu_poll_wait(mutex);
+
+        os_time_t cur_sec;
+        long cur_nsec;
+        os_time_ns(&cur_sec, &cur_nsec);
+        if (cur_sec > tm->tv_sec
+            || (cur_sec == tm->tv_sec && cur_nsec >= tm->tv_nsec))
+        {
+            /* make sure a stale errno==EINTR can't mask the timeout in our
+             * callers' "rc != 0 && errno != EINTR" checks */
+            errno = 0;
+            return ETIMEDOUT;
+        }
+        return 0;
+    }
+#endif
+
     /*
      *   Wait for the event.  If the event is already in the signaled state,
      *   this returns immediately.  Otherwise, this blocks until another
      *   thread signals the event.  For an auto-reset event, the system
-     *   immediately resets the event as soon as a thread is released.  
+     *   immediately resets the event as soon as a thread is released.
      */
     void evt_wait()
     {
@@ -462,6 +557,15 @@ private:
         /* wait for the count to come up positive */
         while (cnt <= 0)
         {
+#ifdef __EMSCRIPTEN__
+            /* on the browser thread, poll instead of really blocking -
+             * see emsu_poll_wait()'s doc comment above */
+            if (emscripten_is_main_browser_thread())
+            {
+                emsu_poll_wait(&mutex);
+                continue;
+            }
+#endif
             /* wait for the condition */
             if (pthread_cond_wait(&cond, &mutex) && errno != EINTR)
                 break;
@@ -522,6 +626,16 @@ private:
         /* wait until we get a positive counter or the timeout expires */
         while (cnt <= 0)
         {
+#ifdef __EMSCRIPTEN__
+            /* on the browser thread, poll instead of really blocking -
+             * see emsu_poll_wait()'s doc comment above */
+            if (emscripten_is_main_browser_thread())
+            {
+                if ((rc = emsu_poll_timedwait(&mutex, tm)) != 0)
+                    break;
+                continue;
+            }
+#endif
             /* wait for it */
             if ((rc = pthread_cond_timedwait(&cond, &mutex, tm)) != 0
                 && errno != EINTR)
@@ -825,6 +939,16 @@ public:
      */
     int get_local_addr(char *&ip, int &port)
     {
+#ifdef __EMSCRIPTEN__
+        /* a loopback socket/listener is always "local" to this same
+         * browser tab - there's no real sockaddr to ask */
+        if (OSU_LOOP_IS_ID(s))
+        {
+            ip = lib_copy_str("127.0.0.1");
+            port = OSU_LOOP_DECODE(s);
+            return TRUE;
+        }
+#endif
         socklen_t len;
         struct sockaddr_storage addr;
 
@@ -846,6 +970,20 @@ public:
      */
     int get_peer_addr(char *&ip, int &port)
     {
+#ifdef __EMSCRIPTEN__
+        /* our "peer" is always the same browser tab this VM is running
+         * in - there's no real sockaddr to ask. This is the one that
+         * actually matters in practice: TadsServerThread's constructor
+         * calls get_peer_addr() on every accepted connection (see
+         * vmnet.h), unlike get_local_addr(), which OS_Socket never calls
+         * at all. */
+        if (OSU_LOOP_IS_ID(s))
+        {
+            ip = lib_copy_str("127.0.0.1");
+            port = OSU_LOOP_DECODE(s);
+            return TRUE;
+        }
+#endif
         socklen_t len;
         struct sockaddr_storage addr;
 
@@ -974,6 +1112,16 @@ public:
      */
     int send(const char *buf, size_t len)
     {
+#ifdef __EMSCRIPTEN__
+        if (OSU_LOOP_IS_ID(s))
+        {
+            /* always "succeeds" immediately - see osnetloop.cpp's file
+             * comment on why this transport buffers unboundedly rather
+             * than ever reporting EWOULDBLOCK here */
+            err = 0;
+            return osu_loop_send(OSU_LOOP_DECODE(s), buf, len);
+        }
+#endif
         /* send the bytes and note the result */
         int ret = ::send(s, buf, len, MSG_NOSIGNAL);
 
@@ -1004,6 +1152,29 @@ public:
      */
     int recv(char *buf, size_t len)
     {
+#ifdef __EMSCRIPTEN__
+        if (OSU_LOOP_IS_ID(s))
+        {
+            bool wouldblock = false;
+            int ret = osu_loop_recv(OSU_LOOP_DECODE(s), buf, len, &wouldblock);
+            err = wouldblock ? EWOULDBLOCK : 0;
+
+            /* mirror the real path's event bookkeeping so callers that
+             * wait on our ready_evt (via OS_Waitable::wait()/multi_wait())
+             * see the same protocol - osu_loop_push() (called from JS when
+             * new data arrives) is what signals ready_evt again */
+            if (wouldblock)
+            {
+                wouldblock_sending = FALSE;
+                ready_evt->reset();
+            }
+            else if (ret > 0)
+            {
+                last_incoming_time = time(0);
+            }
+            return ret;
+        }
+#endif
         /* read the bytes and note the result */
         int ret = ::recv(s, buf, len, MSG_NOSIGNAL);
 
@@ -1032,11 +1203,88 @@ public:
         return ret;
     }
 
+#ifdef __EMSCRIPTEN__
+    /*
+     *   Close the socket.  This shadows (not overrides - OS_CoreSocket::
+     *   close() isn't virtual) the base class version so that a caller
+     *   holding a concrete OS_Socket* - which is how every real caller in
+     *   this codebase holds one; see osnetloop.cpp's file comment for why
+     *   that's safe to rely on - gets our loopback cleanup instead.  Only
+     *   declared at all under Emscripten - on every other platform this
+     *   class simply inherits OS_CoreSocket::close() directly, unchanged.
+     */
+    void close()
+    {
+        if (OSU_LOOP_IS_ID(s))
+        {
+            osu_loop_close(OSU_LOOP_DECODE(s));
+            s = -1;
+            if (ready_evt != 0)
+                ready_evt->signal();
+            return;
+        }
+        OS_CoreSocket::close();
+    }
+
+    /*
+     *   Shadows OS_CoreSocket::set_non_blocking() for the loopback case.
+     *   The base version unconditionally does fcntl(s, ...) on our 's'
+     *   field and launches a real OS_Socket_Mon_Thread that polls it with
+     *   poll() - both wrong (and the poll() thread actively harmful, spun
+     *   up against a bogus negative "fd" forever) for a loopback id, which
+     *   needs no monitor thread at all: this module can signal readiness
+     *   directly at the one place it actually changes (see osu_loop_push()
+     *   in osnetloop.cpp), so it sets up the events itself and skips the
+     *   base version entirely rather than trying to make it cope.
+     */
+    void set_non_blocking()
+    {
+        if (ready_evt != 0)
+            return;
+
+        if (OSU_LOOP_IS_ID(s))
+        {
+            ready_evt = new OS_Event(TRUE);
+            blocked_evt = new OS_Event(TRUE);
+            ready_evt->signal();
+            osu_loop_conn_bind_event(OSU_LOOP_DECODE(s), ready_evt);
+            return;
+        }
+
+        OS_CoreSocket::set_non_blocking();
+    }
+#endif
+
 protected:
-    /* create an OS_Socket object to wrap an existing system socket handle */
+    /* create an OS_Socket object to wrap an existing system socket handle
+     * (or, under Emscripten, an OSU_LOOP_ENCODE()'d loopback connection
+     * id - see OS_Listener::accept()) */
     OS_Socket(int s) : OS_CoreSocket(s) { }
 
-    ~OS_Socket() { }
+    ~OS_Socket()
+    {
+#ifdef __EMSCRIPTEN__
+        /*
+         *   ~OS_CoreSocket() (which runs right after this) calls close(),
+         *   but that unqualified call resolves to OS_CoreSocket::close()
+         *   even though we shadowed close() above - by the time a base
+         *   class destructor body runs, the derived part of the object is
+         *   already gone, so virtual-dispatch tricks wouldn't help here
+         *   either (and close() isn't virtual to begin with).  So: do our
+         *   own loopback cleanup here, and reset s to -1 first so that
+         *   subsequent OS_CoreSocket::close() call is a correct no-op for
+         *   the real-fd-closing part.  This only matters for a socket that
+         *   was never explicitly close()'d before being destroyed - our
+         *   own close() above already reset s to -1 if it ran first, so
+         *   this check just does nothing the second time.
+         */
+        if (OSU_LOOP_IS_ID(s))
+        {
+            osu_loop_close(OSU_LOOP_DECODE(s));
+            s = -1;
+        }
+#endif
+    }
 };
 
 /* ------------------------------------------------------------------------ */
@@ -1054,7 +1302,77 @@ public:
     OS_Listener() { }
 
     /* destructor - free resources */
-    ~OS_Listener() { }
+    ~OS_Listener()
+    {
+#ifdef __EMSCRIPTEN__
+        /* see ~OS_Socket()'s doc comment on OS_CoreSocket's destructor
+         * chain for why this can't just rely on our shadowed close()
+         * below - it must do its own cleanup here too */
+        if (OSU_LOOP_IS_ID(s))
+        {
+            osu_loop_listener_close(OSU_LOOP_DECODE(s));
+            s = -1;
+        }
+#endif
+    }
+
+#ifdef __EMSCRIPTEN__
+    /* see OS_Socket::close()'s doc comment - same reasoning, shadowing
+     * the (non-virtual) base class close() so a caller holding a concrete
+     * OS_Listener* gets our loopback cleanup. Only declared at all under
+     * Emscripten - see OS_Socket::close()'s doc comment. */
+    void close()
+    {
+        if (OSU_LOOP_IS_ID(s))
+        {
+            osu_loop_listener_close(OSU_LOOP_DECODE(s));
+            s = -1;
+            if (ready_evt != 0)
+                ready_evt->signal();
+            return;
+        }
+        OS_CoreSocket::close();
+    }
+
+    /*
+     *   Shadows OS_CoreSocket::get_local_addr() for the loopback case only
+     *   - unlike OS_Socket (whose get_local_addr() is never actually
+     *   called anywhere in this codebase; only its get_peer_addr() is),
+     *   this one matters: it's how HTTPServer.getPort() finds out which
+     *   port got bound (see vmhttpsrv.cpp's get_listener_addr()), and for
+     *   an auto-assigned port (open() called with port_num 0) the base
+     *   class's generic loopback branch would return our internal
+     *   listener table index instead of the real assigned port.
+     */
+    int get_local_addr(char *&ip, int &port)
+    {
+        if (OSU_LOOP_IS_ID(s))
+        {
+            ip = lib_copy_str("127.0.0.1");
+            port = osu_loop_listener_port(OSU_LOOP_DECODE(s));
+            return TRUE;
+        }
+        return OS_CoreSocket::get_local_addr(ip, port);
+    }
+
+    /* see OS_Socket::set_non_blocking()'s doc comment - same reasoning */
+    void set_non_blocking()
+    {
+        if (ready_evt != 0)
+            return;
+
+        if (OSU_LOOP_IS_ID(s))
+        {
+            ready_evt = new OS_Event(TRUE);
+            blocked_evt = new OS_Event(TRUE);
+            ready_evt->signal();
+            osu_loop_listener_bind_event(OSU_LOOP_DECODE(s), ready_evt);
+            return;
+        }
+
+        OS_CoreSocket::set_non_blocking();
+    }
+#endif
 
     /* 
      *   Open the listener on the given port number.  This can be used to
@@ -1066,6 +1384,22 @@ public:
      */
     int open(const char *hostname, unsigned short port_num)
     {
+#ifdef __EMSCRIPTEN__
+        /* if a JS-side loopback bridge is registered, use it instead of a
+         * real socket - see osnetloop.h's doc comment. If none is
+         * registered (t3run/t3core, which never call
+         * osu_loop_set_available(); or guit3 before its JS bridge exists),
+         * fall through to the real socket()/bind()/listen() calls below,
+         * unchanged. */
+        if (osu_loop_available())
+        {
+            int id = osu_loop_listen(port_num);
+            if (id < 0)
+                return FALSE;
+            s = OSU_LOOP_ENCODE(id);
+            return TRUE;
+        }
+#endif
         /* create our socket */
         s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         if (s == -1)
@@ -1122,6 +1456,30 @@ public:
      */
     OS_Socket *accept()
     {
+#ifdef __EMSCRIPTEN__
+        if (OSU_LOOP_IS_ID(s))
+        {
+            bool wouldblock = false;
+            int conn_id = osu_loop_accept(OSU_LOOP_DECODE(s), &wouldblock);
+            if (conn_id >= 0)
+            {
+                err = 0;
+                last_incoming_time = time(0);
+                return new OS_Socket(OSU_LOOP_ENCODE(conn_id));
+            }
+
+            /* mirror the real path's EWOULDBLOCK event bookkeeping -
+             * osu_loop_new_conn() (called from JS when a new connection
+             * arrives) is what signals ready_evt again */
+            err = wouldblock ? EWOULDBLOCK : EIO;
+            if (wouldblock)
+            {
+                wouldblock_sending = FALSE;
+                ready_evt->reset();
+            }
+            return 0;
+        }
+#endif
         /* accept a connection on the underlying system socket */
         struct sockaddr_in addr;
         socklen_t addrlen = sizeof(addr);
