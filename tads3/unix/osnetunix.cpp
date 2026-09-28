@@ -209,6 +209,32 @@ void oss_set_webui_launch_hook(os_webui_launch_hook_t hook)
     S_webui_launch_hook = hook;
 }
 
+#ifdef __EMSCRIPTEN__
+/*
+ *   The network message queue of the game whose Web UI we connected, kept so
+ *   that osnet_webui_closed() can tell it when the user closes the UI.  On
+ *   Windows the equivalent is the tadsweb.exe comm thread's own reference
+ *   to G_net_queue (win32/osnet-connect.cpp); under Emscripten the "UI
+ *   window" is guit3.html's overlay frame, and closing it is a JS event
+ *   with no VM globals at hand, hence this static.  We hold a reference, so
+ *   a close arriving after the game has already ended just posts into a
+ *   queue nobody reads any more, which is harmless.
+ */
+static TadsMessageQueue *S_webui_queue = 0;
+
+/*
+ *   Called from JS (guit3.html) when the user closes the Web UI: posts a
+ *   TadsUICloseEvent, exactly as a closed tadsweb.exe window does on
+ *   Windows.  lib/webui.t treats that as the end of input and quits.  See
+ *   webui-emscripten-plan.md (htmltads repo), step 6.
+ */
+extern "C" EMSCRIPTEN_KEEPALIVE void osnet_webui_closed()
+{
+    if (S_webui_queue != 0)
+        S_webui_queue->post(new TadsUICloseEvent(0));
+}
+#endif
+
 /*
  *   Connect to the client UI.  A Web-based game calls this after starting
  *   its internal HTTP server, to send instructions back to the client on how
@@ -235,6 +261,18 @@ int osnet_connect_webui(VMG_ const char *addr, int port, const char *path,
     /* get the host name from the network configuration, if any */
     const char *hostname = (G_net_config != 0
                             ? G_net_config->get("hostname") : 0);
+
+#ifdef __EMSCRIPTEN__
+    /* remember the queue for osnet_webui_closed() */
+    if (G_net_queue != S_webui_queue)
+    {
+        if (G_net_queue != 0)
+            G_net_queue->add_ref();
+        if (S_webui_queue != 0)
+            S_webui_queue->release_ref();
+        S_webui_queue = G_net_queue;
+    }
+#endif
 
     /* in stand-alone mode, prefer a registered launch hook, if any */
     if (hostname == 0 && S_webui_launch_hook != 0)
