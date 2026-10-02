@@ -397,7 +397,7 @@ target_link_libraries(t3res PRIVATE tads_settings)
 
 if (EMSCRIPTEN)
 	# make_t3r() (TadsFunctions.cmake) runs t3res.js through node as a build
-	# step (guit3, htmltads/htmltads/imgui/CMakeLists.txt) to generate
+	# step (guit3, GUIT3_APP_DIR/CMakeLists.txt) to generate
 	# guit3.t3r. Without NODERAWFS, Emscripten's Node entry point writes to
 	# an in-memory virtual filesystem instead of the real one, so t3res's
 	# -create ... .t3r output silently never reaches disk ("can't create
@@ -701,13 +701,13 @@ if (WITH_HTMLTADS)
 	)
 	
 	target_include_directories(t3htm PRIVATE
-		${HTMLTADS_DIR}/htmltads
-		${HTMLTADS_DIR}/htmltads/win32
+		${HTMLTADS_CORE_DIR}
+		${HTMLTADS_CORE_DIR}/win32
 	)
-	
+
 	if (WIN32)
 		target_include_directories(t3htm PRIVATE
-			${HTMLTADS_DIR}/htmltads/win32
+			${HTMLTADS_CORE_DIR}/win32
 		)
 	elseif(EMSCRIPTEN)
 		# One t3htm build serves both htmlt3 (the classic web port) and
@@ -742,10 +742,11 @@ if (WITH_HTMLTADS)
 		)
 	else()
 		# The only non-Windows, non-Emscripten consumer of t3htm is guit3
-		# (htmltads/htmltads/imgui), so html_os.h's switchboard can route
+		# (GUIT3_APP_DIR - htmltads/htmltads/imgui in the old htmltads repo,
+		# guitads/guit3 in the new one), so html_os.h's switchboard can route
 		# straight to hos_gui.h here - see migration.md M4.
 		target_include_directories(t3htm PRIVATE
-			${HTMLTADS_DIR}/htmltads/imgui
+			${GUIT3_APP_DIR}
 		)
 		target_compile_definitions(t3htm PUBLIC
 			IMGUI
@@ -791,20 +792,20 @@ if (WITH_HTMLTADS)
 	)
 	
 	target_include_directories(t3htm_d PRIVATE
-		${HTMLTADS_DIR}/htmltads
+		${HTMLTADS_CORE_DIR}
 	)
-	
+
 	if (WIN32)
 		target_include_directories(t3htm_d PRIVATE
-			${HTMLTADS_DIR}/htmltads/win32
+			${HTMLTADS_CORE_DIR}/win32
 		)
 	elseif(EMSCRIPTEN)
 		target_include_directories(t3htm_d PRIVATE
-			${HTMLTADS_DIR}/htmltads/emscripten
+			${HTMLTADS_CORE_DIR}/emscripten
 		)
 	else()
 		target_include_directories(t3htm_d PRIVATE
-			${HTMLTADS_DIR}/htmltads/imgui
+			${GUIT3_APP_DIR}
 		)
 		target_compile_definitions(t3htm_d PUBLIC
 			IMGUI
