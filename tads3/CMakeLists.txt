@@ -742,8 +742,7 @@ if (WITH_HTMLTADS)
 		)
 	else()
 		# The only non-Windows, non-Emscripten consumer of t3htm is guit3
-		# (GUIT3_APP_DIR - htmltads/htmltads/imgui in the old htmltads repo,
-		# guitads/guit3 in the new one), so html_os.h's switchboard can route
+		# (GUIT3_APP_DIR - guitads/guit3), so html_os.h's switchboard can route
 		# straight to hos_gui.h here - see migration.md M4.
 		target_include_directories(t3htm PRIVATE
 			${GUIT3_APP_DIR}

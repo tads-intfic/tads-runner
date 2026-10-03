@@ -22,18 +22,15 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Default build type: Debug" FORCE)
 endif()
 
-# guitads is the newer, guit3-only sibling (GPLv3-clean htmltads/ core
-# sourced via QTads - see guitads/README.md); htmltads is the old, full repo
-# (htmlt3/htmltdb3/tadsweb plus guit3). Either or both may be present. When
-# both are, both are added - guitads first, so it owns guit3 and the shared
-# 3rdparty libraries, and htmltads skips every target that already exists
-# (see htmltads/CMakeLists.txt) and only adds its own legacy targets on top.
-# The two repos lay out the HTML TADS core sources and the guit3 app sources
-# differently (guitads/htmltads + guitads/guit3 siblings, vs.
-# htmltads/htmltads with guit3 nested under htmltads/htmltads/imgui) -
-# HTMLTADS_CORE_DIR/GUIT3_APP_DIR abstract over that for tads3/CMakeLists.txt,
-# and follow whichever repo builds guit3 (guitads if present). The t3htm libs
-# built from them serve both repos' executables.
+# guitads is the guit3 sibling (GPLv3-clean htmltads/ core sourced via
+# QTads - see guitads/README.md); htmltads is the old repo with the legacy
+# htmlt3/htmltdb3/tadsweb targets only (Windows/Emscripten). Either or both
+# may be present. When both are, both are added - guitads first, so it owns
+# guit3 and the shared 3rdparty libraries, and htmltads skips every target
+# that already exists (see htmltads/CMakeLists.txt) and only adds its own
+# legacy targets on top. HTMLTADS_CORE_DIR/GUIT3_APP_DIR tell
+# tads3/CMakeLists.txt where the HTML TADS core and guit3 app sources live;
+# the t3htm libs built from them serve both repos' executables.
 set(GUITADS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../guitads)
 set(HTMLTADS_REPO_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../htmltads)
 set(WITH_GUITADS OFF)
@@ -51,10 +48,14 @@ if (WITH_GUITADS)
 	set(WITH_HTMLTADS ON)
 	set(HTMLTADS_CORE_DIR ${GUITADS_DIR}/htmltads)
 	set(GUIT3_APP_DIR ${GUITADS_DIR}/guit3)
-elseif (WITH_HTMLTADS_REPO)
+elseif (WITH_HTMLTADS_REPO AND (WIN32 OR EMSCRIPTEN))
+	# htmltads alone has no guit3, and its legacy targets only build on
+	# Windows/Emscripten, so there is nothing to build from it elsewhere.
 	set(WITH_HTMLTADS ON)
 	set(HTMLTADS_CORE_DIR ${HTMLTADS_REPO_DIR}/htmltads)
-	set(GUIT3_APP_DIR ${HTMLTADS_REPO_DIR}/htmltads/imgui)
+elseif (WITH_HTMLTADS_REPO)
+	message(STATUS "htmltads without guitads has nothing to build on this platform")
+	set(WITH_HTMLTADS_REPO OFF)
 else()
 	message(STATUS "no htmltads/guitads directory in ${CMAKE_CURRENT_SOURCE_DIR}/..")
 endif()
@@ -137,7 +138,7 @@ if (NOT CPACK_SYSTEM_NAME)
 	endif()
 endif()
 
-if (WITH_HTMLTADS)
+if (WITH_GUITADS)
 	list(APPEND CPACK_COMPONENTS_ALL GuiT3)
 	# GuiT3's zip is named after itself rather than the HtmlTads64 project name.
 	set(CPACK_ARCHIVE_GUIT3_FILE_NAME "GuiT3-${PROJECT_VERSION}-${CPACK_SYSTEM_NAME}")
