@@ -1100,7 +1100,7 @@ static inline void int_neg(VMG_ vm_val_t *aval)
 # define true_for_cond(v) \
     ((v)->typ == VM_TRUE \
      || (v)->typ == VM_ENUM \
-     || ((v)->typ == VM_INT && !(v)->val.intval == 0))
+     || ((v)->typ == VM_INT && (v)->val.intval != 0))
 # define is_valid_for_jst(v) \
     ((v)->typ == VM_NIL || (v)->typ == VM_INT)
 #else
@@ -1122,15 +1122,7 @@ static inline void int_neg(VMG_ vm_val_t *aval)
  */
 void CVmRun::run(VMG_ const uchar *start_pc)
 {
-    /* 
-     *   If you're concerned about a compiler warning on the following
-     *   'register' declaration, refer to the footnote at the bottom of this
-     *   file (search for [REGISTER_P_FOOTNOTE]).  Executive summary: you can
-     *   safely ignore the warning, and I'm keeping the code as it is because
-     *   it causes better optimization on some platforms, and is harmless
-     *   when it doesn't help with optimization.  
-     */
-    register const uchar *p = start_pc;
+    const uchar *p = start_pc;
     vmrun_prop_eval propev;
     vm_val_t *valp;
     vm_val_t *valp2;
