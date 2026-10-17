@@ -121,11 +121,18 @@ set(CPACK_GENERATOR ZIP)
 # Package the classic runner/compiler/workbench tools and the guit3
 # interpreter as two separate zips instead of one combined archive.
 set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
-set(CPACK_COMPONENTS_ALL Classic)
+# A guitads-only build has no HTML TADS interpreters (those come from the
+# htmltads repo), so skip the HtmlTads64 "Classic" zip there and package
+# only GuiT3. ninja install still installs the Classic files.
+if (WITH_GUITADS AND NOT WITH_HTMLTADS_REPO)
+	set(CPACK_COMPONENTS_ALL)
+else()
+	set(CPACK_COMPONENTS_ALL Classic)
+endif()
 
 # CPACK_SYSTEM_NAME is normally only defaulted inside the CPack module
 # itself (during include(CPack) below), so compute it the same way here
-# to be able to reference it in CPACK_ARCHIVE_GUIT3_FILE_NAME already.
+# to be able to reference it in the CPACK_ARCHIVE_*_FILE_NAME names below.
 if (NOT CPACK_SYSTEM_NAME)
 	if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		if (CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -138,10 +145,14 @@ if (NOT CPACK_SYSTEM_NAME)
 	endif()
 endif()
 
+# Name the Classic zip after the project alone, without the "-Classic"
+# suffix CPack appends per component by default.
+set(CPACK_ARCHIVE_CLASSIC_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-${CPACK_SYSTEM_NAME}")
+
 if (WITH_GUITADS)
 	list(APPEND CPACK_COMPONENTS_ALL GuiT3)
 	# GuiT3's zip is named after itself rather than the HtmlTads64 project name.
-	set(CPACK_ARCHIVE_GUIT3_FILE_NAME "GuiT3-${PROJECT_VERSION}-${CPACK_SYSTEM_NAME}")
+	set(CPACK_ARCHIVE_GUIT3_FILE_NAME "GuiTads-${PROJECT_VERSION}-${CPACK_SYSTEM_NAME}")
 endif()
 
 include(CPack)

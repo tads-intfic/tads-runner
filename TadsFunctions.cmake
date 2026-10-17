@@ -39,16 +39,42 @@ function(make_trx output input)
 	add_custom_target(${output} ALL DEPENDS ${trx_target})
 endfunction()
 
+# em_package(<output> <source@virtual/path>... [COMPONENT <component>])
+# COMPONENT names the install component the generated .data/.js pair belongs
+# to (e.g. so CPack puts it into that component's archive); without it they
+# land in CMake's default "Unspecified" component.
 function(em_package output)
+	cmake_parse_arguments(EMP "" "COMPONENT" "" ${ARGN})
+	set(em_package_files ${EMP_UNPARSED_ARGUMENTS})
+
+	# Make the package depend on its inputs ("source@virtual/path" arguments;
+	# directories are globbed recursively) so it is repackaged when they
+	# change, not just when the .data file is missing.
+	set(em_package_deps)
+	foreach(arg ${em_package_files})
+		string(REGEX REPLACE "@.*$" "" src "${arg}")
+		if (IS_DIRECTORY "${src}")
+			file(GLOB_RECURSE dir_files CONFIGURE_DEPENDS "${src}/*")
+			list(APPEND em_package_deps ${dir_files})
+		else()
+			list(APPEND em_package_deps "${src}")
+		endif()
+	endforeach()
 	add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${output}.data
-		COMMAND ${EMSCRIPTEN_ROOT_PATH}/tools/file_packager${EMCC_SUFFIX} ${output}.data --quiet --preload ${ARGN} --js-output=${output}.js
+		COMMAND ${EMSCRIPTEN_ROOT_PATH}/tools/file_packager${EMCC_SUFFIX} ${output}.data --quiet --preload ${em_package_files} --js-output=${output}.js
+		DEPENDS ${em_package_deps}
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 	)
 	add_custom_target(build_${output}.data ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${output}.data)
+	set(em_package_component)
+	if (EMP_COMPONENT)
+		set(em_package_component COMPONENT ${EMP_COMPONENT})
+	endif()
 	install(FILES
 		${CMAKE_CURRENT_BINARY_DIR}/${output}.data
 		${CMAKE_CURRENT_BINARY_DIR}/${output}.js
 		DESTINATION .
+		${em_package_component}
 	)
 endfunction()
 
