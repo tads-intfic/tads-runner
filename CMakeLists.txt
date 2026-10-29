@@ -7,12 +7,13 @@ set(CMAKE_C_STANDARD 11)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/.")
 include(TadsFunctions)
 
-# The vendored libpng under ../guitads or ../htmltads enables the ASM language
+# The vendored libpng under ../htmltads enables the ASM language
 # unconditionally in its project() call.  On Windows the only candidate assembler
 # is MSVC cl, and
 # CMake >= 4.1 emits a CMP0194 developer warning about that.  libpng leaves the
 # policy unset, so hook its project() and set the policy in its own scope - see
-# cmake/libpng-policy-fixup.cmake for the details.
+# cmake/libpng-policy-fixup.cmake for the details. (guitads gets its libpng
+# from Captain's Game Engine, which does the same for its own copy.)
 set(CMAKE_PROJECT_libpng_INCLUDE_BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/libpng-policy-fixup.cmake")
 
 # Group targets into solution folders in IDEs like Visual Studio.
@@ -26,9 +27,10 @@ endif()
 # QTads - see guitads/README.md); htmltads is the old repo with the legacy
 # htmlt3/htmltdb3/tadsweb targets only (Windows/Emscripten). Either or both
 # may be present. When both are, both are added - guitads first, so it owns
-# guit3 and the shared 3rdparty libraries, and htmltads skips every target
-# that already exists (see htmltads/CMakeLists.txt) and only adds its own
-# legacy targets on top. HTMLTADS_CORE_DIR/GUIT3_APP_DIR tell
+# guit3 and the shared 3rdparty libraries (which it takes from Captain's Game
+# Engine, a third sibling checkout ../captainsengine), and htmltads skips
+# every target that already exists (see htmltads/CMakeLists.txt) and only
+# adds its own legacy targets on top. HTMLTADS_CORE_DIR/GUIT3_APP_DIR tell
 # tads3/CMakeLists.txt where the HTML TADS core and guit3 app sources live;
 # the t3htm libs built from them serve both repos' executables.
 set(GUITADS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../guitads)
