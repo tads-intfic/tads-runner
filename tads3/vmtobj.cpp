@@ -329,11 +329,11 @@ void CVmObjTads::class_init(VMG0_)
  */
 void CVmObjTads::class_term(VMG0_)
 {
-    /* delete the inheritance analysis object */
-    VM_IF_ALLOC_PRE_GLOBAL(
+    /* delete the inheritance analysis object, or empty the static one */
+    VM_IFELSE_ALLOC_PRE_GLOBAL(
         delete G_tadsobj_queue;
-        G_tadsobj_queue = 0;
-    )
+        G_tadsobj_queue = 0,
+        G_tadsobj_queue->terminate());
 }
 
 /* ------------------------------------------------------------------------ */

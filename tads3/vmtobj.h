@@ -850,6 +850,18 @@ public:
 
     ~CVmObjTadsInhQueue()
     {
+        terminate();
+    }
+
+    /*
+     *   Delete all of the allocated pages and start over empty.  When the
+     *   VM's globals are static, this object outlives each VM session, and
+     *   the host can free all of the session's memory afterwards (HTML
+     *   TADS' oss_win_free_all()), so the pages must not be kept until the
+     *   destructor runs.
+     */
+    void terminate()
+    {
         pfq_page *cur;
         pfq_page *nxt;
 
@@ -862,6 +874,9 @@ public:
             /* free this page */
             t3free(cur);
         }
+
+        /* the queue and the free list were in those pages */
+        init();
     }
 
     /* get the head of the queue */
