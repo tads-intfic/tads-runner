@@ -3562,11 +3562,25 @@ void os_get_path_name(char *pathbuf, size_t pathbuflen, const char *fname)
  *   mapping; this should be safe for any ASCII terminal, although it won't
  *   allow us to display accented characters that the user's terminal might
  *   actually be capable of displaying if we just knew the actual character
- *   set it was using.  
+ *   set it was using.
+ *
+ *   The HTML interpreters (USE_HTML: guit3, and htmlt3 on the web) have no
+ *   terminal.  They exchange the displayed text, the typed commands and the
+ *   clipboard with the VM in Windows code page 1252, as they do on Windows
+ *   (where this is the ANSI code page); characters outside it travel as
+ *   HTML entities.  File names, the command line and text files are UTF-8,
+ *   the encoding of the Linux and the web file systems.
  */
 void os_get_charmap(char *mapname, int charmap_id)
 {
+#ifdef USE_HTML
+    if (charmap_id == OS_CHARMAP_DISPLAY)
+        strcpy(mapname, "cp1252");
+    else
+        strcpy(mapname, "utf-8");
+#else
     strcpy(mapname, "asc7dflt");
+#endif
 }
 
 /*
