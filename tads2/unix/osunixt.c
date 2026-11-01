@@ -2957,7 +2957,7 @@ char *os_get_root_name(const char *buf)
     p += strlen(buf) - 1;
     while (*p != '/' && p > buf)
     p--;
-    if (p != buf) p++;
+    if (*p == '/') p++;
 
     return (char *)p;
 }
