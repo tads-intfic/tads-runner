@@ -285,8 +285,9 @@ function utilInit()
         s = s.map(function(ele) {
             return ele.desc.htmlify(); }).join("<br>");
 
-        // log the error
-        logError("An error occurred in the " + selfNoun
+        // log the error (logError() lives in the top window's main.js;
+        // a child frame doesn't define it)
+        $win().logError("An error occurred in the " + selfNoun
                  + "'s user interface programming. This is probably a "
                  + "bug that should be reported to the "
                  + selfNoun + "'s author."
