@@ -62,7 +62,9 @@ else()
 	message(STATUS "no htmltads/guitads directory in ${CMAKE_CURRENT_SOURCE_DIR}/..")
 endif()
 
-if (EMSCRIPTEN)
+# The bundled libcurl (static, HTTP only, no TLS - see curl/CMakeLists.txt)
+# for TADS's network module where the system has none to find
+if (EMSCRIPTEN OR ANDROID)
 	add_subdirectory(curl)
 	set(CURL_FOUND TRUE CACHE BOOL "CURL_FOUND" FORCE)
 endif()
