@@ -114,9 +114,9 @@ typedef unsigned char uchar;
  * define LINUX_386 - so provide them directly here rather than relying on
  * the LINUX_386-gated "the system already has these" assumption below,
  * which never fires for e.g. guit3's own translation units (they define
- * UNIX but not LINUX_386).
+ * UNIX but not LINUX_386).  Android's bionic has only uint.
  */
-#if defined(__EMSCRIPTEN__)
+#if defined(__EMSCRIPTEN__) || defined(__ANDROID__)
 typedef unsigned short ushort;
 typedef unsigned int   uint;
 typedef unsigned long  ulong;
@@ -199,9 +199,10 @@ FILE* our_fopen(char *filename, char *flags);
  * redefining the bare identifiers here leaks into libc++ system headers
  * pulled in later by C++ translation units (e.g. <locale> calling
  * std::memmove internally, which the preprocessor rewrites into the
- * nonexistent std::our_memcpy) - so skip the override there.
+ * nonexistent std::our_memcpy) - so skip the override there.  The same
+ * goes for Android, whose C++ library is libc++ as well.
  */
-#if !defined(__EMSCRIPTEN__)
+#if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
 void *our_memcpy(void *dst, const void *src, size_t size);
 #define memcpy our_memcpy
 #define memmove our_memcpy
