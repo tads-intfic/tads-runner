@@ -2849,7 +2849,12 @@ int os_excall(int (*extfn)(void *), void *arg)
 void
 os_get_tmp_path(char *s)
 {
-    strcpy(s, "/tmp");
+    /* $TMPDIR if it's set (Android has no /tmp: guit3 sets it there) */
+    const char *dir = getenv("TMPDIR");
+    if (dir != 0 && dir[0] != '\0' && strlen(dir) < OSFNMAX)
+        strcpy(s, dir);
+    else
+        strcpy(s, "/tmp");
 }
 
 /* os_defext(fn, ext) should append the default extension ext to the filename

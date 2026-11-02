@@ -209,26 +209,45 @@ void oss_set_webui_launch_hook(os_webui_launch_hook_t hook)
     S_webui_launch_hook = hook;
 }
 
-#ifdef __EMSCRIPTEN__
+/*
+ *   the host's hook for network waits on its UI thread, and that thread -
+ *   see oss_set_net_wait_hook() in osifcnet.h, and OS_Event::evt_wait()
+ */
+void (*osu_wait_hook)(void) = 0;
+pthread_t osu_wait_hook_thread;
+
+void oss_set_net_wait_hook(os_net_wait_hook_t hook)
+{
+    osu_wait_hook_thread = pthread_self();
+    osu_wait_hook = hook;
+}
+
+#if defined(__EMSCRIPTEN__) || defined(__ANDROID__)
 /*
  *   The network message queue of the game whose Web UI we connected, kept so
  *   that osnet_webui_closed() can tell it when the user closes the UI.  On
  *   Windows the equivalent is the tadsweb.exe comm thread's own reference
  *   to G_net_queue (win32/osnet-connect.cpp); under Emscripten the "UI
  *   window" is guit3.html's overlay frame, and closing it is a JS event
- *   with no VM globals at hand, hence this static.  We hold a reference, so
+ *   with no VM globals at hand, hence this static (on Android it's guit3's
+ *   Web UI view, closed on the activity's thread).  We hold a reference, so
  *   a close arriving after the game has already ended just posts into a
  *   queue nobody reads any more, which is harmless.
  */
 static TadsMessageQueue *S_webui_queue = 0;
 
 /*
- *   Called from JS (guit3.html) when the user closes the Web UI: posts a
+ *   Called from JS (guit3.html), or on Android from guit3 (its Web UI view),
+ *   when the user closes the Web UI: posts a
  *   TadsUICloseEvent, exactly as a closed tadsweb.exe window does on
  *   Windows.  lib/webui.t treats that as the end of input and quits.  See
  *   webui-emscripten-plan.md (htmltads repo), step 6.
  */
+#ifdef __EMSCRIPTEN__
 extern "C" EMSCRIPTEN_KEEPALIVE void osnet_webui_closed()
+#else
+extern "C" void osnet_webui_closed()
+#endif
 {
     if (S_webui_queue != 0)
         S_webui_queue->post(new TadsUICloseEvent(0));
@@ -262,7 +281,7 @@ int osnet_connect_webui(VMG_ const char *addr, int port, const char *path,
     const char *hostname = (G_net_config != 0
                             ? G_net_config->get("hostname") : 0);
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || defined(__ANDROID__)
     /* remember the queue for osnet_webui_closed() */
     if (G_net_queue != S_webui_queue)
     {

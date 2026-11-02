@@ -49,6 +49,16 @@ Modified
 /* infinite timeout value */
 #define OS_FOREVER  ((ulong)-1)
 
+/*
+ *   The host's hook for network waits on its UI thread, and that thread
+ *   (oss_set_net_wait_hook(), osifcnet.h): OS_Event::evt_wait() polls every
+ *   OSU_HOOK_POLL_MS milliseconds on that thread and calls the hook between
+ *   the polls.
+ */
+#define OSU_HOOK_POLL_MS 10
+extern void (*osu_wait_hook)(void);
+extern pthread_t osu_wait_hook_thread;
+
 #ifdef __EMSCRIPTEN__
 /*
  *   Poll interval (in milliseconds) for OS_Event::evt_wait()'s Emscripten
@@ -540,6 +550,45 @@ private:
     }
 #endif
 
+    /* is this the thread of the host's wait hook (osu_wait_hook)? */
+    static int hook_applies()
+    {
+        return osu_wait_hook != 0
+            && pthread_equal(pthread_self(), osu_wait_hook_thread);
+    }
+
+    /*
+     *   On the thread of the host's wait hook: wait OSU_HOOK_POLL_MS at most
+     *   (or until 'tm', if that comes first), and call the hook if the event
+     *   is still unsignaled then.  As in emsu_poll_wait(), the mutex isn't
+     *   held while the hook runs, and the callers check the counter again.
+     *   Returns ETIMEDOUT once 'tm' (if not null) has passed, 0 otherwise.
+     */
+    int hook_poll_wait(const struct timespec *tm)
+    {
+        struct timespec slice;
+        figure_timeout(&slice, OSU_HOOK_POLL_MS);
+        int last = (tm != 0
+                    && (tm->tv_sec < slice.tv_sec
+                        || (tm->tv_sec == slice.tv_sec
+                            && tm->tv_nsec <= slice.tv_nsec)));
+        if (last)
+            slice = *tm;
+        int rc = pthread_cond_timedwait(&cond, &mutex, &slice);
+        if (cnt > 0)
+            return 0;
+        if (last && rc == ETIMEDOUT)
+        {
+            /* as in emsu_poll_timedwait() */
+            errno = 0;
+            return ETIMEDOUT;
+        }
+        pthread_mutex_unlock(&mutex);
+        (*osu_wait_hook)();
+        pthread_mutex_lock(&mutex);
+        return 0;
+    }
+
     /*
      *   Wait for the event.  If the event is already in the signaled state,
      *   this returns immediately.  Otherwise, this blocks until another
@@ -566,6 +615,13 @@ private:
                 continue;
             }
 #endif
+            /* on the host's UI thread, let it run between polls */
+            if (hook_applies())
+            {
+                hook_poll_wait(0);
+                continue;
+            }
+
             /* wait for the condition */
             if (pthread_cond_wait(&cond, &mutex) && errno != EINTR)
                 break;
@@ -636,6 +692,14 @@ private:
                 continue;
             }
 #endif
+            /* on the host's UI thread, let it run between polls */
+            if (hook_applies())
+            {
+                if ((rc = hook_poll_wait(tm)) != 0)
+                    break;
+                continue;
+            }
+
             /* wait for it */
             if ((rc = pthread_cond_timedwait(&cond, &mutex, tm)) != 0
                 && errno != EINTR)
