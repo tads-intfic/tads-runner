@@ -1108,6 +1108,28 @@ typedef int (*os_webui_launch_hook_t)(const char *addr, int port,
                                       const char *path, char **errmsg);
 void oss_set_webui_launch_hook(os_webui_launch_hook_t hook);
 
+#if defined(__EMSCRIPTEN__) || defined(__ANDROID__)
+/*
+ *   The host calls this when the user closes the UI it opened for the game
+ *   (the launch hook's): it posts a TadsUICloseEvent to the game's network
+ *   queue, as a closed tadsweb.exe window does on Windows.  Any thread.
+ */
+extern "C" void osnet_webui_closed();
+#endif
+
+/*
+ *   Optional hook for a host whose UI thread runs the VM (guit3): while a
+ *   network wait blocks on the thread that set the hook (an OS_Event's wait,
+ *   which OS_Waitable::multi_wait() uses too), the wait wakes up every few
+ *   milliseconds and calls the hook, which can process the UI's events.  On
+ *   Android that's needed: the activity's thread waits for the native
+ *   thread's answer to a pause, and the system ends an app that doesn't
+ *   answer within seconds.  Null removes the hook.  Only implemented on
+ *   Unix (unix/osnetunix.cpp).
+ */
+typedef void (*os_net_wait_hook_t)(void);
+void oss_set_net_wait_hook(os_net_wait_hook_t hook);
+
 /*
  *   Disconnect from the Web UI.  This is used at program termination to
  *   notify the Web UI that the server program is no longer running, to allow
