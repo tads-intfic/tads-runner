@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(HtmlTads64 VERSION 1.0.0)
+project(HtmlTads64 VERSION 1.1.0)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_STANDARD 11)
@@ -150,13 +150,21 @@ if (NOT CPACK_SYSTEM_NAME)
 endif()
 
 # Name the Classic zip after the project alone, without the "-Classic"
-# suffix CPack appends per component by default.
-set(CPACK_ARCHIVE_CLASSIC_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-${CPACK_SYSTEM_NAME}")
+# suffix CPack appends per component by default. The zips carry the version
+# of the repo that is released with them, which that repo sets itself
+# (HTMLTADS_VERSION/GUITADS_VERSION in its CMakeLists.txt, read after its
+# add_subdirectory() above); only a tads-runner-only Classic zip uses this
+# project's own version.
+if (WITH_HTMLTADS_REPO)
+	set(CPACK_ARCHIVE_CLASSIC_FILE_NAME "${PROJECT_NAME}-${HTMLTADS_VERSION}-${CPACK_SYSTEM_NAME}")
+else()
+	set(CPACK_ARCHIVE_CLASSIC_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-${CPACK_SYSTEM_NAME}")
+endif()
 
 if (WITH_GUITADS)
 	list(APPEND CPACK_COMPONENTS_ALL GuiT3)
 	# GuiT3's zip is named after itself rather than the HtmlTads64 project name.
-	set(CPACK_ARCHIVE_GUIT3_FILE_NAME "GuiTads-${PROJECT_VERSION}-${CPACK_SYSTEM_NAME}")
+	set(CPACK_ARCHIVE_GUIT3_FILE_NAME "GuiTads-${GUITADS_VERSION}-${CPACK_SYSTEM_NAME}")
 endif()
 
 include(CPack)
