@@ -619,6 +619,7 @@ public:
         { return CVmObjCollection::metaclass_reg_; }
 };
 
+#else /* workaround for vs2022 include guard bug */
 #endif /* VMVEC_H */
 
 /*

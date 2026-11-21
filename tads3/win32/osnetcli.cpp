@@ -35,7 +35,7 @@ int OS_HttpClient::request(int opts,
                            const char *host, unsigned short portno,
                            const char *verb, const char *resource,
                            const char *send_headers, size_t send_headers_len,
-                           OS_HttpPayload *payload, CVmStream *reply,
+                           OS_HttpPayload *payload, CVmDataSource *reply,
                            char **reply_headers, char **location,
                            const char *ua)
 {
@@ -211,7 +211,7 @@ int OS_HttpClient::request(int opts,
                             ? "8bit" : "binary");
 
                         /* add the stream length */
-                        putlen += item->stream->get_len();
+                        putlen += ((CVmStream*)item->stream)->get_len();
                     }
                     else
                     {
@@ -273,8 +273,8 @@ int OS_HttpClient::request(int opts,
                         err_try
                         {
                             /* copy the entire stream into the buffer */
-                            size_t l = item->stream->get_len();
-                            item->stream->read_bytes(p, l);
+                            size_t l = ((CVmStream*)item->stream)->get_len();
+                            ((CVmStream*)item->stream)->read_bytes(p, l);
 
                             /* skip past it */
                             p += l;
@@ -346,10 +346,10 @@ int OS_HttpClient::request(int opts,
             gen_headers = t3sprintf_alloc(
                 "Content-type: %s\r\n"
                 "Content-length: %lu\r\n",
-                f->mime_type, f->stream->get_len());
+                f->mime_type, ((CVmStream*)f->stream)->get_len());
 
             /* allocate the put buffer */
-            putlen = f->stream->get_len();
+            putlen = ((CVmStream*)f->stream)->get_len();
             putdata = (char *)t3malloc(putlen);
             if (putdata == 0)
             {
@@ -360,7 +360,7 @@ int OS_HttpClient::request(int opts,
             /* read the stream into the buffer */
             err_try
             {
-                f->stream->read_bytes(putdata, putlen);
+                ((CVmStream*)f->stream)->read_bytes(putdata, putlen);
             }
             err_catch(exc)
             {
@@ -506,7 +506,7 @@ int OS_HttpClient::request(int opts,
             
             /* store the current chunk in the output stream, if we have one */
             if (reply != 0)
-                reply->write_bytes(buf, (size_t)bytes_read);
+                ((CVmStream*)reply)->write_bytes(buf, (size_t)bytes_read);
             
             /* deduct the amount read from the remaining amount, if known */
             if (!varclen)

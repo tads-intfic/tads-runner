@@ -991,6 +991,14 @@ public:
      */
     void *operator new(size_t siz, VMG_ vm_obj_id_t obj_id);
 
+    /*
+     *   Matching placement delete.  The compiler invokes this only if the
+     *   constructor throws after the placement 'new' above; its parameter list
+     *   must mirror the placement 'new' (minus the leading size_t) or MSVC
+     *   emits warning C4291 at every 'new (vmg_ id) CVmObjXxx(...)' call site.
+     */
+    void operator delete(void* ptr, VMG_ vm_obj_id_t obj_id);
+
 protected:
     /*
      *   Find a modifier property.  This is an internal service routine that
@@ -3040,6 +3048,7 @@ inline CVmObject *vm_objp(VMG_ vm_obj_id_t id)
 #define vm_classobj_for(cls) \
     vm_objid_cast(CVmObjClass, cls::metaclass_reg_->get_class_obj(vmg0_))
 
+#else /* workaround for vs2022 include guard bug */
 #endif /* VMOBJ_H */
 
 /*

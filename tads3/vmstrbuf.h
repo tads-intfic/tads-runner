@@ -419,6 +419,7 @@ public:
     }
 };
 
+#else /* workaround for vs2022 include guard bug */
 #endif /* VMSTRBUF_H */
 
 /*

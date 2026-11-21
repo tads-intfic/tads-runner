@@ -496,6 +496,7 @@ public:
     }
 };
 
+#else /* workaround for vs2022 include guard bug */
 #endif /* VMFREF_H */
 
 /*

@@ -739,8 +739,8 @@ void TadsListenerThread::list_threads(NetString *buf)
     {
         /* report on this thread */
         StringRef *state = cur->get_state();
-        buf->appendf("Thread ID=%d (thread object=%lx): %s<br>",
-                     cur->thread_id, (unsigned long)cur, state->get());
+        buf->appendf("Thread ID=%d (thread object=%p): %s<br>",
+                     cur->thread_id, (void *)cur, state->get());
 
         /* done with the state string */
         state->release_ref();

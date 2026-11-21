@@ -32,6 +32,7 @@ Modified
 #include "vmglob.h"
 #include "vmstrref.h"
 
+class CVmDataSource;
 
 /* ------------------------------------------------------------------------ */
 /*

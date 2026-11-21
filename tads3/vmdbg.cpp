@@ -890,7 +890,7 @@ void CVmDebug::build_stack_listing(VMG_
 
                     /* build the object.property name */
                     if (ic_sym != 0)
-                        sprintf(buf, "%.255s [", ic_sym);
+                        sprintf(buf, "%.253s [", ic_sym);
                     else if (me != 0)
                         sprintf(buf, "IntrinsicClass#%lx [",
                                 (unsigned long)me->class_obj_);
@@ -919,7 +919,7 @@ void CVmDebug::build_stack_listing(VMG_
                     if (rem > 15)
                     {
                         if (prop_sym != 0)
-                            sprintf(p, "%.*s", rem - 1, prop_sym);
+                            sprintf(p, "%.*s", (int)(rem - 1), prop_sym);
                         else if (me != 0)
                             sprintf(p, "prop#%x",
                                     (int)me->xlat_func(rc->method_idx));
@@ -1000,8 +1000,13 @@ void CVmDebug::build_stack_listing(VMG_
             else if (prop_id != VM_INVALID_PROP
                      && (prop_sym = propid_to_sym(prop_id)) != 0)
             {
-                /* we got the property symbol - add it */
-                sprintf(p, ".%.255s", prop_sym);
+                /*
+                 *   we got the property symbol - add it, clamping the
+                 *   precision to what's actually left in buf (p may already
+                 *   be well into the buffer from the object name above)
+                 */
+                size_t rem = sizeof(buf) - (p - buf);
+                sprintf(p, ".%.*s", (int)(rem > 2 ? rem - 2 : 0), prop_sym);
             }
             else
             {
@@ -1018,7 +1023,7 @@ void CVmDebug::build_stack_listing(VMG_
             if ((func_sym = funchdr_to_sym(vmg_ entry, fbuf)) != 0)
                 sprintf(buf, "%.255s", func_sym);
             else
-                sprintf(buf, "bytecode#%08lx", (unsigned long)entry);
+                sprintf(buf, "bytecode#%p", (const void *)entry);
         }
 
         /* get the remainder of the buffer */
@@ -1930,7 +1935,7 @@ size_t CVmDebug::format_val(VMG_ char *dst, size_t dstlen, const vm_val_t *val)
         if (p != 0)
         {
             /* we have a symbol - use it with an ampersand operator */
-            sprintf(buf, "&%.127s", p);
+            sprintf(buf, "&%.126s", p);
         }
         else
         {
@@ -1960,7 +1965,7 @@ size_t CVmDebug::format_val(VMG_ char *dst, size_t dstlen, const vm_val_t *val)
         if (p != 0)
         {
             /* we have a symbol - use it with an ampersand operator */
-            sprintf(buf, "&%.127s", p);
+            sprintf(buf, "&%.126s", p);
             p = buf;
         }
         else

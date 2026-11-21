@@ -67,7 +67,7 @@ void oss_set_open_file_dir(const char *dir)
 /* 
  *   dialog hook for standard file dialog - centers it on the screen 
  */
-static UINT APIENTRY filedlg_hook(HWND dlg, UINT msg,
+static UINT_PTR APIENTRY filedlg_hook(HWND dlg, UINT msg,
                                   WPARAM wpar, LPARAM lpar)
 {
     /* if this is the post-initialization message, center the dialog */
@@ -539,7 +539,7 @@ void os_set_save_ext(const char *ext)
             if (*p == '.')
                 lastdot = p;
         }
-        sprintf(val, "\"%.*s\" Saved Game", lastdot - rootname, rootname);
+        sprintf(val, "\"%.*s\" Saved Game", (int)(lastdot - rootname), rootname);
         set_reg_key(classname, "", val);
 
         /*
@@ -962,25 +962,25 @@ int os_input_dialog(int icon_id, const char *prompt, int standard_button_set,
          *   we're now pointing to the first item template slot - align it
          *   on a DWORD boundary 
          */
-        itm = (DLGITEMTEMPLATE *)((((unsigned long)(p)) + 3) & ~3);
+        itm = (DLGITEMTEMPLATE *)((((ULONG_PTR)(p)) + 3) & ~(ULONG_PTR)3);
 
         /* adjust to a system icon ID */
         switch(icon_id)
         {
         case OS_INDLG_ICON_WARNING:
-            icon_id = (int)IDI_EXCLAMATION;
+            icon_id = (int)(ULONG_PTR)IDI_EXCLAMATION;
             break;
 
         case OS_INDLG_ICON_INFO:
-            icon_id = (int)IDI_ASTERISK;
+            icon_id = (int)(ULONG_PTR)IDI_ASTERISK;
             break;
 
         case OS_INDLG_ICON_QUESTION:
-            icon_id = (int)IDI_QUESTION;
+            icon_id = (int)(ULONG_PTR)IDI_QUESTION;
             break;
 
         case OS_INDLG_ICON_ERROR:
-            icon_id = (int)IDI_HAND;
+            icon_id = (int)(ULONG_PTR)IDI_HAND;
             break;
 
         default:
@@ -1014,7 +1014,7 @@ int os_input_dialog(int icon_id, const char *prompt, int standard_button_set,
             *p++ = 0;
 
             /* get the next item */
-            itm = (DLGITEMTEMPLATE *)((((unsigned long)(p)) + 3) & ~3);
+            itm = (DLGITEMTEMPLATE *)((((ULONG_PTR)(p)) + 3) & ~(ULONG_PTR)3);
         }
 
         /* add the text string */
@@ -1079,7 +1079,7 @@ int os_input_dialog(int icon_id, const char *prompt, int standard_button_set,
             tpl.hdr.cx = btn_total_wid + 8;
 
         /* get the next item */
-        itm = (DLGITEMTEMPLATE *)((((unsigned long)(p)) + 3) & ~3);
+        itm = (DLGITEMTEMPLATE *)((((ULONG_PTR)(p)) + 3) & ~(ULONG_PTR)3);
 
         /*
          *   Figure the position of the left edge of the buttons such that we
@@ -1130,7 +1130,7 @@ int os_input_dialog(int icon_id, const char *prompt, int standard_button_set,
             *p++ = 0;
 
             /* get the next item, DWORD-aligned */
-            itm = (DLGITEMTEMPLATE *)((((unsigned long)(p)) + 3) & ~3);
+            itm = (DLGITEMTEMPLATE *)((((ULONG_PTR)(p)) + 3) & ~(ULONG_PTR)3);
         }
 
         /* 

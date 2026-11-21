@@ -720,7 +720,7 @@ long os_get_sys_clock_ms(void);
  *   have va_copy().  We also provide a definition for GCC compilers that
  *   define the private __va_copy macro, which also has the same semantics.
  */
-#ifdef va_copy
+#if defined(va_copy) && !defined(os_va_copy)
 # define os_va_copy(dst, src) va_copy(dst, src)
 # define os_va_copy_end(dst)  va_end(dst)
 #else

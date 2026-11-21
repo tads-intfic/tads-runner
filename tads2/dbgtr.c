@@ -24,6 +24,10 @@ Modified
 #include "tok.h"
 #include "dbg.h"
 
+#ifdef dbgpresent
+#undef dbgpresent
+#endif
+
 /* indicate that the debugger is not present */
 int dbgpresent()
 {
