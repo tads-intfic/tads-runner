@@ -67,9 +67,7 @@ endif()
 # ../guitads/curl/CMakeLists.txt), since guit3 needs the network module there
 # for WebUI games; use it when that checkout is present. Without it,
 # tads3/CMakeLists.txt's find_package(CURL) finds nothing on these platforms
-# and the network module defaults to off. (Earlier versions cached
-# CURL_FOUND, so drop that cache entry - find_package() never sets one.)
-unset(CURL_FOUND CACHE)
+# and the network module defaults to off.
 if ((EMSCRIPTEN OR ANDROID) AND WITH_GUITADS AND EXISTS ${GUITADS_DIR}/curl/CMakeLists.txt)
 	add_subdirectory(${GUITADS_DIR}/curl curl)
 	set(CURL_FOUND TRUE)
