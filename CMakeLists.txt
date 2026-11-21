@@ -62,11 +62,17 @@ else()
 	message(STATUS "no htmltads/guitads directory in ${CMAKE_CURRENT_SOURCE_DIR}/..")
 endif()
 
-# The bundled libcurl (static, HTTP only, no TLS - see curl/CMakeLists.txt)
-# for TADS's network module where the system has none to find
-if (EMSCRIPTEN OR ANDROID)
-	add_subdirectory(curl)
-	set(CURL_FOUND TRUE CACHE BOOL "CURL_FOUND" FORCE)
+# Emscripten and Android have no system libcurl to find for TADS's network
+# module. guitads bundles one (static, HTTP only, no TLS - see
+# ../guitads/curl/CMakeLists.txt), since guit3 needs the network module there
+# for WebUI games; use it when that checkout is present. Without it,
+# tads3/CMakeLists.txt's find_package(CURL) finds nothing on these platforms
+# and the network module defaults to off. (Earlier versions cached
+# CURL_FOUND, so drop that cache entry - find_package() never sets one.)
+unset(CURL_FOUND CACHE)
+if ((EMSCRIPTEN OR ANDROID) AND WITH_GUITADS AND EXISTS ${GUITADS_DIR}/curl/CMakeLists.txt)
+	add_subdirectory(${GUITADS_DIR}/curl curl)
+	set(CURL_FOUND TRUE)
 endif()
 
 add_subdirectory(tads2)
