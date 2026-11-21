@@ -1073,6 +1073,64 @@ int osnet_connect_webui(VMG_ const char *addr, int port, const char *path,
                         char **errmsg);
 
 /*
+ *   Optional hook to override the stand-alone configuration's default local
+ *   UI launcher with a custom implementation - used by the ImGui port
+ *   (guit3) to open the game's start page in the system's default Web
+ *   browser instead of the classic bundled "tadsweb" child-process browser
+ *   shell (win32/osnet-connect.cpp's launch_tadsweb()).
+ *
+ *   The default tadsweb.exe launcher gives up a few things a generic
+ *   browser tab can't provide: an instant notification when the UI window
+ *   closes (osnet_connect_webui()'s caller instead has to fall back to the
+ *   Web UI library's own idle-session timeout to notice the browser is
+ *   gone - see SessionTimeout in lib/webui.t), the ability to navigate an
+ *   already-open window to a new URL on a repeat connect call rather than
+ *   opening a new one, and the proxied native Save/Open file dialog
+ *   (osnet_askfile()). Standard Web UI games built on lib/webui.t's
+ *   getInputFile() never rely on that last one, since it already falls
+ *   back to a plain browser upload/download dialog whenever there's no
+ *   native dialog available (e.g., in client/server mode, or on platforms
+ *   that never implemented osnet_askfile() at all).
+ *
+ *   If a hook is registered, osnet_connect_webui() calls it in place of the
+ *   built-in tadsweb.exe launcher in the local stand-alone configuration,
+ *   passing through the same arguments and expecting the same result
+ *   protocol (return TRUE on success; on failure, return FALSE and set
+ *   *errmsg to an os_alloc()'d error message the caller will free). If no
+ *   hook is registered (the default), behavior is unchanged.
+ *
+ *   Currently only implemented on Windows (win32/osnet-connect.cpp); this
+ *   is declared here rather than in that file alone so the hook type is
+ *   available to platform-independent callers like guit3's own startup
+ *   code without an #ifdef _WIN32 around the declaration itself.
+ */
+typedef int (*os_webui_launch_hook_t)(const char *addr, int port,
+                                      const char *path, char **errmsg);
+void oss_set_webui_launch_hook(os_webui_launch_hook_t hook);
+
+#if defined(__EMSCRIPTEN__) || defined(__ANDROID__)
+/*
+ *   The host calls this when the user closes the UI it opened for the game
+ *   (the launch hook's): it posts a TadsUICloseEvent to the game's network
+ *   queue, as a closed tadsweb.exe window does on Windows.  Any thread.
+ */
+extern "C" void osnet_webui_closed();
+#endif
+
+/*
+ *   Optional hook for a host whose UI thread runs the VM (guit3): while a
+ *   network wait blocks on the thread that set the hook (an OS_Event's wait,
+ *   which OS_Waitable::multi_wait() uses too), the wait wakes up every few
+ *   milliseconds and calls the hook, which can process the UI's events.  On
+ *   Android that's needed: the activity's thread waits for the native
+ *   thread's answer to a pause, and the system ends an app that doesn't
+ *   answer within seconds.  Null removes the hook.  Only implemented on
+ *   Unix (unix/osnetunix.cpp).
+ */
+typedef void (*os_net_wait_hook_t)(void);
+void oss_set_net_wait_hook(os_net_wait_hook_t hook);
+
+/*
  *   Disconnect from the Web UI.  This is used at program termination to
  *   notify the Web UI that the server program is no longer running, to allow
  *   it to update or remove its UI, and to release system resources.

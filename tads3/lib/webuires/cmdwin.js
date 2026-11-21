@@ -307,6 +307,13 @@ function setDefaultFocusChild(desc, fromWin)
         if (sel && !changed)
             setSelRangeInEle(fld, sel);
         
+        // If the field was removed from the document since the key event
+        // (the command line is replaced when a command is entered), there's
+        // nothing left to bring into view or type into.  Leave any buffered
+        // keys for the new command line.
+        if (!fld.parentNode)
+            return;
+
         // make sure the field is fully in view
         var rcFld = getObjectRect(fld);
         var rcDiv = getObjectRect(fld.parentNode);

@@ -2096,7 +2096,7 @@ int os_askfile(const char *prompt, char *reply, int replen,
     int          old_keep_cursor_pos;
     int          rem;                         /* remaining space in namebuf */
     int          newfile;                   /* TRUE ==> creating a new file */
-    char         lbuf[80];                                   /* line buffer */
+    char        *lbuf;                      /* line buffer */
     char        *p;
     char        *curpage;                 /* pointer to file at top of page */
     char        *curfile;                        /* pointer to current file */
@@ -2146,6 +2146,8 @@ int os_askfile(const char *prompt, char *reply, int replen,
         ".t3s",                                                /* OSFTT3SYM */
         ".t3v"                                                 /* OSFTT3SAV */
     };
+
+    lbuf = malloc(G_oss_screen_width);
 
     /* do any deferred redrawing */
     osssb_redraw_if_needed();
@@ -2763,6 +2765,8 @@ done:
 
     /* we're done with the special cursor position control */
     S_keep_cursor_pos = old_keep_cursor_pos;
+
+    free(lbuf);
         
     /* return the result */
     return retval;

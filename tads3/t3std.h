@@ -736,9 +736,11 @@ char *t3vsprintf_alloc(const char *fmt, va_list args);
  *   manager, too.  
  */
 
+extern "C"{
 void *t3malloc(size_t siz, int alloc_type);
 void *t3realloc(void *oldptr, size_t siz);
 void  t3free(void *ptr, int alloc_type);
+}
 
 inline void *t3malloc(size_t siz)
     { return t3malloc(siz, T3MALLOC_TYPE_MALLOC); }

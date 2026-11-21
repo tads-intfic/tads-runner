@@ -69,6 +69,17 @@ public:
 
 static WebUICommThreadVM *comm_thread = 0;
 
+/*
+ *   optional override for the local stand-alone UI launcher - see
+ *   oss_set_webui_launch_hook() and its doc comment in osifcnet.h
+ */
+static os_webui_launch_hook_t S_webui_launch_hook = 0;
+
+void oss_set_webui_launch_hook(os_webui_launch_hook_t hook)
+{
+    S_webui_launch_hook = hook;
+}
+
 
 /* ------------------------------------------------------------------------ */
 /*
@@ -76,11 +87,18 @@ static WebUICommThreadVM *comm_thread = 0;
  *   navigate it to the given start page on our internal HTTP server.  This
  *   handles the Web UI connection when we're running in the local
  *   stand-alone configuration, where the user launches the game from the
- *   Windows desktop or command line.  
+ *   Windows desktop or command line.
  */
 static int launch_tadsweb(VMG_ const char *addr, int port, const char *path,
                           char **errmsg)
 {
+    /*
+     *   if a custom launcher hook is registered, use it instead of our
+     *   built-in tadsweb.exe child process - see osifcnet.h
+     */
+    if (S_webui_launch_hook != 0)
+        return (*S_webui_launch_hook)(addr, port, path, errmsg);
+
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
     char dir[OSFNMAX], exe[OSFNMAX];

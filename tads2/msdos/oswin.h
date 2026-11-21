@@ -141,9 +141,37 @@ int os_vasprintf(char **bufptr, const char *fmt, va_list ap);
 
 /* ------------------------------------------------------------------------ */
 /*
- *   Set the initial directory for os_askfile dialogs 
+ *   Set the initial directory for os_askfile dialogs
  */
 void oss_set_open_file_dir(const char *dir);
+
+
+/* ------------------------------------------------------------------------ */
+/*
+ *   Optional hook to override os_askfile()'s native file dialog with a
+ *   custom implementation (used by the ImGui port, guit3, to show its own
+ *   ImGui-native file browser instead of the Win32 common dialog).
+ *   os_askfile() builds the same filter string, initial directory, and
+ *   default filename it would use to call GetOpenFileName()/
+ *   GetSaveFileName() directly, then calls this hook with them instead if
+ *   one is registered:
+ *
+ *     prompt        - dialog title
+ *     filter        - Win32-style OPENFILENAME::lpstrFilter multi-string
+ *     initial_dir   - starting directory, or null/empty for the cwd
+ *     fname_buf     - in: default filename (may be empty); out: the chosen
+ *                     full path
+ *     fname_buf_len - size of fname_buf
+ *     is_save       - nonzero for a Save dialog, zero for Open
+ *
+ *   The hook must behave like GetOpenFileName() - fill in fname_buf and
+ *   return nonzero on success, zero if the user canceled.  If no hook is
+ *   registered (the default), os_askfile() behaves exactly as before.
+ */
+typedef int (*os_askfile_hook_t)(const char *prompt, const char *filter,
+                                  const char *initial_dir, char *fname_buf,
+                                  int fname_buf_len, int is_save);
+void oss_set_askfile_hook(os_askfile_hook_t hook);
 
 
 /* ------------------------------------------------------------------------ */

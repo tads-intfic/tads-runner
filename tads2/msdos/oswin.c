@@ -38,6 +38,14 @@ static char default_saved_game_ext[OSFNMAX] = "";
 /* initial directory for os_askfile dialogs */
 static char S_open_file_dir[OSFNMAX];
 
+/* optional hook to override os_askfile()'s native dialog (see oswin.h) */
+static os_askfile_hook_t S_askfile_hook = 0;
+
+void oss_set_askfile_hook(os_askfile_hook_t hook)
+{
+    S_askfile_hook = hook;
+}
+
 /* ------------------------------------------------------------------------ */
 /*
  *   Application instance handle - the WinMain procedure (defined
@@ -329,27 +337,36 @@ int os_askfile(const char *prompt, char *fname_buf, int fname_buf_len,
             fname_buf[0] = '\0';
     }
 
-    /* display the dialog */
+    /* display the dialog - defer to the custom hook if one is registered
+       (see oswin.h), otherwise show the native common dialog */
     if (prompt_type == OS_AFP_SAVE)
-    {
         info.Flags |= OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT;
-        ret = GetSaveFileName(&info);
-    }
-    else
+
+    if (S_askfile_hook != 0)
     {
-        /* ask for a file to open */
-        ret = GetOpenFileName(&info);
+        ret = (*S_askfile_hook)(prompt, filter, info.lpstrInitialDir,
+                                 fname_buf, fname_buf_len,
+                                 prompt_type == OS_AFP_SAVE);
     }
+    else if (prompt_type == OS_AFP_SAVE)
+        ret = GetSaveFileName(&info);
+    else
+        ret = GetOpenFileName(&info);
 
     /* translate the result code to an OS_AFE_xxx value */
     if (ret == 0)
     {
-        /* 
+        /*
          *   an error occurred - check to see what happened: if the extended
          *   error is zero, it means that the user simply canceled the
-         *   dialog, otherwise it means that an error occurred 
+         *   dialog, otherwise it means that an error occurred.  (The custom
+         *   hook has no native dialog to fail, so a zero result from it
+         *   always means the user canceled - CommDlgExtendedError() would
+         *   only reflect a stale result from some earlier, unrelated native
+         *   dialog call in that case.)
          */
-        ret = (CommDlgExtendedError() == 0 ? OS_AFE_CANCEL : OS_AFE_FAILURE);
+        ret = (S_askfile_hook != 0 || CommDlgExtendedError() == 0
+               ? OS_AFE_CANCEL : OS_AFE_FAILURE);
     }
     else
     {

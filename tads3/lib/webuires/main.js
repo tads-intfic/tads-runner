@@ -60,7 +60,26 @@ function mainInit()
     window.onresize = mainResize;
     window.onGameEvent = mainGameEvent;
     window.onGameState = mainGameState;
-    window.onUload = mainUnload;
+
+    // "onUload" was a longstanding typo for "onunload" - fixed, since it
+    // meant mainUnload() (debug log window cleanup) was never actually
+    // being called by any browser.
+    window.onunload = mainUnload;
+
+    // Tell the server immediately when this page (the top-level game
+    // window, not a sub-window IFRAME) is closed or navigated away from,
+    // via a best-effort beacon - see mainReportClose() and
+    // clientClosePage in lib/webui.t.  Without this, the server can only
+    // infer that we're gone once our connection goes idle, which has to
+    // allow a fairly long grace period to avoid mistaking an ordinary
+    // network hiccup for a real disconnect.
+    //
+    // 'pagehide' is used rather than 'unload' or 'beforeunload': it fires
+    // reliably across modern browsers (including on tab close, navigation,
+    // and mobile Safari, where 'unload' is unreliable), and unlike
+    // 'beforeunload' it can't be blocked by other listeners or trigger the
+    // browser's "leave site?" confirmation prompt.
+    window.addEventListener("pagehide", mainReportClose);
 
     // Cancel any pending events from past incarnations, in case we just
     // refreshed the page.  Lingering events from past loads refer to old
@@ -418,6 +437,23 @@ function mainUnload()
         debugLogWin.close();
         debugLogWin = null;
     }
+}
+
+/*
+ *   Report to the server that this page is being torn down - see the
+ *   'pagehide' listener in mainInit() above.  We use sendBeacon() rather
+ *   than an ordinary XMLHttpRequest because the page can disappear at any
+ *   moment once this fires, and sendBeacon() is specifically designed to
+ *   queue a small POST for reliable best-effort delivery even after that
+ *   happens; a normal async XHR started here could simply be aborted
+ *   before it's sent.  If sendBeacon() isn't available (a very old
+ *   browser), we just skip it - the server's own idle-timeout fallback
+ *   still applies, exactly as it did before this existed.
+ */
+function mainReportClose()
+{
+    if (navigator.sendBeacon)
+        navigator.sendBeacon("/webui/clientClose");
 }
 
 
