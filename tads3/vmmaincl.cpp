@@ -139,6 +139,7 @@ int main(int argc, char **argv)
     AFTER_OS_TERM(return stat;)
 }
 
+#ifndef USE_STDIO
 /*
  *   For command-line builds, we don't have any special UI setup that depends
  *   on the loaded intrinsics, so we can stub out this routine.  
@@ -146,3 +147,4 @@ int main(int argc, char **argv)
 void os_init_ui_after_load(class CVmBifTable *, class CVmMetaTable *)
 {
 }
+#endif

@@ -1,0 +1,63 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Tads - T3Run</title>
+
+    <style>
+        body,
+        html {
+            font-family: arial;
+            margin: 0;
+            padding: 0;
+            background-color: #282a36;
+            width: 100%;
+            height: 100%;
+        }
+
+        #content {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+        }
+
+        #terminal {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .xterm-viewport.xterm-viewport {
+            scrollbar-width: thin;
+        }
+
+        .xterm-viewport::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .xterm-viewport::-webkit-scrollbar-track {
+            opacity: 0;
+        }
+
+        .xterm-viewport::-webkit-scrollbar-thumb {
+            min-height: 20px;
+            background-color: #ffffff20;
+        }
+    </style>
+    <link rel="stylesheet" href="./xterm.css" />
+    <script src="./xterm.js"></script>
+    <script src="./xterm-addon-fit.js"></script>
+</head>
+
+<body>
+    <div id="content">
+        <div id="terminal"></div>
+    </div>
+    <script src="./logic.js"></script>
+    <script src="./t3run.js"></script>
+</body>
+
+</html>
